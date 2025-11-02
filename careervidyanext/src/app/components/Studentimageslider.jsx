@@ -37,11 +37,12 @@ export default function StudentPlacementSlider() {
         <h2 className="text-6xl font-extrabold text-blue-400">100000+</h2>
         <p className="mt-2">
           <span className="bg-blue-600 text-white px-4 py-1 rounded-md font-semibold">
-            Students ne Chuna
+            Students Placed
           </span>
         </p>
         <p className="mt-3 text-gray-300">
-          Sahi Course, Sahi University aur Career Path
+          Vidya hai to Success hai
+
         </p>
       </div>
 
