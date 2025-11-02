@@ -14,15 +14,16 @@ import ourstudentRouter from "./router/ourstudentRouter.js";
 import NewslatterRouter from "./router/NewslatterRouter.js";
 import courseRoutes from "./router/courseRoutes.js";
 import universityRoutes from "./router/universityRoutes.js";
+
 const app = express();
 
 // ✅ Middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // optional if using form data
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://192.168.1.36:3000"],
+    origin: ["http://localhost:3000", "www.careervidya.in", "careervidya.in"],
     credentials: true,
   })
 );
@@ -36,12 +37,17 @@ app.use(passport.session());
 
 // ✅ Routes
 app.use("/api/v1", authRouter);
-app.use("/api/v1",teamRouter);
-app.use("/api/v1/banner",bannerRouter);
-app.use("/api/v1/ourstudent",ourstudentRouter)
-app.use("/api/v1/",NewslatterRouter);
-app.use("/api/v1",courseRoutes);
-app.use("/api/v1/university",universityRoutes);
+app.use("/api/v1", teamRouter);
+app.use("/api/v1/banner", bannerRouter);
+app.use("/api/v1/ourstudent", ourstudentRouter);
+app.use("/api/v1/", NewslatterRouter);
+app.use("/api/v1", courseRoutes);
+app.use("/api/v1/university", universityRoutes);
+
+// ✅ Simple Ping Route
+app.get("/ping", (req, res) => {
+  res.send("pong 🏓");
+});
 
 // ✅ Error for unknown routes
 app.use((req, res, next) => {

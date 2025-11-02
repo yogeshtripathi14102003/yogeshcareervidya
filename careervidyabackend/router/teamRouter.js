@@ -5,7 +5,7 @@ import {
   getTeamMemberById,
   updateTeamMember,
   deleteTeamMember,
-} from "../controller/teamController.js";
+} from "../controller/TeamController.js";
 import createUploader from "../multer.js";
 
 const router = express.Router();
