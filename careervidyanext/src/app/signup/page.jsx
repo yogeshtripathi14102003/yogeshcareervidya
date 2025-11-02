@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import api from "@/utlis/api";
+import api from "@/utlis/api"; // ✅ Make sure this points to your axios instance
 
-const Signup = () => {
+const Signup = ({ onClose }) => {
   const [formData, setFormData] = useState({
     name: "",
     mobileNumber: "",
@@ -12,7 +12,7 @@ const Signup = () => {
     otp: "",
     city: "",
     state: "",
-    courese: "",
+    course: "",
     gender: "",
     addresses: "",
   });
@@ -20,13 +20,13 @@ const Signup = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Handle input change
+  // ✅ Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🔹 Validate all required fields
+  // ✅ Validate before sending OTP
   const validateAllFields = () => {
     const requiredFields = [
       "name",
@@ -34,7 +34,7 @@ const Signup = () => {
       "email",
       "city",
       "state",
-      "courese",
+      "course",
       "gender",
       "addresses",
     ];
@@ -47,7 +47,7 @@ const Signup = () => {
     return true;
   };
 
-  // 🔹 STEP 1: Send OTP
+  // ✅ Send OTP
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!validateAllFields()) return;
@@ -70,7 +70,7 @@ const Signup = () => {
     }
   };
 
-  // 🔹 STEP 2: Verify OTP & Register
+  // ✅ Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!formData.otp) {
@@ -84,175 +84,199 @@ const Signup = () => {
         emailOrPhone: formData.email || formData.mobileNumber,
         otp: formData.otp,
         purpose: "register",
-        name: formData.name,
-        email: formData.email,
-        mobileNumber: formData.mobileNumber,
-        city: formData.city,
-        state: formData.state,
-        courese: formData.courese,
-        gender: formData.gender,
-        addresses: formData.addresses,
+        ...formData,
       };
 
       const res = await api.post("/api/v1/verify-otp", payload);
       console.log("OTP Verified & User Registered:", res.data);
       alert("Registration successful!");
-      setOtpSent(false);
+      onClose?.(); // ✅ close popup after success
     } catch (error) {
       console.error("OTP Verification Failed:", error.response?.data || error.message);
       alert("Invalid OTP. Please try again.");
-      setOtpSent(false);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Submit based on OTP stage
   const handleSubmit = (e) => {
     if (!otpSent) handleSendOtp(e);
     else handleVerifyOtp(e);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-[#FFF5F5] to-[#FFE4E1] flex flex-col md:flex-row overflow-hidden">
-      {/* Left Side Info */}
-      <div className="w-full md:w-1/2 p-8 flex flex-col justify-center items-start text-[#333333]">
-        <h1 className="text-4xl font-bold text-[#1E90FF] mb-4">Career Vidya</h1>
-        <h2 className="text-2xl font-semibold mb-6">Unlock Your Future with Career Vidya</h2>
-        <p className="mb-4">Register now and get exclusive access to:</p>
-        <ul className="list-disc list-inside mb-6 space-y-2">
-          <li>Exam & Admission Alerts</li>
-          <li>Mock Tests & Sample Papers</li>
-          <li>AI-Based College Prediction Tools</li>
-          <li>1-on-1 Counselling from Experts</li>
-        </ul>
-      </div>
+    // ✅ Background overlay (click outside to close)
+    <div
+      className="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
+      onClick={onClose}
+    >
+      {/* Popup card */}
+      <div
+        className="bg-white rounded-2xl shadow-xl w-[95%] md:w-[900px] overflow-hidden flex flex-col md:flex-row relative animate-fadeIn"
+        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+      >
+        {/* Left Side Info */}
+        <div className="w-full md:w-1/2 p-8 bg-gradient-to-r from-[#F0F8FF] to-[#E6F0FF] flex flex-col justify-center items-start text-[#333333]">
+          <h1 className="text-4xl font-bold text-[#1E90FF] mb-4">Career Vidya</h1>
+          <h2 className="text-2xl font-semibold mb-6">
+            Unlock Your Future with Career Vidya
+          </h2>
+          <ul className="list-disc list-inside mb-6 space-y-2">
+            <li>Exam & Admission Alerts</li>
+            <li>Mock Tests & Sample Papers</li>
+            <li>AI-Based College Prediction Tools</li>
+            <li>1-on-1 Counselling from Experts</li>
+          </ul>
+        </div>
 
-      {/* Right Side Form */}
-      <div className="w-full md:w-1/2 p-8 bg-white flex flex-col justify-center items-center">
-        <div className="w-full max-w-md">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name */}
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-              required
-            />
+        {/* Right Side Form */}
+        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center items-center relative">
+          {/* Close Button (works ✅) */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
+          >
+            ✕
+          </button>
 
-            {/* Email + Mobile */}
-            <div className="flex space-x-4">
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              />
-              <input
-                type="tel"
-                name="mobileNumber"
-                placeholder="Mobile Number"
-                value={formData.mobileNumber}
-                onChange={handleChange}
-                className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              />
-            </div>
-
-            {/* City + State */}
-            <div className="flex space-x-4">
+          <div className="w-full max-w-md">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
-                name="city"
-                placeholder="City"
-                value={formData.city}
-                onChange={handleChange}
-                className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              />
-              <input
-                type="text"
-                name="state"
-                placeholder="State"
-                value={formData.state}
-                onChange={handleChange}
-                className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              />
-            </div>
-
-            {/* Course + Gender */}
-            <div className="flex space-x-4">
-              <input
-                type="text"
-                name="courese"
-                placeholder="Course"
-                value={formData.courese}
-                onChange={handleChange}
-                className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              />
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              >
-                <option value="">Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            {/* Address */}
-            <input
-              type="text"
-              name="addresses"
-              placeholder="Address"
-              value={formData.addresses}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-              required
-            />
-
-            {/* OTP Input */}
-            {otpSent && (
-              <input
-                type="text"
-                name="otp"
-                placeholder="Enter OTP"
-                value={formData.otp}
+                name="name"
+                placeholder="Full Name"
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                required
               />
-            )}
 
-            {/* Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full p-2 rounded-md text-white transition ${
-                !otpSent ? "bg-[#FFA500]" : "bg-[#1E90FF]"
-              } hover:opacity-90`}
-            >
-              {loading ? "Please wait..." : !otpSent ? "Send OTP" : "Verify OTP"}
-            </button>
-          </form>
+              <div className="flex space-x-4">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  required
+                />
+                <input
+                  type="tel"
+                  name="mobileNumber"
+                  placeholder="Mobile Number"
+                  value={formData.mobileNumber}
+                  onChange={handleChange}
+                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  required
+                />
+              </div>
 
-          <p className="mt-4 text-center text-[#1E90FF]">
-            Already have a Career Vidya account?{" "}
-            <Link href="/login">Login to continue</Link>
-          </p>
+              <div className="flex space-x-4">
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  required
+                />
+                <input
+                  type="text"
+                  name="state"
+                  placeholder="State"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  required
+                />
+              </div>
+
+              <div className="flex space-x-4">
+                <input
+                  type="text"
+                  name="course"
+                  placeholder="Course"
+                  value={formData.course}
+                  onChange={handleChange}
+                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  required
+                />
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  required
+                >
+                  <option value="">Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <input
+                type="text"
+                name="addresses"
+                placeholder="Address"
+                value={formData.addresses}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                required
+              />
+
+              {otpSent && (
+                <input
+                  type="text"
+                  name="otp"
+                  placeholder="Enter OTP"
+                  value={formData.otp}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                />
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full p-2 rounded-md text-white transition ${
+                  !otpSent ? "bg-[#FFA500]" : "bg-[#1E90FF]"
+                } hover:opacity-90`}
+              >
+                {loading
+                  ? "Please wait..."
+                  : !otpSent
+                  ? "Send OTP"
+                  : "Verify OTP"}
+              </button>
+            </form>
+
+            <p className="mt-4 text-center text-[#1E90FF]">
+              Already have a Career Vidya account?{" "}
+              <Link href="/login">Login to continue</Link>
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Animation */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

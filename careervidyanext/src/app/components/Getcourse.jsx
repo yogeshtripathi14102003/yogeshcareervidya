@@ -8,14 +8,14 @@ export default function CoursesListingPage() {
   // ---------- STATES ----------
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("PG");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [showAll, setShowAll] = useState(false); // ✅ Popup modal control
 
-  // ---------- SLIDER REF (for mobile categories) ----------
   const scrollRef = useRef(null);
 
   // ---------- CATEGORY DATA ----------
   const sidebarItems = [
+    { key: "All", title: "All Courses", subtitle: "Browse everything" },
     { key: "PG", title: "PG Courses", subtitle: "After Graduation" },
     {
       key: "ExecutiveEducation",
@@ -31,10 +31,14 @@ export default function CoursesListingPage() {
   ];
 
   // ---------- API CALL ----------
-  const fetchCourses = async (category = "PG") => {
+  const fetchCourses = async (category = "All") => {
     setLoading(true);
     try {
-      const res = await api.get(`/api/v1/course?category=${category}`);
+      let url =
+        category === "All"
+          ? "/api/v1/course"
+          : `/api/v1/course?category=${category}`;
+      const res = await api.get(url);
       setCourses(res.data.courses || []);
     } catch (err) {
       console.error("❌ Error fetching courses:", err);
@@ -60,24 +64,20 @@ export default function CoursesListingPage() {
   // ---------- COURSE CARD ----------
   const CourseCard = ({ course }) => (
     <div className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all flex flex-col justify-between min-w-[180px] sm:min-w-0">
-      {/* Duration Badge */}
       <span className="absolute top-3 left-3 bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white text-xs px-3 py-1 font-medium shadow-sm">
         {course.duration || "2 Years"}
       </span>
 
-      {/* Icon */}
       <div className="flex justify-center items-center mt-10 text-[#F58220] text-3xl">
         <i className="fa-solid fa-book-open"></i>
       </div>
 
-      {/* Course Name */}
       <div className="text-center mt-6 mb-10 px-2">
         <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">
           {course.name}
         </h3>
       </div>
 
-      {/* Know More Button */}
       <button className="bg-gradient-to-r from-[#0056B3] to-[#F58220] hover:opacity-90 text-white text-xs font-semibold py-2 transition-all">
         Know More
       </button>
@@ -87,7 +87,7 @@ export default function CoursesListingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex flex-col lg:flex-row gap-6 px-4 md:px-8 py-10 transition-all">
       {/* =======================================================
-          📁 SIDEBAR (Desktop) + SLIDER (Mobile)
+          📁 SIDEBAR
       ======================================================= */}
       <aside className="lg:w-1/4 bg-white border border-gray-100 shadow-lg p-5 md:p-6">
         <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
@@ -109,7 +109,6 @@ export default function CoursesListingPage() {
             <ChevronRight className="w-4 h-4 text-[#0056B3]" />
           </button>
 
-          {/* Scrollable category buttons */}
           <div
             ref={scrollRef}
             className="flex gap-3 overflow-x-auto scrollbar-hide px-6"
@@ -178,7 +177,6 @@ export default function CoursesListingPage() {
           {loading ? "Loading..." : `${selectedCategory} Courses`}
         </h2>
 
-        {/* ---------- Courses Grid (Desktop) ---------- */}
         <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
           {loading ? (
             <p className="col-span-full text-center text-gray-500 animate-pulse">
@@ -195,7 +193,6 @@ export default function CoursesListingPage() {
           )}
         </div>
 
-        {/* ---------- Mobile (3 in one row scrollable) ---------- */}
         <div className="sm:hidden flex gap-4 overflow-x-auto scrollbar-hide pb-3">
           {courses.slice(0, 10).map((course) => (
             <CourseCard key={course._id} course={course} />
@@ -218,9 +215,7 @@ export default function CoursesListingPage() {
       ======================================================= */}
       {showAll && (
         <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center sm:p-4 p-0">
-          {/* ✅ Fullscreen on mobile, centered modal on desktop */}
           <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 sm:rounded-xl">
-            {/* Close Button */}
             <button
               onClick={() => setShowAll(false)}
               className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-full p-1"
@@ -232,7 +227,6 @@ export default function CoursesListingPage() {
               All {selectedCategory} Courses
             </h3>
 
-            {/* ✅ Vertical scroll layout on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {courses.map((course) => (
                 <div key={course._id} className="w-full">
@@ -244,9 +238,7 @@ export default function CoursesListingPage() {
         </div>
       )}
 
-      {/* =======================================================
-          📁 HIDE SCROLLBAR STYLES
-      ======================================================= */}
+      {/* Hide Scrollbar Styles */}
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

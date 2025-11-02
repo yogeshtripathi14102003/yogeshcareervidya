@@ -86,21 +86,24 @@ export default function FAQSection() {
   ];
 
   const [openIndex, setOpenIndex] = useState(null);
+  const [showAll, setShowAll] = useState(false);
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  const visibleFaqs = showAll ? faqs : faqs.slice(0, 7);
+
   return (
     <section className="max-w-4xl mx-auto px-4 py-16">
       {/* ===== Heading ===== */}
       <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-10">
-        Let’s clear up some doubts
+        Frequently Asked Questions
       </h2>
 
       {/* ===== FAQ List ===== */}
       <div className="space-y-3">
-        {faqs.map((faq, index) => (
+        {visibleFaqs.map((faq, index) => (
           <div
             key={faq.id}
             className="border rounded-lg overflow-hidden bg-white shadow-sm"
@@ -110,10 +113,12 @@ export default function FAQSection() {
               className="w-full flex items-center justify-between p-4 text-left"
             >
               <div className="flex items-center gap-3">
-                <span className="bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded-full text-sm font-semibold">
+                <span className="bg-[#0057A0] text-white w-6 h-6 flex items-center justify-center rounded-full text-sm font-semibold">
                   {faq.id}
                 </span>
-                <span className="text-gray-900 font-medium">{faq.question}</span>
+                <span className="text-gray-900 font-medium">
+                  {faq.question}
+                </span>
               </div>
               <ChevronDown
                 className={`w-5 h-5 text-gray-500 transition-transform ${
@@ -131,12 +136,17 @@ export default function FAQSection() {
         ))}
       </div>
 
-      {/* ===== View More Button ===== */}
-      <div className="text-center mt-8">
-        <button className="px-6 py-2 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md font-semibold transition">
-          View More →
-        </button>
-      </div>
+      {/* ===== View More / Less Button ===== */}
+      {faqs.length > 7 && (
+        <div className="text-center mt-8">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="px-6 py-2 text-white bg-[#0057A0] hover:bg-[#00447f] rounded-md font-semibold transition"
+          >
+            {showAll ? "View Less ↑" : "View All ↓"}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

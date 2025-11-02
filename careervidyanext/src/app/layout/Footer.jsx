@@ -388,12 +388,52 @@ export default function Footer() {
           </div>
           <p>© 2025 CareerVidya.in | All Rights Reserved</p>
           <div className="flex justify-center gap-4 mt-3">
-            <img src="/icons/y1.svg" alt="LinkedIn" className="h-5 w-5" />
-            <img src="/icons/y2.svg" alt="Facebook" className="h-5 w-5" />
-            <img src="/icons/y3.svg" alt="YouTube" className="h-5 w-5" />
-            <img src="/icons\399915166_1c70be9f-5648-48db-ad9c-cd16ea49e38d.svg" alt="Twitter" className="h-5 w-5" />
-            <img src="/icons/instagram.svg" alt="Instagram" className="h-5 w-5" />
-          </div>
+  {/* x */}
+  <a
+    href="https://x.com/CareerVidya"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img src="/icons/y1.svg" alt="X" className="h-5 w-5 hover:scale-110 transition-transform" />
+  </a>
+
+  {/* insta */}
+  <a
+    href="https://www.instagram.com/career_vidya/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img src="/icons/y2.svg" alt="insta" className="h-5 w-5 hover:scale-110 transition-transform" />
+  </a>
+
+  {/* fb */}
+  <a
+    href="https://www.facebook.com/Career-Vidya"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img src="/icons/y3.svg" alt="fb" className="h-5 w-5 hover:scale-110 transition-transform" />
+  </a>
+
+  {/* linkedin / X */}
+  <a
+    href="https://www.linkedin.com/company/career-vidya/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img src="/icons/linked.svg" alt="linkedin" className="h-5 w-5 hover:scale-110 transition-transform" />
+  </a>
+
+  {/* Instagram */}
+  {/* <a
+    href="https://www.instagram.com/yourpage"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img src="/icons/instagram.svg" alt="Instagram" className="h-5 w-5 hover:scale-110 transition-transform" />
+  </a> */}
+</div>
+
         </div>
       </div>
     </footer>

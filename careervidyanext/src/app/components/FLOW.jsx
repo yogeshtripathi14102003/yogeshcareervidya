@@ -32,7 +32,7 @@ export default function AdmissionProcess() {
       {/* ===== Button ===== */}
       <Link
         href="/apply"
-        className="mt-10 inline-block bg-[#FFA500] text-white font-medium px-6 py-3 rounded-md hover:bg-gray-800 transition"
+        className="mt-10 inline-block bg-[#0057A0] text-white font-medium px-6 py-3 rounded-md  transition"
       >
         Apply Now
       </Link>

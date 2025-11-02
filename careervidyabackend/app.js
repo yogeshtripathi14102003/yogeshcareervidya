@@ -41,7 +41,7 @@ app.use("/api/v1/banner",bannerRouter);
 app.use("/api/v1/ourstudent",ourstudentRouter)
 app.use("/api/v1/",NewslatterRouter);
 app.use("/api/v1",courseRoutes);
-app.use("/api/v1",universityRoutes);
+app.use("/api/v1/university",universityRoutes);
 
 // ✅ Error for unknown routes
 app.use((req, res, next) => {
