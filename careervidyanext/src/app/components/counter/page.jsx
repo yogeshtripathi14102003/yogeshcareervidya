@@ -40,7 +40,7 @@ export default function Counter() {
   return (
     <section className="bg-white py-8">
       <h2 className="text-center text-2xl md:text-3xl font-bold mb-8">
-        Our <span className="text-[#0056B3] italic">Notable Moments</span>
+        Our <span className="text-[#0056B3] italic">Our Achievements at a Glance</span>
       </h2>
 
       <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
