@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL || "http://api.careervidya.in/",
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL || "http://api.careervidya.in/", 
   headers: { "Content-Type": "application/json" },
   withCredentials: false,
 });
