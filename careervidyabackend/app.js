@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "www.careervidya.in", "careervidya.in", "https://careervidya.in","https://api.careervidya.in",],
+    origin: '*',
     credentials: true,
   })
 );
