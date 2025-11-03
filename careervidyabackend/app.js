@@ -17,16 +17,31 @@ import universityRoutes from "./router/universityRoutes.js";
 
 const app = express();
 
-// ✅ Middlewares
+// ✅ Basic Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// ✅ FIXED CORS Configuration
 app.use(
   cors({
-    origin: ["http://localhost:3000", "www.careervidya.in", "careervidya.in",],
+    origin: [
+      "http://localhost:3000",
+      "http://careervidya.in",
+      "https://careervidya.in",
+      "http://www.careervidya.in",
+      "https://www.careervidya.in",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+// ✅ Allow preflight requests for all routes
+app.options("*", cors());
+
+// ✅ Security + Logging
 app.use(helmet());
 app.use(morgan("dev"));
 
@@ -35,7 +50,7 @@ app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Routes
+// ✅ API Routes
 app.use("/api/v1", authRouter);
 app.use("/api/v1", teamRouter);
 app.use("/api/v1/banner", bannerRouter);
@@ -44,28 +59,29 @@ app.use("/api/v1/", NewslatterRouter);
 app.use("/api/v1", courseRoutes);
 app.use("/api/v1/university", universityRoutes);
 
-// ✅ Simple Ping Route
+// ✅ Health Check Route
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");
 });
 
-// ✅ Error for unknown routes
-app.use((req, res, next) => {
+// ✅ Handle Unknown Routes
+app.use((req, res) => {
   res.status(404).json({ msg: "Route not found" });
 });
 
-// ✅ Start Server
+// ✅ Connect DB + Seed Default Admin
 const startServer = async () => {
   try {
     await connectDB();
-    console.log("✅ DB Connected");
+    console.log("✅ Database Connected");
     await seedDefaultAdmin();
-    console.log("✅ Seeding completed");
+    console.log("✅ Default Admin Seeded");
   } catch (err) {
-    console.error("❌ Startup failed:", err);
+    console.error("❌ Startup Error:", err);
     process.exit(1);
   }
 };
+
 startServer();
 
 export default app;
