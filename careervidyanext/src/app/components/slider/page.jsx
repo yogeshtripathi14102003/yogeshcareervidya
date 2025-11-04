@@ -64,7 +64,7 @@ export default function HeroSlider() {
 
   if (!slides.length) {
     return (
-      <div className="w-full h-[45vh] flex items-center justify-center bg-gray-100">
+      <div className="w-full h-64 md:h-96 flex items-center justify-center bg-gray-100">
         <p className="text-gray-600">Loading HERO banners...</p>
       </div>
     );
@@ -84,13 +84,7 @@ export default function HeroSlider() {
         {extendedSlides.map((slide, i) => (
           <div key={slide.key} className="w-full flex-shrink-0">
             {/* === Banner Container === */}
-            <div
-              className="
-                relative w-full 
-                h-[45vh] sm:h-[55vh] md:h-[70vh] lg:h-[80vh] xl:h-[85vh] 
-                max-h-[900px] bg-black
-              "
-            >
+            <div className="relative w-full min-h-[180px] md:min-h-[370px] bg-black">
               <Image
                 src={
                   typeof slide.image === "string"
