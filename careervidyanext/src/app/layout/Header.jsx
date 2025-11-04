@@ -94,7 +94,7 @@ export default function Header() {
             menuOpen ? "flex" : "hidden"
           } md:flex flex-col md:flex-row items-center w-full md:w-auto space-y-3 md:space-y-0 md:space-x-3 mt-4 md:mt-0 transition-all duration-300`}
         >
-          <Link href="/explore" onClick={handleClose}>
+          <Link href="/explore1" onClick={handleClose}>
             <button className="bg-[#0056B3] hover:bg-[#0046a1] text-white font-semibold text-sm md:text-base px-5 py-2 rounded-lg shadow-md transition">
               Explore Programs
             </button>
