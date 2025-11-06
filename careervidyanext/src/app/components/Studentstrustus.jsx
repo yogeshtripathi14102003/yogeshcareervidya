@@ -4,24 +4,66 @@ import Image from "next/image";
 
 export default function WhyStudentsTrustUs() {
   const features = [
-    {
-      icon: "/icons/all1.png",
-      title: "All-in-One Application Platform",
+  
+      {
+      icon: "/icons/export.png",
+      title: "#1 Application Platform for Students",
       description:
-        "Career Vidya simplifies college applications with one single form that lets you apply to 100+ colleges, plus access to a scholarship database and loan guidance—all centralized in one platform.",
+        "Simplify your admission journey — apply to top universities in minutes through our trusted and efficient platform.",
     },
+     {
+      icon: "/icons/gudence.png",
+      title: "Learning Flexibility",
+      description:
+        "Explore programs that allow you to learn anytime, anywhere — perfect for working professionals and students with busy schedules.",
+    },
+     {
+      icon: "/icons/Recommendation.png",
+      title: "Course Recommendation",
+      description:
+        "We match your career aspirations with industry-relevant, accredited programs that enhance employability and growth.",
+    },
+     {
+      icon: "/icons/Assistance.png",
+      title: "University Selection Assistance",
+      description:
+        "Get access to top-ranked and recognized universities offering flexible online and distance programs.",
+    },
+      {
+      icon: "/icons/end.png",
+      title: "End-to-End Assistance",
+      description:
+        "From choosing the right path to completing your program successfully, we’re with you every step of the way.",
+    },
+  
     {
       icon: "/icons/callsupport.png",
       title: "24/7 Support",
       description:
-        "Career Vidya offers round-the-clock tech support, online mentoring, and tutoring to assist you at any time.",
+        "Career Vidya offers round-the-clock tech support, online mentoring, and tutoring to assist you anytime you need help.",
     },
-    {
-      icon: "/icons/export.png",
-      title: "Expert Guidance",
-      description:
-        "Our experienced mentors provide personalized career and education guidance, helping you assess academic options, finances, and align your goals through virtual consultations and customized strategy sessions.",
-    },
+    // {
+    //   icon: "/icons/export.png",
+    //   title: "Expert Guidance",
+    //   description:
+    //     "Our experienced mentors provide personalized career and education guidance, helping you align your academic and career goals effectively.",
+    // },
+    // {
+    //   icon: "/icons/gudence.png",
+    //   title: "Career Guidance & Counselling",
+    //   description:
+    //     "Personalized support to help you choose the right course and university based on your background, goals, and interests.",
+    // },
+   
+   
+    // {
+    //   icon: "/icons/admission.png",
+    //   title: "Admission Support",
+    //   description:
+    //     "Hassle-free guidance through the entire admission process — from application to enrolment, all made simple.",
+    // },
+   
+  
   ];
 
   return (
@@ -39,19 +81,9 @@ export default function WhyStudentsTrustUs() {
           {features.map((item, index) => (
             <div
               key={index}
-              className="relative bg-white rounded-2xl p-6 transition-transform duration-300 hover:-translate-y-2"
-              style={{
-                boxShadow:
-                  "0 4px 10px rgba(0, 86, 179, 0.15), 0 6px 20px rgba(255, 102, 0, 0.15)", // blue + orange shadow
-              }}
+              className="group relative bg-white border border-transparent rounded-xl p-6 shadow-sm transition-all duration-300 hover:border-[#0056B3] hover:bg-gradient-to-br hover:from-[#FFF5EE] hover:to-[#E6F0FF] hover:shadow-[0_4px_12px_rgba(0,86,179,0.15)]"
             >
-              {/* === Top-right orange accent === */}
-              <div className="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-[#FF6600] rounded-tr-2xl"></div>
-
-              {/* === Bottom-left blue accent === */}
-              <div className="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-[#0056B3] rounded-bl-2xl"></div>
-
-              {/* === Icon === */}
+              {/* Icon */}
               <div className="flex justify-start mb-3">
                 <Image
                   src={item.icon}
@@ -62,15 +94,18 @@ export default function WhyStudentsTrustUs() {
                 />
               </div>
 
-              {/* === Title === */}
+              {/* Title */}
               <h3 className="text-lg font-semibold mb-2 text-[#0056B3]">
                 {item.title}
               </h3>
 
-              {/* === Description === */}
+              {/* Description */}
               <p className="text-gray-600 text-sm leading-relaxed">
                 {item.description}
               </p>
+
+              {/* Blue border animation (subtle) */}
+              <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-[#0056B3] transition-all duration-300"></div>
             </div>
           ))}
         </div>
