@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import api from "@/utlis/api";
 import Addplacedstudent from "../components/Addplacedstudent";
+import EditPlacedStudent from "../components/EditPlcedStudent";
 
 export default function OurStudentsPage() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
+  const [editingStudent, setEditingStudent] = useState(null); // ✅ for edit modal
 
   // ✅ Fetch Students
   const fetchStudents = async () => {
@@ -22,16 +24,26 @@ export default function OurStudentsPage() {
     }
   };
 
-  // ✅ Handle Add Student (from popup)
+  // ✅ Add Student
   const handleStudentAdded = (newStudent) => {
     setStudents((prev) => [newStudent, ...prev]);
   };
 
-  // ✅ Handle Delete
+  // ✅ Update Student
+  const handleStudentUpdated = (updatedStudent) => {
+    setStudents((prev) =>
+      prev.map((s) => (s._id === updatedStudent._id ? updatedStudent : s))
+    );
+    setEditingStudent(null); // close popup
+    setMessage("✅ Student updated successfully!");
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  // ✅ Delete Student
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this student?")) return;
     try {
-      await api.delete(`/api/v1/ourstudent/${id}`); // ✅ fixed URL
+      await api.delete(`/api/v1/ourstudent/${id}`);
       setStudents((prev) => prev.filter((s) => s._id !== id));
       setMessage("✅ Student deleted successfully!");
       setTimeout(() => setMessage(""), 3000);
@@ -46,7 +58,7 @@ export default function OurStudentsPage() {
     fetchStudents();
   }, []);
 
-  // ✅ Filter students by search
+  // ✅ Filter
   const filteredStudents = students.filter((student) =>
     student.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -57,10 +69,19 @@ export default function OurStudentsPage() {
         Student Management
       </h2>
 
-      {/* ✅ Popup Add Form */}
+      {/* ✅ Add Form */}
       <Addplacedstudent onStudentAdded={handleStudentAdded} />
 
-      {/* ✅ Notification Message */}
+      {/* ✅ Edit Popup (only if a student is being edited) */}
+      {editingStudent && (
+        <EditPlacedStudent
+          student={editingStudent}
+          onStudentUpdated={handleStudentUpdated}
+          onCancel={() => setEditingStudent(null)}
+        />
+      )}
+
+      {/* ✅ Notification */}
       {message && (
         <div
           className={`text-center py-2 rounded-md font-medium ${
@@ -73,7 +94,7 @@ export default function OurStudentsPage() {
         </div>
       )}
 
-      {/* ✅ Search Bar */}
+      {/* ✅ Search */}
       <div className="flex justify-between items-center mt-6">
         <input
           type="text"
@@ -84,7 +105,7 @@ export default function OurStudentsPage() {
         />
       </div>
 
-      {/* ✅ Table Section */}
+      {/* ✅ Table */}
       <div className="overflow-x-auto mt-4">
         {loading ? (
           <p className="text-center py-6 text-gray-500">Loading students...</p>
@@ -129,7 +150,16 @@ export default function OurStudentsPage() {
                         className="w-12 h-12 object-contain mx-auto"
                       />
                     </td>
-                    <td className="px-4 py-2 border text-center">
+                    <td className="px-4 py-2 border text-center space-x-2">
+                      {/* ✅ Edit Button */}
+                      <button
+                        onClick={() => setEditingStudent(student)}
+                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                      >
+                        Edit
+                      </button>
+
+                      {/* ✅ Delete Button */}
                       <button
                         onClick={() => handleDelete(student._id)}
                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"

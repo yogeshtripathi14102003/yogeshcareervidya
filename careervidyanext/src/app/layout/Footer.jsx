@@ -58,7 +58,7 @@ export default function Footer() {
               SF-27, 2nd Floor, Gaur City Center
               <br /> Greater Noida, Uttar Pradesh 201318
             </p>
-            <p className="mt-2 text-sm font-medium">📞 +91 12018447695</p>
+          
             <p className="mt-2 text-sm font-medium">📞 +91 9311020975</p>
             <p className="mt-2 text-sm font-medium">
               📧 Info@careervidya.in
@@ -79,6 +79,7 @@ export default function Footer() {
               <br /> Noida, Uttar Pradesh - 201305
             </p>
             <p className="mt-2 text-sm font-medium">📞 +91 9289712364</p>
+              <p className="mt-2 text-sm font-medium">📞 +91 12018447695</p>
             <p className="mt-2 text-sm font-medium">
               📧 Info@careervidya.in
             </p>
