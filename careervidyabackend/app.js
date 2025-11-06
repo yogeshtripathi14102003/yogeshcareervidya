@@ -14,6 +14,7 @@ import ourstudentRouter from "./router/ourstudentRouter.js";
 import NewslatterRouter from "./router/NewslatterRouter.js";
 import courseRoutes from "./router/courseRoutes.js";
 import universityRoutes from "./router/universityRoutes.js";
+import getinTouchRouter from "./router/getInTouchRouter.js";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/v1/ourstudent", ourstudentRouter);
 app.use("/api/v1/", NewslatterRouter);
 app.use("/api/v1", courseRoutes);
 app.use("/api/v1/university", universityRoutes);
+app.use("/api/v1/getintouch",getinTouchRouter);
 
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {
