@@ -4,34 +4,43 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import Signup from "../signup/page.jsx"; // ✅ import your popup
+import Signup from "../signup/page.jsx";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [showSignup, setShowSignup] = useState(false); // ✅ popup visibility
+  const [showSignup, setShowSignup] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Prevent SSR mismatch
 
-  // ✅ Handle scroll visibility for mobile search bar
+  // ✅ Enable rendering only after client mount
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // ✅ Scroll-based mobile search visibility (client only)
+  useEffect(() => {
+    if (!isMounted) return;
+
     const handleScroll = () => {
       if (!menuOpen) setShowSearch(window.scrollY > 80);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [menuOpen]);
+  }, [isMounted, menuOpen]);
 
-  // ✅ Close both menu and search
+  // ✅ Close all popups and menus
   const handleClose = () => {
     setMenuOpen(false);
     setShowSearch(false);
   };
 
-  // ✅ Close popup (used by Signup)
+  // ✅ Close Signup popup
   const handleSignupClose = () => {
     setShowSignup(false);
   };
 
-  // ✅ Close on Escape key
+  // ✅ Handle ESC key
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") {
@@ -42,6 +51,9 @@ export default function Header() {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
+
+  // ⚠️ Render nothing until mounted — avoids hydration mismatch
+  if (!isMounted) return null;
 
   return (
     <>
@@ -59,9 +71,9 @@ export default function Header() {
                 priority
               />
             </Link>
-            <span className="text-sm sm:text-base font-medium text-gray-600 whitespace-nowrap cursor-default">
+            {/* <span className="text-sm sm:text-base font-medium text-gray-600 whitespace-nowrap cursor-default">
               #Vidya hai to Success hai
-            </span>
+            </span> */}
           </div>
 
           {/* ---------- Mobile Menu Button ---------- */}
@@ -92,7 +104,7 @@ export default function Header() {
         <nav
           className={`${
             menuOpen ? "flex" : "hidden"
-          } md:flex flex-col md:flex-row items-center w-full md:w-auto space-y-3 md:space-y-0 md:space-x-3 mt-4 md:mt-0 transition-all duration-300`}
+          } md:flex flex-col md:flex-row items-right w-full md:w-auto space-y-3 md:space-y-0 md:space-x-3 mt-4 md:mt-0 transition-all duration-300`}
         >
           <Link href="/explore1" onClick={handleClose}>
             <button className="bg-[#0056B3] hover:bg-[#0046a1] text-white font-semibold text-sm md:text-base px-5 py-2 rounded-lg shadow-md transition">
@@ -106,7 +118,6 @@ export default function Header() {
             </button>
           </Link>
 
-          {/* ---------- Signup Button triggers popup ---------- */}
           <button
             onClick={() => setShowSignup(true)}
             className="bg-gradient-to-r from-[#0056B3] to-[#FF6600] text-white font-semibold text-sm md:text-base px-5 py-2 rounded-lg shadow-md hover:opacity-90 transition"
@@ -119,7 +130,9 @@ export default function Header() {
         {showSearch && (
           <div className="md:hidden w-full mt-3 px-2 animate-slideDown">
             <div className="flex items-center bg-white border border-[#87CEEB] rounded-full px-3 py-2 shadow-sm">
-              <span className="text-gray-500 text-lg mr-2 cursor-pointer">🔍</span>
+              <span className="text-gray-500 text-lg mr-2 cursor-pointer">
+                🔍
+              </span>
               <input
                 type="text"
                 placeholder="Search universities, courses & more..."

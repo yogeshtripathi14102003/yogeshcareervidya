@@ -21,7 +21,7 @@ export default function AdmissionProcess() {
       {/* ===== Image Section ===== */}
       <div className="relative w-full max-w-5xl mt-10 px-4">
         <Image
-          src="/images/flo2.png" // ✅ Replace with your uploaded image path
+          src="/images/Process.png" // ✅ Replace with your uploaded image path
           alt="Admission Process Flow"
           width={1200}
           height={600}

@@ -13,7 +13,8 @@ export default function AddUniversityPage() {
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
 
-  const addCourse = () => setCourses([...courses, { name: "", logo: null, duration: "" }]);
+  const addCourse = () =>
+    setCourses([...courses, { name: "", logo: null, duration: "" }]);
 
   const removeCourse = (index) => {
     const updated = [...courses];
@@ -53,13 +54,10 @@ export default function AddUniversityPage() {
       courses.forEach((course, index) => {
         formData.append(`courses[${index}][name]`, course.name);
         formData.append(`courses[${index}][duration]`, course.duration);
+        if (course.logo) formData.append(`courses[${index}][logo]`, course.logo);
       });
 
-      courses.forEach((course) => {
-        if (course.logo) formData.append("courseLogos", course.logo);
-      });
-
-      await api.post("/api/v1/university", formData, {
+      const response = await api.post("/api/v1/university", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -69,7 +67,7 @@ export default function AddUniversityPage() {
       setUniversityImage(null);
       setCourses([{ name: "", logo: null, duration: "" }]);
     } catch (error) {
-      console.error(error);
+      console.error("Error Response:", error);
       setMessage("❌ Error: " + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
@@ -78,7 +76,6 @@ export default function AddUniversityPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-10">
-      {/* 🔹 Top header with "Go to Universities" button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-[#0056B3]">Add University</h2>
         <Link
@@ -90,7 +87,7 @@ export default function AddUniversityPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 🔸 University Name */}
+        {/* University Name */}
         <div>
           <label className="block font-medium mb-1">University Name *</label>
           <input
@@ -105,7 +102,7 @@ export default function AddUniversityPage() {
           {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
 
-        {/* 🔸 Description */}
+        {/* Description */}
         <div>
           <label className="block font-medium mb-1">Description</label>
           <textarea
@@ -117,7 +114,7 @@ export default function AddUniversityPage() {
           />
         </div>
 
-        {/* 🔸 Image Upload */}
+        {/* University Image */}
         <div>
           <label className="block font-medium mb-1">University Image</label>
           <input
@@ -127,16 +124,14 @@ export default function AddUniversityPage() {
           />
         </div>
 
-        {/* 🔸 Courses Section */}
+        {/* Courses */}
         <div className="border rounded-lg p-4 bg-gray-50">
           <h3 className="font-semibold text-lg mb-2 text-[#0056B3]">Courses</h3>
 
           {courses.map((course, index) => (
             <div key={index} className="grid md:grid-cols-3 gap-4 items-center mb-4">
               <div>
-                <label className="block text-sm mb-1">
-                  Course Name <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm mb-1">Course Name *</label>
                 <input
                   type="text"
                   value={course.name}
@@ -146,11 +141,6 @@ export default function AddUniversityPage() {
                   }`}
                   placeholder="e.g. B.Tech"
                 />
-                {errors[`courseName${index}`] && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors[`courseName${index}`]}
-                  </p>
-                )}
               </div>
 
               <div>
@@ -160,7 +150,7 @@ export default function AddUniversityPage() {
                   value={course.duration}
                   onChange={(e) => handleCourseChange(index, "duration", e.target.value)}
                   className="w-full border rounded-lg p-2"
-                  placeholder="e.g. 3 Years"
+                  placeholder="e.g. 4 Years"
                 />
               </div>
 
@@ -169,7 +159,9 @@ export default function AddUniversityPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleCourseChange(index, "logo", e.target.files[0])}
+                  onChange={(e) =>
+                    handleCourseChange(index, "logo", e.target.files[0])
+                  }
                 />
               </div>
 
@@ -194,11 +186,11 @@ export default function AddUniversityPage() {
           </button>
         </div>
 
-        {/* 🔸 Submit */}
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="bg-[#0056B3] text-white w-full py-2 rounded-lg hover:bg-[#0056B3]-700"
+          className="bg-[#0056B3] text-white w-full py-2 rounded-lg hover:bg-blue-700"
         >
           {loading ? "Saving..." : "Add University"}
         </button>

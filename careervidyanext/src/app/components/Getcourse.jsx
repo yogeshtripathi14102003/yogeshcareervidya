@@ -9,7 +9,8 @@ export default function CoursesListingPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [showAll, setShowAll] = useState(false); // ✅ Popup modal control
+  const [showAll, setShowAll] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const scrollRef = useRef(null);
 
@@ -30,28 +31,33 @@ export default function CoursesListingPage() {
     },
   ];
 
-  // ---------- API CALL ----------
-  const fetchCourses = async (category = "All") => {
-    setLoading(true);
-    try {
-      let url =
-        category === "All"
-          ? "/api/v1/course"
-          : `/api/v1/course?category=${category}`;
-      const res = await api.get(url);
-      setCourses(res.data.courses || []);
-    } catch (err) {
-      console.error("❌ Error fetching courses:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // ---------- Enable client-side render ----------
   useEffect(() => {
-    fetchCourses(selectedCategory);
-  }, [selectedCategory]);
+    setIsMounted(true);
+  }, []);
 
-  // ---------- SCROLL BUTTON HANDLERS ----------
+  // ---------- API CALL ----------
+  useEffect(() => {
+    if (!isMounted) return;
+    const fetchCourses = async () => {
+      setLoading(true);
+      try {
+        const url =
+          selectedCategory === "All"
+            ? "/api/v1/course"
+            : `/api/v1/course?category=${selectedCategory}`;
+        const res = await api.get(url);
+        setCourses(res.data.courses || []);
+      } catch (err) {
+        console.error("❌ Error fetching courses:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, [isMounted, selectedCategory]);
+
+  // ---------- SCROLL BUTTONS ----------
   const scrollLeft = () => {
     if (scrollRef.current)
       scrollRef.current.scrollBy({ left: -150, behavior: "smooth" });
@@ -84,17 +90,24 @@ export default function CoursesListingPage() {
     </div>
   );
 
+  // ---------- Prevent hydration mismatch ----------
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-400">
+        Loading...
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex flex-col lg:flex-row gap-6 px-4 md:px-8 py-10 transition-all">
-      {/* =======================================================
-          📁 SIDEBAR
-      ======================================================= */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex flex-col lg:flex-row gap-6 px-4 md:px-8 pt-10 sm:py-10 transition-all">
+      {/* ---------- SIDEBAR ---------- */}
       <aside className="lg:w-1/4 bg-white border border-gray-100 shadow-lg p-5 md:p-6">
         <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
           Categories
         </h3>
 
-        {/* ---------- MOBILE SLIDER ---------- */}
+        {/* ---------- MOBILE SCROLL MENU ---------- */}
         <div className="block lg:hidden relative mb-6">
           <button
             onClick={scrollLeft}
@@ -169,14 +182,13 @@ export default function CoursesListingPage() {
         </div>
       </aside>
 
-      {/* =======================================================
-          📁 MAIN CONTENT (Courses)
-      ======================================================= */}
-      <main className="flex-1">
+      {/* ---------- MAIN CONTENT ---------- */}
+      <main className="flex-1 pb-0 sm:pb-10">
         <h2 className="text-3xl font-extrabold text-center lg:text-left mb-10 text-[#0056B3]">
           {loading ? "Loading..." : `${selectedCategory} Courses`}
         </h2>
 
+        {/* Desktop Grid */}
         <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
           {loading ? (
             <p className="col-span-full text-center text-gray-500 animate-pulse">
@@ -193,14 +205,15 @@ export default function CoursesListingPage() {
           )}
         </div>
 
-        <div className="sm:hidden flex gap-4 overflow-x-auto scrollbar-hide pb-3">
+        {/* Mobile Horizontal Scroll */}
+        <div className="sm:hidden flex gap-4 overflow-x-auto scrollbar-hide pb-2">
           {courses.slice(0, 10).map((course) => (
             <CourseCard key={course._id} course={course} />
           ))}
         </div>
 
-        {/* ---------- VIEW MORE BUTTON ---------- */}
-        <div className="text-center mt-8">
+        {/* View All Button */}
+        <div className="text-center mt-5 mb-0 sm:mt-8 sm:mb-0">
           <button
             onClick={() => setShowAll(true)}
             className="bg-[#0056B3] hover:bg-[#004494] text-white font-semibold px-6 py-2 text-sm uppercase"
@@ -210,9 +223,7 @@ export default function CoursesListingPage() {
         </div>
       </main>
 
-      {/* =======================================================
-          📁 POPUP MODAL (All Courses)
-      ======================================================= */}
+      {/* ---------- POPUP MODAL ---------- */}
       {showAll && (
         <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center sm:p-4 p-0">
           <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 sm:rounded-xl">
@@ -238,7 +249,7 @@ export default function CoursesListingPage() {
         </div>
       )}
 
-      {/* Hide Scrollbar Styles */}
+      {/* ---------- HIDE SCROLLBAR ---------- */}
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

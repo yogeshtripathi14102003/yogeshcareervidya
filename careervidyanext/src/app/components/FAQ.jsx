@@ -1,92 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
 export default function FAQSection() {
+  const [mounted, setMounted] = useState(false);
+  const [openIndex, setOpenIndex] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // ✅ Updated Career Vidya FAQ Data
   const faqs = [
     {
       id: 1,
-      question: "Is Career Vidya affiliated with any university?",
+      question: "What is Career Vidya?",
       answer:
-        "Yes. We are official partners with leading UGC, AICTE, and NAAC-approved universities — including Vikrant University, Glocal University, Dr. Preeti Global University, Chandigarh University, Kurukshetra University, OP Jindal, and more.",
+        "Career Vidya is an Edu-Tech platform that provides students and working professionals with unbiased personalized career counselling, online course guidance, and admission support for top universities and institutes across India and abroad.",
     },
     {
       id: 2,
-      question: "Is Career Vidya free to use?",
+      question: "What services does Career Vidya offer?",
       answer:
-        "Yes, our counselling and guidance services are completely free. You only pay your university’s admission fees — not us.",
+        "We offer career counselling, university/course selection assistance, admission guidance, scholarship information, and placement preparation support. Our goal is to help learners make informed career decisions and achieve their professional goals.",
     },
     {
       id: 3,
-      question: "Which courses can I apply for through Career Vidya?",
+      question: "Are your counselling services free?",
       answer:
-        "You can explore and apply for B.Tech, M.Tech, BBA, MBA, BCA, MCA, Diploma, and B.Sc programs, with 30+ specializations across online and regular learning modes.",
+        "We offer both free initial counselling sessions and premium guidance packages depending on the level of support required — including one-on-one expert counselling and complete admission assistance.",
     },
     {
       id: 4,
-      question: "Are these universities and courses government approved?",
+      question: "How can I book a counselling session?",
       answer:
-        "Yes! All universities listed on our platform are UGC-entitled and AICTE, NAAC, or AIU-approved — ensuring full validity for higher studies and government/private jobs.",
+        "You can easily book a session through our website’s “Book Counselling” form or by contacting our support team via WhatsApp, email, or phone. Our counsellor will reach out to confirm your slot.",
     },
     {
       id: 5,
-      question: "Do online degrees hold the same value as regular ones?",
+      question: "Does Career Vidya guarantee admission or placement?",
       answer:
-        "Absolutely. As per UGC-DEB guidelines, online degrees from recognized universities are equally valid as regular degrees for both jobs and further education.",
+        "No, we do not guarantee admission, internship, or job placement. Final decisions depend on respective universities, institutions, and employers. However, we ensure you receive the best possible guidance to maximize your success chances.",
     },
     {
       id: 6,
-      question: "How does the counselling process work?",
+      question: "Which courses and universities do you guide for?",
       answer:
-        "Once you contact us, a Career Vidya counsellor will connect with you via call or Zoom to understand your goals and preferences. We’ll help shortlist universities, explain approvals, and guide you through the admission process.",
+        "We provide guidance for UG, PG, Diploma, and Online Learning Programs including MBA, BBA, B.Tech, MCA, M.Com, BA, B.Sc, and more — across UGC-approved universities and AICTE-recognized institutes in India and abroad.",
     },
     {
       id: 7,
-      question: "How does Career Vidya ensure unbiased counselling?",
+      question: "How does Career Vidya ensure authenticity and transparency?",
       answer:
-        "Our counsellors are trained to provide data-based, transparent comparisons across 100+ universities and 30+ factors — so your choice is guided by facts, not sales.",
+        "We only partner with verified universities and share accurate, up-to-date information regarding courses, eligibility, and fees. Our recommendations are unbiased and based on your academic profile and goals.",
     },
     {
       id: 8,
-      question: "Does Career Vidya charge any counselling fee?",
+      question: "Can working professionals also get counselling?",
       answer:
-        "No. Career Vidya offers free counselling. You only pay the official university fee.",
+        "Absolutely. We specialize in helping working professionals choose the right online or distance learning programs to upgrade their skills and career prospects.",
     },
     {
       id: 9,
-      question: "Are EMI or easy payment options available?",
+      question: "How can I contact Career Vidya?",
       answer:
-        "Yes, we offer low-cost EMI options and low cost instalment plans for many universities, helping students manage education finances easily.",
+        "You can reach us via:\n📧 Email: info@careervidya.in\n📞 Phone/WhatsApp: +91-9289712364\n🌐 Website: www.careervidya.in",
     },
     {
       id: 10,
-      question: "Is my payment safe through Career Vidya?",
+      question: "Is my personal information safe with Career Vidya?",
       answer:
-        "100%. All payments are made directly to the official university accounts through secure portals. We never ask for personal payment details.",
-    },
-    {
-      id: 11,
-      question: "How do I verify if a university or course is approved?",
-      answer:
-        "You can check every university’s approval directly on the UGC-DEB, AICTE, or AIU official websites or ask your counsellor to provide verification links.",
-    },
-    {
-      id: 12,
-      question: "Are Career Vidya’s partner universities valid for government jobs?",
-      answer:
-        "Yes. All our partner universities are recognized under UGC regulations, making their degrees valid for government, PSU, and private sector jobs.",
-    },
-    {
-      id: 13,
-      question: "What kind of career support do you provide?",
-      answer:
-        "We provide career mapping, alumni interaction, resume guidance, and placement awareness through partner universities and webinars.",
+        "Yes, your data is completely safe. We follow strict privacy policies and do not share your personal information with third parties without consent.",
     },
   ];
-
-  const [openIndex, setOpenIndex] = useState(null);
-  const [showAll, setShowAll] = useState(false);
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -94,21 +82,22 @@ export default function FAQSection() {
 
   const visibleFaqs = showAll ? faqs : faqs.slice(0, 7);
 
+  if (!mounted) return <div className="min-h-[200px]" />;
+
   return (
     <section className="max-w-4xl mx-auto px-4 py-16">
-      {/* ===== Heading ===== */}
       <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-10">
         Frequently Asked Questions
       </h2>
 
-      {/* ===== FAQ List ===== */}
       <div className="space-y-3">
         {visibleFaqs.map((faq, index) => (
           <div
             key={faq.id}
-            className="border rounded-lg overflow-hidden bg-white shadow-sm"
+            className="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition"
           >
             <button
+              type="button"
               onClick={() => toggleFAQ(index)}
               className="w-full flex items-center justify-between p-4 text-left"
             >
@@ -116,9 +105,7 @@ export default function FAQSection() {
                 <span className="bg-[#0057A0] text-white w-6 h-6 flex items-center justify-center rounded-full text-sm font-semibold">
                   {faq.id}
                 </span>
-                <span className="text-gray-900 font-medium">
-                  {faq.question}
-                </span>
+                <span className="text-gray-900 font-medium">{faq.question}</span>
               </div>
               <ChevronDown
                 className={`w-5 h-5 text-gray-500 transition-transform ${
@@ -128,7 +115,7 @@ export default function FAQSection() {
             </button>
 
             {openIndex === index && (
-              <div className="px-12 pb-4 text-gray-600 text-sm leading-relaxed">
+              <div className="px-12 pb-4 text-gray-600 text-sm whitespace-pre-line leading-relaxed">
                 {faq.answer}
               </div>
             )}
@@ -136,10 +123,10 @@ export default function FAQSection() {
         ))}
       </div>
 
-      {/* ===== View More / Less Button ===== */}
       {faqs.length > 7 && (
         <div className="text-center mt-8">
           <button
+            type="button"
             onClick={() => setShowAll(!showAll)}
             className="px-6 py-2 text-white bg-[#0057A0] hover:bg-[#00447f] rounded-md font-semibold transition"
           >

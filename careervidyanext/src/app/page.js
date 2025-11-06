@@ -9,6 +9,9 @@ import Getcourse from "./components/Getcourse";
 import FAQ from "./components/FAQ";
 import FLOW from "./components/FLOW";
 import Studentstrustus from "./components/Studentstrustus";
+import TestimonialsSlider from "./components/TestimonialsSlider";
+import LogoSlider from "./components/LogoSlider";
+import QueryPopup from "./components/QueryPopup";
 
 
 
@@ -21,10 +24,14 @@ export default function Home() {
       <Getcourse />
       <FLOW />
       <TeamSection />
+   <QueryPopup />
       <CardSlider />
+      <TestimonialsSlider />
       <Studentimageslider />
+         <LogoSlider />
       <Studentstrustus />
       <FAQ />
+
       <Footer />
     </div>
   );
