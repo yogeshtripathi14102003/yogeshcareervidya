@@ -1,5 +1,6 @@
 import Student from "../models/user/AuthModel.js";
-import VerificationModel from "../models/user/VerificationModel.js";
+import VerificationModel from "../models/user/verificationModel.js";
+
 import { generateAccessToken, generateRefreshToken } from "../utilities/jwt.js";
 import { generateOTP, hashOTP } from "../utilities/otpUtils.js";
 import { sendToEmail } from "../utilities/sendEmail.js";
