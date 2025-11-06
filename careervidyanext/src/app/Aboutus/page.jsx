@@ -2,66 +2,80 @@
 
 import React from "react";
 import Link from "next/link";
+import Getintuch from "../components/getintuch"// ✅ import your Getintuch component
+import ContactBanner from "../components/ContactBanner ";
 
 export default function AboutUs() {
-  const COMPANY_NAME = "Your Company Name";
+  const COMPANY_NAME = "Career Vidya Edu-Tech Pvt. Ltd.";
   const MISSION_STATEMENT =
-    "Our mission is to empower individuals and businesses through innovative digital solutions that drive success and create lasting impact.";
+    "Our mission is to empower students by providing free, personalized, and transparent career guidance to help them choose the right course and college for a bright future.";
 
   return (
     <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl bg-white shadow-md rounded-2xl p-8">
+        {/* Header */}
         <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-2">About Us</h1>
+          <h1 className="text-4xl font-bold text-[#0056A4] mb-2">About Us</h1>
           <p className="text-gray-600 text-sm">Learn more about who we are and what we do</p>
         </header>
 
+        {/* Main Content */}
         <section className="space-y-6 text-gray-700 leading-relaxed">
           <p>
-            Welcome to {COMPANY_NAME}! We are a passionate team of creators, designers, and
-            developers dedicated to delivering high-quality digital experiences that help our
-            clients grow and thrive in the modern world.
+            Welcome to <strong>{COMPANY_NAME}</strong>! We are a passionate team of educators,
+            counselors, and tech professionals committed to transforming the way students make
+            academic and career decisions.
           </p>
 
-          <h2 className="text-2xl font-semibold mt-8">Our Mission</h2>
+          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Our Mission</h2>
           <p>{MISSION_STATEMENT}</p>
 
-          <h2 className="text-2xl font-semibold mt-8">What We Do</h2>
+          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">What We Do</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Web design and development that focuses on performance and usability.</li>
-            <li>Brand strategy and identity design to help businesses stand out.</li>
-            <li>Custom software and mobile app development tailored to your needs.</li>
-            <li>Digital marketing and SEO to grow your online presence.</li>
+            <li>Free career guidance sessions for students across India.</li>
+            <li>College and course comparison tools to make informed decisions.</li>
+            <li>Personalized counseling from expert education advisors.</li>
+            <li>Workshops and webinars on admission, exams, and career planning.</li>
           </ul>
 
-          <h2 className="text-2xl font-semibold mt-8">Our Values</h2>
+          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Our Values</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Integrity:</strong> We believe in honesty, transparency, and accountability.</li>
-            <li><strong>Innovation:</strong> We continuously seek creative solutions and embrace new technologies.</li>
-            <li><strong>Collaboration:</strong> We work closely with our clients and team to achieve shared goals.</li>
-            <li><strong>Excellence:</strong> We are committed to delivering the highest quality in everything we do.</li>
+            <li>
+              <strong>Integrity:</strong> We believe in honest and unbiased guidance for every student.
+            </li>
+            <li>
+              <strong>Empathy:</strong> We listen, understand, and care for each student’s unique journey.
+            </li>
+            <li>
+              <strong>Innovation:</strong> We use technology to simplify complex educational choices.
+            </li>
+            <li>
+              <strong>Excellence:</strong> We strive to deliver accurate, reliable, and actionable insights.
+            </li>
           </ul>
 
-          <h2 className="text-2xl font-semibold mt-8">Our Team</h2>
+          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Our Team</h2>
           <p>
-            Our talented team comes from diverse backgrounds in design, technology, and business.
-            Together, we bring creativity and technical expertise to every project, ensuring your
-            success from start to finish.
+            Our team consists of experienced academic counselors, career coaches, and software
+            professionals who share a single goal — to guide students toward a successful and
+            fulfilling future.
           </p>
 
-          <h2 className="text-2xl font-semibold mt-8">Contact Us</h2>
+          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Contact Us</h2>
           <p>
-            Have questions or want to work with us? We'd love to hear from you! Reach out through our
-            <Link href="/contact" className="text-blue-600 ml-1 underline">Contact page</Link>.
+            Have questions or want to connect with our counselors?{" "}
+            <Link href="/contact" className="text-blue-600 underline ml-1">
+              Visit our Contact Page
+            </Link>{" "}
+            or fill out the quick form below — we’ll get in touch soon!
           </p>
         </section>
+      </div>
 
-        <footer className="mt-10 border-t pt-6 text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} {COMPANY_NAME}. All rights reserved.</p>
-          <p className="mt-2">
-            <Link href="/">Home</Link> | <Link href="/privacy-policy">Privacy Policy</Link>
-          </p>
-        </footer>
+      {/* ✅ Added Getintuch Section */}
+      <div className="mt-12">
+        <ContactBanner  />
+        <Getintuch />
       </div>
     </main>
   );

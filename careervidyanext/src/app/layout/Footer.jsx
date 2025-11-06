@@ -123,12 +123,12 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-3 text-lg">About</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/about" className="hover:text-[#FFD700]">
+                <Link href="/Aboutus" className="hover:text-[#FFD700]">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-[#FFD700]">
+                <Link href="/contactus" className="hover:text-[#FFD700]">
                   Contact
                 </Link>
               </li>
