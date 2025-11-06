@@ -57,6 +57,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://www.careervidya.in"), // ✅ Fix for metadataBase
   title: "CareerVidya - Best Career Guidance Platform",
   description:
     "Explore career paths, mentors, and expert guidance to shape your future with CareerVidya.",
@@ -70,7 +71,7 @@ export const metadata = {
     siteName: "CareerVidya",
     images: [
       {
-        url: "/favicon.ico", // can use banner image later
+        url: "/favicon.ico",
         width: 1200,
         height: 630,
         alt: "CareerVidya Logo",
@@ -83,6 +84,10 @@ export const metadata = {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
+};
+
+// ✅ themeColor now goes here (not inside metadata)
+export const viewport = {
   themeColor: "#ffffff",
 };
 
@@ -90,7 +95,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* ✅ Correct favicon setup */}
+        {/* Favicon and SEO */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#ffffff" />
@@ -102,7 +107,10 @@ export default function RootLayout({ children }) {
           name="keywords"
           content="CareerVidya, career guidance, education, mentorship, students, future planning"
         />
-        <meta property="og:title" content="CareerVidya - Best Career Guidance Platform" />
+        <meta
+          property="og:title"
+          content="CareerVidya - Best Career Guidance Platform"
+        />
         <meta
           property="og:description"
           content="Explore career paths, mentors, and expert guidance to shape your future."
@@ -120,4 +128,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
