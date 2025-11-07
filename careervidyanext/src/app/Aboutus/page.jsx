@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Getintuch from "../components/getintuch"// ✅ import your Getintuch component
 import ContactBanner from "../components/ContactBanner ";
+import Header from "../layout/Header";
 
 export default function AboutUs() {
   const COMPANY_NAME = "Career Vidya Edu-Tech Pvt. Ltd.";
@@ -12,6 +13,7 @@ export default function AboutUs() {
 
   return (
     <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Header />
       <div className="mx-auto max-w-4xl bg-white shadow-md rounded-2xl p-8">
         {/* Header */}
         <header className="mb-8 text-center">
