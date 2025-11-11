@@ -1,15 +1,4 @@
 
-// import express from "express";
-// import { registerStudent, loginStudent } from "../controller/AuthController.js";
-// // import { registerStudentValidation, loginStudentValidation } from "../middelware/validation.js";
-
-// const router = express.Router();
-
-// router.post("/signup",  registerStudent);
-// router.post("/signin",  loginStudent);
-
-// export default router;
-
 
 import express from "express";
 import { sendOTP, verifyOTP, logout,getAllStudents,deleteStudent } from "../controller/AuthController.js";

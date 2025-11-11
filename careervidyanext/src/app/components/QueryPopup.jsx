@@ -2,23 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import api from "@/utlis/api"; // ✅ optional axios instance
+import api from "@/utlis/api"; // ✅ axios instance
 
 export default function QueryPopup() {
   const [showPopup, setShowPopup] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
+    mobile: "",
     city: "",
-    queryType: "",
+    message: "",
   });
 
-  // ✅ Automatically open after 5 seconds
+  // ✅ Automatically show popup after 5 seconds
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowPopup(true);
-    }, 5000); // show after 5 seconds
+    const timer = setTimeout(() => setShowPopup(true), 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -30,14 +28,14 @@ export default function QueryPopup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/api/v1/query", formData);
+      await api.post("/api/v1/getintouch", formData);
       alert("✅ Query submitted successfully!");
       setFormData({
         name: "",
         email: "",
-        phone: "",
+        mobile: "",
         city: "",
-        queryType: "",
+        message: "",
       });
       setShowPopup(false);
     } catch (error) {
@@ -46,7 +44,7 @@ export default function QueryPopup() {
     }
   };
 
-  if (!showPopup) return null; // hide until time delay
+  if (!showPopup) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
@@ -95,8 +93,8 @@ export default function QueryPopup() {
             />
             <input
               type="tel"
-              name="phone"
-              value={formData.phone}
+              name="mobile"
+              value={formData.mobile}
               onChange={handleChange}
               placeholder="Mobile No"
               required
@@ -111,34 +109,16 @@ export default function QueryPopup() {
               required
               className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
             />
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="Your Message"
+              required
+              rows="3"
+              className="col-span-2 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+            ></textarea>
 
-            {/* Query Type */}
-            <div className="col-span-2 space-y-2 mt-2">
-              <label className="flex items-center gap-2 text-gray-700">
-                <input
-                  type="radio"
-                  name="queryType"
-                  value="admission"
-                  checked={formData.queryType === "admission"}
-                  onChange={handleChange}
-                  className="accent-blue-600"
-                />
-                Query related to Admission
-              </label>
-              <label className="flex items-center gap-2 text-gray-700">
-                <input
-                  type="radio"
-                  name="queryType"
-                  value="other"
-                  checked={formData.queryType === "other"}
-                  onChange={handleChange}
-                  className="accent-blue-600"
-                />
-                Query related to Other
-              </label>
-            </div>
-
-            {/* Submit Button */}
             <div className="col-span-2">
               <button
                 type="submit"

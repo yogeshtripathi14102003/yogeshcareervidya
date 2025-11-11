@@ -1,223 +1,65 @@
-// "use client";
- 
-// import { useEffect, useState } from "react";
-// import api from "@/utlis/api.js"; // ✅ your axios instance with baseURL
-  
-
-// export default function NewsletterPage() {
-//   const [subscribers, setSubscribers] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [subject, setSubject] = useState("");
-//   const [body, setBody] = useState("");
-//   const [logs, setLogs] = useState([]);
-
-//   // 🧠 Fetch subscribers
-//   const fetchSubscribers = async () => {
-//     try {
-//       setLoading(true);
-//       const res = await api.get("/api/admin/newsletter/subscribers", {
-//         withCredentials: true, // ⬅️ keep cookies if your auth uses them
-//       });
-//       if (res.data?.subscribers) {
-//         setSubscribers(res.data.subscribers);
-//       }
-//     } catch (err) {
-//       console.error("Failed to fetch subscribers:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // 🧠 Send newsletter
-//   const handleSend = async (e) => {
-//     e.preventDefault();
-
-//     if (!subject || !body) {
-//       alert("Please enter both subject and content.");
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-//       const res = await api.post(
-//         "/api/admin/newsletter/send",
-//         { subject, body },
-//         { withCredentials: true }
-//       );
-
-//       if (res.status === 200) {
-//         alert("✅ Newsletter sent successfully!");
-//         setLogs((prev) => [res.data.log, ...prev]);
-//         setSubject("");
-//         setBody("");
-//       } else {
-//         alert(res.data?.message || "Failed to send newsletter.");
-//       }
-//     } catch (err) {
-//       console.error("Error sending newsletter:", err);
-//       alert("Error while sending newsletter.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchSubscribers();
-//   }, []);
-
-//   return (
-//     <div className="container">
-//       <main className="main-content">
-//         {/* Header */}
-//         <div className="header">
-//           <h1>
-//             <i className="fas fa-newspaper"></i> Newsletter Management
-//           </h1>
-//         </div>
-
-//         {/* Stats */}
-//         <div className="stats-cards">
-//           <div className="stat-card">
-//             <div className="stat-info">
-//               <h3>Total Subscribers</h3>
-//               <p>{loading ? "Loading..." : subscribers.length}</p>
-//             </div>
-//             <div className="stat-icon green">
-//               <i className="fas fa-users"></i>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Logs Table */}
-//         <div className="newsletter-table">
-//           <div className="table-header">
-//             <h2>Sent Newsletters</h2>
-//           </div>
-//           <table>
-//             <thead>
-//               <tr>
-//                 <th>Subject</th>
-//                 <th>Recipients</th>
-//                 <th>Status</th>
-//                 <th>Sent At</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {logs.length === 0 ? (
-//                 <tr>
-//                   <td colSpan="4">No newsletters sent yet</td>
-//                 </tr>
-//               ) : (
-//                 logs.map((log) => (
-//                   <tr key={log._id}>
-//                     <td>{log.subject}</td>
-//                     <td>{log.recipients?.length || 0}</td>
-//                     <td>
-//                       <span className={`status ${log.status}`}>{log.status}</span>
-//                     </td>
-//                     <td>
-//                       {log.sentAt ? new Date(log.sentAt).toLocaleString() : "-"}
-//                     </td>
-//                   </tr>
-//                 ))
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-
-//         {/* Newsletter Form */}
-//         <div className="create-newsletter">
-//           <div className="create-header">
-//             <h2>
-//               <i className="fas fa-plus-circle"></i> Create New Newsletter
-//             </h2>
-//           </div>
-//           <form onSubmit={handleSend}>
-//             <div className="form-group">
-//               <label>Email Subject</label>
-//               <input
-//                 type="text"
-//                 className="form-control"
-//                 placeholder="Enter email subject"
-//                 value={subject}
-//                 onChange={(e) => setSubject(e.target.value)}
-//               />
-//             </div>
-//             <div className="form-group">
-//               <label>Content</label>
-//               <textarea
-//                 className="form-control"
-//                 placeholder="Write your newsletter..."
-//                 value={body}
-//                 onChange={(e) => setBody(e.target.value)}
-//               ></textarea>
-//             </div>
-//             <button type="submit" className="btn btn-primary" disabled={loading}>
-//               {loading ? "Sending..." : "Send Newsletter"}
-//             </button>
-//           </form>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/utlis/api.js";
+import api from "@/utlis/api.js"; // ✅ centralized axios instance
 
 export default function NewsletterPage() {
   const [subscribers, setSubscribers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [logs, setLogs] = useState([]);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
 
+  // ✅ Fetch Subscribers
   const fetchSubscribers = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/v1/subscribers", {
-        withCredentials: true,
-      });
-      if (res.data?.subscribers) {
-        setSubscribers(res.data.subscribers);
-      }
+      const res = await api.get("/api/v1/subscribers");
+      setSubscribers(res.data.subscribers || []);
     } catch (err) {
-      console.error("Failed to fetch subscribers:", err);
+      console.error("Error fetching subscribers:", err);
+      alert("⚠️ Failed to fetch subscribers");
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Fetch Newsletter Logs
+  const fetchLogs = async () => {
+    try {
+      const res = await api.get("/api/v1/subscribers");
+      setLogs(res.data.logs || []);
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+    }
+  };
+
+  // ✅ Send Newsletter
   const handleSend = async (e) => {
     e.preventDefault();
     if (!subject || !body) return alert("Please enter both subject and content.");
 
     try {
-      setLoading(true);
-      const res = await api.post(
-        "/api/v1/send",
-        { subject, body },
-        { withCredentials: true }
-      );
+      setSending(true);
+      const res = await api.post("/api/v1/send", { subject, body });
       if (res.status === 200) {
         alert("✅ Newsletter sent successfully!");
-        setLogs((prev) => [res.data.log, ...prev]);
         setSubject("");
         setBody("");
+        fetchLogs(); // Refresh logs
       }
     } catch (err) {
       console.error("Error sending newsletter:", err);
-      alert("Error while sending newsletter.");
+      alert("❌ Failed to send newsletter.");
     } finally {
-      setLoading(false);
+      setSending(false);
     }
   };
 
   useEffect(() => {
     fetchSubscribers();
+    fetchLogs();
   }, []);
 
   return (
@@ -229,8 +71,9 @@ export default function NewsletterPage() {
         </h1>
       </header>
 
+      {/* MAIN CONTENT */}
       <main className="flex-1 p-6 space-y-8">
-        {/* Stats */}
+        {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-white shadow rounded-xl p-6 flex justify-between items-center">
             <div>
@@ -245,7 +88,7 @@ export default function NewsletterPage() {
           </div>
         </div>
 
-        {/* Newsletter Logs */}
+        {/* NEWSLETTER LOGS */}
         <section className="bg-white shadow rounded-xl p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-800">Sent Newsletters</h2>
@@ -265,7 +108,7 @@ export default function NewsletterPage() {
                 {logs.length === 0 ? (
                   <tr>
                     <td colSpan="4" className="p-4 text-center text-gray-500">
-                      No newsletters sent yet
+                      No newsletters sent yet.
                     </td>
                   </tr>
                 ) : (
@@ -278,18 +121,16 @@ export default function NewsletterPage() {
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
                             log.status === "sent"
                               ? "bg-green-100 text-green-700"
-                              : log.status === "scheduled"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-gray-200 text-gray-600"
+                              : log.status === "failed"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
                           {log.status}
                         </span>
                       </td>
                       <td className="p-3 text-gray-600">
-                        {log.sentAt
-                          ? new Date(log.sentAt).toLocaleString()
-                          : "-"}
+                        {log.sentAt ? new Date(log.sentAt).toLocaleString() : "-"}
                       </td>
                     </tr>
                   ))
@@ -299,7 +140,7 @@ export default function NewsletterPage() {
           </div>
         </section>
 
-        {/* Create Newsletter Form */}
+        {/* SEND NEWSLETTER FORM */}
         <section className="bg-white shadow rounded-xl p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <i className="fas fa-plus-circle text-blue-500"></i> Create New Newsletter
@@ -325,7 +166,7 @@ export default function NewsletterPage() {
               </label>
               <textarea
                 className="w-full border border-gray-300 rounded-lg p-3 min-h-[150px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Write your newsletter..."
+                placeholder="Write your newsletter content..."
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
               ></textarea>
@@ -333,10 +174,10 @@ export default function NewsletterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={sending}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition disabled:opacity-50"
             >
-              {loading ? "Sending..." : "Send Newsletter"}
+              {sending ? "Sending..." : "Send Newsletter"}
             </button>
           </form>
         </section>

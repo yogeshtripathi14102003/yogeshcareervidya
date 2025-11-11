@@ -22,7 +22,7 @@ export default function Home() {
       <Header />
       <Slider />
       <Counter />
-      <Getcourse />
+      <Getcourse  />
       <FLOW />
       <TeamSection />
      
