@@ -5,8 +5,6 @@ import { useParams } from "next/navigation";
 import api from "@/utlis/api.js";
 
 export default function CourseDetailPage() {
-  if (typeof window === "undefined") return null; // ✅ prevents SSR crash
-
   const { slug } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,6 +14,7 @@ export default function CourseDetailPage() {
 
     const fetchCourse = async () => {
       try {
+        // ✅ Match your backend route — GET /api/v1/course/:slug
         const res = await api.get(`/api/v1/course/${slug}`);
         setCourse(res.data.course);
       } catch (err) {
@@ -38,7 +37,7 @@ export default function CourseDetailPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
-      {/* Header */}
+      {/* Course Header */}
       <section className="flex flex-col md:flex-row gap-6 bg-white p-6 rounded-xl shadow">
         {course.courseLogo?.url && (
           <img
