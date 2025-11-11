@@ -5,9 +5,9 @@ import Link from "next/link";
 import Getintuch from "../components/getintuch";
 import Header from  "../layout/Header";
 import { Target, Heart, Briefcase } from "lucide-react";
-import ContactBanner from "../components/ContactBanner "
-import Footer from "../layout/Footer";
-import Counter from "../components/Counter/page";
+import ContactBanner from "../components/ContactBanner ";
+import  Footer from "../layout/Footer";
+ import Counter from "../components/counter/page";
 
 export default function AboutUs() {
   const infoCards = [
