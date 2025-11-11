@@ -6,7 +6,7 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL || "https://api.careervidya.in",  
   headers: { "Content-Type": "application/json" },
   withCredentials: false,
-});
+});   
 
 // ✅ Automatically attach token if available
 api.interceptors.request.use(
