@@ -88,7 +88,7 @@ export const sendOTP = async (req, res) => {
                       <p style="font-size: 14px; color: #666666; line-height: 1.5; margin: 0 0 20px;">
                         If you did not request this code, please ignore this email or contact our support team.
                       </p>
-                      <a href="mailto:support@example.com" style="font-size: 14px; color: #1a73e8; text-decoration: none;">Contact Support</a>
+                      <a href="mailto:supportcareervidya@gmail.com" style="font-size: 14px; color: #1a73e8; text-decoration: none;">Contact Support</a>
                     </td>
                   </tr>
                   <tr>
@@ -96,7 +96,7 @@ export const sendOTP = async (req, res) => {
                       <p style="font-size: 12px; color: #999999; margin: 0;">
                         &copy; 2025 Your Company Name. All rights reserved.<br>
                         <a href="https://www.careervidya.in" style="color: #1a73e8; text-decoration: none;">Visit our website</a> | 
-                        <a href="https://www.example.com/privacy" style="color: #1a73e8; text-decoration: none;">Privacy Policy</a>
+                        <a href="https://www.careervidya.in/privicy" style="color: #1a73e8; text-decoration: none;">Privacy Policy</a>
                       </p>
                     </td>
                   </tr>

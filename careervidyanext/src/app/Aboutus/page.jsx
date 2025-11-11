@@ -2,83 +2,98 @@
 
 import React from "react";
 import Link from "next/link";
-import Getintuch from "../components/getintuch"// ✅ import your Getintuch component
-import ContactBanner from "../components/ContactBanner ";
-import Header from "../layout/Header";
+import Getintuch from "../components/getintuch";
+import Header from  "../layout/Header";
+import { Target, Heart, Briefcase } from "lucide-react";
+import ContactBanner from "../components/ContactBanner "
+import Footer from "../layout/Footer";
+import Counter from "../components/Counter/page";
 
 export default function AboutUs() {
-  const COMPANY_NAME = "Career Vidya Edu-Tech Pvt. Ltd.";
-  const MISSION_STATEMENT =
-    "Our mission is to empower students by providing free, personalized, and transparent career guidance to help them choose the right course and college for a bright future.";
+  const infoCards = [
+    {
+      icon: <Target className="w-10 h-10 mb-3" />,
+      title: "Our Mission",
+      description:
+        "To make quality online and offline education accessible, comparable, and stress-free for every learner in India through clarity, credibility, and commitment.",
+    },
+    {
+      icon: <Heart className="w-10 h-10 mb-3" />,
+      title: "Our Values",
+      description:
+        "We believe in honesty, transparency, and student-first guidance—ensuring clarity in every educational decision.",
+    },
+    {
+      icon: <Briefcase className="w-10 h-10 mb-3" />,
+      title: "What We Do",
+      description:
+        "We guide students with verified course data, expert mentorship, and technology-driven comparison tools to simplify career choices.",
+    },
+  ];
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <>
+      {/* Header */}
       <Header />
-      <div className="mx-auto max-w-4xl bg-white shadow-md rounded-2xl p-8">
-        {/* Header */}
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-[#0056A4] mb-2">About Us</h1>
-          <p className="text-gray-600 text-sm">Learn more about who we are and what we do</p>
-        </header>
 
-        {/* Main Content */}
-        <section className="space-y-6 text-gray-700 leading-relaxed">
-          <p>
-            Welcome to <strong>{COMPANY_NAME}</strong>! We are a passionate team of educators,
-            counselors, and tech professionals committed to transforming the way students make
-            academic and career decisions.
-          </p>
-
-          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Our Mission</h2>
-          <p>{MISSION_STATEMENT}</p>
-
-          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">What We Do</h2>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>Free career guidance sessions for students across India.</li>
-            <li>College and course comparison tools to make informed decisions.</li>
-            <li>Personalized counseling from expert education advisors.</li>
-            <li>Workshops and webinars on admission, exams, and career planning.</li>
-          </ul>
-
-          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Our Values</h2>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>
-              <strong>Integrity:</strong> We believe in honest and unbiased guidance for every student.
-            </li>
-            <li>
-              <strong>Empathy:</strong> We listen, understand, and care for each student’s unique journey.
-            </li>
-            <li>
-              <strong>Innovation:</strong> We use technology to simplify complex educational choices.
-            </li>
-            <li>
-              <strong>Excellence:</strong> We strive to deliver accurate, reliable, and actionable insights.
-            </li>
-          </ul>
-
-          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Our Team</h2>
-          <p>
-            Our team consists of experienced academic counselors, career coaches, and software
-            professionals who share a single goal — to guide students toward a successful and
-            fulfilling future.
-          </p>
-
-          <h2 className="text-2xl font-semibold mt-8 text-[#0056A4]">Contact Us</h2>
-          <p>
-            Have questions or want to connect with our counselors?{" "}
-            <Link href="/contact" className="text-blue-600 underline ml-1">
-              Visit our Contact Page
-            </Link>{" "}
-            or fill out the quick form below — we’ll get in touch soon!
-          </p>
-        </section>
+      {/* Banner Section */}
+      <div className="relative overflow-hidden w-auto md:h-[70vh] h-[30vh]">
+        <img
+          src="/images/about.png"
+          alt="About Us Banner"
+          className="w-full h-full object-cover object-center opacity-70"
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h1 className="text-white text-3xl md:text-5xl font-bold drop-shadow-lg">
+            This is Our Team
+          </h1>
+        </div>
       </div>
 
-      {/* ✅ Added Getintuch Section */}
-      <div className="mt-12">
-        <ContactBanner  />
-        <Getintuch />
-      </div>
-    </main>
+      {/* Counter Section */}
+      <Counter />
+
+      {/* Main Section */}
+      <main className="min-h-screen bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          {/* Info Cards */}
+          <div className="grid md:grid-cols-3 gap-8">
+            {infoCards.map((card, index) => (
+              <div
+                key={index}
+                className="group p-6 border border-blue-200 rounded-2xl 
+                           bg-gradient-to-br from-[#ffffff] to-[#eef6ff]
+                           hover:shadow-2xl hover:-translate-y-1
+                           hover:bg-gradient-to-tr hover:from-[#FF7A00]/20 hover:via-white hover:to-[#0056A4]/20
+                           transition-all duration-500 ease-in-out"
+              >
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 text-[#0056A4] group-hover:text-[#FF7A00] transition-colors duration-300">
+                    {card.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#0056A4] mb-2 group-hover:text-[#FF7A00] transition-colors duration-300">
+                      {card.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {card.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact Banner + Get in Touch */}
+        <div className="mt-16">
+          <ContactBanner />
+          <Getintuch />
+        </div>
+      </main>
+
+      {/* Footer */}
+      <Footer />
+    </>
   );
 }

@@ -1,20 +1,284 @@
+// "use client";
+
+// import { useEffect, useState, useRef } from "react";
+// import api from "@/utlis/api.js";
+// import { ChevronLeft, ChevronRight, X } from "lucide-react";
+
+// export default function CoursesListingPage() {
+//   // ---------- STATES ----------
+//   const [courses, setCourses] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [selectedCategory, setSelectedCategory] = useState("All");
+//   const [showAll, setShowAll] = useState(false);
+//   const [isMounted, setIsMounted] = useState(false);
+
+//   const scrollRef = useRef(null);
+
+//   // ---------- CATEGORY DATA ----------
+//   const sidebarItems = [
+//     { key: "All", title: "All Courses", subtitle: "Browse everything" },
+//     { key: "PG", title: "PG Courses", subtitle: "After Graduation" },
+//     {
+//       key: "ExecutiveEducation",
+//       title: "Executive Education",
+//       subtitle: "For Working Professionals",
+//     },
+//     { key: "UG", title: "UG Courses", subtitle: "After 12th" },
+//     {
+//       key: "Doctorate",
+//       title: "Doctorate",
+//       subtitle: "Get Dr. Title (After UG + Work Ex)",
+//     },
+//   ];
+
+//   // ---------- Enable client-side render ----------
+//   useEffect(() => {
+//     setIsMounted(true);
+//   }, []);
+
+//   // ---------- API CALL ----------
+//   useEffect(() => {
+//     if (!isMounted) return;
+//     const fetchCourses = async () => {
+//       setLoading(true);
+//       try {
+//         const url =
+//           selectedCategory === "All"
+//             ? "/api/v1/course"
+//             : `/api/v1/course?category=${selectedCategory}`;
+//         const res = await api.get(url);
+//         setCourses(res.data.courses || []);
+//       } catch (err) {
+//         console.error("❌ Error fetching courses:", err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchCourses();
+//   }, [isMounted, selectedCategory]);
+
+//   // ---------- SCROLL BUTTONS ----------
+//   const scrollLeft = () => {
+//     if (scrollRef.current)
+//       scrollRef.current.scrollBy({ left: -150, behavior: "smooth" });
+//   };
+//   const scrollRight = () => {
+//     if (scrollRef.current)
+//       scrollRef.current.scrollBy({ left: 150, behavior: "smooth" });
+//   };
+
+//   // ---------- COURSE CARD ----------
+//   const CourseCard = ({ course }) => (
+//     <div className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all flex flex-col justify-between min-w-[180px] sm:min-w-0">
+//       <span className="absolute top-3 left-3 bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white text-xs px-3 py-1 font-medium shadow-sm">
+//         {course.duration || "2 Years"}
+//       </span>
+
+//       <div className="flex justify-center items-center mt-10 text-[#F58220] text-3xl">
+//         <i className="fa-solid fa-book-open"></i>
+//       </div>
+
+//       <div className="text-center mt-6 mb-10 px-2">
+//         <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">
+//           {course.name}
+//         </h3>
+//       </div>
+
+//       <button className="bg-gradient-to-r from-[#0056B3] to-[#F58220] hover:opacity-90 text-white text-xs font-semibold py-2 transition-all">
+//         Know More
+//       </button>
+//     </div>
+//   );
+
+//   // ---------- Prevent hydration mismatch ----------
+//   if (!isMounted) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center text-gray-400">
+//         Loading...
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex flex-col lg:flex-row gap-6 px-4 md:px-8 pt-10 sm:py-10 transition-all">
+//       {/* ---------- SIDEBAR ---------- */}
+//       <aside className="lg:w-1/4 bg-white border border-gray-100 shadow-lg p-5 md:p-6">
+//         <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
+//           Categories
+//         </h3>
+
+//         {/* ---------- MOBILE SCROLL MENU ---------- */}
+//         <div className="block lg:hidden relative mb-6">
+//           <button
+//             onClick={scrollLeft}
+//             className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 p-1 rounded-full shadow z-10"
+//           >
+//             <ChevronLeft className="w-4 h-4 text-[#0056B3]" />
+//           </button>
+//           <button
+//             onClick={scrollRight}
+//             className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 p-1 rounded-full shadow z-10"
+//           >
+//             <ChevronRight className="w-4 h-4 text-[#0056B3]" />
+//           </button>
+
+//           <div
+//             ref={scrollRef}
+//             className="flex gap-3 overflow-x-auto scrollbar-hide px-6"
+//           >
+//             {sidebarItems.map((item) => (
+//               <button
+//                 key={item.key}
+//                 onClick={() => setSelectedCategory(item.key)}
+//                 className={`whitespace-nowrap px-4 py-2 text-sm font-semibold transition-all border ${
+//                   selectedCategory === item.key
+//                     ? "bg-[#0056B3] text-white border-[#0056B3]"
+//                     : "bg-white text-[#0056B3] border-gray-300 hover:bg-blue-50"
+//                 }`}
+//               >
+//                 {item.title}
+//               </button>
+//             ))}
+//           </div>
+//         </div>
+
+//         {/* ---------- DESKTOP CATEGORY LIST ---------- */}
+//         <div className="hidden lg:block">
+//           {sidebarItems.map((item) => (
+//             <div
+//               key={item.key}
+//               onClick={() => setSelectedCategory(item.key)}
+//               className={`mb-4 p-4 cursor-pointer border-2 transition-all ${
+//                 selectedCategory === item.key
+//                   ? "border-[#F58220] bg-orange-50 shadow-md"
+//                   : "border-transparent hover:border-[#0056B3]/30 hover:bg-blue-50/30"
+//               }`}
+//             >
+//               <div className="flex items-start gap-3">
+//                 <div
+//                   className={`p-3 flex justify-center items-center transition-all ${
+//                     selectedCategory === item.key
+//                       ? "bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white"
+//                       : "bg-gray-100 text-gray-600"
+//                   }`}
+//                 >
+//                   <i className="fa-solid fa-graduation-cap text-base"></i>
+//                 </div>
+//                 <div>
+//                   <h3
+//                     className={`font-semibold text-[16px] ${
+//                       selectedCategory === item.key
+//                         ? "text-[#0056B3]"
+//                         : "text-gray-800"
+//                     }`}
+//                   >
+//                     {item.title}
+//                   </h3>
+//                   <p className="text-sm text-gray-500">↳ {item.subtitle}</p>
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </aside>
+
+//       {/* ---------- MAIN CONTENT ---------- */}
+//       <main className="flex-1 pb-0 sm:pb-10">
+//         <h2 className="text-3xl font-extrabold text-center lg:text-left mb-10 text-[#0056B3]">
+//           {loading ? "Loading..." : `${selectedCategory} Courses`}
+//         </h2>
+
+//         {/* Desktop Grid */}
+//         <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+//           {loading ? (
+//             <p className="col-span-full text-center text-gray-500 animate-pulse">
+//               Loading courses...
+//             </p>
+//           ) : courses.length === 0 ? (
+//             <p className="col-span-full text-center text-gray-500">
+//               No courses found.
+//             </p>
+//           ) : (
+//             courses
+//               .slice(0, 10)
+//               .map((course) => <CourseCard key={course._id} course={course} />)
+//           )}
+//         </div>
+
+//         {/* Mobile Horizontal Scroll */}
+//         <div className="sm:hidden flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+//           {courses.slice(0, 10).map((course) => (
+//             <CourseCard key={course._id} course={course} />
+//           ))}
+//         </div>
+
+//         {/* View All Button */}
+//         <div className="text-center mt-5 mb-0 sm:mt-8 sm:mb-0">
+//           <button
+//             onClick={() => setShowAll(true)}
+//             className="bg-[#0056B3] hover:bg-[#004494] text-white font-semibold px-6 py-2 text-sm uppercase"
+//           >
+//             View All
+//           </button>
+//         </div>
+//       </main>
+
+//       {/* ---------- POPUP MODAL ---------- */}
+//       {showAll && (
+//         <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center sm:p-4 p-0">
+//           <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 sm:rounded-xl">
+//             <button
+//               onClick={() => setShowAll(false)}
+//               className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-full p-1"
+//             >
+//               <X className="w-5 h-5 text-gray-700" />
+//             </button>
+
+//             <h3 className="text-2xl font-bold text-[#0056B3] mb-6 text-center">
+//               All {selectedCategory} Courses
+//             </h3>
+
+//             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+//               {courses.map((course) => (
+//                 <div key={course._id} className="w-full">
+//                   <CourseCard course={course} />
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ---------- HIDE SCROLLBAR ---------- */}
+//       <style jsx>{`
+//         .scrollbar-hide::-webkit-scrollbar {
+//           display: none;
+//         }
+//         .scrollbar-hide {
+//           -ms-overflow-style: none;
+//           scrollbar-width: none;
+//         }
+//       `}</style>
+//     </div>
+//   );
+// }
+
+
 "use client";
 
 import { useEffect, useState, useRef } from "react";
 import api from "@/utlis/api.js";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import Link from "next/link";
 
 export default function CoursesListingPage() {
-  // ---------- STATES ----------
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showAll, setShowAll] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-
   const scrollRef = useRef(null);
 
-  // ---------- CATEGORY DATA ----------
   const sidebarItems = [
     { key: "All", title: "All Courses", subtitle: "Browse everything" },
     { key: "PG", title: "PG Courses", subtitle: "After Graduation" },
@@ -31,12 +295,10 @@ export default function CoursesListingPage() {
     },
   ];
 
-  // ---------- Enable client-side render ----------
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // ---------- API CALL ----------
   useEffect(() => {
     if (!isMounted) return;
     const fetchCourses = async () => {
@@ -57,7 +319,6 @@ export default function CoursesListingPage() {
     fetchCourses();
   }, [isMounted, selectedCategory]);
 
-  // ---------- SCROLL BUTTONS ----------
   const scrollLeft = () => {
     if (scrollRef.current)
       scrollRef.current.scrollBy({ left: -150, behavior: "smooth" });
@@ -67,30 +328,31 @@ export default function CoursesListingPage() {
       scrollRef.current.scrollBy({ left: 150, behavior: "smooth" });
   };
 
-  // ---------- COURSE CARD ----------
+  // ✅ Course Card with slug-based navigation
   const CourseCard = ({ course }) => (
-    <div className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all flex flex-col justify-between min-w-[180px] sm:min-w-0">
-      <span className="absolute top-3 left-3 bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white text-xs px-3 py-1 font-medium shadow-sm">
-        {course.duration || "2 Years"}
-      </span>
+    <Link href={`/course/${course.slug}`} passHref>
+      <div className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all flex flex-col justify-between min-w-[180px] sm:min-w-0 cursor-pointer">
+        <span className="absolute top-3 left-3 bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white text-xs px-3 py-1 font-medium shadow-sm">
+          {course.duration || "2 Years"}
+        </span>
 
-      <div className="flex justify-center items-center mt-10 text-[#F58220] text-3xl">
-        <i className="fa-solid fa-book-open"></i>
+        <div className="flex justify-center items-center mt-10 text-[#F58220] text-3xl">
+          <i className="fa-solid fa-book-open"></i>
+        </div>
+
+        <div className="text-center mt-6 mb-10 px-2">
+          <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">
+            {course.name}
+          </h3>
+        </div>
+
+        <button className="bg-gradient-to-r from-[#0056B3] to-[#F58220] hover:opacity-90 text-white text-xs font-semibold py-2 transition-all">
+          Know More
+        </button>
       </div>
-
-      <div className="text-center mt-6 mb-10 px-2">
-        <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">
-          {course.name}
-        </h3>
-      </div>
-
-      <button className="bg-gradient-to-r from-[#0056B3] to-[#F58220] hover:opacity-90 text-white text-xs font-semibold py-2 transition-all">
-        Know More
-      </button>
-    </div>
+    </Link>
   );
 
-  // ---------- Prevent hydration mismatch ----------
   if (!isMounted) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-400">
@@ -101,13 +363,13 @@ export default function CoursesListingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex flex-col lg:flex-row gap-6 px-4 md:px-8 pt-10 sm:py-10 transition-all">
-      {/* ---------- SIDEBAR ---------- */}
+      {/* Sidebar */}
       <aside className="lg:w-1/4 bg-white border border-gray-100 shadow-lg p-5 md:p-6">
         <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
           Categories
         </h3>
 
-        {/* ---------- MOBILE SCROLL MENU ---------- */}
+        {/* Mobile scrollable categories */}
         <div className="block lg:hidden relative mb-6">
           <button
             onClick={scrollLeft}
@@ -142,7 +404,7 @@ export default function CoursesListingPage() {
           </div>
         </div>
 
-        {/* ---------- DESKTOP CATEGORY LIST ---------- */}
+        {/* Desktop Sidebar */}
         <div className="hidden lg:block">
           {sidebarItems.map((item) => (
             <div
@@ -182,13 +444,13 @@ export default function CoursesListingPage() {
         </div>
       </aside>
 
-      {/* ---------- MAIN CONTENT ---------- */}
+      {/* Main section */}
       <main className="flex-1 pb-0 sm:pb-10">
         <h2 className="text-3xl font-extrabold text-center lg:text-left mb-10 text-[#0056B3]">
           {loading ? "Loading..." : `${selectedCategory} Courses`}
         </h2>
 
-        {/* Desktop Grid */}
+        {/* Course grid */}
         <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
           {loading ? (
             <p className="col-span-full text-center text-gray-500 animate-pulse">
@@ -205,7 +467,7 @@ export default function CoursesListingPage() {
           )}
         </div>
 
-        {/* Mobile Horizontal Scroll */}
+        {/* Mobile Scroll */}
         <div className="sm:hidden flex gap-4 overflow-x-auto scrollbar-hide pb-2">
           {courses.slice(0, 10).map((course) => (
             <CourseCard key={course._id} course={course} />
@@ -223,7 +485,7 @@ export default function CoursesListingPage() {
         </div>
       </main>
 
-      {/* ---------- POPUP MODAL ---------- */}
+      {/* Popup Modal for All Courses */}
       {showAll && (
         <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center sm:p-4 p-0">
           <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 sm:rounded-xl">
@@ -249,7 +511,6 @@ export default function CoursesListingPage() {
         </div>
       )}
 
-      {/* ---------- HIDE SCROLLBAR ---------- */}
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

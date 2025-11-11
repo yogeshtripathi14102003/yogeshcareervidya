@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/utlis/api"; // ✅ Your pre-configured axios instance
+import api from "@/utlis/api.js"; //  Your pre-configured axios instance
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
