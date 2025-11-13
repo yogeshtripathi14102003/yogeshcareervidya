@@ -3,6 +3,7 @@
 
 // export default nextConfig;
 /** @type {import('next').NextConfig} */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -12,6 +13,22 @@ const nextConfig = {
       },
     ],
   },
+
+  async rewrites() {
+    return [
+      {
+        source: "/",
+        has: [
+          {
+            type: "host",
+            value: "technical.careervidya.in", // ✅ subdomain condition
+          },
+        ],
+        destination: "/MBA/home", // ✅ show this page
+      },
+    ];
+  },
 };
 
 export default nextConfig;
+
