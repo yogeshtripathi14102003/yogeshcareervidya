@@ -204,15 +204,10 @@ export default function HeroSlider() {
   const fetchBanners = async () => {
     try {
       const res = await api.get("/api/v1/banner");
-      const heroBanners =
-        res.data?.data?.filter?.(
-          (b) => b.position?.trim()?.toUpperCase() === "HERO"
-        ) ||
-        res.data?.filter?.(
-          (b) => b.position?.trim()?.toUpperCase() === "HERO"
-        ) ||
-        [];
-      setSlides(heroBanners);
+      const heroBanners = res.data?.filter(
+        (b) => b.position?.trim()?.toUpperCase() === "HERO"
+      );
+      setSlides(heroBanners || []);
     } catch (err) {
       console.error("❌ Error fetching HERO banners:", err);
     } finally {
@@ -231,6 +226,7 @@ export default function HeroSlider() {
     return () => clearInterval(timer);
   }, [slides]);
 
+  // ✅ Safe next/prev navigation
   const handleNext = () => {
     if (isTransitioning.current || !slides.length) return;
     isTransitioning.current = true;
@@ -247,32 +243,25 @@ export default function HeroSlider() {
     setTimeout(() => (isTransitioning.current = false), 800);
   };
 
-  // ✅ Safe universal image getter
+  // ✅ Universal Image Handler
   const getImageSrc = (slide) => {
-    if (!slide) return "/images/default-banner.jpg";
+    if (!slide?.image) return "/images/default-banner.jpg";
 
     let img = slide.image;
 
-    // Object case (Cloudinary)
-    if (typeof img === "object" && img?.url) {
-      return img.url;
+    // If backend sends object or array
+    if (typeof img === "object") {
+      if (img?.url) img = img.url;
+      else if (Array.isArray(img) && img[0]?.url) img = img[0].url;
+      else if (Array.isArray(img)) img = img[0];
     }
 
-    // Array case
-    if (Array.isArray(img)) {
-      if (img[0]?.url) return img[0].url;
-      if (typeof img[0] === "string") return img[0];
-    }
+    if (typeof img !== "string" || !img.length)
+      return "/images/default-banner.jpg";
 
-    // Direct string
-    if (typeof img === "string" && img.startsWith("http")) return img;
+    if (img.startsWith("http")) return img;
 
-    // Relative path
-    if (typeof img === "string" && img.trim().length > 0) {
-      return `${BASE_URL}/${img.replace(/^\/+/, "")}`;
-    }
-
-    return "/images/default-banner.jpg";
+    return `${BASE_URL}/${img.replace(/^\/+/, "")}`;
   };
 
   if (loading) {
@@ -302,14 +291,15 @@ export default function HeroSlider() {
               index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
-            <Image
-              src={getImageSrc(slide)}
-              alt={slide.title || `Slide ${index + 1}`}
-              fill
-              className="object-contain md:object-cover object-center"
-              unoptimized
-              priority={index === 0}
-            />
+  <Image
+  src={getImageSrc(slide)}
+  alt={slide.title || `Slide ${index + 1}`}
+  fill
+  className="object-contain md:object-cover object-center"
+  unoptimized
+  priority={index === 0}
+/>
+
 
             <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-4">
               {slide.title && (

@@ -91,10 +91,10 @@ const LoginPage = () => {
         <h2 className="text-2xl font-semibold mb-6">Welcome Back to Career Vidya</h2>
         <p className="mb-4">Log in to access your personalized dashboard:</p>
         <ul className="list-disc list-inside mb-6 space-y-2">
-          <li>Exam And Admission Alerts</li>
-          <li>Mock Tests & Sample Papers</li>
-          <li>AI-Based College/Rank Prediction Tools</li>
-          <li>College And Course Guides</li>
+         <li>Exam Alerts Timely updates Smart decisions</li>
+            <li>Mock Tests Practice. Perform Perfect.</li>
+            <li>AI Predictions Data-driven college matches</li>
+            <li>Counselling Personal guidance.Real results.</li>
         </ul>
       </div>
 

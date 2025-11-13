@@ -122,10 +122,10 @@ const Signup = ({ onClose }) => {
             Unlock Your Future with Career Vidya
           </h2>
           <ul className="list-disc list-inside mb-6 space-y-2">
-            <li>Exam & Admission Alerts</li>
-            <li>Mock Tests & Sample Papers</li>
-            <li>AI-Based College Prediction Tools</li>
-            <li>1-on-1 Counselling from Experts</li>
+            <li>Exam Alerts Timely updates Smart decisions</li>
+            <li>Mock Tests Practice. Perform Perfect.</li>
+            <li>AI Predictions Data-driven college matches</li>
+            <li>Counselling Personal guidance.Real results.</li>
           </ul>
         </div>
 

@@ -94,9 +94,9 @@ export const sendOTP = async (req, res) => {
                   <tr>
                     <td style="padding: 20px; text-align: center; background-color: #f4f4f4; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
                       <p style="font-size: 12px; color: #999999; margin: 0;">
-                        &copy; 2025 Your Company Name. All rights reserved.<br>
+                        &copy; 2025 Career Vidya. All rights reserved.<br>
                         <a href="https://www.careervidya.in" style="color: #1a73e8; text-decoration: none;">Visit our website</a> | 
-                        <a href="https://www.careervidya.in/privicy" style="color: #1a73e8; text-decoration: none;">Privacy Policy</a>
+                        <a href="https://www.careervidya.in/privacy" style="color: #1a73e8; text-decoration: none;">Privacy Policy</a>
                       </p>
                     </td>
                   </tr>
@@ -141,6 +141,7 @@ export const verifyOTP = async (req, res) => {
       courese,
       gender,
       addresses,
+      mobileNumber, // ✅ added
     } = req.body;
 
     if (!emailOrPhone || !otp || !purpose)
@@ -161,13 +162,11 @@ export const verifyOTP = async (req, res) => {
         .status(400)
         .json({ msg: "OTP expired. Please request a new one." });
 
-    // Check attempt limit
     if (record.attempts >= 5)
       return res
         .status(400)
         .json({ msg: "Too many invalid attempts. Request new OTP." });
 
-    // Validate OTP
     const isValid = hashOTP(otp) === record.codeHash;
     if (!isValid) {
       record.attempts += 1;
@@ -182,7 +181,6 @@ export const verifyOTP = async (req, res) => {
       $or: [{ email: emailOrPhone }, { mobileNumber: emailOrPhone }],
     });
 
-    // Handle registration
     if (purpose === "register") {
       if (student)
         return res
@@ -192,22 +190,21 @@ export const verifyOTP = async (req, res) => {
       student = await Student.create({
         name,
         email: emailOrPhone.includes("@") ? emailOrPhone : undefined,
-        mobileNumber: !emailOrPhone.includes("@") ? emailOrPhone : undefined,
+        mobileNumber:
+          mobileNumber || (!emailOrPhone.includes("@") ? emailOrPhone : undefined),
         city,
         state,
-        courese,
+        courese, // ✅ same as model
         gender,
-        addresses,
+        addresses, // ✅ matches model
       });
     }
 
-    // Handle login
     if (purpose === "login" && !student)
       return res
         .status(400)
         .json({ msg: "User not found. Please register first." });
 
-    // Generate tokens
     const accessToken = generateAccessToken(student._id);
     const refreshToken = generateRefreshToken(student._id);
 
@@ -229,8 +226,9 @@ export const verifyOTP = async (req, res) => {
         mobileNumber: student.mobileNumber,
         city: student.city,
         state: student.state,
-        courese: student.course,
+        courese: student.courese,
         gender: student.gender,
+        addresses: student.addresses,
         role: student.role,
       },
     });
@@ -253,25 +251,26 @@ export const logout = async (req, res) => {
   }
 };
 
-
 /* -------------------- GET ALL STUDENTS -------------------- */
 export const getAllStudents = async (req, res) => {
   try {
-    const students = await Student.find().select("-password"); // exclude password if any
+    const students = await Student.find().select("-password");
     if (students.length === 0)
       return res.status(404).json({ msg: "No students found" });
 
     return res.status(200).json({ count: students.length, students });
   } catch (error) {
     console.error("Get All Students Error:", error);
-    return res.status(500).json({ msg: "Failed to fetch students", error: error.message });
+    return res
+      .status(500)
+      .json({ msg: "Failed to fetch students", error: error.message });
   }
 };
 
 /* -------------------- DELETE STUDENT -------------------- */
 export const deleteStudent = async (req, res) => {
   try {
-    const { id } = req.params; // or req.body if you prefer body-based delete
+    const { id } = req.params;
 
     if (!id) return res.status(400).json({ msg: "Student ID is required" });
 
@@ -283,16 +282,8 @@ export const deleteStudent = async (req, res) => {
     return res.status(200).json({ msg: "Student deleted successfully" });
   } catch (error) {
     console.error("Delete Student Error:", error);
-    return res.status(500).json({ msg: "Failed to delete student", error: error.message });
+    return res
+      .status(500)
+      .json({ msg: "Failed to delete student", error: error.message });
   }
 };
-
-
-
-
-
-
-
-
-
-
