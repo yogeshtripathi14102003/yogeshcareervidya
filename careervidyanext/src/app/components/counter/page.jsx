@@ -7,8 +7,8 @@ export default function Counter() {
   const counters = [
     { id: 1, target: 10000, label: "Admissions Done", icon: <GraduationCap className="w-6 h-6 text-[#0056B3]" /> },
     { id: 2, target: 150, label: "Academic Partners", icon: <Users className="w-6 h-6 text-[#F58220]" /> },
-    { id: 3, target: 8, label: "Highest Salary Package (LPA)", icon: <Star className="w-6 h-6 text-[#0056B3] fill-[#F58220]" /> },
-    { id: 4, target: 8000, label: "Alumni Network", icon: <Users className="w-6 h-6 text-[#0056B3]" /> },
+    { id: 3, target: 37, label: "Highest Salary Package (LPA)", icon: <Star className="w-6 h-6 text-[#0056B3] fill-[#F58220]" /> },
+    { id: 4, target: 10000, label: "Alumni Network", icon: <Users className="w-6 h-6 text-[#0056B3]" /> },
   ];
 
   const [counts, setCounts] = useState(counters.map(() => 0));
