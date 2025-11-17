@@ -301,6 +301,7 @@ export default function CoursesListingPage() {
 
   useEffect(() => {
     if (!isMounted) return;
+
     const fetchCourses = async () => {
       setLoading(true);
       try {
@@ -308,6 +309,7 @@ export default function CoursesListingPage() {
           selectedCategory === "All"
             ? "/api/v1/course"
             : `/api/v1/course?category=${selectedCategory}`;
+
         const res = await api.get(url);
         setCourses(res.data.courses || []);
       } catch (err) {
@@ -316,6 +318,7 @@ export default function CoursesListingPage() {
         setLoading(false);
       }
     };
+
     fetchCourses();
   }, [isMounted, selectedCategory]);
 
@@ -323,30 +326,40 @@ export default function CoursesListingPage() {
     if (scrollRef.current)
       scrollRef.current.scrollBy({ left: -150, behavior: "smooth" });
   };
+
   const scrollRight = () => {
     if (scrollRef.current)
       scrollRef.current.scrollBy({ left: 150, behavior: "smooth" });
   };
 
-  // ✅ Course Card with slug-based navigation
+  // =====================================================
+  //           UPDATED MOBILE RESPONSIVE COURSE CARD
+  // =====================================================
+
   const CourseCard = ({ course }) => (
     <Link href={`/course/${course.slug}`} passHref>
-      <div className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all flex flex-col justify-between min-w-[180px] sm:min-w-0 cursor-pointer">
-        <span className="absolute top-3 left-3 bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white text-xs px-3 py-1 font-medium shadow-sm">
-          {course.duration || "2 Years"}
-        </span>
+      <div className="relative bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between 
+        min-w-full sm:min-w-0 cursor-pointer rounded-md p-2">
 
-        <div className="flex justify-center items-center mt-10 text-[#F58220] text-3xl">
-          <i className="fa-solid fa-book-open"></i>
+        {/* Course Logo */}
+        <div className="flex justify-center mt-1">
+          <img
+            src={course.courseLogo?.url}
+            alt={course.name}
+            className="w-9 h-9 object-contain"
+          />
         </div>
 
-        <div className="text-center mt-6 mb-10 px-2">
-          <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">
+        {/* Course Title */}
+        <div className="text-center mt-2 mb-3 px-1">
+          <h3 className="font-semibold text-gray-800 text-[11px] line-clamp-2 leading-tight">
             {course.name}
           </h3>
         </div>
 
-        <button className="bg-gradient-to-r from-[#0056B3] to-[#F58220] hover:opacity-90 text-white text-xs font-semibold py-2 transition-all">
+        {/* Button */}
+        <button className="bg-gradient-to-r from-[#0056B3] to-[#F58220] hover:opacity-90 
+          text-white text-[9px] font-semibold py-1 rounded">
           Know More
         </button>
       </div>
@@ -363,13 +376,14 @@ export default function CoursesListingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex flex-col lg:flex-row gap-6 px-4 md:px-8 pt-10 sm:py-10 transition-all">
+
       {/* Sidebar */}
       <aside className="lg:w-1/4 bg-white border border-gray-100 shadow-lg p-5 md:p-6">
         <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
           Categories
         </h3>
 
-        {/* Mobile scrollable categories */}
+        {/* Mobile Horizontal Scroll Categories */}
         <div className="block lg:hidden relative mb-6">
           <button
             onClick={scrollLeft}
@@ -377,6 +391,7 @@ export default function CoursesListingPage() {
           >
             <ChevronLeft className="w-4 h-4 text-[#0056B3]" />
           </button>
+
           <button
             onClick={scrollRight}
             className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 p-1 rounded-full shadow z-10"
@@ -444,13 +459,13 @@ export default function CoursesListingPage() {
         </div>
       </aside>
 
-      {/* Main section */}
+      {/* Main Section */}
       <main className="flex-1 pb-0 sm:pb-10">
         <h2 className="text-3xl font-extrabold text-center lg:text-left mb-10 text-[#0056B3]">
           {loading ? "Loading..." : `${selectedCategory} Courses`}
         </h2>
 
-        {/* Course grid */}
+        {/* Desktop Grid */}
         <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
           {loading ? (
             <p className="col-span-full text-center text-gray-500 animate-pulse">
@@ -467,9 +482,9 @@ export default function CoursesListingPage() {
           )}
         </div>
 
-        {/* Mobile Scroll */}
-        <div className="sm:hidden flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-          {courses.slice(0, 10).map((course) => (
+        {/* Mobile Grid */}
+        <div className="sm:hidden grid grid-cols-3 gap-2 w-full">
+          {courses.slice(0, 6).map((course) => (
             <CourseCard key={course._id} course={course} />
           ))}
         </div>
@@ -485,7 +500,7 @@ export default function CoursesListingPage() {
         </div>
       </main>
 
-      {/* Popup Modal for All Courses */}
+      {/* All Courses Modal */}
       {showAll && (
         <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center sm:p-4 p-0">
           <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 sm:rounded-xl">

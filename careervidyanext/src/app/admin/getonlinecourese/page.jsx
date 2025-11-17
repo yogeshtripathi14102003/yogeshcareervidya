@@ -1,328 +1,3 @@
-// "use client";
-
-// import { useState, useEffect } from "react";
-// import api from "@/utlis/api.js"; // ✅ your axios instance
-
-// export default function CoursesPage() {
-//   const [formData, setFormData] = useState({
-//     category: "",
-//     name: "",
-//     duration: "",
-//     tag: "",
-//   });
-//   const [specializations, setSpecializations] = useState([""]);
-//   const [courseLogo, setCourseLogo] = useState(null);
-//   const [courses, setCourses] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [loading, setLoading] = useState(false);
-
-//   // ✅ Fetch Courses
-//   const fetchCourses = async () => {
-//     try {
-//       const res = await api.get("/api/v1/course");
-//       setCourses(res.data.courses || []);
-//     } catch (err) {
-//       console.error("Error fetching courses:", err);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchCourses();
-//   }, []);
-
-//   // ✅ Handle basic field changes
-//   const handleChange = (e) => {
-//     setFormData({ ...formData, [e.target.name]: e.target.value });
-//   };
-
-//   // ✅ Handle specialization
-//   const handleSpecializationChange = (index, value) => {
-//     const updated = [...specializations];
-//     updated[index] = value;
-//     setSpecializations(updated);
-//   };
-
-//   const addSpecialization = () => setSpecializations([...specializations, ""]);
-//   const removeSpecialization = (index) => {
-//     const updated = [...specializations];
-//     updated.splice(index, 1);
-//     setSpecializations(updated);
-//   };
-
-//   // ✅ Image upload
-//   const handleFileChange = (e) => {
-//     setCourseLogo(e.target.files[0]);
-//   };
-
-//   // ✅ Submit new course
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!formData.category || !formData.name || !formData.duration) {
-//       alert("Please fill all required fields");
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-//       const payload = new FormData();
-//       payload.append("category", formData.category);
-//       payload.append("name", formData.name);
-//       payload.append("duration", formData.duration);
-//       payload.append("tag", formData.tag);
-
-//       specializations.forEach((spec) =>
-//         payload.append("specialization", spec.trim())
-//       );
-
-//       if (courseLogo) payload.append("courseLogo", courseLogo);
-
-//       await api.post("/api/v1/course", payload, {
-//         headers: { "Content-Type": "multipart/form-data" },
-//       });
-
-//       alert("✅ Course created successfully!");
-//       setFormData({ category: "", name: "", duration: "", tag: "" });
-//       setSpecializations([""]);
-//       setCourseLogo(null);
-//       fetchCourses();
-//     } catch (err) {
-//       console.error("Error creating course:", err);
-//       alert("❌ Failed to create course.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // ✅ Delete course
-//   const handleDelete = async (id) => {
-//     if (!confirm("Delete this course?")) return;
-//     try {
-//       await api.delete(`/api/v1/course/${id}`);
-//       alert("✅ Course deleted successfully!");
-//       fetchCourses();
-//     } catch (err) {
-//       console.error("Error deleting course:", err);
-//       alert("❌ Failed to delete course.");
-//     }
-//   };
-
-//   // ✅ Filtered Courses
-//   const filteredCourses = courses.filter((c) =>
-//     [c.name, c.category, c.duration, c.tag]
-//       .filter(Boolean)
-//       .some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()))
-//   );
-
-//   return (
-//     <main className="min-h-screen bg-gray-50 p-8">
-//       <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-//         🎓 Course Management
-//       </h1>
-
-//       {/* FORM (landscape layout) */}
-//       <form
-//         onSubmit={handleSubmit}
-//         className="bg-white shadow-md rounded-xl p-6 mb-10 grid md:grid-cols-2 gap-6"
-//         encType="multipart/form-data"
-//       >
-//         {/* Left section */}
-//         <div className="space-y-4">
-//           <div>
-//             <label className="block mb-1 text-gray-700 font-medium">
-//               Category
-//             </label>
-//             <select
-//               name="category"
-//               value={formData.category}
-//               onChange={handleChange}
-//               className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
-//               required
-//             >
-//               <option value="">Select Category</option>
-//               <option value="UG">UG</option>
-//               <option value="PG">PG</option>
-//               <option value="Doctorate">Doctorate</option>
-//               <option value="JobGuarantee">Job Guarantee</option>
-//               <option value="StudyAbroad">Study Abroad</option>
-//               <option value="AdvancedDiploma">Advanced Diploma</option>
-//             </select>
-//           </div>
-
-//           <div>
-//             <label className="block mb-1 text-gray-700 font-medium">Name</label>
-//             <input
-//               type="text"
-//               name="name"
-//               value={formData.name}
-//               onChange={handleChange}
-//               placeholder="Course Name"
-//               className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
-//               required
-//             />
-//           </div>
-
-//           <div>
-//             <label className="block mb-1 text-gray-700 font-medium">
-//               Duration
-//             </label>
-//             <input
-//               type="text"
-//               name="duration"
-//               value={formData.duration}
-//               onChange={handleChange}
-//               placeholder="e.g., 3 Years"
-//               className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
-//               required
-//             />
-//           </div>
-
-//           <div>
-//             <label className="block mb-1 text-gray-700 font-medium">Tag</label>
-//             <input
-//               type="text"
-//               name="tag"
-//               value={formData.tag}
-//               onChange={handleChange}
-//               placeholder="e.g., Engineering, MBA"
-//               className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
-//             />
-//           </div>
-//         </div>
-
-//         {/* Right section */}
-//         <div className="space-y-4">
-//           {/* Specializations */}
-//           <div>
-//             <label className="block mb-1 text-gray-700 font-medium">
-//               Specializations
-//             </label>
-//             {specializations.map((spec, i) => (
-//               <div key={i} className="flex gap-2 mb-2">
-//                 <input
-//                   type="text"
-//                   value={spec}
-//                   onChange={(e) =>
-//                     handleSpecializationChange(i, e.target.value)
-//                   }
-//                   placeholder={`Specialization ${i + 1}`}
-//                   className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
-//                 />
-//                 {specializations.length > 1 && (
-//                   <button
-//                     type="button"
-//                     onClick={() => removeSpecialization(i)}
-//                     className="bg-red-500 text-white px-3 rounded"
-//                   >
-//                     ✕
-//                   </button>
-//                 )}
-//               </div>
-//             ))}
-//             <button
-//               type="button"
-//               onClick={addSpecialization}
-//               className="text-blue-600 text-sm hover:underline"
-//             >
-//               ➕ Add Specialization
-//             </button>
-//           </div>
-
-//           {/* Image Upload */}
-//           <div>
-//             <label className="block mb-1 text-gray-700 font-medium">
-//               Course Logo
-//             </label>
-//             <input
-//               type="file"
-//               accept="image/*"
-//               onChange={handleFileChange}
-//               className="w-full border border-gray-300 p-2 rounded-md"
-//             />
-//           </div>
-
-//           {/* Submit Button */}
-//           <button
-//             type="submit"
-//             disabled={loading}
-//             className="bg-blue-600 text-white w-full py-2 rounded-md hover:bg-blue-700 transition"
-//           >
-//             {loading ? "Saving..." : "Create Course"}
-//           </button>
-//         </div>
-//       </form>
-
-//       {/* SEARCH */}
-//       <div className="mb-5 max-w-md">
-//         <input
-//           type="text"
-//           value={searchTerm}
-//           onChange={(e) => setSearchTerm(e.target.value)}
-//           placeholder="🔍 Search by name, category, duration, or tag..."
-//           className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
-//         />
-//       </div>
-
-//       {/* COURSE TABLE */}
-//       <div className="bg-white shadow rounded-xl overflow-x-auto">
-//         <table className="min-w-full border border-gray-200 text-sm">
-//           <thead className="bg-gray-100 text-gray-700">
-//             <tr>
-//               <th className="p-3 text-left">Logo</th>
-//               <th className="p-3 text-left">Category</th>
-//               <th className="p-3 text-left">Name</th>
-//               <th className="p-3 text-left">Duration</th>
-//               <th className="p-3 text-left">Specializations</th>
-//               <th className="p-3 text-left">Slug</th>
-//               <th className="p-3 text-center">Actions</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {filteredCourses.length === 0 ? (
-//               <tr>
-//                 <td colSpan="7" className="text-center p-4 text-gray-500">
-//                   No courses found
-//                 </td>
-//               </tr>
-//             ) : (
-//               filteredCourses.map((course) => (
-//                 <tr key={course._id} className="border-t hover:bg-gray-50">
-//                   <td className="p-3">
-//                     {course.courseLogo?.url ? (
-//                       <img
-//                         src={course.courseLogo.url}
-//                         alt="logo"
-//                         className="w-10 h-10 object-contain rounded"
-//                       />
-//                     ) : (
-//                       "—"
-//                     )}
-//                   </td>
-//                   <td className="p-3">{course.category}</td>
-//                   <td className="p-3">{course.name}</td>
-//                   <td className="p-3">{course.duration}</td>
-//                   <td className="p-3">
-//                     {course.specialization?.join(", ") || "—"}
-//                   </td>
-//                   <td className="p-3 text-gray-500 text-xs">
-//                     {course.slug || "—"}
-//                   </td>
-//                   <td className="p-3 text-center">
-//                     <button
-//                       onClick={() => handleDelete(course._id)}
-//                       className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg"
-//                     >
-//                       Delete
-//                     </button>
-//                   </td>
-//                 </tr>
-//               ))
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-//     </main>
-//   );
-// }
 
 
 
@@ -444,23 +119,26 @@ export default function CoursesPage() {
         .forEach((spec) => payload.append("specialization", spec));
 
       // Overview
-      overview
-        .filter((item) => item.heading || item.description)
-        .forEach((item, i) => {
-          payload.append(`overview[${i}][heading]`, item.heading);
-          payload.append(`overview[${i}][description]`, item.description);
-          payload.append(`overview[${i}][videoLink]`, item.videoLink);
-          if (item.image) payload.append(`overview[${i}][image]`, item.image);
-        });
+    // Overview
+overview.forEach((item, i) => {
+  payload.append(`overview[${i}][heading]`, item.heading);
+  payload.append(`overview[${i}][description]`, item.description);
+  payload.append(`overview[${i}][videoLink]`, item.videoLink);
 
-      // Why Choose Us
-      whyChooseUs
-        .filter((item) => item.description)
-        .forEach((item, i) => {
-          payload.append(`whyChooseUs[${i}][description]`, item.description);
-          if (item.image)
-            payload.append(`whyChooseUs[${i}][image]`, item.image);
-        });
+  if (item.image) {
+    payload.append("overviewImages", item.image);
+  }
+});
+
+// Why Choose Us
+whyChooseUs.forEach((item, i) => {
+  payload.append(`whyChooseUs[${i}][description]`, item.description);
+
+  if (item.image) {
+    payload.append("whyChooseUsImages", item.image);
+  }
+});
+
 
       // Good Things
       goodThings
@@ -548,6 +226,7 @@ export default function CoursesPage() {
             <label>Name</label>
             <input
               type="text"
+              placeholder=" add Course name"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -560,6 +239,7 @@ export default function CoursesPage() {
             <label>Duration</label>
             <input
               type="text"
+              placeholder="Course ki durection"
               name="duration"
               value={formData.duration}
               onChange={handleChange}
@@ -572,6 +252,7 @@ export default function CoursesPage() {
             <label>Tag</label>
             <input
               type="text"
+              placeholder="like card ke uper side optional "
               name="tag"
               value={formData.tag}
               onChange={handleChange}
@@ -583,6 +264,7 @@ export default function CoursesPage() {
             <label>Course Logo</label>
             <input
               type="file"
+              placeholder="course ka logo  show card"
               accept="image/*"
               onChange={handleFileChange}
               className="w-full border p-2 rounded-md"
@@ -597,6 +279,7 @@ export default function CoursesPage() {
             <div key={i} className="flex gap-2 mb-2">
               <input
                 type="text"
+                placeholder=" Please add the relevant branches assigned to each specific course "
                 value={spec}
                 onChange={(e) =>
                   handleSpecializationChange(i, e.target.value)
@@ -633,7 +316,7 @@ export default function CoursesPage() {
             >
               <input
                 type="text"
-                placeholder="Heading"
+                placeholder="Heading  course ka name complete "
                 value={item.heading}
                 onChange={(e) =>
                   handleDynamicChange(setOverview, i, "heading", e.target.value)
@@ -752,6 +435,7 @@ export default function CoursesPage() {
             <div key={i} className="flex gap-2 mb-2">
               <input
                 type="text"
+                placeholder="point about the course "
                 value={g}
                 onChange={(e) =>
                   setGoodThings((prev) =>
@@ -803,7 +487,7 @@ export default function CoursesPage() {
                 className="border p-2 rounded-md"
               />
               <textarea
-                placeholder="Description"
+                placeholder="Description or approvels"
                 value={item.description}
                 onChange={(e) =>
                   handleDynamicChange(

@@ -323,10 +323,8 @@
 //   }
 // };
 
-
 import Course from "../models/Admin/Course.js";
 import cloudinary from "../config/cloudinary.js";
-import fs from "fs";
 import slugify from "slugify";
 
 // ======================================================
@@ -355,7 +353,7 @@ export const createCourse = async (req, res) => {
       });
     }
 
-    // 🔹 Generate slug
+    // 🔹 Generate unique slug
     let baseSlug = slugify(name, { lower: true, strict: true });
     let slug = baseSlug;
     let counter = 1;
@@ -374,41 +372,42 @@ export const createCourse = async (req, res) => {
         public_id: uploadResult.public_id,
         url: uploadResult.secure_url,
       };
-      fs.unlinkSync(req.files.courseLogo[0].path);
     }
 
-    // ✅ Overview Images
+    // ✅ Parse Overview Data
     let parsedOverview =
       typeof overview === "string" ? JSON.parse(overview) : overview || [];
-    if (req.files?.overviewImages) {
+
+    if (req.files?.overviewImages?.length > 0) {
       const uploadedOverviewImages = await Promise.all(
         req.files.overviewImages.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "courses/overview",
           });
-          fs.unlinkSync(file.path);
           return { public_id: result.public_id, url: result.secure_url };
         })
       );
+
       parsedOverview = parsedOverview.map((item, index) => ({
         ...item,
         image: uploadedOverviewImages[index] || {},
       }));
     }
 
-    // ✅ Why Choose Us Images
+    // ✅ Parse Why Choose Us Data
     let parsedWhyChooseUs =
       typeof whyChooseUs === "string" ? JSON.parse(whyChooseUs) : whyChooseUs || [];
-    if (req.files?.whyChooseUsImages) {
+
+    if (req.files?.whyChooseUsImages?.length > 0) {
       const uploadedWhyImages = await Promise.all(
         req.files.whyChooseUsImages.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "courses/whyChooseUs",
           });
-          fs.unlinkSync(file.path);
           return { public_id: result.public_id, url: result.secure_url };
         })
       );
+
       parsedWhyChooseUs = parsedWhyChooseUs.map((item, index) => ({
         ...item,
         image: uploadedWhyImages[index] || {},
@@ -455,7 +454,7 @@ export const createCourse = async (req, res) => {
       course: newCourse,
     });
   } catch (error) {
-    console.error("❌ Create Course Error:", error);
+    console.error("❌ Error creating course:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Server error while creating course.",
@@ -496,7 +495,7 @@ export const getCourseBySlug = async (req, res) => {
 };
 
 // ======================================================
-// ✅ UPDATE (EDIT) COURSE
+// ✅ UPDATE COURSE
 // ======================================================
 export const updateCourse = async (req, res) => {
   try {
@@ -509,7 +508,7 @@ export const updateCourse = async (req, res) => {
 
     const data = req.body;
 
-    // 🔹 Update slug if name changes
+    // Update slug if name changes
     if (data.name && data.name !== existing.name) {
       let baseSlug = slugify(data.name, { lower: true, strict: true });
       let slug = baseSlug;
@@ -520,7 +519,7 @@ export const updateCourse = async (req, res) => {
       data.slug = slug;
     }
 
-    // ✅ Replace courseLogo if new one uploaded
+    // ✅ Replace logo if new uploaded
     if (req.files?.courseLogo?.[0]) {
       if (existing.courseLogo?.public_id)
         await cloudinary.uploader.destroy(existing.courseLogo.public_id);
@@ -532,17 +531,15 @@ export const updateCourse = async (req, res) => {
         public_id: uploadResult.public_id,
         url: uploadResult.secure_url,
       };
-      fs.unlinkSync(req.files.courseLogo[0].path);
     }
 
     // ✅ Replace overviewImages
-    if (req.files?.overviewImages) {
+    if (req.files?.overviewImages?.length > 0) {
       const uploadedOverviewImages = await Promise.all(
         req.files.overviewImages.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "courses/overview",
           });
-          fs.unlinkSync(file.path);
           return { public_id: result.public_id, url: result.secure_url };
         })
       );
@@ -557,13 +554,12 @@ export const updateCourse = async (req, res) => {
     }
 
     // ✅ Replace whyChooseUsImages
-    if (req.files?.whyChooseUsImages) {
+    if (req.files?.whyChooseUsImages?.length > 0) {
       const uploadedWhyImages = await Promise.all(
         req.files.whyChooseUsImages.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "courses/whyChooseUs",
           });
-          fs.unlinkSync(file.path);
           return { public_id: result.public_id, url: result.secure_url };
         })
       );
@@ -577,7 +573,6 @@ export const updateCourse = async (req, res) => {
       }));
     }
 
-    // ✅ Update course
     const updated = await Course.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
@@ -589,7 +584,7 @@ export const updateCourse = async (req, res) => {
       course: updated,
     });
   } catch (error) {
-    console.error("❌ Update Error:", error);
+    console.error("❌ Update Course Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -606,7 +601,7 @@ export const deleteCourse = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Course not found" });
 
-    // 🧹 Delete Cloudinary images
+    // Delete Cloudinary images
     if (course.courseLogo?.public_id)
       await cloudinary.uploader.destroy(course.courseLogo.public_id);
 

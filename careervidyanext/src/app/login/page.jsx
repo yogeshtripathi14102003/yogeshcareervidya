@@ -68,7 +68,7 @@ const LoginPage = () => {
       } else {
         localStorage.setItem("token", token);
         Cookies.set("token", token, { expires: 1 });
-        router.push("/user_dashbordy");
+        router.push("/user_dashbord");
       }
 
       alert("Login successful!");

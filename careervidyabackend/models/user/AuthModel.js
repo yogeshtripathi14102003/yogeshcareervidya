@@ -8,7 +8,6 @@ const studentSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-  
     unique: true,
     lowercase: true,
     trim: true,
@@ -16,44 +15,43 @@ const studentSchema = new mongoose.Schema({
   },
   mobileNumber: {
     type: String,
-   
-    match: /^[0-9]{10,15}$/ // basic validation
+    match: /^[0-9]{10,15}$/,
   },
- 
-  state:{
-    type:String,
+
+  state: {
+    type: String,
   },
-    courese:{
-      type: String,
-    },
-     gender: {
+
+  // ✅ FIXED SPELLING
+  course: {
+    type: String,
+  },
+
+  gender: {
     type: String,
     enum: ["male", "female", "other"],
     default: "other",
   },
-  
+
   city: {
     type: String,
-    
   },
-  
-  
-  addresses: 
-    {
-      type: String,
-      
-    },
-  
+
+  addresses: {
+    type: String,
+  },
+
   role: {
     type: String,
     enum: ["user", "admin", "subadmin"],
     default: "user",
   },
-    oauthId: {
+
+  oauthId: {
     type: String,
   }
 }, { timestamps: true });
 
 const Student = mongoose.model("Student", studentSchema);
 
-export default Student; // ✅ ES module export
+export default Student;
