@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
-import Head from 'next/head';
-import Title from './Title.jsx';
+import React, { useState } from "react";
+import Head from "next/head";
+import Image from "next/image";
+import Title from "./Title.jsx";
 
 // --- Hero Section ---
 const HeroSection = ({ onApplyClick }) => {
   return (
-    <div className="bg-gray-900 text-white py-24 text-center relative">
+    <div className="bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#F97316] text-white py-24 text-center relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">
+        <h1 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">
           Online MBA – Chandigarh University
         </h1>
 
-        <p className="text-lg text-gray-300 mb-10 leading-relaxed">
-          Reshape your career trajectory with an internationally recognized Online MBA Degree, 
-          providing in-depth management education and leadership skills to transform learners into 
-          dynamic leaders of tomorrow.
+        <p className="text-lg text-gray-100 mb-10 leading-relaxed max-w-3xl mx-auto">
+          Reshape your career trajectory with an internationally recognized
+          Online MBA Degree, providing in-depth management education and
+          leadership skills to transform learners into dynamic leaders of
+          tomorrow.
         </p>
 
         <button
           onClick={onApplyClick}
-          className="bg-gradient-to-r from-[#FFA500] to-[#1E90FF] text-white text-xl font-semibold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105"
+          className="bg-gradient-to-r from-[#FFA500] to-[#1E90FF] text-white text-xl font-semibold py-3 px-8 rounded-lg shadow-2xl transition duration-300 transform hover:scale-105"
         >
           Apply Now
         </button>
@@ -28,7 +30,7 @@ const HeroSection = ({ onApplyClick }) => {
   );
 };
 
-// --- Top Bar with Close + Apply Now Link ---
+// --- Top Bar ---
 const ApplyTopBar = ({ onClose }) => {
   return (
     <div className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-[#1E90FF] to-[#FFA500] text-white py-4 shadow-lg animate-slideDown">
@@ -38,9 +40,8 @@ const ApplyTopBar = ({ onClose }) => {
         </p>
 
         <div className="flex items-center gap-3">
-          {/* Apply Now Link */}
           <a
-            href="/" // <-- Change this to your real application page URL
+            href="/"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-white text-[#1E90FF] font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-gray-100 transition"
@@ -48,7 +49,6 @@ const ApplyTopBar = ({ onClose }) => {
             Apply Now
           </a>
 
-          {/* Close Button */}
           <button
             onClick={onClose}
             className="bg-white/20 border border-white/40 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-white/30 transition"
@@ -61,34 +61,34 @@ const ApplyTopBar = ({ onClose }) => {
   );
 };
 
-// --- Footer Section ---
+// --- Footer (White Background) ---
 const KeywordFooter = () => {
-  const keywords = `
-    Chandigarh University Online MBA Fees Structure || Chandigarh University MBA Online Fees ||
-    CU Online MBA Fees || Online CU || Chandigarh University Online || CU Online MBA Degree ||
-    Chandigarh Online University || Chandigarh University Online MBA Fees || CU Online Courses ||
-    Chandigarh University MBA || Best MBA Specialization || Most Affordable Online MBA || 
-    MBA in Marketing || MBA in Finance || MBA in HR Management || MBA in Information Technology ||
-    MBA in Digital Marketing || MBA in Banking & Finance || MBA in Business Analytics ||
-    MBA in Data Science || MBA in Operation Management || Chandigarh University MBA Fees ||
-    Chandigarh University Online MBA || Chandigarh University Online Courses || Online MBA From 
-    Chandigarh University || Online MBA Chandigarh University || CU Online || Chandigarh University 
-    Apply Online || Chandigarh University Admission || MBA in Chandigarh University || 
-    CU Distance MBA Fees || CU Online MBA || Chandigarh Online MBA || Chandigarh University Programs ||
-    Chandigarh University Courses And Fees || Chandigarh University Online Degree || 
-    Chandigarh University MBA Course Fee || Chandigarh University For MBA Fees || Chandigarh MBA University ||
-    Chandigarh University MBA Eligibility || Chandigarh University MBA Online || Online MBA In Chandigarh University ||
-    Chandigarh University MBA Program || Chandigarh Distance Learning || Chandigarh University Online MBA Specialization ||
-    CU MBA Fee || MBA Chandigarh University Fees
-  `;
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="py-12 bg-gray-100 border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-sm text-gray-600 leading-relaxed text-justify">
-          {keywords.trim().replace(/\s*\|\|\s*/g, ' || ')}
-        </p>
+    <footer className="py-10 bg-white text-center border-t border-gray-200">
+      {/* Two Logos */}
+      <div className="flex justify-center items-center gap-8 mb-6">
+        <Image
+          src="/images/logoUpdated.png" // your logo
+          alt="Chandigarh University"
+          width={120}
+          height={60}
+          className="object-contain hover:scale-105 transition-transform duration-300"
+        />
+        <Image
+          src="/images/upgrade.png" // your second logo
+          alt="UGC Approved"
+          width={120}
+          height={60}
+          className="object-contain hover:scale-105 transition-transform duration-300"
+        />
       </div>
+
+      {/* Text */}
+      <p className="text-sm text-gray-800 font-medium">
+        © {year} All Rights Reserved | Online MBA Portal
+      </p>
     </footer>
   );
 };
@@ -113,7 +113,6 @@ const CombinedPage = () => {
         <KeywordFooter />
       </div>
 
-      {/* Animation */}
       <style jsx global>{`
         @keyframes slideDown {
           from {

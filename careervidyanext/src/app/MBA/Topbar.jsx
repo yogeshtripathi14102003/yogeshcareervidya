@@ -252,7 +252,7 @@ export default function Header() {
         <div className="flex items-center justify-between w-full md:w-auto">
           <div className="flex items-center space-x-3">
             {/* Logo 1 */}
-            <Link href="/" className="flex items-center">
+            {/* <Link href="/" className="flex items-center">
               <Image
                 src="/images/LogoUpdated1.png"
                 alt="Career Vidya Logo"
@@ -261,7 +261,7 @@ export default function Header() {
                 className="object-contain cursor-pointer"
                 priority
               />
-            </Link>
+            </Link> */}
 
             {/* Logo 2 */}
             <Link href="/" className="flex items-center">

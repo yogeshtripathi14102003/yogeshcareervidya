@@ -22,7 +22,7 @@
 // router.get("/course/:slug", getCourseBySlug);
 // router.delete("/course/:id", deleteCourse);
 
-// export default router;
+
 import express from "express";
 import createUploader from "../multer.js";
 import {
@@ -42,12 +42,18 @@ const upload = createUploader({
   maxFiles: 20,
 });
 
+// ✅ Define expected multiple file fields
+const courseUploads = upload.fields([
+  { name: "courseLogo", maxCount: 1 },
+  { name: "overviewImages", maxCount: 10 },
+  { name: "whyChooseUsImages", maxCount: 10 },
+]);
+
 // ✅ Routes
-router.post("/course", upload.any(), createCourse);
+router.post("/course", courseUploads, createCourse);
 router.get("/course", getCourses);
 router.get("/course/:slug", getCourseBySlug);
-router.put("/course/:id", upload.any(), updateCourse);
+router.put("/course/:id", courseUploads, updateCourse);
 router.delete("/course/:id", deleteCourse);
 
 export default router;
-
