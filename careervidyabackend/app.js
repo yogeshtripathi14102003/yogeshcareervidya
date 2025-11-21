@@ -15,6 +15,9 @@ import NewslatterRouter from "./router/NewslatterRouter.js";
 import courseRoutes from "./router/courseRoutes.js";
 import universityRoutes from "./router/universityRoutes.js";
 import getinTouchRouter from "./router/getInTouchRouter.js";
+import applyRouter from "./router/applyRouter.js";
+import addjobRouter from "./router/addjobRouter.js";
+import graphRoutes from "./router/graphRoutes.js";
 
 const app = express();
 
@@ -45,6 +48,9 @@ app.use("/api/v1/", NewslatterRouter);
 app.use("/api/v1", courseRoutes);
 app.use("/api/v1/university", universityRoutes);
 app.use("/api/v1/getintouch",getinTouchRouter);
+app.use("/api/v1/resume", applyRouter);
+app.use("/api/v1/addjob", addjobRouter);
+app.use('api/v1/graph',graphRoutes);
 
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {

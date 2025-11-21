@@ -14,6 +14,7 @@ import LogoSlider from "./components/LogoSlider";
 
   import QueryPopup from "./components/QueryPopup";
 
+import  Universityimage  from "../app/components/universityimage";
 
 
 export default function Home() {
@@ -32,6 +33,7 @@ export default function Home() {
       <Studentimageslider />
          <LogoSlider />
       <Studentstrustus />
+      <Universityimage  />
       <FAQ />
 
       <Footer />

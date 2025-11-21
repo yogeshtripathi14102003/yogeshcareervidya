@@ -133,7 +133,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="hover:text-[#FFD700]">
+                <Link href="/career" className="hover:text-[#FFD700]">
                   Careers
                 </Link>
               </li>

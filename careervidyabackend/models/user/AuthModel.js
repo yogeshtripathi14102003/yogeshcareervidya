@@ -26,7 +26,11 @@ const studentSchema = new mongoose.Schema({
   course: {
     type: String,
   },
-
+isSystemAdmin: {
+  type: Boolean,
+  default: false
+}
+,
   gender: {
     type: String,
     enum: ["male", "female", "other"],
