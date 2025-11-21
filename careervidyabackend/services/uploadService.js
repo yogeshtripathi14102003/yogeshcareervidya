@@ -1,4 +1,4 @@
-import cloudinary from "../config/cloudinary.js";
+ import cloudinary from "../config/cloudinary.js";
 
 export const formatCloudinaryFile = (file) => ({
   url: file.path, // provided by multer-storage-cloudinary

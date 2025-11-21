@@ -87,7 +87,7 @@ export default function CoursesTable() {
                   </td>
 
                   <td className="border px-4 py-2 flex items-center justify-center gap-3">
-                    {/* ✅ Edit */}
+                    {/* Edit */}
                     <button
                       onClick={() => setEditCourseId(course._id)}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
@@ -95,7 +95,7 @@ export default function CoursesTable() {
                       Edit
                     </button>
 
-                    {/* ✅ Delete */}
+                    {/* Delete */}
                     <button
                       onClick={() => handleDelete(course._id)}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
@@ -116,14 +116,16 @@ export default function CoursesTable() {
         </table>
       </div>
 
-      {/* ✅ Edit Modal */}
+      {/* ✅ EDIT POPUP WITH SCROLLBAR */}
       {editCourseId && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <Editcourse
-            courseId={editCourseId}
-            onClose={handleCloseEdit}     // ✅ Proper close handler
-            onUpdated={fetchCourses}      // ✅ Refresh after update
-          />
+        <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto">
+          <div className="min-h-screen flex justify-center items-center p-6">
+            <Editcourse
+              courseId={editCourseId}
+              onClose={handleCloseEdit}
+              onUpdated={fetchCourses}
+            />
+          </div>
         </div>
       )}
     </div>

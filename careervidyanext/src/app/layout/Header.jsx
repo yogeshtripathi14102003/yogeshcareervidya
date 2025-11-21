@@ -240,29 +240,32 @@ export default function Header() {
     <>
       <header className="bg-white px-4 sm:px-8 py-3 flex flex-col md:flex-row items-center justify-between border-b border-gray-200 shadow-sm sticky top-0 z-50">
         {/* ---------- Left Section: Logo ---------- */}
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <div className="flex items-center space-x-3">
-            <Link href="/" onClick={handleClose} className="flex items-center">
-              <Image
-                src="/images/LogoUpdated1.png"
-                alt="Career Vidya Logo"
-                height={48}
-                width={130}
-                className="object-contain cursor-pointer"
-                priority
-              />
-            </Link>
-          </div>
+       <div className="flex items-center justify-between w-full md:w-auto">
+  <div className="flex items-center space-x-3 ml-4 md:ml-8">
+    <Link href="/" onClick={handleClose} className="flex items-center">
+      <Image
+    
+        src="/images/LogoUpdated1.png"
+      
+        alt="Career Vidya Logo"
+        height={150}
+        width={150}
+        className="object-contain cursor-pointer"
+        priority
+      />
+    </Link>
+  </div>
 
-          {/* ---------- Mobile Menu Button ---------- */}
-          <button
-            className="md:hidden ml-2 cursor-pointer"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle Menu"
-          >
-            {menuOpen ? <X size={26} /> : <Menu size={26} />}
-          </button>
-        </div>
+  {/* Mobile Menu Button */}
+  <button
+    className="md:hidden ml-2 cursor-pointer"
+    onClick={() => setMenuOpen(!menuOpen)}
+    aria-label="Toggle Menu"
+  >
+    {menuOpen ? <X size={26} /> : <Menu size={26} />}
+  </button>
+</div>
+
 
         {/* ---------- Desktop Search Bar ---------- */}
         <div className="hidden md:flex items-center justify-center flex-1 px-2">

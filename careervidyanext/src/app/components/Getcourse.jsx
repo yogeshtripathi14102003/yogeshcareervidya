@@ -460,10 +460,10 @@ export default function CoursesListingPage() {
       </aside>
 
       {/* Main Section */}
-      <main className="flex-1 pb-0 sm:pb-10">
-        <h2 className="text-3xl font-extrabold text-center lg:text-left mb-10 text-[#0056B3]">
-          {loading ? "Loading..." : `${selectedCategory} Courses`}
-        </h2>
+   <main className="flex-1 pb-0 sm:pb-10 overflow-hidden !mb-0 !pb-0">
+  <h2 className="text-3xl font-extrabold text-center lg:text-left mb-5 text-[#0056B3]">
+    {loading ? "Loading..." : `${selectedCategory} Courses`}
+  </h2>
 
         {/* Desktop Grid */}
         <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">

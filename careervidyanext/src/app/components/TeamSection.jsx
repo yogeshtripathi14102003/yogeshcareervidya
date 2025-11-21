@@ -110,12 +110,13 @@ export default function TeamSlider() {
                       </p>
                     )}
 
-                    <button
-                      className="mt-1.5 bg-[#000a1f] text-white text-[10px] md:text-xs px-3 py-[3px] rounded-full hover:bg-[#00143d] transition-all duration-300"
-                      onClick={() => alert(`Consulting with ${member.name}`)}
-                    >
-                      Consult Now
-                    </button>
+                 <button
+  className="mt-1.5 bg-[#000a1f] text-white text-[10px] md:text-xs px-3 py-[3px] rounded-full hover:bg-[#00143d] transition-all duration-300"
+  onClick={() => window.location.href = "/teamexpand"}
+>
+  Consult Now
+</button>
+
                   </div>
                 </div>
               </SwiperSlide>

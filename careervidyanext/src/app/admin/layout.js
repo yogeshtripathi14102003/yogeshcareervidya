@@ -231,6 +231,8 @@ const Layout = ({ children }) => {
     { href: "/admin/adduniversitydata", label: "Universities", icon: Users },
     { href: "/admin/getquery", label: "Get Queries", icon: MessageSquare },
     { href: "/admin/getonlinecourese", label: "Online Courses", icon: Tag },
+    {href: "/admin/job", label: "Job Posts", icon: Tag },
+    {href: "/admin/getresume", label: "Applications", icon: Tag },
     { href: "/admin/getonelyonline", label: "OnlyL Online", icon: Tag },
     { href: "/admin/Q&A", label: "Q & A", icon: MessageSquare },
     { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
