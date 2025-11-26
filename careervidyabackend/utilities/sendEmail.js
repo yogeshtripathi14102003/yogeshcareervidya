@@ -13,7 +13,7 @@ export const sendToEmail = async ({ to, subject, html, text }) => {
   });
 
   const mailOptions = {
-    from: `"CareerVidya support " <${process.env.EMAIL_USER}>`,
+    from: `"CareerVidya " <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html,

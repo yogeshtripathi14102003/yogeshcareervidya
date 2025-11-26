@@ -15,7 +15,8 @@ export default function JobDetailPage() {
   useEffect(() => {
     async function fetchJob() {
       try {
-        const res = await fetch(`https://api.careervidya.in/api/v1/addjob/${jobId}`);
+        // const res = await fetch(`https://api.careervidya.in/api/v1/addjob/${jobId}`);
+             const res = await fetch(`http://localhost:8080/api/v1/addjob/${jobId}`);
 
         if (!res.ok) {
           setError("Job not found");
