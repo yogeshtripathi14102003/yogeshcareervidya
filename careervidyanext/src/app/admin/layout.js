@@ -229,6 +229,7 @@ const Layout = ({ children }) => {
     { href: "/admin/Getalluser", label: "All Students", icon: Users },
     { href: "/admin/bannerlist", label: "Banners", icon: ImageIcon },
     { href: "/admin/adduniversitydata", label: "Universities", icon: Users },
+    {href:"/admin/getuniversites",label:"Universities Data",icon:Users},
     { href: "/admin/getquery", label: "Get Queries", icon: MessageSquare },
     { href: "/admin/getonlinecourese", label: "Online Courses", icon: Tag },
     {href: "/admin/job", label: "Job Posts", icon: Tag },

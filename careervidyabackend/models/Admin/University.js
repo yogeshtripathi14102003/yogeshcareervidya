@@ -1,42 +1,38 @@
-import mongoose from "mongoose";
+// models/University.js
 
-const universitySchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "University name is required"],
-      trim: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    universityImage: {
-      type: String, // Image URL or path
-      trim: true,
-    },
-    courses: [
-      {
-        name: {
-          type: String,
-          required: [true, "Course name is required"],
-          trim: true,
-        },
-        logo: {
-          type: String, // logo image URL or path
-          trim: true,
-        },
-        duration: {
-          type: String, // e.g. "2 Years"
-          trim: true,
-        },
-      },
-    ],
-  },
-  { timestamps: true }
-);
+import mongoose from 'mongoose'; // 👈 changed
 
-const University =
-  mongoose.models.University || mongoose.model("University", universitySchema);
+// Helper Schemas for repeated structures
+const ApprovalSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    logo: { type: String, default: null }
+});
 
-export default University;
+const CourseSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    duration: { type: String, default: 'N/A' },
+    logo: { type: String, default: null }
+});
+
+const UniversitySchema = new mongoose.Schema({
+    // ... (rest of the schema remains the same)
+    // ...
+    approvals: { type: [ApprovalSchema], default: [] },
+    recognition: {
+        recognitionHeading: { type: String, default: 'Recognition' },
+        recognitionDescription: { type: String, default: '' },
+        recognitionPoints: { type: [String], default: [] },
+        certificateImage: { type: String, default: null }
+    },
+    admission: {
+        admissionHeading: { type: String, default: 'Admission Process' },
+        admissionSubHeading: { type: String, default: '' },
+        admissionDescription: { type: String, default: '' },
+        admissionPoints: { type: [String], default: [] }
+    },
+    courses: { type: [CourseSchema], default: [] }
+}, { timestamps: true });
+
+const University = mongoose.model('University', UniversitySchema);
+
+export default University; // 👈 changed

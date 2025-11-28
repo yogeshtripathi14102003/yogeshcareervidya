@@ -4,25 +4,25 @@ import Image from 'next/image';
 // --- Data for "Why choose College Vidya" cards ---
 const collegeVidyaReasons = [
   {
-    iconSrc: "/images/icon-compare.png", // Replace with actual paths
+    iconSrc: "/icons/end.png", // Replace with actual paths
     title: "Compare",
     stats: "6M+ happy students",
     description: "Compare thousands of courses",
   },
   {
-    iconSrc: "/images/icon-counselling.png", // Replace with actual paths
+    iconSrc: "/icons/gudence.png", // Replace with actual paths
     title: "Counselling",
     stats: "18+ years in sports",
     description: "Expert counselling services",
   },
   {
-    iconSrc: "/images/icon-community.png", // Replace with actual paths
+    iconSrc: "/icons/callsupport.png", // Replace with actual paths
     title: "Community",
     stats: "8M+ joined the tribe",
     description: "Vibrant student community",
   },
   {
-    iconSrc: "/images/icon-career.png", // Replace with actual paths
+    iconSrc: "/icons/all.jpg", // Replace with actual paths
     title: "Career",
     stats: "1M+ placed into jobs",
     description: "Dedicated career support",
@@ -32,25 +32,25 @@ const collegeVidyaReasons = [
 // --- Data for "Learners from the best organizations" ---
 const learnersData = [
   {
-    imageSrc: "/images/learner-amit.jpg", // Replace with actual paths
+    imageSrc: "/images/GyanenduSundarRana.png", // Replace with actual paths
     name: "Amit Kumar",
     companyLogoSrc: "/images/logo-samsung.png", // Replace with actual paths
     companyAlt: "Samsung Logo",
   },
   {
-    imageSrc: "/images/learner-prabhat.jpg", // Replace with actual paths
+    imageSrc: "/images/Praveensingh.png", // Replace with actual paths
     name: "Prabhat",
     companyLogoSrc: "/images/logo-hcl.png", // Replace with actual paths
     companyAlt: "HCL Logo",
   },
   {
-    imageSrc: "/images/learner-shankar.jpg", // Replace with actual paths
+    imageSrc: "/images/GopalSharma.png", // Replace with actual paths
     name: "Shankar",
     companyLogoSrc: "/images/logo-infosys.png", // Replace with actual paths
     companyAlt: "Infosys Logo",
   },
   {
-    imageSrc: "/images/learner-sunil.jpg", // Replace with actual paths
+    imageSrc: "/images/AtulKumar.png", // Replace with actual paths
     name: "Sunil",
     companyLogoSrc: "/images/logo-tata.png", // Replace with actual paths
     companyAlt: "Tata Logo",
@@ -95,7 +95,7 @@ export default function CollegeVidyaAndLearners() {
 
         {/* --- Section 1: Why choose College Vidya --- */}
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-12">
-          Why choose College Vidya
+          Why choose Careervidya Vidya
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 md:mb-32">
           {collegeVidyaReasons.map((reason, index) => (
