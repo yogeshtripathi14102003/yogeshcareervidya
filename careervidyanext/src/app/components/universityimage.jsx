@@ -120,8 +120,6 @@
 // }
 
 
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -162,37 +160,31 @@ export default function UniversitiesPage() {
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 px-6 lg:px-16">
-        {universities.map((uni) => (
-          <div
-            key={uni._id}
-            className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition duration-300 flex flex-col items-center justify-center"
-          >
-            {/* University Logo */}
-            <div className="relative w-32 h-16 mb-4">
-              <Image
-                src={
-                  uni.universityImage?.startsWith("http")
-                    ? uni.universityImage
-                    : `${process.env.NEXT_PUBLIC_API_URL}/${uni.universityImage?.replace(
-                        /^\/+/,
-                        ""
-                      )}`
-                }
-                alt={uni.name}
-                fill
-                className="object-contain"
-              />
+        {universities.map((uni) => {
+          const imageUrl = uni.universityImage
+            ? uni.universityImage.startsWith("http")
+              ? uni.universityImage
+              : `${process.env.NEXT_PUBLIC_API_URL}/${uni.universityImage.replace(/^\/+/, "")}`
+            : "/fallback.png"; // fallback image
+
+          return (
+            <div
+              key={uni._id}
+              className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition duration-300 flex flex-col items-center justify-center"
+            >
+              <div className="relative w-32 h-16 mb-4">
+                <Image
+                  src={imageUrl}
+                  alt={uni.name || "University"}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+
+              <p className="text-gray-600 mt-1 text-sm">{uni.name}</p>
             </div>
-
-            {/* REMOVE COURSES COMPLETELY */}
-            {/* <p className="font-semibold text-lg text-gray-800">
-              {uni.courses?.length || 0} Courses
-            </p> */}
-
-            {/* University Name */}
-            <p className="text-gray-600 mt-1 text-sm">{uni.name}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <button className="mt-10 bg-[#0056B3] text-white px-8 py-3 rounded-full font-semibold hover:bg-[#003d82] transition">

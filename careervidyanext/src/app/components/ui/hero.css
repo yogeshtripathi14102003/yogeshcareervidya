@@ -161,3 +161,27 @@
     background:#fe8c2b !important;;
 }
 }
+
+
+/* ⭐ FIX: Large desktop screens (15 inch+) */
+@media screen and (min-width: 1400px) {
+  .slider-wrapper {
+    height: 550px !important; /* Bigger height for wide screens */
+  }
+
+  .slide-image {
+    object-fit: contain !important;
+    background: #000; /* stops white gaps */
+  }
+}
+
+/* Extra large screens (2K, 4K monitors) */
+@media screen and (min-width: 1800px) {
+  .slider-wrapper {
+    height: 650px !important;
+  }
+
+  .slide-image {
+    object-fit: contain !important;
+  }
+}

@@ -11,7 +11,8 @@ export default function Header() {
   const contentPadding = "px-4 sm:px-6 lg:px-8";
 
   return (
-    <header className="w-full shadow-sm bg-white sticky top-0 z-50">
+    // FIX: Removed 'sticky top-0 z-50' to allow the header to scroll with the page.
+    <header className="w-full shadow-sm bg-white">
       
       {/* Main Content Wrapper - Uses the defined padding */}
       <div className={`max-w-7xl mx-auto flex items-center justify-between py-3 ${contentPadding}`}>
@@ -66,11 +67,11 @@ export default function Header() {
       </div>
 
       {/* MOBILE MENU */}
-      {/* IMPORTANT: Added the same padding (contentPadding) to the mobile menu div */}
       {menuOpen && (
         <div className={`md:hidden bg-white shadow-md py-3 space-y-3 text-gray-700 ${contentPadding}`}>
-          <Link href="#about" className="block">About Course</Link>
-          <Link href="#university" className="block">University</Link>
+          {/* Note: Added menu text for the first link */}
+          <Link href="#about" className="block">About Course</Link> 
+          <Link href="#university" className="block">Top Universities</Link>
           <Link href="#highlights" className="block">Highlights</Link>
           <Link href="#enquire" className="block">Enquire Now</Link>
         </div>

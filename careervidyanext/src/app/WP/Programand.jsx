@@ -36,7 +36,7 @@ export default function ProgramHighlights() {
           <div className="relative w-full h-80 md:h-full flex justify-center md:justify-end">
             <div className="w-full max-w-sm rounded-lg overflow-hidden shadow-2xl">
               <Image
-                src="/images/highlight_image.jpg" // CHANGE THIS PATH
+                src="/images/111.jpeg" // CHANGE THIS PATH
                 alt="Working professional pointing to futuristic interface"
                 width={400} // Set explicit width and height for optimization
                 height={400}
