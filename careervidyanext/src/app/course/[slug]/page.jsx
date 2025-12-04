@@ -7,6 +7,7 @@ import api from "@/utlis/api.js";
  import Header from "@/app/layout/Header.jsx";
  import Footer from "@/app/layout/Footer.jsx";
  import Getintuch from "@/app/components/getintuch.jsx";
+ import Careervidyabenifit from "@/app/course/Careervidyabenifit";
 export default function CourseDetailPage() {
   const { slug } = useParams();
   const [course, setCourse] = useState(null);
@@ -526,6 +527,7 @@ export default function CourseDetailPage() {
 
       
     </main>
+    <Careervidyabenifit />
     <Getintuch />
     <Footer />
     </>

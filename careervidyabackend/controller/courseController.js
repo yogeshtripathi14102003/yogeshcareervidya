@@ -3,10 +3,21 @@
 
 
 
+
 // import Course from "../models/Admin/Course.js";
 // import cloudinary from "../config/cloudinary.js";
-// import fs from "fs";
-// import slugify from "slugify"; // npm i slugify
+// import slugify from "slugify";
+
+// // ======================================================
+// // ✅ Helper: Parse JSON fields safely
+// // ======================================================
+// const parseJSON = (data) => {
+//   try {
+//     return typeof data === "string" ? JSON.parse(data) : data || [];
+//   } catch {
+//     return [];
+//   }
+// };
 
 // // ======================================================
 // // ✅ CREATE COURSE
@@ -19,18 +30,27 @@
 //       duration,
 //       tag,
 //       specialization,
+
 //       overview,
 //       whyChooseUs,
 //       goodThings,
 //       topUniversities,
 //       keyHighlights,
 //       syllabus,
+
+//       offeredCourses,
+//       onlineEligibility,
+//       feeStructureSidebar,
+//       detailedFees,
+//       onlineCourseWorthIt,
+//       jobOpportunities,
+//       topRecruiters,
 //     } = req.body;
 
 //     if (!name || !category || !duration) {
 //       return res.status(400).json({
 //         success: false,
-//         message: "Name, category, and duration are required fields.",
+//         message: "Name, category & duration are required",
 //       });
 //     }
 
@@ -38,297 +58,374 @@
 //     let baseSlug = slugify(name, { lower: true, strict: true });
 //     let slug = baseSlug;
 //     let counter = 1;
+
 //     while (await Course.findOne({ slug })) {
 //       slug = `${baseSlug}-${counter++}`;
 //     }
 
+//     // ----------------------------------------------------
+//     // ✅ Upload Course Logo
+//     // ----------------------------------------------------
 //     let courseLogo = {};
-
-//     // 🔹 Upload image to Cloudinary (if provided)
-//     if (req.file) {
-//       try {
-//         const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-//           folder: "courses/logos",
-//           resource_type: "image",
-//           timeout: 120000,
-//         });
-
-//         courseLogo = {
-//           public_id: uploadResult.public_id,
-//           url: uploadResult.secure_url,
-//         };
-//       } catch (uploadErr) {
-//         console.error("❌ Cloudinary Upload Error:", uploadErr.message);
-//         try {
-//           const retryUpload = await cloudinary.uploader.upload(req.file.path, {
-//             folder: "courses/logos",
-//             resource_type: "image",
-//             timeout: 120000,
-//           });
-//           courseLogo = {
-//             public_id: retryUpload.public_id,
-//             url: retryUpload.secure_url,
-//           };
-//         } catch (retryErr) {
-//           console.error("❌ Cloudinary Retry Failed:", retryErr.message);
-//           return res.status(500).json({
-//             success: false,
-//             message: "Cloudinary upload failed after retry.",
-//             error: retryErr.message,
-//           });
-//         }
-//       } finally {
-//         if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-//       }
+//     if (req.files?.courseLogo?.[0]) {
+//       const upload = await cloudinary.uploader.upload(
+//         req.files.courseLogo[0].path,
+//         { folder: "courses/logos" }
+//       );
+//       courseLogo = { public_id: upload.public_id, url: upload.secure_url };
 //     }
 
-//     // 🔹 Create new course document
+//     // ----------------------------------------------------
+//     // ✅ Upload Syllabus PDF
+//     // ----------------------------------------------------
+//     let syllabusPdf = {};
+//     if (req.files?.syllabusPdf?.[0]) {
+//       const upload = await cloudinary.uploader.upload(
+//         req.files.syllabusPdf[0].path,
+//         {
+//           folder: "courses/syllabus",
+//           resource_type: "raw", // IMPORTANT for PDF
+//         }
+//       );
+
+//       syllabusPdf = { public_id: upload.public_id, url: upload.secure_url };
+//     }
+
+//     // ----------------------------------------------------
+//     // ✅ OVERVIEW (with images)
+//     // ----------------------------------------------------
+//     let parsedOverview = parseJSON(overview);
+
+//     if (req.files?.overviewImages?.length > 0) {
+//       const uploadedImages = await Promise.all(
+//         req.files.overviewImages.map((img) =>
+//           cloudinary.uploader.upload(img.path, { folder: "courses/overview" })
+//         )
+//       );
+
+//       parsedOverview = parsedOverview.map((item, index) => ({
+//         ...item,
+//         image: {
+//           public_id: uploadedImages[index]?.public_id,
+//           url: uploadedImages[index]?.secure_url,
+//         },
+//       }));
+//     }
+
+//     // ----------------------------------------------------
+//     // WHY CHOOSE US (with images)
+//     // ----------------------------------------------------
+//     let parsedWhyChooseUs = parseJSON(whyChooseUs);
+
+//     if (req.files?.whyChooseUsImages?.length > 0) {
+//       const uploadedImages = await Promise.all(
+//         req.files.whyChooseUsImages.map((img) =>
+//           cloudinary.uploader.upload(img.path, {
+//             folder: "courses/whyChooseUs",
+//           })
+//         )
+//       );
+
+//       parsedWhyChooseUs = parsedWhyChooseUs.map((item, index) => ({
+//         ...item,
+//         image: {
+//           public_id: uploadedImages[index]?.public_id,
+//           url: uploadedImages[index]?.secure_url,
+//         },
+//       }));
+//     }
+
+//     // ----------------------------------------------------
+//     // ⭐ CREATE COURSE DATA
+//     // ----------------------------------------------------
 //     const newCourse = new Course({
 //       name,
 //       slug,
 //       category,
 //       duration,
 //       tag,
-//       specialization: specialization
-//         ? Array.isArray(specialization)
-//           ? specialization
-//           : specialization.split(",").map((s) => s.trim())
-//         : [],
-//       overview:
-//         typeof overview === "string" ? JSON.parse(overview) : overview || [],
-//       whyChooseUs:
-//         typeof whyChooseUs === "string"
-//           ? JSON.parse(whyChooseUs)
-//           : whyChooseUs || [],
-//       goodThings: goodThings
-//         ? Array.isArray(goodThings)
-//           ? goodThings
-//           : goodThings.split(",").map((s) => s.trim())
-//         : [],
-//       topUniversities:
-//         typeof topUniversities === "string"
-//           ? JSON.parse(topUniversities)
-//           : topUniversities || [],
-//       keyHighlights:
-//         typeof keyHighlights === "string"
-//           ? JSON.parse(keyHighlights)
-//           : keyHighlights || [],
-//       syllabus:
-//         typeof syllabus === "string" ? JSON.parse(syllabus) : syllabus || [],
+
+//       specialization: specialization ? parseJSON(specialization) : [],
+
+//       overview: parsedOverview,
+//       whyChooseUs: parsedWhyChooseUs,
+//       goodThings: parseJSON(goodThings),
+//       topUniversities: parseJSON(topUniversities),
+//       keyHighlights: parseJSON(keyHighlights),
+//       syllabus: parseJSON(syllabus),
+
+//       offeredCourses: parseJSON(offeredCourses),
+//       onlineEligibility: parseJSON(onlineEligibility),
+//       feeStructureSidebar: parseJSON(feeStructureSidebar),
+//       detailedFees: parseJSON(detailedFees),
+//       onlineCourseWorthIt: parseJSON(onlineCourseWorthIt),
+//       jobOpportunities: parseJSON(jobOpportunities),
+//       topRecruiters: parseJSON(topRecruiters),
+
 //       courseLogo,
+      
+//       // ⭐ NEW FIELD
+//       syllabusPdf,
 //     });
 
 //     await newCourse.save();
 
 //     res.status(201).json({
 //       success: true,
-//       message: "✅ Course created successfully",
+//       message: "Course created successfully",
 //       course: newCourse,
 //     });
 //   } catch (error) {
-//     if (error.code === 11000) {
-//       return res.status(400).json({
-//         success: false,
-//         message: `Duplicate slug detected: ${error.keyValue?.slug}. Try changing the course name.`,
-//       });
-//     }
-
-//     console.error("❌ Create Course Error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: error.message || "Server error while creating course.",
-//     });
+//     console.error("Create Course Error:", error);
+//     res.status(500).json({ success: false, message: error.message });
 //   }
 // };
 
 // // ======================================================
-// // ✅ UPDATE COURSE
-// // ======================================================
-// export const updateCourse = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const course = await Course.findById(id);
-
-//     if (!course) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "❌ Course not found",
-//       });
-//     }
-
-//     const {
-//       name,
-//       category,
-//       duration,
-//       tag,
-//       specialization,
-//       overview,
-//       whyChooseUs,
-//       goodThings,
-//       topUniversities,
-//       keyHighlights,
-//       syllabus,
-//     } = req.body;
-
-//     // ✅ Update slug only if name changed
-//     if (name && name !== course.name) {
-//       let baseSlug = slugify(name, { lower: true, strict: true });
-//       let slug = baseSlug;
-//       let counter = 1;
-//       while (await Course.findOne({ slug, _id: { $ne: id } })) {
-//         slug = `${baseSlug}-${counter++}`;
-//       }
-//       course.slug = slug;
-//     }
-
-//     // ✅ Update course fields
-//     if (name) course.name = name;
-//     if (category) course.category = category;
-//     if (duration) course.duration = duration;
-//     if (tag) course.tag = tag;
-
-//     if (specialization) {
-//       course.specialization = Array.isArray(specialization)
-//         ? specialization
-//         : specialization.split(",").map((s) => s.trim());
-//     }
-
-//     if (overview) {
-//       course.overview =
-//         typeof overview === "string" ? JSON.parse(overview) : overview;
-//     }
-
-//     if (whyChooseUs) {
-//       course.whyChooseUs =
-//         typeof whyChooseUs === "string" ? JSON.parse(whyChooseUs) : whyChooseUs;
-//     }
-
-//     if (goodThings) {
-//       course.goodThings = Array.isArray(goodThings)
-//         ? goodThings
-//         : goodThings.split(",").map((s) => s.trim());
-//     }
-
-//     if (topUniversities) {
-//       course.topUniversities =
-//         typeof topUniversities === "string"
-//           ? JSON.parse(topUniversities)
-//           : topUniversities;
-//     }
-
-//     if (keyHighlights) {
-//       course.keyHighlights =
-//         typeof keyHighlights === "string"
-//           ? JSON.parse(keyHighlights)
-//           : keyHighlights;
-//     }
-
-//     if (syllabus) {
-//       course.syllabus =
-//         typeof syllabus === "string" ? JSON.parse(syllabus) : syllabus;
-//     }
-
-//     // ✅ Handle logo update
-//     if (req.file) {
-//       // Delete old logo if exists
-//       if (course.courseLogo?.public_id) {
-//         await cloudinary.uploader.destroy(course.courseLogo.public_id);
-//       }
-
-//       const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-//         folder: "courses/logos",
-//         resource_type: "image",
-//         timeout: 120000,
-//       });
-
-//       course.courseLogo = {
-//         public_id: uploadResult.public_id,
-//         url: uploadResult.secure_url,
-//       };
-
-//       if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-//     }
-
-//     await course.save();
-
-//     res.status(200).json({
-//       success: true,
-//       message: "✅ Course updated successfully",
-//       course,
-//     });
-//   } catch (error) {
-//     console.error("❌ Update Course Error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: error.message || "Server error while updating course.",
-//     });
-//   }
-// };
-
-// // ======================================================
-// // ✅ GET ALL COURSES
+// // GET ALL COURSES
 // // ======================================================
 // export const getCourses = async (req, res) => {
 //   try {
 //     const courses = await Course.find().sort({ createdAt: -1 });
 //     res.status(200).json({ success: true, count: courses.length, courses });
 //   } catch (error) {
-//     console.error("❌ Get Courses Error:", error);
 //     res.status(500).json({ success: false, message: error.message });
 //   }
 // };
 
 // // ======================================================
-// // ✅ GET COURSE BY SLUG
+// // GET COURSE BY SLUG
 // // ======================================================
 // export const getCourseBySlug = async (req, res) => {
 //   try {
-//     const { slug } = req.params;
-//     const course = await Course.findOne({ slug });
+//     const course = await Course.findOne({ slug: req.params.slug });
 //     if (!course)
 //       return res
 //         .status(404)
-//         .json({ success: false, message: "❌ Course not found" });
+//         .json({ success: false, message: "Course not found" });
 
 //     res.status(200).json({ success: true, course });
 //   } catch (error) {
-//     console.error("❌ Get Course By Slug Error:", error);
 //     res.status(500).json({ success: false, message: error.message });
 //   }
 // };
 
 // // ======================================================
-// // ✅ DELETE COURSE
+// // UPDATE COURSE
+// // ======================================================
+// export const updateCourse = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const existing = await Course.findById(id);
+//     if (!existing)
+//       return res.status(404).json({ success: false, message: "Not found" });
+
+//     const data = req.body;
+
+//     // Slug update
+//     if (data.name && data.name !== existing.name) {
+//       let baseSlug = slugify(data.name, { lower: true, strict: true });
+//       let slug = baseSlug;
+//       let counter = 1;
+
+//       while (await Course.findOne({ slug, _id: { $ne: id } })) {
+//         slug = `${baseSlug}-${counter++}`;
+//       }
+//       data.slug = slug;
+//     }
+
+//     // ----------------------------------------------------
+//     // UPDATE COURSE LOGO
+//     // ----------------------------------------------------
+//     if (req.files?.courseLogo?.[0]) {
+//       if (existing.courseLogo?.public_id)
+//         await cloudinary.uploader.destroy(existing.courseLogo.public_id);
+
+//       const upload = await cloudinary.uploader.upload(
+//         req.files.courseLogo[0].path,
+//         { folder: "courses/logos" }
+//       );
+
+//       data.courseLogo = {
+//         public_id: upload.public_id,
+//         url: upload.secure_url,
+//       };
+//     }
+
+//     // ----------------------------------------------------
+//     // ⭐ UPDATE SYLLABUS PDF
+//     // ----------------------------------------------------
+//     if (req.files?.syllabusPdf?.[0]) {
+//       if (existing.syllabusPdf?.public_id)
+//         await cloudinary.uploader.destroy(existing.syllabusPdf.public_id);
+
+//       const upload = await cloudinary.uploader.upload(
+//         req.files.syllabusPdf[0].path,
+//         {
+//           folder: "courses/syllabus",
+//           resource_type: "raw",
+//         }
+//       );
+
+//       data.syllabusPdf = {
+//         public_id: upload.public_id,
+//         url: upload.secure_url,
+//       };
+//     }
+
+//     // ----------------------------------------------------
+//     // UPDATE Overview Images
+//     // ----------------------------------------------------
+//     if (req.files?.overviewImages?.length > 0) {
+//       const uploadedImages = await Promise.all(
+//         req.files.overviewImages.map((img) =>
+//           cloudinary.uploader.upload(img.path, { folder: "courses/overview" })
+//         )
+//       );
+
+//       const parsedOverview = parseJSON(data.overview);
+
+//       data.overview = parsedOverview.map((item, index) => ({
+//         ...item,
+//         image: uploadedImages[index]
+//           ? {
+//               public_id: uploadedImages[index].public_id,
+//               url: uploadedImages[index].secure_url,
+//             }
+//           : item.image,
+//       }));
+//     }
+
+//     // ----------------------------------------------------
+//     // UPDATE Why Choose Us Images
+//     // ----------------------------------------------------
+//     if (req.files?.whyChooseUsImages?.length > 0) {
+//       const uploadedImages = await Promise.all(
+//         req.files.whyChooseUsImages.map((img) =>
+//           cloudinary.uploader.upload(img.path, {
+//             folder: "courses/whyChooseUs",
+//           })
+//         )
+//       );
+
+//       const parsed = parseJSON(data.whyChooseUs);
+
+//       data.whyChooseUs = parsed.map((item, index) => ({
+//         ...item,
+//         image: uploadedImages[index]
+//           ? {
+//               public_id: uploadedImages[index].public_id,
+//               url: uploadedImages[index].secure_url,
+//             }
+//           : item.image,
+//       }));
+//     }
+
+//     // Parse all JSON fields
+//     data.specialization = parseJSON(data.specialization);
+//     data.goodThings = parseJSON(data.goodThings);
+//     data.topUniversities = parseJSON(data.topUniversities);
+//     data.keyHighlights = parseJSON(data.keyHighlights);
+//     data.syllabus = parseJSON(data.syllabus);
+
+//     data.offeredCourses = parseJSON(data.offeredCourses);
+//     data.onlineEligibility = parseJSON(data.onlineEligibility);
+//     data.feeStructureSidebar = parseJSON(data.feeStructureSidebar);
+//     data.detailedFees = parseJSON(data.detailedFees);
+//     data.onlineCourseWorthIt = parseJSON(data.onlineCourseWorthIt);
+//     data.jobOpportunities = parseJSON(data.jobOpportunities);
+//     data.topRecruiters = parseJSON(data.topRecruiters);
+
+//     const updated = await Course.findByIdAndUpdate(id, data, {
+//       new: true,
+//       runValidators: true,
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Course updated",
+//       course: updated,
+//     });
+//   } catch (error) {
+//     console.error("Update Error:", error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+// // ======================================================
+// // DELETE COURSE
 // // ======================================================
 // export const deleteCourse = async (req, res) => {
 //   try {
 //     const { id } = req.params;
+
 //     const course = await Course.findById(id);
 //     if (!course)
 //       return res
 //         .status(404)
-//         .json({ success: false, message: "❌ Course not found" });
+//         .json({ success: false, message: "Course not found" });
 
-//     if (course.courseLogo?.public_id) {
+//     // Delete course logo
+//     if (course.courseLogo?.public_id)
 //       await cloudinary.uploader.destroy(course.courseLogo.public_id);
-//     }
 
-//     await Course.findByIdAndDelete(id);
-//     res
-//       .status(200)
-//       .json({ success: true, message: "✅ Course deleted successfully" });
+//     // Delete overview images
+//     for (const i of course.overview || [])
+//       if (i.image?.public_id)
+//         await cloudinary.uploader.destroy(i.image.public_id);
+
+//     // Delete why choose us images
+//     for (const i of course.whyChooseUs || [])
+//       if (i.image?.public_id)
+//         await cloudinary.uploader.destroy(i.image.public_id);
+
+//     // Delete online course worth it image
+//     if (course.onlineCourseWorthIt?.image?.public_id)
+//       await cloudinary.uploader.destroy(
+//         course.onlineCourseWorthIt.image.public_id
+//       );
+
+//     // ⭐ Delete Syllabus PDF
+//     if (course.syllabusPdf?.public_id)
+//       await cloudinary.uploader.destroy(course.syllabusPdf.public_id, {
+//         resource_type: "raw",
+//       });
+
+//     await course.deleteOne();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Course deleted successfully",
+//     });
 //   } catch (error) {
-//     console.error("❌ Delete Course Error:", error);
+//     console.error("Delete Error:", error);
 //     res.status(500).json({ success: false, message: error.message });
 //   }
 // };
+
+
+
+
+
 
 import Course from "../models/Admin/Course.js";
 import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
 
 // ======================================================
-// ✅ CREATE COURSE
+// Helper: Parse JSON fields safely
+// ======================================================
+const parseJSON = (data) => {
+  try {
+    return typeof data === "string" ? JSON.parse(data) : data || [];
+  } catch {
+    return [];
+  }
+};
+
+// ======================================================
+// CREATE COURSE
 // ======================================================
 export const createCourse = async (req, res) => {
   try {
@@ -337,23 +434,30 @@ export const createCourse = async (req, res) => {
       category,
       duration,
       tag,
-      specialization,
+      specializations,
       overview,
       whyChooseUs,
       goodThings,
       topUniversities,
       keyHighlights,
       syllabus,
+      offeredCourses,
+      onlineEligibility,
+      feeStructureSidebar,
+      detailedFees,
+      onlineCourseWorthIt,
+      jobOpportunities,
+      topRecruiters,
     } = req.body;
 
     if (!name || !category || !duration) {
       return res.status(400).json({
         success: false,
-        message: "Name, category, and duration are required fields.",
+        message: "Name, category & duration are required",
       });
     }
 
-    // 🔹 Generate unique slug
+    // Generate unique slug
     let baseSlug = slugify(name, { lower: true, strict: true });
     let slug = baseSlug;
     let counter = 1;
@@ -361,133 +465,137 @@ export const createCourse = async (req, res) => {
       slug = `${baseSlug}-${counter++}`;
     }
 
-    // ✅ Upload Course Logo
+    // -------------------------------
+    // Upload Course Logo
+    // -------------------------------
     let courseLogo = {};
     if (req.files?.courseLogo?.[0]) {
-      const uploadResult = await cloudinary.uploader.upload(
-        req.files.courseLogo[0].path,
-        { folder: "courses/logos" }
-      );
-      courseLogo = {
-        public_id: uploadResult.public_id,
-        url: uploadResult.secure_url,
-      };
+      const upload = await cloudinary.uploader.upload(req.files.courseLogo[0].path, {
+        folder: "courses/logos",
+      });
+      courseLogo = { public_id: upload.public_id, url: upload.secure_url };
     }
 
-    // ✅ Parse Overview Data
-    let parsedOverview =
-      typeof overview === "string" ? JSON.parse(overview) : overview || [];
+    // -------------------------------
+    // Upload Syllabus PDF
+    // -------------------------------
+    let syllabusPdf = {};
+    if (req.files?.syllabusPdf?.[0]) {
+      const upload = await cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
+        folder: "courses/syllabus",
+        resource_type: "raw",
+      });
+      syllabusPdf = { public_id: upload.public_id, url: upload.secure_url };
+    }
 
+    // -------------------------------
+    // Parse Overview and upload images
+    // -------------------------------
+    let parsedOverview = parseJSON(overview);
     if (req.files?.overviewImages?.length > 0) {
-      const uploadedOverviewImages = await Promise.all(
-        req.files.overviewImages.map(async (file) => {
-          const result = await cloudinary.uploader.upload(file.path, {
-            folder: "courses/overview",
-          });
-          return { public_id: result.public_id, url: result.secure_url };
-        })
+      const uploadedImages = await Promise.all(
+        req.files.overviewImages.map((img) =>
+          cloudinary.uploader.upload(img.path, { folder: "courses/overview" })
+        )
       );
-
       parsedOverview = parsedOverview.map((item, index) => ({
         ...item,
-        image: uploadedOverviewImages[index] || {},
+        image: uploadedImages[index]
+          ? { public_id: uploadedImages[index].public_id, url: uploadedImages[index].secure_url }
+          : item.image,
       }));
     }
 
-    // ✅ Parse Why Choose Us Data
-    let parsedWhyChooseUs =
-      typeof whyChooseUs === "string" ? JSON.parse(whyChooseUs) : whyChooseUs || [];
-
+    // -------------------------------
+    // Parse Why Choose Us and upload images
+    // -------------------------------
+    let parsedWhyChooseUs = parseJSON(whyChooseUs);
     if (req.files?.whyChooseUsImages?.length > 0) {
-      const uploadedWhyImages = await Promise.all(
-        req.files.whyChooseUsImages.map(async (file) => {
-          const result = await cloudinary.uploader.upload(file.path, {
-            folder: "courses/whyChooseUs",
-          });
-          return { public_id: result.public_id, url: result.secure_url };
-        })
+      const uploadedImages = await Promise.all(
+        req.files.whyChooseUsImages.map((img) =>
+          cloudinary.uploader.upload(img.path, { folder: "courses/whyChooseUs" })
+        )
       );
-
       parsedWhyChooseUs = parsedWhyChooseUs.map((item, index) => ({
         ...item,
-        image: uploadedWhyImages[index] || {},
+        image: uploadedImages[index]
+          ? { public_id: uploadedImages[index].public_id, url: uploadedImages[index].secure_url }
+          : item.image,
       }));
     }
 
-    // ✅ Save Course
+    // -------------------------------
+    // Online Course Worth It
+    // -------------------------------
+    let parsedOnlineCourseWorthIt = parseJSON(onlineCourseWorthIt) || {};
+    if (req.files?.onlineCourseWorthItImage?.[0]) {
+      const upload = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, {
+        folder: "courses/onlineCourseWorthIt",
+      });
+      parsedOnlineCourseWorthIt.image = { public_id: upload.public_id, url: upload.secure_url };
+    }
+
+    // -------------------------------
+    // Create Course
+    // -------------------------------
     const newCourse = new Course({
       name,
       slug,
       category,
       duration,
       tag,
-      specialization: specialization
-        ? Array.isArray(specialization)
-          ? specialization
-          : specialization.split(",").map((s) => s.trim())
-        : [],
+      specializations: specializations ? parseJSON(specializations) : [],
       overview: parsedOverview,
       whyChooseUs: parsedWhyChooseUs,
-      goodThings: goodThings
-        ? Array.isArray(goodThings)
-          ? goodThings
-          : goodThings.split(",").map((s) => s.trim())
-        : [],
-      topUniversities:
-        typeof topUniversities === "string"
-          ? JSON.parse(topUniversities)
-          : topUniversities || [],
-      keyHighlights:
-        typeof keyHighlights === "string"
-          ? JSON.parse(keyHighlights)
-          : keyHighlights || [],
-      syllabus:
-        typeof syllabus === "string" ? JSON.parse(syllabus) : syllabus || [],
+      goodThings: parseJSON(goodThings),
+      topUniversities: parseJSON(topUniversities),
+      keyHighlights: parseJSON(keyHighlights),
+      syllabus: parseJSON(syllabus),
+      offeredCourses: parseJSON(offeredCourses),
+      onlineEligibility: parseJSON(onlineEligibility),
+      feeStructureSidebar: parseJSON(feeStructureSidebar),
+      detailedFees: parseJSON(detailedFees),
+      onlineCourseWorthIt: parsedOnlineCourseWorthIt,
+      jobOpportunities: parseJSON(jobOpportunities),
+      topRecruiters: parseJSON(topRecruiters),
       courseLogo,
+      syllabusPdf,
     });
 
     await newCourse.save();
 
     res.status(201).json({
       success: true,
-      message: "✅ Course created successfully",
+      message: "Course created successfully",
       course: newCourse,
     });
   } catch (error) {
-    console.error("❌ Error creating course:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Server error while creating course.",
-    });
+    console.error("Create Course Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ======================================================
-// ✅ GET ALL COURSES
+// GET ALL COURSES
 // ======================================================
 export const getCourses = async (req, res) => {
   try {
     const courses = await Course.find().sort({ createdAt: -1 });
-    res.status(200).json({
-      success: true,
-      count: courses.length,
-      courses,
-    });
+    res.status(200).json({ success: true, count: courses.length, courses });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ======================================================
-// ✅ GET COURSE BY SLUG
+// GET COURSE BY SLUG
 // ======================================================
 export const getCourseBySlug = async (req, res) => {
   try {
     const course = await Course.findOne({ slug: req.params.slug });
     if (!course)
-      return res
-        .status(404)
-        .json({ success: false, message: "Course not found" });
+      return res.status(404).json({ success: false, message: "Course not found" });
+
     res.status(200).json({ success: true, course });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -495,20 +603,18 @@ export const getCourseBySlug = async (req, res) => {
 };
 
 // ======================================================
-// ✅ UPDATE COURSE
+// UPDATE COURSE
 // ======================================================
 export const updateCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const existing = await Course.findById(id);
     if (!existing)
-      return res
-        .status(404)
-        .json({ success: false, message: "Course not found" });
+      return res.status(404).json({ success: false, message: "Not found" });
 
     const data = req.body;
 
-    // Update slug if name changes
+    // Slug update
     if (data.name && data.name !== existing.name) {
       let baseSlug = slugify(data.name, { lower: true, strict: true });
       let slug = baseSlug;
@@ -519,109 +625,125 @@ export const updateCourse = async (req, res) => {
       data.slug = slug;
     }
 
-    // ✅ Replace logo if new uploaded
+    // Update Course Logo
     if (req.files?.courseLogo?.[0]) {
       if (existing.courseLogo?.public_id)
         await cloudinary.uploader.destroy(existing.courseLogo.public_id);
-      const uploadResult = await cloudinary.uploader.upload(
-        req.files.courseLogo[0].path,
-        { folder: "courses/logos" }
-      );
-      data.courseLogo = {
-        public_id: uploadResult.public_id,
-        url: uploadResult.secure_url,
-      };
+
+      const upload = await cloudinary.uploader.upload(req.files.courseLogo[0].path, {
+        folder: "courses/logos",
+      });
+      data.courseLogo = { public_id: upload.public_id, url: upload.secure_url };
     }
 
-    // ✅ Replace overviewImages
+    // Update Syllabus PDF
+    if (req.files?.syllabusPdf?.[0]) {
+      if (existing.syllabusPdf?.public_id)
+        await cloudinary.uploader.destroy(existing.syllabusPdf.public_id, { resource_type: "raw" });
+
+      const upload = await cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
+        folder: "courses/syllabus",
+        resource_type: "raw",
+      });
+      data.syllabusPdf = { public_id: upload.public_id, url: upload.secure_url };
+    }
+
+    // Update Overview Images
     if (req.files?.overviewImages?.length > 0) {
-      const uploadedOverviewImages = await Promise.all(
-        req.files.overviewImages.map(async (file) => {
-          const result = await cloudinary.uploader.upload(file.path, {
-            folder: "courses/overview",
-          });
-          return { public_id: result.public_id, url: result.secure_url };
-        })
+      const uploadedImages = await Promise.all(
+        req.files.overviewImages.map((img) =>
+          cloudinary.uploader.upload(img.path, { folder: "courses/overview" })
+        )
       );
-      const parsedOverview =
-        typeof data.overview === "string"
-          ? JSON.parse(data.overview)
-          : data.overview || [];
+      const parsedOverview = parseJSON(data.overview);
       data.overview = parsedOverview.map((item, index) => ({
         ...item,
-        image: uploadedOverviewImages[index] || item.image,
+        image: uploadedImages[index]
+          ? { public_id: uploadedImages[index].public_id, url: uploadedImages[index].secure_url }
+          : item.image,
       }));
     }
 
-    // ✅ Replace whyChooseUsImages
+    // Update Why Choose Us Images
     if (req.files?.whyChooseUsImages?.length > 0) {
-      const uploadedWhyImages = await Promise.all(
-        req.files.whyChooseUsImages.map(async (file) => {
-          const result = await cloudinary.uploader.upload(file.path, {
-            folder: "courses/whyChooseUs",
-          });
-          return { public_id: result.public_id, url: result.secure_url };
-        })
+      const uploadedImages = await Promise.all(
+        req.files.whyChooseUsImages.map((img) =>
+          cloudinary.uploader.upload(img.path, { folder: "courses/whyChooseUs" })
+        )
       );
-      const parsedWhyChooseUs =
-        typeof data.whyChooseUs === "string"
-          ? JSON.parse(data.whyChooseUs)
-          : data.whyChooseUs || [];
-      data.whyChooseUs = parsedWhyChooseUs.map((item, index) => ({
+      const parsed = parseJSON(data.whyChooseUs);
+      data.whyChooseUs = parsed.map((item, index) => ({
         ...item,
-        image: uploadedWhyImages[index] || item.image,
+        image: uploadedImages[index]
+          ? { public_id: uploadedImages[index].public_id, url: uploadedImages[index].secure_url }
+          : item.image,
       }));
     }
 
-    const updated = await Course.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    });
+    // Update Online Course Worth It Image
+    if (req.files?.onlineCourseWorthItImage?.[0]) {
+      if (existing.onlineCourseWorthIt?.image?.public_id)
+        await cloudinary.uploader.destroy(existing.onlineCourseWorthIt.image.public_id);
 
-    res.status(200).json({
-      success: true,
-      message: "✅ Course updated successfully",
-      course: updated,
-    });
+      const upload = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, {
+        folder: "courses/onlineCourseWorthIt",
+      });
+      const parsed = parseJSON(data.onlineCourseWorthIt) || {};
+      parsed.image = { public_id: upload.public_id, url: upload.secure_url };
+      data.onlineCourseWorthIt = parsed;
+    }
+
+    // Parse all other JSON fields
+    data.specializations = parseJSON(data.specializations);
+    data.goodThings = parseJSON(data.goodThings);
+    data.topUniversities = parseJSON(data.topUniversities);
+    data.keyHighlights = parseJSON(data.keyHighlights);
+    data.syllabus = parseJSON(data.syllabus);
+    data.offeredCourses = parseJSON(data.offeredCourses);
+    data.onlineEligibility = parseJSON(data.onlineEligibility);
+    data.feeStructureSidebar = parseJSON(data.feeStructureSidebar);
+    data.detailedFees = parseJSON(data.detailedFees);
+    data.jobOpportunities = parseJSON(data.jobOpportunities);
+    data.topRecruiters = parseJSON(data.topRecruiters);
+
+    const updated = await Course.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+
+    res.status(200).json({ success: true, message: "Course updated", course: updated });
   } catch (error) {
-    console.error("❌ Update Course Error:", error);
+    console.error("Update Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ======================================================
-// ✅ DELETE COURSE
+// DELETE COURSE
 // ======================================================
 export const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const course = await Course.findById(id);
-    if (!course)
-      return res
-        .status(404)
-        .json({ success: false, message: "Course not found" });
+    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
 
-    // Delete Cloudinary images
     if (course.courseLogo?.public_id)
       await cloudinary.uploader.destroy(course.courseLogo.public_id);
 
-    for (const item of course.overview || []) {
-      if (item.image?.public_id)
-        await cloudinary.uploader.destroy(item.image.public_id);
-    }
+    for (const i of course.overview || [])
+      if (i.image?.public_id) await cloudinary.uploader.destroy(i.image.public_id);
 
-    for (const item of course.whyChooseUs || []) {
-      if (item.image?.public_id)
-        await cloudinary.uploader.destroy(item.image.public_id);
-    }
+    for (const i of course.whyChooseUs || [])
+      if (i.image?.public_id) await cloudinary.uploader.destroy(i.image.public_id);
+
+    if (course.onlineCourseWorthIt?.image?.public_id)
+      await cloudinary.uploader.destroy(course.onlineCourseWorthIt.image.public_id);
+
+    if (course.syllabusPdf?.public_id)
+      await cloudinary.uploader.destroy(course.syllabusPdf.public_id, { resource_type: "raw" });
 
     await course.deleteOne();
 
-    res
-      .status(200)
-      .json({ success: true, message: "🗑️ Course deleted successfully" });
+    res.status(200).json({ success: true, message: "Course deleted successfully" });
   } catch (error) {
-    console.error("❌ Delete Error:", error);
+    console.error("Delete Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

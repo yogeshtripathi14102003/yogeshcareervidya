@@ -261,8 +261,7 @@
 //       `}</style>
 //     </div>
 //   );
-// }
-
+// } "use client";
 
 "use client";
 
@@ -309,7 +308,6 @@ export default function CoursesListingPage() {
           selectedCategory === "All"
             ? "/api/v1/course"
             : `/api/v1/course?category=${selectedCategory}`;
-
         const res = await api.get(url);
         setCourses(res.data.courses || []);
       } catch (err) {
@@ -332,38 +330,31 @@ export default function CoursesListingPage() {
       scrollRef.current.scrollBy({ left: 150, behavior: "smooth" });
   };
 
-  // =====================================================
-  //           UPDATED MOBILE RESPONSIVE COURSE CARD
-  // =====================================================
-
   const CourseCard = ({ course }) => (
-    <Link href={`/course/${course.slug}`} passHref>
-      <div className="relative bg-white border border-gray-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between 
-        min-w-full sm:min-w-0 cursor-pointer rounded-md p-2">
-
-        {/* Course Logo */}
+    <div className="flex flex-col justify-between bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer p-2 min-h-[120px]">
+      
+      <Link href={`/course/${course.slug}`} passHref className="flex-1 flex flex-col">
         <div className="flex justify-center mt-1">
           <img
-            src={course.courseLogo?.url}
-            alt={course.name}
-            className="w-9 h-9 object-contain"
+            src={course.courseLogo?.url || "/placeholder.png"} // placeholder if missing
+            alt={course.name || "Course Image"}
+            className="w-8 h-8 object-contain"
           />
         </div>
 
-        {/* Course Title */}
-        <div className="text-center mt-2 mb-3 px-1">
-          <h3 className="font-semibold text-gray-800 text-[11px] line-clamp-2 leading-tight">
+        <div className="text-center mt-2 mb-1 px-1 flex-1">
+          <h3 className="font-semibold text-gray-800 text-[10px] line-clamp-2 leading-tight">
             {course.name}
           </h3>
         </div>
+      </Link>
 
-        {/* Button */}
-        <button className="bg-gradient-to-r from-[#0056B3] to-[#F58220] hover:opacity-90 
-          text-white text-[9px] font-semibold py-1 rounded">
+      <Link href={`/course/${course.slug}`} passHref>
+        <button className="bg-[#0056B3] text-white hover:opacity-90 transition-all text-[9px] font-semibold py-1 w-full rounded mt-1">
           Know More
         </button>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 
   if (!isMounted) {
@@ -374,167 +365,171 @@ export default function CoursesListingPage() {
     );
   }
 
+  // Desktop: Max 4 rows × 5 columns = 20 courses
+  const desktopCourses = courses.slice(0, 20);
+  // Mobile: First 6 courses
+  const mobileCourses = courses.slice(0, 6);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex flex-col lg:flex-row gap-6 px-4 md:px-8 pt-10 sm:py-10 transition-all">
+    <div className="flex justify-center py-0 h-full w-full bg-white">
+      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 px-4 md:px-6 py-4 shadow-lg rounded-lg">
 
-      {/* Sidebar */}
-      <aside className="lg:w-1/4 bg-white border border-gray-100 shadow-lg p-5 md:p-6">
-        <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
-          Categories
-        </h3>
+        {/* Sidebar */}
+        <aside className="lg:w-1/5 lg:bg-white lg:border lg:border-gray-200 lg:shadow p-4">
+          <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
+            Categories
+          </h3>
 
-        {/* Mobile Horizontal Scroll Categories */}
-        <div className="block lg:hidden relative mb-6">
-          <button
-            onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 p-1 rounded-full shadow z-10"
-          >
-            <ChevronLeft className="w-4 h-4 text-[#0056B3]" />
-          </button>
-
-          <button
-            onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 p-1 rounded-full shadow z-10"
-          >
-            <ChevronRight className="w-4 h-4 text-[#0056B3]" />
-          </button>
-
-          <div
-            ref={scrollRef}
-            className="flex gap-3 overflow-x-auto scrollbar-hide px-6"
-          >
-            {sidebarItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setSelectedCategory(item.key)}
-                className={`whitespace-nowrap px-4 py-2 text-sm font-semibold transition-all border ${
-                  selectedCategory === item.key
-                    ? "bg-[#0056B3] text-white border-[#0056B3]"
-                    : "bg-white text-[#0056B3] border-gray-300 hover:bg-blue-50"
-                }`}
-              >
-                {item.title}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block">
-          {sidebarItems.map((item) => (
-            <div
-              key={item.key}
-              onClick={() => setSelectedCategory(item.key)}
-              className={`mb-4 p-4 cursor-pointer border-2 transition-all ${
-                selectedCategory === item.key
-                  ? "border-[#F58220] bg-orange-50 shadow-md"
-                  : "border-transparent hover:border-[#0056B3]/30 hover:bg-blue-50/30"
-              }`}
+          {/* Mobile Horizontal Scroll */}
+          <div className="block lg:hidden relative mb-6">
+            <button
+              onClick={scrollLeft}
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-transparent border border-gray-300 p-1 rounded-full shadow z-10"
             >
-              <div className="flex items-start gap-3">
-                <div
-                  className={`p-3 flex justify-center items-center transition-all ${
+              <ChevronLeft className="w-4 h-4 text-[#0056B3]" />
+            </button>
+            <button
+              onClick={scrollRight}
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent border border-gray-300 p-1 rounded-full shadow z-10"
+            >
+              <ChevronRight className="w-4 h-4 text-[#0056B3]" />
+            </button>
+            <div
+              ref={scrollRef}
+              className="flex gap-3 overflow-x-auto scrollbar-hide px-6"
+            >
+              {sidebarItems.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setSelectedCategory(item.key)}
+                  className={`whitespace-nowrap px-4 py-2 text-sm font-semibold transition-all border ${
                     selectedCategory === item.key
-                      ? "bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white"
-                      : "bg-gray-100 text-gray-600"
+                      ? "bg-[#0056B3] text-white border-[#0056B3]"
+                      : "bg-white text-[#0056B3] border-gray-300 hover:bg-blue-50"
                   }`}
                 >
-                  <i className="fa-solid fa-graduation-cap text-base"></i>
-                </div>
-                <div>
-                  <h3
-                    className={`font-semibold text-[16px] ${
-                      selectedCategory === item.key
-                        ? "text-[#0056B3]"
-                        : "text-gray-800"
-                    }`}
-                  >
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-gray-500">↳ {item.subtitle}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </aside>
-
-      {/* Main Section */}
-   <main className="flex-1 pb-0 sm:pb-10 overflow-hidden !mb-0 !pb-0">
-  <h2 className="text-3xl font-extrabold text-center lg:text-left mb-5 text-[#0056B3]">
-    {loading ? "Loading..." : `${selectedCategory} Courses`}
-  </h2>
-
-        {/* Desktop Grid */}
-        <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
-          {loading ? (
-            <p className="col-span-full text-center text-gray-500 animate-pulse">
-              Loading courses...
-            </p>
-          ) : courses.length === 0 ? (
-            <p className="col-span-full text-center text-gray-500">
-              No courses found.
-            </p>
-          ) : (
-            courses
-              .slice(0, 10)
-              .map((course) => <CourseCard key={course._id} course={course} />)
-          )}
-        </div>
-
-        {/* Mobile Grid */}
-        <div className="sm:hidden grid grid-cols-3 gap-2 w-full">
-          {courses.slice(0, 6).map((course) => (
-            <CourseCard key={course._id} course={course} />
-          ))}
-        </div>
-
-        {/* View All Button */}
-        <div className="text-center mt-5 mb-0 sm:mt-8 sm:mb-0">
-          <button
-            onClick={() => setShowAll(true)}
-            className="bg-[#0056B3] hover:bg-[#004494] text-white font-semibold px-6 py-2 text-sm uppercase"
-          >
-            View All
-          </button>
-        </div>
-      </main>
-
-      {/* All Courses Modal */}
-      {showAll && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center sm:p-4 p-0">
-          <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 sm:rounded-xl">
-            <button
-              onClick={() => setShowAll(false)}
-              className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-full p-1"
-            >
-              <X className="w-5 h-5 text-gray-700" />
-            </button>
-
-            <h3 className="text-2xl font-bold text-[#0056B3] mb-6 text-center">
-              All {selectedCategory} Courses
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <div key={course._id} className="w-full">
-                  <CourseCard course={course} />
-                </div>
+                  {item.title}
+                </button>
               ))}
             </div>
           </div>
-        </div>
-      )}
 
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block">
+            {sidebarItems.map((item) => (
+              <div
+                key={item.key}
+                onClick={() => setSelectedCategory(item.key)}
+                className={`mb-4 p-4 cursor-pointer border-2 transition-all rounded-lg ${
+                  selectedCategory === item.key
+                    ? "border-[#F58220] bg-orange-50 shadow-md"
+                    : "border-transparent hover:border-[#0056B3]/30 hover:bg-blue-50/30"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`p-3 flex justify-center items-center transition-all rounded-md ${
+                      selectedCategory === item.key
+                        ? "bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    <i className="fa-solid fa-graduation-cap text-base"></i>
+                  </div>
+                  <div>
+                    <h3
+                      className={`font-semibold text-[16px] ${
+                        selectedCategory === item.key
+                          ? "text-[#0056B3]"
+                          : "text-gray-800"
+                      }`}
+                    >
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-500">↳ {item.subtitle}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        {/* Main Section */}
+        <main className="flex-1 pb-0">
+          <h2 className="text-3xl font-extrabold text-center lg:text-left mb-5 text-[#0056B3]">
+            {loading ? "Loading..." : `${selectedCategory} Courses`}
+          </h2>
+
+          {/* Desktop Grid: 5 columns, 4 rows */}
+          <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            {loading ? (
+              <p className="col-span-full text-center text-gray-500 animate-pulse">
+                Loading courses...
+              </p>
+            ) : desktopCourses.length === 0 ? (
+              <p className="col-span-full text-center text-gray-500">
+                No courses found.
+              </p>
+            ) : (
+              desktopCourses.map((course) => (
+                <CourseCard key={course._id} course={course} />
+              ))
+            )}
+          </div>
+
+          {/* Mobile Grid */}
+          <div className="sm:hidden grid grid-cols-3 gap-2 w-full">
+            {mobileCourses.map((course) => (
+              <CourseCard key={course._id} course={course} />
+            ))}
+          </div>
+
+          {/* View All Button - Desktop + Mobile */}
+          <div className="text-center mt-6 w-full">
+            <button
+              onClick={() => setShowAll(true)}
+              className="bg-[#0056B3] hover:bg-[#004494] text-white font-semibold px-6 py-2 text-sm uppercase w-full sm:w-auto rounded-md"
+            >
+              View All
+            </button>
+          </div>
+        </main>
+
+        {/* All Courses Modal */}
+        {showAll && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-start pt-12 p-4 overflow-y-auto">
+            <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 rounded-xl">
+              <button
+                onClick={() => setShowAll(false)}
+                className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-full p-1"
+              >
+                <X className="w-5 h-5 text-gray-700" />
+              </button>
+
+              <h3 className="text-2xl font-bold text-[#0056B3] mb-6 text-center">
+                All {selectedCategory} Courses
+              </h3>
+
+              {/* Modal Grid: 3 Columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {courses.map((course) => (
+                  <CourseCard key={course._id} course={course} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <style jsx>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
+      </div>
     </div>
   );
 }

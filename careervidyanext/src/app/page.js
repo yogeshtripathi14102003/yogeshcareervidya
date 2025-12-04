@@ -28,11 +28,12 @@ export default function Home() {
       <TeamSection />
      
    <QueryPopup />  
-      <CardSlider />
+   
       <TestimonialsSlider />
       <Studentimageslider />
          <LogoSlider />
       <Studentstrustus />
+         <CardSlider />
       <Universityimage  />
       <FAQ />
 

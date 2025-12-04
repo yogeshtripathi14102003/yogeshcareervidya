@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import api from "@/utlis/api"; // ✅ Make sure this points to your axios instance
+import api from "@/utlis/api";
 
 const Signup = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -20,13 +20,13 @@ const Signup = ({ onClose }) => {
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Handle input change
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Validate before sending OTP
+  // Validate required fields before sending OTP
   const validateAllFields = () => {
     const requiredFields = [
       "name",
@@ -38,6 +38,7 @@ const Signup = ({ onClose }) => {
       "gender",
       "addresses",
     ];
+
     for (let field of requiredFields) {
       if (!formData[field]) {
         alert(`Please fill the "${field}" field before sending OTP.`);
@@ -47,7 +48,7 @@ const Signup = ({ onClose }) => {
     return true;
   };
 
-  // ✅ Send OTP
+  // Send OTP
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!validateAllFields()) return;
@@ -58,80 +59,74 @@ const Signup = ({ onClose }) => {
         emailOrPhone: formData.email || formData.mobileNumber,
         purpose: "register",
       };
-      const res = await api.post("/api/v1/send-otp", payload);
-      console.log("OTP Sent:", res.data);
-      alert("OTP sent successfully! Please check your email or phone.");
+      await api.post("/api/v1/send-otp", payload);
+      alert("OTP sent successfully! Check your email or phone.");
       setOtpSent(true);
     } catch (error) {
-      console.error("Error sending OTP:", error.response?.data || error.message);
-      alert("Failed to send OTP. Please try again.");
+      console.error(error);
+      alert("Failed to send OTP. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Verify OTP
+  // Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!formData.otp) {
-      alert("Please enter the OTP first.");
+      alert("Please enter OTP to continue.");
       return;
     }
 
     try {
       setLoading(true);
       const payload = {
-        emailOrPhone: formData.email || formData.mobileNumber,
-        otp: formData.otp,
-        purpose: "register",
         ...formData,
+        emailOrPhone: formData.email || formData.mobileNumber,
+        purpose: "register",
       };
-
-      const res = await api.post("/api/v1/verify-otp", payload);
-      console.log("OTP Verified & User Registered:", res.data);
-      alert("Registration successful!");
-      onClose?.(); // ✅ close popup after success
+      await api.post("/api/v1/verify-otp", payload);
+      alert("Registration successful! Now you can login.");
+      onClose?.();
     } catch (error) {
-      console.error("OTP Verification Failed:", error.response?.data || error.message);
-      alert("Invalid OTP. Please try again.");
+      console.error(error);
+      alert("Invalid OTP. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Form submit
   const handleSubmit = (e) => {
     if (!otpSent) handleSendOtp(e);
     else handleVerifyOtp(e);
   };
 
   return (
-    // ✅ Background overlay (click outside to close)
     <div
       className="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
       onClick={onClose}
     >
-      {/* Popup card */}
       <div
-        className="bg-white rounded-2xl shadow-xl w-[95%] md:w-[900px] overflow-hidden flex flex-col md:flex-row relative animate-fadeIn"
-        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+        className="bg-white text-gray-900 rounded-2xl shadow-xl w-[95%] md:w-[900px] overflow-hidden flex flex-col md:flex-row relative animate-fadeIn"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Left Side Info */}
-        <div className="w-full md:w-1/2 p-8 bg-gradient-to-r from-[#F0F8FF] to-[#E6F0FF] flex flex-col justify-center items-start text-[#333333]">
+        {/* Left Section */}
+        <div className="w-full md:w-1/2 p-8 bg-gradient-to-r from-[#F0F8FF] to-[#E6F0FF] flex flex-col justify-center">
           <h1 className="text-4xl font-bold text-[#1E90FF] mb-4">Career Vidya</h1>
           <h2 className="text-2xl font-semibold mb-6">
             Unlock Your Future with Career Vidya
           </h2>
           <ul className="list-disc list-inside mb-6 space-y-2">
-            <li>Exam Alerts Timely updates Smart decisions</li>
-            <li>Mock Tests Practice. Perform Perfect.</li>
-            <li>AI Predictions Data-driven college matches</li>
-            <li>Counselling Personal guidance.Real results.</li>
+            <li>Exam Alerts – Timely updates</li>
+            <li>Mock Tests – Practice. Perform. Perfect.</li>
+            <li>AI Predictions – Smart College Match</li>
+            <li>Counselling – Personal Guidance</li>
           </ul>
         </div>
 
-        {/* Right Side Form */}
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center items-center relative">
-          {/* Close Button (works ✅) */}
+        {/* Right Section */}
+        <div className="w-full md:w-1/2 p-8 relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
@@ -139,16 +134,15 @@ const Signup = ({ onClose }) => {
             ✕
           </button>
 
-          <div className="w-full max-w-md">
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="w-full max-w-md mx-auto">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <input
                 type="text"
                 name="name"
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
+                className="inputBox"
               />
 
               <div className="flex space-x-4">
@@ -158,8 +152,7 @@ const Signup = ({ onClose }) => {
                   placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
+                  className="inputBox w-1/2"
                 />
                 <input
                   type="tel"
@@ -167,8 +160,7 @@ const Signup = ({ onClose }) => {
                   placeholder="Mobile Number"
                   value={formData.mobileNumber}
                   onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
+                  className="inputBox w-1/2"
                 />
               </div>
 
@@ -179,8 +171,7 @@ const Signup = ({ onClose }) => {
                   placeholder="City"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
+                  className="inputBox w-1/2"
                 />
                 <input
                   type="text"
@@ -188,8 +179,7 @@ const Signup = ({ onClose }) => {
                   placeholder="State"
                   value={formData.state}
                   onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
+                  className="inputBox w-1/2"
                 />
               </div>
 
@@ -200,15 +190,13 @@ const Signup = ({ onClose }) => {
                   placeholder="Course"
                   value={formData.course}
                   onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
+                  className="inputBox w-1/2"
                 />
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
+                  className="inputBox w-1/2"
                 >
                   <option value="">Gender</option>
                   <option value="male">Male</option>
@@ -223,8 +211,7 @@ const Signup = ({ onClose }) => {
                 placeholder="Address"
                 value={formData.addresses}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
+                className="inputBox"
               />
 
               {otpSent && (
@@ -234,7 +221,7 @@ const Signup = ({ onClose }) => {
                   placeholder="Enter OTP"
                   value={formData.otp}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  className="inputBox"
                 />
               )}
 
@@ -261,8 +248,18 @@ const Signup = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Animation */}
       <style jsx>{`
+        .inputBox {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          outline: none;
+        }
+        .inputBox:focus {
+          border-color: #1e90ff;
+        }
+
         @keyframes fadeIn {
           from {
             opacity: 0;

@@ -203,8 +203,8 @@
 //   );
 // }
 
-
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -224,12 +224,23 @@ export default function Page() {
     fetchBanners();
   }, []);
 
+  // Fetch banners from API
   const fetchBanners = async () => {
     try {
       const res = await axios.get("https://api.careervidya.in/api/v1/banner", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setBanners(res.data);
+
+      // Map desktopImage and mobileImage to image.desktop.url and image.mobile.url
+      const mappedBanners = res.data.map((b) => ({
+        ...b,
+        image: {
+          desktop: { url: b.desktopImage?.url },
+          mobile: { url: b.mobileImage?.url },
+        },
+      }));
+
+      setBanners(mappedBanners);
     } catch (error) {
       console.error("❌ Error fetching banners:", error);
     } finally {
@@ -237,6 +248,7 @@ export default function Page() {
     }
   };
 
+  // Delete banner
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this banner?")) return;
 
@@ -244,6 +256,7 @@ export default function Page() {
       await axios.delete(`https://api.careervidya.in/api/v1/banner/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setBanners(banners.filter((b) => b._id !== id));
       alert("✅ Banner deleted!");
     } catch (error) {
@@ -252,22 +265,22 @@ export default function Page() {
     }
   };
 
-  // 🔍 Filter by all fields
+  // Filter banners by search
   const filteredBanners = banners.filter((b) => {
-    const query = search.toLowerCase();
+    const q = search.toLowerCase();
     return (
-      b.title?.toLowerCase().includes(query) ||
-      b.position?.toLowerCase().includes(query) ||
-      b.linkUrl?.toLowerCase().includes(query) ||
-      b.promotionId?.toLowerCase().includes(query) ||
+      b.title?.toLowerCase().includes(q) ||
+      b.position?.toLowerCase().includes(q) ||
+      b.linkUrl?.toLowerCase().includes(q) ||
+      b.promotionId?.toLowerCase().includes(q) ||
       (b.startDate &&
-        new Date(b.startDate).toLocaleDateString().toLowerCase().includes(query)) ||
+        new Date(b.startDate).toLocaleDateString().toLowerCase().includes(q)) ||
       (b.endDate &&
-        new Date(b.endDate).toLocaleDateString().toLowerCase().includes(query))
+        new Date(b.endDate).toLocaleDateString().toLowerCase().includes(q))
     );
   });
 
-  // 📄 Pagination logic
+  // Pagination logic
   const indexOfLast = currentPage * bannersPerPage;
   const indexOfFirst = indexOfLast - bannersPerPage;
   const currentBanners = filteredBanners.slice(indexOfFirst, indexOfLast);
@@ -285,10 +298,11 @@ export default function Page() {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            setCurrentPage(1); // reset to page 1 when searching
+            setCurrentPage(1);
           }}
           className="border rounded px-3 py-2 w-full md:w-1/3"
         />
+
         <button
           onClick={() => router.push("/admin/bannar")}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full md:w-auto"
@@ -297,13 +311,13 @@ export default function Page() {
         </button>
       </div>
 
-      {/* Table wrapper for mobile scroll */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border text-sm md:text-base">
           <thead>
             <tr className="bg-gray-200 text-left">
               <th className="border p-2">#</th>
-              <th className="border p-2">Image</th>
+              <th className="border p-2">Images</th>
               <th className="border p-2">Title</th>
               <th className="border p-2">Position</th>
               <th className="border p-2">LinkUrl</th>
@@ -313,6 +327,7 @@ export default function Page() {
               <th className="border p-2">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {currentBanners.length > 0 ? (
               currentBanners.map((b, i) => {
@@ -324,19 +339,37 @@ export default function Page() {
                 return (
                   <tr key={b._id} className="hover:bg-gray-50">
                     <td className="border p-2">{indexOfFirst + i + 1}</td>
+
+                    {/* Desktop + Mobile Images */}
                     <td className="border p-2">
-                      <img
-                        src={b.image?.url || "/placeholder.png"}
-                        alt={b.title}
-                        className="h-12 w-20 md:w-24 object-cover rounded"
-                      />
+                      <div className="flex items-center gap-3">
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs text-gray-500">Desktop</span>
+                          <img
+                            src={b.image?.desktop?.url || "/placeholder.png"}
+                            alt="Desktop Banner"
+                            className="h-14 w-28 object-cover rounded border"
+                          />
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs text-gray-500">Mobile</span>
+                          <img
+                            src={b.image?.mobile?.url || "/placeholder.png"}
+                            alt="Mobile Banner"
+                            className="h-14 w-12 object-cover rounded border"
+                          />
+                        </div>
+                      </div>
                     </td>
+
                     <td className="border p-2">{b.title}</td>
                     <td className="border p-2">{b.position}</td>
                     <td className="border p-2 truncate max-w-[150px]">
                       {b.linkUrl || "-"}
                     </td>
                     <td className="border p-2">{b.promotionId || "-"}</td>
+
                     <td className="border p-2 whitespace-nowrap">
                       {b.startDate
                         ? new Date(b.startDate).toLocaleDateString()
@@ -346,6 +379,7 @@ export default function Page() {
                         ? new Date(b.endDate).toLocaleDateString()
                         : "-"}
                     </td>
+
                     <td className="border p-2">
                       <span
                         className={`px-2 py-1 rounded text-white ${
@@ -354,10 +388,10 @@ export default function Page() {
                             : "bg-red-600"
                         }`}
                       >
-                       
                         {status}
                       </span>
                     </td>
+
                     <td className="border p-2 space-x-2">
                       <button
                         onClick={() => handleDelete(b._id)}
@@ -380,7 +414,7 @@ export default function Page() {
         </table>
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-wrap justify-center mt-4 gap-2">
           <button
@@ -390,6 +424,7 @@ export default function Page() {
           >
             Prev
           </button>
+
           {[...Array(totalPages)].map((_, i) => (
             <button
               key={i}
@@ -401,6 +436,7 @@ export default function Page() {
               {i + 1}
             </button>
           ))}
+
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => p + 1)}

@@ -166,30 +166,200 @@
 
 
 
+// "use client";
+
+// import { useState, useEffect, useRef } from "react";
+// import Image from "next/image";
+// import api from "@/utlis/api.js"
+// import Link from "next/link";
+// import  "../ui/hero.css";
+
+// export default function HeroSlider() {
+//   const [slides, setSlides] = useState([]);
+//   const [currentSlide, setCurrentSlide] = useState(0);
+//   const [loading, setLoading] = useState(true);
+//   const isTransitioning = useRef(false);
+
+//   const BASE_URL =
+//     process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") || "";
+
+//   const fetchBanners = async () => {
+//     try {
+//       const res = await api.get("/api/v1/banner");
+//       const heroBanners = res.data?.filter(
+//         (b) => b.position?.trim()?.toUpperCase() === "HERO"
+//       );
+//       setSlides(heroBanners || []);
+//     } catch (err) {
+//       console.error("Error fetching banners:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchBanners();
+//   }, []);
+
+//   useEffect(() => {
+//     if (!slides.length) return;
+//     const timer = setInterval(() => handleNext(), 5000);
+//     return () => clearInterval(timer);
+//   }, [slides]);
+
+//   const handleNext = () => {
+//     if (isTransitioning.current || !slides.length) return;
+//     isTransitioning.current = true;
+//     setCurrentSlide((prev) => (prev + 1) % slides.length);
+//     setTimeout(() => (isTransitioning.current = false), 800);
+//   };
+
+//   const handlePrev = () => {
+//     if (isTransitioning.current || !slides.length) return;
+//     isTransitioning.current = true;
+//     setCurrentSlide((prev) =>
+//       prev === 0 ? slides.length - 1 : prev - 1
+//     );
+//     setTimeout(() => (isTransitioning.current = false), 800);
+//   };
+
+//   const getImageSrc = (slide) => {
+//     if (!slide?.image) return "/images/default-banner.jpg";
+//     let img = slide.image;
+
+//     if (typeof img === "object") {
+//       if (img?.url) img = img.url;
+//       else if (Array.isArray(img) && img[0]?.url) img = img[0].url;
+//       else if (Array.isArray(img)) img = img[0];
+//     }
+
+//     if (typeof img !== "string" || !img.length)
+//       return "/images/default-banner.jpg";
+
+//     if (img.startsWith("http")) return img;
+
+//     return `${BASE_URL}/${img.replace(/^\/+/, "")}`;
+//   };
+
+//   if (loading) {
+//     return (
+//       <div className="slider-loading">
+//         Loading HERO banners...
+//       </div>
+//     );
+//   }
+
+//   if (!slides.length) {
+//     return (
+//       <div className="slider-loading">
+//         No HERO banners available
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="slider-container">
+
+//       <div className="slider-wrapper">
+//         {slides.map((slide, index) => (
+//           <div
+//             key={index}
+//             className={`slide ${
+//               index === currentSlide ? "active" : ""
+//             }`}
+//           >
+//             <Image
+//               src={getImageSrc(slide)}
+//               alt={slide.title || `Slide ${index + 1}`}
+//               fill
+//               className="slide-image"
+//               unoptimized
+//               priority={index === 0}
+//             />
+
+//             <div className="slide-overlay">
+//               {slide.title && (
+//                 <h2 className="slide-title">{slide.title}</h2>
+//               )}
+
+//               {slide.linkUrl && (
+//                 <Link href={slide.linkUrl}>
+//                   <span className="slide-button">Visit</span>
+//                 </Link>
+//               )}
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       <button className="slider-btn left" onClick={handlePrev}>
+//         ←
+//       </button>
+
+//       <button className="slider-btn right" onClick={handleNext}>
+//         →  
+//       </button>
+
+//       <div className="slider-dots">
+//         {slides.map((_, index) => (
+//           <button
+//             key={index}
+//             onClick={() => setCurrentSlide(index)}
+//             className={`dot ${
+//               currentSlide === index ? "active-dot" : ""
+//             }`}
+//           ></button>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import api from "@/utlis/api.js"
+import api from "@/utlis/api.js";
 import Link from "next/link";
-import  "../ui/hero.css";
+import "../ui/hero.css";
 
 export default function HeroSlider() {
   const [slides, setSlides] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const isTransitioning = useRef(false);
 
   const BASE_URL =
     process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") || "";
 
+  // Detect mobile/desktop
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Fetch banners
   const fetchBanners = async () => {
     try {
       const res = await api.get("/api/v1/banner");
       const heroBanners = res.data?.filter(
         (b) => b.position?.trim()?.toUpperCase() === "HERO"
       );
-      setSlides(heroBanners || []);
+
+      const mappedBanners = heroBanners.map((b) => ({
+        ...b,
+        image: {
+          desktop: { url: b.desktopImage?.url || b.image?.desktop?.url },
+          mobile: { url: b.mobileImage?.url || b.image?.mobile?.url },
+        },
+      }));
+
+      setSlides(mappedBanners || []);
     } catch (err) {
       console.error("Error fetching banners:", err);
     } finally {
@@ -201,9 +371,10 @@ export default function HeroSlider() {
     fetchBanners();
   }, []);
 
+  // Auto slide (FAST SPEED)
   useEffect(() => {
     if (!slides.length) return;
-    const timer = setInterval(() => handleNext(), 5000);
+    const timer = setInterval(() => handleNext(), 8000); // 3 seconds
     return () => clearInterval(timer);
   }, [slides]);
 
@@ -211,7 +382,7 @@ export default function HeroSlider() {
     if (isTransitioning.current || !slides.length) return;
     isTransitioning.current = true;
     setCurrentSlide((prev) => (prev + 1) % slides.length);
-    setTimeout(() => (isTransitioning.current = false), 800);
+    setTimeout(() => (isTransitioning.current = false), 400);
   };
 
   const handlePrev = () => {
@@ -220,54 +391,37 @@ export default function HeroSlider() {
     setCurrentSlide((prev) =>
       prev === 0 ? slides.length - 1 : prev - 1
     );
-    setTimeout(() => (isTransitioning.current = false), 800);
+    setTimeout(() => (isTransitioning.current = false), 400);
   };
 
   const getImageSrc = (slide) => {
     if (!slide?.image) return "/images/default-banner.jpg";
-    let img = slide.image;
 
-    if (typeof img === "object") {
-      if (img?.url) img = img.url;
-      else if (Array.isArray(img) && img[0]?.url) img = img[0].url;
-      else if (Array.isArray(img)) img = img[0];
-    }
+    const img = isMobile
+      ? slide.image?.mobile?.url || slide.image?.desktop?.url
+      : slide.image?.desktop?.url || slide.image?.mobile?.url;
 
-    if (typeof img !== "string" || !img.length)
-      return "/images/default-banner.jpg";
-
+    if (!img) return "/images/default-banner.jpg";
     if (img.startsWith("http")) return img;
-
     return `${BASE_URL}/${img.replace(/^\/+/, "")}`;
   };
 
   if (loading) {
-    return (
-      <div className="slider-loading">
-        Loading HERO banners...
-      </div>
-    );
+    return <div className="slider-loading">Loading HERO banners...</div>;
   }
 
   if (!slides.length) {
-    return (
-      <div className="slider-loading">
-        No HERO banners available
-      </div>
-    );
+    return <div className="slider-loading">No HERO banners available</div>;
   }
 
   return (
     <div className="slider-container">
-
-      <div className="slider-wrapper">
+      <div
+        className="slider-wrapper"
+        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+      >
         {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={`slide ${
-              index === currentSlide ? "active" : ""
-            }`}
-          >
+          <div key={index} className="slide">
             <Image
               src={getImageSrc(slide)}
               alt={slide.title || `Slide ${index + 1}`}
@@ -278,13 +432,10 @@ export default function HeroSlider() {
             />
 
             <div className="slide-overlay">
-              {slide.title && (
-                <h2 className="slide-title">{slide.title}</h2>
-              )}
-
+              {slide.title && <h2 className="slide-title">{slide.title}</h2>}
               {slide.linkUrl && (
                 <Link href={slide.linkUrl}>
-                  <span className="slide-button">Visit</span>
+                  {/* <span className="slide-button">Visit</span> */}
                 </Link>
               )}
             </div>
@@ -295,9 +446,8 @@ export default function HeroSlider() {
       <button className="slider-btn left" onClick={handlePrev}>
         ←
       </button>
-
       <button className="slider-btn right" onClick={handleNext}>
-        →  
+        →
       </button>
 
       <div className="slider-dots">
@@ -305,9 +455,7 @@ export default function HeroSlider() {
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`dot ${
-              currentSlide === index ? "active-dot" : ""
-            }`}
+            className={`dot ${currentSlide === index ? "active-dot" : ""}`}
           ></button>
         ))}
       </div>
