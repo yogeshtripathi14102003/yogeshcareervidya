@@ -31,7 +31,6 @@
 
 //   return null;
 // }
-
 "use client";
 
 import { useEffect } from "react";
@@ -41,10 +40,8 @@ export default function AutoLogout() {
     let timer;
 
     const logoutNow = () => {
-      localStorage.removeItem("token"); // USER
-      localStorage.removeItem("admintoken"); // ADMIN
+      localStorage.removeItem("admintoken");
 
-      document.cookie = "token=; Max-Age=0";
       document.cookie = "admintoken=; Max-Age=0";
 
       window.location.href = "/login";

@@ -12,7 +12,6 @@ export default function FAQSection() {
     setMounted(true);
   }, []);
 
-  // ✅ Updated Career Vidya FAQ Data
   const faqs = [
     {
       id: 1,
@@ -85,55 +84,57 @@ export default function FAQSection() {
   if (!mounted) return <div className="min-h-[200px]" />;
 
   return (
-    <section className="max-w-4xl mx-auto px-4 py-16">
-      <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-10">
-        Frequently Asked Questions
-      </h2>
+    <div className="bg-white min-h-screen">
+      <section className="max-w-4xl mx-auto px-4 py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-10">
+          Frequently Asked Questions
+        </h2>
 
-      <div className="space-y-3">
-        {visibleFaqs.map((faq, index) => (
-          <div
-            key={faq.id}
-            className="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition"
-          >
+        <div className="space-y-3">
+          {visibleFaqs.map((faq, index) => (
+            <div
+              key={faq.id}
+              className="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition"
+            >
+              <button
+                type="button"
+                onClick={() => toggleFAQ(index)}
+                className="w-full flex items-center justify-between p-4 text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="bg-[#0057A0] text-white w-6 h-6 flex items-center justify-center rounded-full text-sm font-semibold">
+                    {faq.id}
+                  </span>
+                  <span className="text-gray-900 font-medium">{faq.question}</span>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-500 transition-transform ${
+                    openIndex === index ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {openIndex === index && (
+                <div className="px-12 pb-4 text-gray-600 text-sm whitespace-pre-line leading-relaxed">
+                  {faq.answer}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {faqs.length > 7 && (
+          <div className="text-center mt-8">
             <button
               type="button"
-              onClick={() => toggleFAQ(index)}
-              className="w-full flex items-center justify-between p-4 text-left"
+              onClick={() => setShowAll(!showAll)}
+              className="px-6 py-2 text-white bg-[#0057A0] hover:bg-[#00447f] rounded-md font-semibold transition"
             >
-              <div className="flex items-center gap-3">
-                <span className="bg-[#0057A0] text-white w-6 h-6 flex items-center justify-center rounded-full text-sm font-semibold">
-                  {faq.id}
-                </span>
-                <span className="text-gray-900 font-medium">{faq.question}</span>
-              </div>
-              <ChevronDown
-                className={`w-5 h-5 text-gray-500 transition-transform ${
-                  openIndex === index ? "rotate-180" : ""
-                }`}
-              />
+              {showAll ? "View Less ↑" : "View All ↓"}
             </button>
-
-            {openIndex === index && (
-              <div className="px-12 pb-4 text-gray-600 text-sm whitespace-pre-line leading-relaxed">
-                {faq.answer}
-              </div>
-            )}
           </div>
-        ))}
-      </div>
-
-      {faqs.length > 7 && (
-        <div className="text-center mt-8">
-          <button
-            type="button"
-            onClick={() => setShowAll(!showAll)}
-            className="px-6 py-2 text-white bg-[#0057A0] hover:bg-[#00447f] rounded-md font-semibold transition"
-          >
-            {showAll ? "View Less ↑" : "View All ↓"}
-          </button>
-        </div>
-      )}
-    </section>
+        )}
+      </section>
+    </div>
   );
 }

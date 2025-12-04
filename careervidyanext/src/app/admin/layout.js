@@ -159,7 +159,6 @@
 
 // export default Layout;
 
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -183,23 +182,22 @@ import Cookies from "js-cookie";
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);  // 👈 NEW
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
-  // 🔒 Secure Admin Protection
+  // 🔒 ADMIN AUTH CHECK
   useEffect(() => {
-    const token = localStorage.getItem("admintoken");
+    const adminToken = localStorage.getItem("admintoken");
 
-    if (!token) {
-      router.replace("/404");       // ✅ Open admin = direct 404
+    if (!adminToken) {
+      router.replace("/404");
       return;
     }
 
-    setCheckingAuth(false); // authentication done
+    setCheckingAuth(false);
   }, []);
 
-  // ⛔ PAGE SHOULD NOT RENDER UNTIL CHECKING AUTH
   if (checkingAuth) {
     return (
       <div className="w-full h-screen flex justify-center items-center text-xl font-semibold">
@@ -213,13 +211,11 @@ const Layout = ({ children }) => {
   const handleLogout = async () => {
     try {
       await axios.post("http://localhost:8080/api/v1/logout", {}, { withCredentials: true });
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      localStorage.removeItem("admintoken");
-      Cookies.remove("admintoken");
-      router.push("/");
-    }
+    } catch (error) {}
+
+    localStorage.removeItem("admintoken");
+    Cookies.remove("admintoken");
+    router.push("/");
   };
 
   const menuItems = [
@@ -229,11 +225,11 @@ const Layout = ({ children }) => {
     { href: "/admin/Getalluser", label: "All Students", icon: Users },
     { href: "/admin/bannerlist", label: "Banners", icon: ImageIcon },
     { href: "/admin/adduniversitydata", label: "Universities", icon: Users },
-    {href:"/admin/getuniversites",label:"Universities Data",icon:Users},
+    { href: "/admin/getuniversites", label: "Universities Data", icon: Users },
     { href: "/admin/getquery", label: "Get Queries", icon: MessageSquare },
     { href: "/admin/getonlinecourese", label: "Online Courses", icon: Tag },
-    {href: "/admin/job", label: "Job Posts", icon: Tag },
-    {href: "/admin/getresume", label: "Applications", icon: Tag },
+    { href: "/admin/job", label: "Job Posts", icon: Tag },
+    { href: "/admin/getresume", label: "Applications", icon: Tag },
     { href: "/admin/getonelyonline", label: "OnlyL Online", icon: Tag },
     { href: "/admin/Q&A", label: "Q & A", icon: MessageSquare },
     { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
@@ -256,18 +252,13 @@ const Layout = ({ children }) => {
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
           md:translate-x-0 md:static`}
       >
-        {/* HEADER */}
         <div className="flex items-center justify-between p-4 border-b bg-gray-50">
           <h1 className="text-lg font-semibold text-gray-700">Admin Panel</h1>
-          <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-md hover:bg-gray-200 md:hidden"
-          >
+          <button onClick={toggleSidebar} className="p-2 rounded-md hover:bg-gray-200 md:hidden">
             <X size={22} />
           </button>
         </div>
 
-        {/* MENU */}
         <nav className="flex-1 p-3 overflow-y-auto">
           <ul className="space-y-1">
             {menuItems.map(({ href, label, icon: Icon }) => (
@@ -281,7 +272,7 @@ const Layout = ({ children }) => {
                   }`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
-                  <Icon size={20} className={pathname === href ? "text-sky-600" : "text-sky-500"} />
+                  <Icon size={20} className="text-sky-600" />
                   <span className="text-sm">{label}</span>
                 </Link>
               </li>
@@ -311,10 +302,7 @@ const Layout = ({ children }) => {
 
       {/* MOBILE OVERLAY */}
       {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-30 md:hidden"
-          onClick={toggleSidebar}
-        ></div>
+        <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={toggleSidebar}></div>
       )}
     </div>
   );

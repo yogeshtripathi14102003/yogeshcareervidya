@@ -58,6 +58,47 @@
 
 
 
+// import express from "express";
+// import createUploader from "../multer.js";
+// import {
+//   createBanner,
+//   deleteBanner,
+//   getActiveBanners,
+//   getBannerPromotionProducts,
+//   getBanners,
+//   updateBanner,
+// } from "../controller/bannerController.js";
+
+// const bannerRouter = express.Router();
+
+// // ✅ Image upload setup
+// const bannerUploader = createUploader({
+//   folder: "banners",
+//   maxFileSizeMB: 5,
+//   maxFiles: 1,
+//   allowedTypes: ["jpeg", "jpg", "png", "webp"],
+// });
+
+// // ✅ Create Banner
+// bannerRouter.post("/", bannerUploader.single("image"), createBanner);
+
+// // ✅ Update Banner
+// bannerRouter.put("/:id", bannerUploader.single("image"), updateBanner);
+
+// // ✅ Delete Banner
+// bannerRouter.delete("/:id", deleteBanner);
+
+// // ✅ Get all banners
+// bannerRouter.get("/", getBanners);
+
+// // ✅ Get active banners
+// bannerRouter.get("/active", getActiveBanners);
+
+// // ✅ Get products related to a banner’s promotion
+// bannerRouter.get("/:bannerId/promotion-products", getBannerPromotionProducts);
+
+// export default bannerRouter;
+
 import express from "express";
 import createUploader from "../multer.js";
 import {
@@ -71,30 +112,44 @@ import {
 
 const bannerRouter = express.Router();
 
-// ✅ Image upload setup
+// ✅ Multer uploader config
 const bannerUploader = createUploader({
   folder: "banners",
   maxFileSizeMB: 5,
-  maxFiles: 1,
+  maxFiles: 2, // <-- 2 images allowed
   allowedTypes: ["jpeg", "jpg", "png", "webp"],
 });
 
-// ✅ Create Banner
-bannerRouter.post("/", bannerUploader.single("image"), createBanner);
+// --------------------------------------------------
+// ✅ Create Banner (Upload Desktop + Mobile Images)
+// --------------------------------------------------
+bannerRouter.post(
+  "/",
+  bannerUploader.fields([
+    { name: "desktopImage", maxCount: 1 },
+    { name: "mobileImage", maxCount: 1 },
+  ]),
+  createBanner
+);
 
-// ✅ Update Banner
-bannerRouter.put("/:id", bannerUploader.single("image"), updateBanner);
+// --------------------------------------------------
+// ✅ Update Banner (Upload Desktop + Mobile Images)
+// --------------------------------------------------
+bannerRouter.put(
+  "/:id",
+  bannerUploader.fields([
+    { name: "desktopImage", maxCount: 1 },
+    { name: "mobileImage", maxCount: 1 },
+  ]),
+  updateBanner
+);
 
-// ✅ Delete Banner
+// --------------------------------------------------
+// Other routes
+// --------------------------------------------------
 bannerRouter.delete("/:id", deleteBanner);
-
-// ✅ Get all banners
 bannerRouter.get("/", getBanners);
-
-// ✅ Get active banners
 bannerRouter.get("/active", getActiveBanners);
-
-// ✅ Get products related to a banner’s promotion
 bannerRouter.get("/:bannerId/promotion-products", getBannerPromotionProducts);
 
 export default bannerRouter;

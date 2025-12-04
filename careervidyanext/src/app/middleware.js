@@ -6,17 +6,17 @@ export function middleware(req) {
 
   const pathname = req.nextUrl.pathname;
 
-  // 🔥 Protect admin routes → Return 404 if not logged in
+  // 🔥 Protect admin routes (only admins)
   if (pathname.startsWith("/admin")) {
     if (!adminToken) {
-      return NextResponse.rewrite(new URL("/404", req.url));
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   }
 
-  // 🔥 Protect user dashboard routes → Return 404
+  // 🔥 Protect user dashboard routes (only users)
   if (pathname.startsWith("/user_dashbord")) {
     if (!token) {
-      return NextResponse.rewrite(new URL("/404", req.url));
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   }
 
@@ -26,7 +26,6 @@ export function middleware(req) {
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/user_dashbordy/:path*",
+    "/user_dashbord/:path*", // ✅ FIXED spelling
   ],
 };
-
