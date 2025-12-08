@@ -5,14 +5,6 @@ import api from "@/utlis/api.js";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-/**
- * EditUniversityPage (Client Component)
- * Usage: place this under app/admin/universities/edit/[id]/page.jsx (or import & render passing params)
- *
- * Notes:
- * - This is a client component and expects `params.id` to be passed from a parent page or route.
- * - I used plain <img> for previewing existing external images to avoid next/image domain config issues.
- */
 
 export default function EditUniversityPage({ params }) {
   const router = useRouter();
@@ -279,7 +271,7 @@ export default function EditUniversityPage({ params }) {
       console.error("Submission Error:", error);
       setMessage(
         "❌ Error updating university: " +
-          (error.response?.data?.error || error.response?.data?.message || error.message)
+        (error.response?.data?.error || error.response?.data?.message || error.message)
       );
     } finally {
       setLoading(false);

@@ -109,6 +109,7 @@
 // const Course = mongoose.model("Course", courseSchema);
 // export default Course;
 
+
 import mongoose from "mongoose";
 
 const courseSchema = new mongoose.Schema(
@@ -193,9 +194,9 @@ const courseSchema = new mongoose.Schema(
       { heading: { type: String, required: true }, description: { type: String }, jobPost: { type: String }, salary: { type: String } },
     ],
 
-    topRecruiters: [
-      { companyName: { type: String, required: true }, packageOffered: { type: String } },
-    ],
+      topRecruiters: [
+        { companyName: { type: String, required: true }, packageOffered: { type: String } },
+      ],
   },
   { timestamps: true }
 );

@@ -10,11 +10,13 @@ export default function CoursesTable() {
   const [loading, setLoading] = useState(true);
   const [editCourseId, setEditCourseId] = useState(null);
 
-  // ✅ Fetch all courses
+  // ✅ Fetch Courses
   const fetchCourses = async () => {
     try {
       const response = await api.get("/api/v1/course");
-      if (response.data?.courses) setCourses(response.data.courses);
+      if (response.data?.courses) {
+        setCourses(response.data.courses);
+      }
     } catch (error) {
       console.error("Error fetching courses:", error);
     } finally {
@@ -26,24 +28,26 @@ export default function CoursesTable() {
     fetchCourses();
   }, []);
 
-  // ✅ Delete Course API
+  // ✅ Delete Course
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this course?")) return;
 
     try {
       await api.delete(`/api/v1/course/${id}`);
-      alert("✅ Course deleted successfully!");
-      fetchCourses(); // refresh list
+      alert("✅ Course deleted successfully");
+      fetchCourses();
     } catch (error) {
       console.error("Error deleting course:", error);
-      alert("❌ Failed to delete course.");
+      alert("❌ Failed to delete course");
     }
   };
 
-  // ✅ Close Edit Modal
+  // Close Edit Modal
   const handleCloseEdit = () => setEditCourseId(null);
 
-  if (loading) return <p className="text-center mt-10">Loading courses...</p>;
+  if (loading) {
+    return <p className="text-center mt-10">Loading courses...</p>;
+  }
 
   return (
     <div className="p-6">
@@ -59,10 +63,12 @@ export default function CoursesTable() {
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {courses.length > 0 ? (
               courses.map((course) => (
                 <tr key={course._id} className="text-center hover:bg-gray-50">
+                  {/* Course Logo */}
                   <td className="border px-4 py-2">
                     {course.courseLogo?.url ? (
                       <Image
@@ -78,16 +84,18 @@ export default function CoursesTable() {
                     )}
                   </td>
 
+                  {/* Course Name */}
                   <td className="border px-4 py-2 font-medium">{course.name}</td>
 
+                  {/* Subjects (specializations) */}
                   <td className="border px-4 py-2 text-sm text-gray-600">
-                    {course.specialization?.length > 0
-                      ? course.specialization.join(", ")
+                    {course.specializations?.length > 0
+                      ? course.specializations.join(", ")
                       : "—"}
                   </td>
 
+                  {/* Actions */}
                   <td className="border px-4 py-2 flex items-center justify-center gap-3">
-                    {/* Edit */}
                     <button
                       onClick={() => setEditCourseId(course._id)}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
@@ -95,7 +103,6 @@ export default function CoursesTable() {
                       Edit
                     </button>
 
-                    {/* Delete */}
                     <button
                       onClick={() => handleDelete(course._id)}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
@@ -116,7 +123,7 @@ export default function CoursesTable() {
         </table>
       </div>
 
-      {/* ✅ EDIT POPUP WITH SCROLLBAR */}
+      {/* EDIT POPUP */}
       {editCourseId && (
         <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto">
           <div className="min-h-screen flex justify-center items-center p-6">
