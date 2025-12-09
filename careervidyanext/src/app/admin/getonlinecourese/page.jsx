@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { useState, useEffect } from "react";
 import api from "@/utlis/api.js";
 import UniversitiesFetchComponent from "@/app/admin/getonlinecourese/UniversitiesFetchComponent";
@@ -71,6 +71,7 @@ export default function CoursesPage() {
       console.error("Error fetching courses:", err);
     }
   };
+  
 
   useEffect(() => {
     fetchCourses();
