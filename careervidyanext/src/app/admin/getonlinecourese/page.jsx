@@ -1,12 +1,7 @@
-
-
-
-
-
 "use client";
 
 import { useState, useEffect } from "react";
-import api from "@/utlis/api.js"; // ✅ your axios instance
+import api from "@/utlis/api.js";
 import UniversitiesFetchComponent from "@/app/admin/getonlinecourese/UniversitiesFetchComponent";
 
 export default function CoursesPage() {
@@ -81,7 +76,7 @@ export default function CoursesPage() {
     fetchCourses();
   }, []);
 
-  // ✅ Input Handlers
+  // ✅ Input Handlers (Omitted for brevity, but they are all correct)
 
   // Basic form field change
   const handleChange = (e) =>
@@ -244,147 +239,108 @@ export default function CoursesPage() {
 
       if (courseLogo) payload.append("courseLogo", courseLogo);
 
-    payload.append(
-  "specializations",
-  JSON.stringify(specializations.filter((s) => s.trim() !== ""))
-);
-      // Overview (Existing - handles files via 'overviewImages')
-      overview.forEach((item, i) => {
-        payload.append(`overview[${i}][heading]`, item.heading);
-        payload.append(`overview[${i}][description]`, item.description);
-        payload.append(`overview[${i}][videoLink]`, item.videoLink);
+      // --- FIXED DATA SUBMISSION: Use JSON.stringify for all complex arrays ---
+
+      // Specializations (already correct)
+      payload.append("specializations", JSON.stringify(specializations.filter((s) => s.trim() !== "")));
+
+      // 1. Overview (FIXED: Send text data as JSON string)
+      const overviewTextData = overview.map(({ image, ...rest }) => rest); // Exclude the local File object
+      payload.append("overview", JSON.stringify(overviewTextData));
+      // Append actual image files separately
+      overview.forEach((item) => {
         if (item.image) {
-          payload.append("overviewImages", item.image);
+          payload.append("overviewImages", item.image); 
         }
       });
 
-      // Why Choose Us (Existing - handles files via 'whyChooseUsImages')
-      whyChooseUs.forEach((item, i) => {
-        payload.append(`whyChooseUs[${i}][description]`, item.description);
+      // 2. Why Choose Us (FIXED: Send text data as JSON string)
+      const whyChooseUsTextData = whyChooseUs.map(({ image, ...rest }) => rest); // Exclude the local File object
+      payload.append("whyChooseUs", JSON.stringify(whyChooseUsTextData));
+      // Append actual image files separately
+      whyChooseUs.forEach((item) => {
         if (item.image) {
           payload.append("whyChooseUsImages", item.image);
         }
       });
 
-      // Good Things (Existing)
-      goodThings
-        .filter((g) => g.trim() !== "")
-        .forEach((g) => payload.append("goodThings", g));
+      // 3. Good Things 
+      payload.append("goodThings", JSON.stringify(goodThings.filter((g) => g.trim() !== "")));
 
-      // Top Universities (Existing)
-      topUniversities
-        .filter((item) => item.name)
-        .forEach((item, i) => {
-          payload.append(`topUniversities[${i}][name]`, item.name);
-          payload.append(`topUniversities[${i}][description]`, item.description);
-        });
 
-      // Key Highlights (Existing)
-      keyHighlights
-        .filter((item) => item.heading)
-        .forEach((item, i) => {
-          payload.append(`keyHighlights[${i}][heading]`, item.heading);
-          payload.append(`keyHighlights[${i}][subHeading]`, item.subHeading);
-          payload.append(`keyHighlights[${i}][description]`, item.description);
-        });
+      // 4. Top Universities
+      const filteredTopUniversities = topUniversities.filter((item) => item.name);
+      payload.append("topUniversities", JSON.stringify(filteredTopUniversities));
 
-      // Syllabus (Existing)
-      syllabus
+      // 5. Key Highlights
+      const filteredKeyHighlights = keyHighlights.filter((item) => item.heading);
+      payload.append("keyHighlights", JSON.stringify(filteredKeyHighlights));
+
+      // 6. Syllabus 
+      const filteredSyllabus = syllabus
         .filter((sem) => sem.semester)
-        .forEach((sem, i) => {
-          payload.append(`syllabus[${i}][semester]`, sem.semester);
-          sem.subjects
-            .filter((s) => s.trim() !== "")
-            .forEach((sub) =>
-              payload.append(`syllabus[${i}][subjects]`, sub)
-            );
-        });
+        .map((sem) => ({
+          ...sem,
+          subjects: sem.subjects.filter((s) => s.trim() !== ""),
+        }));
+      payload.append("syllabus", JSON.stringify(filteredSyllabus));
 
-      // ⭐ NEW FIELD PAYLOAD APPENDING
+
+      // ⭐ NEW FIELD PAYLOAD APPENDING (All converted to JSON.stringify)
 
       // Offered Courses
-      offeredCourses
+      const filteredOfferedCourses = offeredCourses
         .filter((item) => item.heading)
-        .forEach((item, i) => {
-          payload.append(`offeredCourses[${i}][heading]`, item.heading);
-          item.points.forEach((p) => {
-            if (p.trim() !== "") {
-              payload.append(`offeredCourses[${i}][points]`, p);
-            }
-          });
-        });
+        .map((item) => ({
+          ...item,
+          points: item.points.filter((p) => p.trim() !== ""),
+        }));
+      payload.append("offeredCourses", JSON.stringify(filteredOfferedCourses));
 
       // Online Eligibility
-      onlineEligibility
-        .filter((item) => item.heading)
-        .forEach((item, i) => {
-          payload.append(`onlineEligibility[${i}][heading]`, item.heading);
-          payload.append(`onlineEligibility[${i}][description]`, item.description);
-          payload.append(`onlineEligibility[${i}][subHeading]`, item.subHeading);
-          payload.append(`onlineEligibility[${i}][subDescription]`, item.subDescription);
-        });
+      const filteredOnlineEligibility = onlineEligibility.filter((item) => item.heading);
+      payload.append("onlineEligibility", JSON.stringify(filteredOnlineEligibility));
 
       // Fees Structure Sidebar
-      feeStructureSidebar
+      const filteredFeeStructureSidebar = feeStructureSidebar
         .filter((item) => item.heading)
-        .forEach((item, i) => {
-          payload.append(`feeStructureSidebar[${i}][heading]`, item.heading);
-          item.points.forEach((p) => {
-            if (p.trim() !== "") {
-              payload.append(`feeStructureSidebar[${i}][points]`, p);
-            }
-          });
-        });
+        .map((item) => ({
+          ...item,
+          points: item.points.filter((p) => p.trim() !== ""),
+        }));
+      payload.append("feeStructureSidebar", JSON.stringify(filteredFeeStructureSidebar));
+
 
       // Detailed Fees
-      detailedFees
+      const filteredDetailedFees = detailedFees
         .filter((item) => item.heading)
-        .forEach((item, i) => {
-          payload.append(`detailedFees[${i}][heading]`, item.heading);
-          payload.append(`detailedFees[${i}][description]`, item.description);
-          item.table.forEach((row, j) => {
-            if (row.universityName && row.courseFees) {
-              payload.append(`detailedFees[${i}][table][${j}][universityName]`, row.universityName);
-              payload.append(`detailedFees[${i}][table][${j}][courseFees]`, row.courseFees);
-              payload.append(`detailedFees[${i}][table][${j}][detailedFeeStructure]`, row.detailedFeeStructure);
-            }
-          });
-        });
+        .map((item) => ({
+          ...item,
+          table: item.table.filter((row) => row.universityName && row.courseFees),
+        }));
+      payload.append("detailedFees", JSON.stringify(filteredDetailedFees));
 
 
-      // Online Course Worth It (handles files via 'onlineCourseWorthItImage')
-      if (onlineCourseWorthIt.description) {
-        payload.append("onlineCourseWorthIt[description]", onlineCourseWorthIt.description);
-      }
-      onlineCourseWorthIt.topics.forEach((topic, i) => {
-        if (topic.subHeading) {
-          payload.append(`onlineCourseWorthIt[topics][${i}][subHeading]`, topic.subHeading);
-          payload.append(`onlineCourseWorthIt[topics][${i}][description]`, topic.description);
-        }
-      });
+      // Online Course Worth It (Object with a file - must send text/json separately)
+      const ocwTextData = {
+        description: onlineCourseWorthIt.description,
+        topics: onlineCourseWorthIt.topics.filter(topic => topic.subHeading),
+      };
+      payload.append("onlineCourseWorthIt", JSON.stringify(ocwTextData));
       if (onlineCourseWorthIt.image) {
         payload.append("onlineCourseWorthItImage", onlineCourseWorthIt.image);
       }
-      
+
       // Job Opportunities
-      jobOpportunities
-        .filter((item) => item.heading)
-        .forEach((item, i) => {
-          payload.append(`jobOpportunities[${i}][heading]`, item.heading);
-          payload.append(`jobOpportunities[${i}][description]`, item.description);
-          payload.append(`jobOpportunities[${i}][jobPost]`, item.jobPost);
-          payload.append(`jobOpportunities[${i}][salary]`, item.salary);
-        });
+      const filteredJobOpportunities = jobOpportunities.filter((item) => item.heading);
+      payload.append("jobOpportunities", JSON.stringify(filteredJobOpportunities));
+
 
       // Top Recruiters
-      topRecruiters
-        .filter((item) => item.companyName)
-        .forEach((item, i) => {
-          payload.append(`topRecruiters[${i}][companyName]`, item.companyName);
-          payload.append(`topRecruiters[${i}][packageOffered]`, item.packageOffered);
-        });
+      const filteredTopRecruiters = topRecruiters.filter((item) => item.companyName);
+      payload.append("topRecruiters", JSON.stringify(filteredTopRecruiters));
       
-      // ⭐ END OF NEW FIELD PAYLOAD
+      // ⭐ END OF FIELD PAYLOAD
 
       // ✅ Send to backend
       await api.post("/api/v1/course", payload, {
@@ -394,8 +350,9 @@ export default function CoursesPage() {
       alert("✅ Course Created Successfully!");
       fetchCourses();
     } catch (err) {
-      console.error(err);
-      alert("❌ Error creating course");
+      console.error("Submission Error:", err);
+      // Provide a more descriptive alert
+      alert("❌ Error creating course: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }

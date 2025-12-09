@@ -5,24 +5,25 @@
 // import { formatCloudinaryFile } from "../services/uploadService.js";
 // import promotionModel from "../models/Admin/promotionModel.js";
 
-
 // /* ======================================================
-//    CREATE BANNER (❌ No Auth Required)
+//    CREATE BANNER (Desktop + Mobile)
 // ====================================================== */
 // export const createBanner = async (req, res) => {
 //   try {
-//     // ✅ Check for image file
-//     if (!req.file) {
-//       return res.status(400).json({ msg: "Banner image is required" });
+//     // check for files
+//     if (!req.files.desktopImage || !req.files.mobileImage) {
+//       return res.status(400).json({
+//         msg: "Desktop and Mobile images are required",
+//       });
 //     }
 
-//     // ✅ Format uploaded image for DB storage
-//     const image = formatCloudinaryFile(req.file);
+//     const desktopImage = formatCloudinaryFile(req.files.desktopImage[0]);
+//     const mobileImage = formatCloudinaryFile(req.files.mobileImage[0]);
 
-//     // ✅ Create and save banner
 //     const banner = new bannerModel({
 //       ...req.body,
-//       image,
+//       desktopImage,
+//       mobileImage,
 //     });
 
 //     await banner.save();
@@ -51,7 +52,7 @@
 // };
 
 // /* ======================================================
-//    GET ACTIVE BANNERS (filter by position if provided)
+//    GET ACTIVE BANNERS (with position filter)
 // ====================================================== */
 // export const getActiveBanners = async (req, res) => {
 //   try {
@@ -83,7 +84,7 @@
 // };
 
 // /* ======================================================
-//    UPDATE BANNER (❌ No Auth Required)
+//    UPDATE BANNER (Desktop + Mobile)
 // ====================================================== */
 // export const updateBanner = async (req, res) => {
 //   try {
@@ -96,17 +97,31 @@
 
 //     const updateData = { ...req.body };
 
-//     // ✅ Handle new image upload
-//     if (req.file) {
-//       if (banner.image?.public_id) {
-//         await cloudinary.uploader.destroy(banner.image.public_id);
+//     // If new desktop image uploaded
+//     if (req.files?.desktopImage) {
+//       if (banner.desktopImage?.public_id) {
+//         await cloudinary.uploader.destroy(banner.desktopImage.public_id);
 //       }
-//       updateData.image = formatCloudinaryFile(req.file);
+//       updateData.desktopImage = formatCloudinaryFile(
+//         req.files.desktopImage[0]
+//       );
 //     }
 
-//     const updatedBanner = await bannerModel.findByIdAndUpdate(id, updateData, {
-//       new: true,
-//     });
+//     // If new mobile image uploaded
+//     if (req.files?.mobileImage) {
+//       if (banner.mobileImage?.public_id) {
+//         await cloudinary.uploader.destroy(banner.mobileImage.public_id);
+//       }
+//       updateData.mobileImage = formatCloudinaryFile(
+//         req.files.mobileImage[0]
+//       );
+//     }
+
+//     const updatedBanner = await bannerModel.findByIdAndUpdate(
+//       id,
+//       updateData,
+//       { new: true }
+//     );
 
 //     res.status(200).json({
 //       msg: "✅ Banner updated successfully",
@@ -119,7 +134,7 @@
 // };
 
 // /* ======================================================
-//    DELETE BANNER (❌ No Auth Required)
+//    DELETE BANNER (Delete Desktop + Mobile images)
 // ====================================================== */
 // export const deleteBanner = async (req, res) => {
 //   try {
@@ -130,9 +145,14 @@
 //       return res.status(404).json({ msg: "Banner not found" });
 //     }
 
-//     // ✅ Delete image from Cloudinary
-//     if (banner.image?.public_id) {
-//       await cloudinary.uploader.destroy(banner.image.public_id);
+//     // delete desktop image
+//     if (banner.desktopImage?.public_id) {
+//       await cloudinary.uploader.destroy(banner.desktopImage.public_id);
+//     }
+
+//     // delete mobile image
+//     if (banner.mobileImage?.public_id) {
+//       await cloudinary.uploader.destroy(banner.mobileImage.public_id);
 //     }
 
 //     res.status(200).json({ msg: "🗑️ Banner deleted successfully" });
@@ -187,7 +207,8 @@
 //       banner: {
 //         _id: banner._id,
 //         title: banner.title,
-//         image: banner.image,
+//         desktopImage: banner.desktopImage,
+//         mobileImage: banner.mobileImage,
 //       },
 //       promotion: {
 //         _id: promotion._id,
@@ -212,25 +233,29 @@
 // };
 
 
+
 import bannerModel from "../models/Admin/bannerModel.js";
+import promotionModel from "../models/Admin/promotionModel.js";
+import productModel from "../models/Admin/productModel.js"; // Added
 import cloudinary from "../config/cloudinary.js";
 import { formatCloudinaryFile } from "../services/uploadService.js";
-import promotionModel from "../models/Admin/promotionModel.js";
 
 /* ======================================================
    CREATE BANNER (Desktop + Mobile)
 ====================================================== */
 export const createBanner = async (req, res) => {
   try {
-    // check for files
-    if (!req.files.desktopImage || !req.files.mobileImage) {
-      return res.status(400).json({
-        msg: "Desktop and Mobile images are required",
-      });
+    if (!req.files || !req.files.desktopImage || !req.files.mobileImage) {
+      return res.status(400).json({ msg: "Desktop and Mobile images are required" });
     }
 
-    const desktopImage = formatCloudinaryFile(req.files.desktopImage[0]);
-    const mobileImage = formatCloudinaryFile(req.files.mobileImage[0]);
+    let desktopImage, mobileImage;
+    try {
+      desktopImage = formatCloudinaryFile(req.files.desktopImage[0]);
+      mobileImage = formatCloudinaryFile(req.files.mobileImage[0]);
+    } catch (err) {
+      return res.status(400).json({ msg: "Invalid image file" });
+    }
 
     const banner = new bannerModel({
       ...req.body,
@@ -239,11 +264,7 @@ export const createBanner = async (req, res) => {
     });
 
     await banner.save();
-
-    res.status(201).json({
-      msg: "✅ Banner created successfully",
-      banner,
-    });
+    res.status(201).json({ msg: "✅ Banner created successfully", banner });
   } catch (error) {
     console.error("❌ Error creating banner:", error);
     res.status(500).json({ msg: "Server error while creating banner" });
@@ -269,16 +290,13 @@ export const getBanners = async (req, res) => {
 export const getActiveBanners = async (req, res) => {
   try {
     const now = new Date();
-
     const filter = {
       isActive: true,
       startDate: { $lte: now },
       $or: [{ endDate: { $gte: now } }, { endDate: null }],
     };
 
-    if (req.query.position) {
-      filter.position = req.query.position.toUpperCase();
-    }
+    if (req.query.position) filter.position = req.query.position.toUpperCase();
 
     const banners = await bannerModel
       .find(filter)
@@ -302,43 +320,35 @@ export const updateBanner = async (req, res) => {
   try {
     const { id } = req.params;
     const banner = await bannerModel.findById(id);
-
-    if (!banner) {
-      return res.status(404).json({ msg: "Banner not found" });
-    }
+    if (!banner) return res.status(404).json({ msg: "Banner not found" });
 
     const updateData = { ...req.body };
 
-    // If new desktop image uploaded
     if (req.files?.desktopImage) {
-      if (banner.desktopImage?.public_id) {
-        await cloudinary.uploader.destroy(banner.desktopImage.public_id);
+      try {
+        if (banner.desktopImage?.public_id) {
+          await cloudinary.uploader.destroy(banner.desktopImage.public_id);
+        }
+      } catch (err) {
+        console.warn("Failed to delete old desktop image:", err);
       }
-      updateData.desktopImage = formatCloudinaryFile(
-        req.files.desktopImage[0]
-      );
+      updateData.desktopImage = formatCloudinaryFile(req.files.desktopImage[0]);
     }
 
-    // If new mobile image uploaded
     if (req.files?.mobileImage) {
-      if (banner.mobileImage?.public_id) {
-        await cloudinary.uploader.destroy(banner.mobileImage.public_id);
+      try {
+        if (banner.mobileImage?.public_id) {
+          await cloudinary.uploader.destroy(banner.mobileImage.public_id);
+        }
+      } catch (err) {
+        console.warn("Failed to delete old mobile image:", err);
       }
-      updateData.mobileImage = formatCloudinaryFile(
-        req.files.mobileImage[0]
-      );
+      updateData.mobileImage = formatCloudinaryFile(req.files.mobileImage[0]);
     }
 
-    const updatedBanner = await bannerModel.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
+    const updatedBanner = await bannerModel.findByIdAndUpdate(id, updateData, { new: true });
 
-    res.status(200).json({
-      msg: "✅ Banner updated successfully",
-      banner: updatedBanner,
-    });
+    res.status(200).json({ msg: "✅ Banner updated successfully", banner: updatedBanner });
   } catch (error) {
     console.error("❌ Error updating banner:", error);
     res.status(500).json({ msg: "Error updating banner" });
@@ -352,20 +362,10 @@ export const deleteBanner = async (req, res) => {
   try {
     const { id } = req.params;
     const banner = await bannerModel.findByIdAndDelete(id);
+    if (!banner) return res.status(404).json({ msg: "Banner not found" });
 
-    if (!banner) {
-      return res.status(404).json({ msg: "Banner not found" });
-    }
-
-    // delete desktop image
-    if (banner.desktopImage?.public_id) {
-      await cloudinary.uploader.destroy(banner.desktopImage.public_id);
-    }
-
-    // delete mobile image
-    if (banner.mobileImage?.public_id) {
-      await cloudinary.uploader.destroy(banner.mobileImage.public_id);
-    }
+    try { if (banner.desktopImage?.public_id) await cloudinary.uploader.destroy(banner.desktopImage.public_id); } catch {}
+    try { if (banner.mobileImage?.public_id) await cloudinary.uploader.destroy(banner.mobileImage.public_id); } catch {}
 
     res.status(200).json({ msg: "🗑️ Banner deleted successfully" });
   } catch (error) {
@@ -385,33 +385,21 @@ export const getBannerPromotionProducts = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const banner = await bannerModel.findById(bannerId).populate("promotionId");
+    if (!banner || !banner.promotionId) return res.status(404).json({ msg: "Banner or promotion not found" });
 
-    if (!banner || !banner.promotionId) {
-      return res.status(404).json({ msg: "Banner or promotion not found" });
-    }
-
-    const promotion = await promotionModel
-      .findById(banner.promotionId._id)
-      .populate("categoryIds", "_id title");
-
-    if (!promotion) {
-      return res.status(404).json({ msg: "Promotion not found" });
-    }
+    const promotion = await promotionModel.findById(banner.promotionId._id).populate("categoryIds", "_id title");
+    if (!promotion) return res.status(404).json({ msg: "Promotion not found" });
 
     const filter = {
       status: "active",
       $or: [
         { _id: { $in: promotion.productIds } },
-        { category: { $in: promotion.categoryIds.map((c) => c._id) } },
+        { category: { $in: promotion.categoryIds.map(c => c._id) } },
       ],
     };
 
     const [products, total] = await Promise.all([
-      productModel
-        .find(filter)
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
+      productModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }),
       productModel.countDocuments(filter),
     ]);
 
@@ -438,8 +426,6 @@ export const getBannerPromotionProducts = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error fetching banner promotion products:", error);
-    res.status(500).json({
-      msg: "Failed to fetch products for banner promotion",
-    });
+    res.status(500).json({ msg: "Failed to fetch products for banner promotion" });
   }
 };
