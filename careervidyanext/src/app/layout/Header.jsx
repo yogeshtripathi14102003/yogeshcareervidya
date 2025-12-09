@@ -29,7 +29,7 @@ export default function Header() {
           <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-1 w-full">
             {/* Contact Info */}
             <div className="flex items-center gap-4">
-              <span>📞  +91 9311020975</span>
+              <span>📞   +91 9289712364</span>
               <span>✉️  Info@careervidya.in</span>
             </div>
 

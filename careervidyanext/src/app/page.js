@@ -15,11 +15,12 @@ import LogoSlider from "./components/LogoSlider";
   import QueryPopup from "./components/QueryPopup";
 
 import  Universityimage  from "../app/components/universityimage";
-
+import ChatbotFloating from "./components/ChatbotFloating";
 
 export default function Home() {
   return (
     <div> 
+    
       <Header />
       <Slider />
       <Counter />
@@ -38,6 +39,7 @@ export default function Home() {
       <FAQ />
 
       <Footer />
+        <ChatbotFloating />
     </div>
   );
 }

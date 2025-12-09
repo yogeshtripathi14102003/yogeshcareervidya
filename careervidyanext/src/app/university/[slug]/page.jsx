@@ -217,34 +217,20 @@ const [popupType, setPopupType] = useState("apply");
 
                 </div>
 
-                <div className="lg:col-span-2 relative h-[400px] rounded-2xl overflow-hidden shadow-xl">
-                    {videoThumbnailUrl ? (
-                        <a href={data.youtubeLink} target="_blank" rel="noopener noreferrer" className="block w-full h-full relative">
-                            <Image
-                                src={videoThumbnailUrl}
-                                alt={`Video: ${data.name}`}
-                                fill
-                                sizes="66vw"
-                                style={{ objectFit: 'cover' }}
-                                className="transition-transform duration-300 hover:scale-[1.03]"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                <Play size={80} fill="#ff0000" color="#ff0000" className="opacity-90 hover:opacity-100 transition" />
-                            </div>
-                        </a>
-                    ) : (
-                        <Image 
-                            src={getImagePath(data.universityImage, 'university_main_image')} 
-                            alt={data.name} 
-                            fill 
-                            sizes="66vw" 
-                            style={{ objectFit: 'cover' }} 
-                        />
-                    )}
-                    <div className="absolute top-4 left-4 p-2 bg-white/80 rounded-lg backdrop-blur-sm text-xs font-bold">
-                        {data.name} Online
-                    </div>
-                </div>
+               <div className="lg:col-span-2 relative h-[400px] rounded-2xl overflow-hidden shadow-xl bg-white flex items-center justify-center">
+    <Image
+        src={getImagePath(data.universityImage, 'university_main_image')}
+        alt={data.name}
+        fill
+        style={{ objectFit: "contain" }}
+        className="p-4"   // ← padding reduced (fills more space)
+    />
+
+    <div className="absolute top-4 left-4 p-2 bg-white/80 rounded-lg backdrop-blur-sm text-xs font-bold">
+        {data.name} Online
+    </div>
+</div>
+
             </div>
 
             <hr className="my-8" />

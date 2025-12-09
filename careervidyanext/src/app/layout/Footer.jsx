@@ -59,7 +59,7 @@ export default function Footer() {
               <br /> Greater Noida, Uttar Pradesh 201318
             </p>
           
-            <p className="mt-2 text-sm font-medium">📞 +91 9311020975</p>
+            <p className="mt-2 text-sm font-medium">📞  +91 9289712364</p>
             <p className="mt-2 text-sm font-medium">
               📧 Info@careervidya.in
             </p>
