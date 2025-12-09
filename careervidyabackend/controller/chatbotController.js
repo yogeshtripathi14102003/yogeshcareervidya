@@ -20,7 +20,7 @@ Agar koi user "website", "about", "contact", "support", "help", "details",
 
 ⭐ Website: https://careervidya.in  
 ⭐ Contact: support@careervidya.in  
-⭐ WhatsApp: +91-9876543210  
+⭐ WhatsApp: +91 9289712364
 ⭐ Instagram: https://instagram.com/careervidya  
 ⭐ About Us: "CareerVidya ek online education platform hai jaha students ko 
 career guidance, course details, and university information milti hai."
