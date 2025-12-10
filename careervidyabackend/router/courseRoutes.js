@@ -59,11 +59,11 @@ const upload = createUploader({
 
 // Correct field names matching the controller (Configuration remains the same)
 const courseUploads = upload.fields([
-  { name: "courseLogo", maxCount: 1 },
+  { name: "courseLogo", maxCount: 10 },
   { name: "overviewImages", maxCount: 10 },
   { name: "whyChooseUsImages", maxCount: 10 },
-  { name: "onlineCourseWorthItImage", maxCount: 1 }, 
-  { name: "syllabusPdf", maxCount: 1 },             
+  { name: "onlineCourseWorthItImage", maxCount: 10 }, 
+  { name: "syllabusPdf", maxCount: 2 },             
 ]);
 
 // -------------------------------------------------------------

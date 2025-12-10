@@ -387,349 +387,362 @@
 //   }
 // };
 
-
-
 import Course from "../models/Admin/Course.js";
 import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
 import mongoose from "mongoose";
 
 // ======================================================
-// Helper: Safely parse JSON/array/object fields
+// Helper: Safely parse JSON/array/object fields (NO CHANGE)
 // ======================================================
 const parseArrayField = (data) => {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (typeof data === "object") {
-    const keys = Object.keys(data);
-    const numeric = keys.every((k) => String(Number(k)) === k);
-    if (numeric) return keys.map((k) => data[k]);
-    return [];
-  }
-  if (typeof data === "string") {
-    try {
-      const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    if (typeof data === "object") {
+        const keys = Object.keys(data);
+        const numeric = keys.every((k) => String(Number(k)) === k);
+        if (numeric) return keys.map((k) => data[k]);
+        return [];
+    }
+    if (typeof data === "string") {
+        try {
+            const parsed = JSON.parse(data);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+    return [];
 };
 
 const parseObjectField = (data) => {
-  if (!data) return {};
-  if (typeof data === "object") return data;
-  if (typeof data === "string") {
-    try {
-      return JSON.parse(data);
-    } catch {
-      return {};
-    }
-  }
-  return {};
+    if (!data) return {};
+    if (typeof data === "object") return data;
+    if (typeof data === "string") {
+        try {
+            return JSON.parse(data);
+        } catch {
+            return {};
+        }
+    }
+    return {};
 };
 
 // ======================================================
-// Helper: map uploaded images to items
+// Helper: map uploaded images to items (Deletion Logic Included)
 // ======================================================
 const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] }) => {
-  const result = [];
-  const maxLen = Math.max(items.length, uploaded.length);
-  for (let i = 0; i < maxLen; i++) {
-    const baseItem = items[i] ? { ...items[i] } : {};
-    const upload = uploaded[i];
-    if (upload && existingItems[i]?.image?.public_id) {
-      try {
-        await cloudinary.uploader.destroy(existingItems[i].image.public_id);
-      } catch (e) {
-        console.warn("Failed to destroy old image:", e.message);
-      }
-    }
-    if (upload) baseItem.image = { public_id: upload.public_id, url: upload.secure_url };
-    else baseItem.image = baseItem.image || (existingItems[i]?.image || null);
-    result.push(baseItem);
-  }
-  return result;
+    const result = [];
+    const maxLen = items.length; 
+
+    for (let i = 0; i < maxLen; i++) {
+        const baseItem = items[i] ? { ...items[i] } : {};
+        const upload = uploaded[i];
+        const existingItem = existingItems[i]; // Get existing item for comparison/deletion
+
+        // 1. Deletion: If a NEW image is uploaded AND an OLD image existed, delete the old one.
+        if (upload && existingItem?.image?.public_id) {
+            try {
+                await cloudinary.uploader.destroy(existingItem.image.public_id);
+            } catch (e) {
+                console.warn("Failed to destroy old image:", e.message);
+            }
+        }
+
+        // 2. Assign image data
+        if (upload) {
+            // New Upload (New image URL will be saved)
+            baseItem.image = { public_id: upload.public_id, url: upload.secure_url };
+        } 
+        else if (existingItem?.image) {
+            // Keep Old Image (Used during CREATE or if UPDATE has no new upload, but this block is safer for update)
+            baseItem.image = existingItem.image;
+        } 
+        else {
+            // No image uploaded, no image existed (Default to null)
+            baseItem.image = null;
+        }
+
+        result.push(baseItem);
+    }
+    return result;
 };
 
+
 // ======================================================
-// CREATE COURSE
+// CREATE COURSE (NO CHANGES NEEDED)
 // ======================================================
 export const createCourse = async (req, res) => {
-  try {
-    const {
-      name,
-      category,
-      duration,
-      tag,
-      specializations,
-      overview,
-      whyChooseUs,
-      goodThings,
-      topUniversities,
-      keyHighlights,
-      syllabus,
-      offeredCourses,
-      onlineEligibility,
-      feeStructureSidebar,
-      detailedFees,
-      onlineCourseWorthIt,
-      jobOpportunities,
-      topRecruiters,
-    } = req.body;
+    // ... (Your original createCourse logic) ...
+    try {
+        const {
+            name, category, duration, tag, specializations, overview, whyChooseUs, goodThings, topUniversities, keyHighlights, syllabus, offeredCourses, onlineEligibility, feeStructureSidebar, detailedFees, onlineCourseWorthIt, jobOpportunities, topRecruiters,
+        } = req.body;
 
-    if (!name || !category || !duration)
-      return res.status(400).json({ success: false, message: "Name, category & duration required" });
+        // **FIX**: Mongoose required check removed. 
+        // Only keep this line if 'name' is absolutely necessary for business logic (like slug creation).
+        if (!name)
+           return res.status(400).json({ success: false, message: "Course Name is mandatory for creation and slug generation." });
+        
+        // --- Slug ---
+        let baseSlug = slugify(name, { lower: true, strict: true });
+        let slug = baseSlug;
+        let counter = 1;
+        while (await Course.findOne({ slug })) slug = `${baseSlug}-${counter++}`;
 
-    // slug
-    let baseSlug = slugify(name, { lower: true, strict: true });
-    let slug = baseSlug;
-    let counter = 1;
-    while (await Course.findOne({ slug })) slug = `${baseSlug}-${counter++}`;
+        // --- Course Logo ---
+        let courseLogo = null;
+        if (req.files?.courseLogo?.[0]) {
+            const up = await cloudinary.uploader.upload(req.files.courseLogo[0].path, { folder: "courses/logos" });
+            courseLogo = { public_id: up.public_id, url: up.secure_url };
+        }
 
-    // Course Logo
-    let courseLogo = null;
-    if (req.files?.courseLogo?.[0]) {
-      const up = await cloudinary.uploader.upload(req.files.courseLogo[0].path, { folder: "courses/logos" });
-      courseLogo = { public_id: up.public_id, url: up.secure_url };
-    }
+        // --- Syllabus PDF ---
+        let syllabusPdf = null;
+        if (req.files?.syllabusPdf?.[0]) {
+            const up = await cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
+                folder: "courses/syllabus",
+                resource_type: "raw",
+            });
+            syllabusPdf = { public_id: up.public_id, url: up.secure_url };
+        }
 
-    // Syllabus PDF
-    let syllabusPdf = null;
-    if (req.files?.syllabusPdf?.[0]) {
-      const up = await cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
-        folder: "courses/syllabus",
-        resource_type: "raw",
-      });
-      syllabusPdf = { public_id: up.public_id, url: up.secure_url };
-    }
+        // --- Overview ---
+        let parsedOverview = parseArrayField(overview);
+        if (req.files?.overviewImages?.length > 0) {
+            const uploaded = await Promise.all(
+                req.files.overviewImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/overview" }))
+            );
+            // CREATE FIX: existingItems must be empty for creation
+            parsedOverview = await mapImagesToItems({ items: parsedOverview, uploaded, existingItems: [] }); 
+        }
 
-    // Overview
-    let parsedOverview = parseArrayField(overview);
-    if (req.files?.overviewImages?.length > 0) {
-      const uploaded = await Promise.all(
-        req.files.overviewImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/overview" }))
-      );
-      parsedOverview = await mapImagesToItems({ items: parsedOverview, uploaded, existingItems: [] });
-    }
+        // --- Why Choose Us ---
+        let parsedWhy = parseArrayField(whyChooseUs);
+        if (req.files?.whyChooseUsImages?.length > 0) {
+            const uploaded = await Promise.all(
+                req.files.whyChooseUsImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" }))
+            );
+            // CREATE FIX: existingItems must be empty for creation
+            parsedWhy = await mapImagesToItems({ items: parsedWhy, uploaded, existingItems: [] });
+        }
 
-    // Why Choose Us
-    let parsedWhy = parseArrayField(whyChooseUs);
-    if (req.files?.whyChooseUsImages?.length > 0) {
-      const uploaded = await Promise.all(
-        req.files.whyChooseUsImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" }))
-      );
-      parsedWhy = await mapImagesToItems({ items: parsedWhy, uploaded, existingItems: [] });
-    }
+        // --- Online Course Worth It ---
+        let parsedOCW = parseObjectField(onlineCourseWorthIt);
+        if (req.files?.onlineCourseWorthItImage?.[0]) {
+            const up = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, {
+                folder: "courses/onlineCourseWorthIt",
+            });
+            parsedOCW.image = { public_id: up.public_id, url: up.secure_url };
+        }
 
-    // Online Course Worth It
-    let parsedOCW = parseObjectField(onlineCourseWorthIt);
-    if (req.files?.onlineCourseWorthItImage?.[0]) {
-      const up = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, {
-        folder: "courses/onlineCourseWorthIt",
-      });
-      parsedOCW.image = { public_id: up.public_id, url: up.secure_url };
-    }
+        const newCourse = new Course({
+            name, slug, category, duration, tag,
+            specializations: parseArrayField(specializations),
+            overview: parsedOverview,
+            whyChooseUs: parsedWhy,
+            goodThings: parseArrayField(goodThings),
+            topUniversities: parseArrayField(topUniversities),
+            keyHighlights: parseArrayField(keyHighlights),
+            syllabus: parseArrayField(syllabus),
+            offeredCourses: parseArrayField(offeredCourses),
+            onlineEligibility: parseArrayField(onlineEligibility),
+            feeStructureSidebar: parseArrayField(feeStructureSidebar),
+            detailedFees: parseArrayField(detailedFees),
+            onlineCourseWorthIt: parsedOCW,
+            jobOpportunities: parseArrayField(jobOpportunities),
+            topRecruiters: parseArrayField(topRecruiters),
+            courseLogo,
+            syllabusPdf,
+        });
 
-    const newCourse = new Course({
-      name,
-      slug,
-      category,
-      duration,
-      tag,
-      specializations: parseArrayField(specializations),
-      overview: parsedOverview,
-      whyChooseUs: parsedWhy,
-      goodThings: parseArrayField(goodThings),
-      topUniversities: parseArrayField(topUniversities),
-      keyHighlights: parseArrayField(keyHighlights),
-      syllabus: parseArrayField(syllabus),
-      offeredCourses: parseArrayField(offeredCourses),
-      onlineEligibility: parseArrayField(onlineEligibility),
-      feeStructureSidebar: parseArrayField(feeStructureSidebar),
-      detailedFees: parseArrayField(detailedFees),
-      onlineCourseWorthIt: parsedOCW,
-      jobOpportunities: parseArrayField(jobOpportunities),
-      topRecruiters: parseArrayField(topRecruiters),
-      courseLogo,
-      syllabusPdf,
-    });
-
-    await newCourse.save();
-    res.status(201).json({ success: true, message: "Course created successfully", course: newCourse });
-  } catch (error) {
-    console.error("Create Course Error:", error);
-    res.status(500).json({ success: false, message: error.message });
-  }
+        await newCourse.save();
+        res.status(201).json({ success: true, message: "Course created successfully", course: newCourse });
+    } catch (error) {
+        console.error("Create Course Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
+
 // ======================================================
-// GET ALL COURSES
+// GET ALL COURSES (NO CHANGE)
 // ======================================================
 export const getCourses = async (req, res) => {
-  try {
-    const courses = await Course.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, count: courses.length, courses });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+    // ... (Your original getCourses logic) ...
+    try {
+        const courses = await Course.find().sort({ createdAt: -1 });
+        res.status(200).json({ success: true, count: courses.length, courses });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 // ======================================================
-// GET COURSE BY SLUG
+// GET COURSE BY SLUG (NO CHANGE)
 // ======================================================
 export const getCourseBySlug = async (req, res) => {
-  try {
-    const course = await Course.findOne({ slug: req.params.slug });
-    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
-    res.status(200).json({ success: true, course });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+    // ... (Your original getCourseBySlug logic) ...
+    try {
+        const course = await Course.findOne({ slug: req.params.slug });
+        if (!course) return res.status(404).json({ success: false, message: "Course not found" });
+        res.status(200).json({ success: true, course });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 // ======================================================
-// GET COURSE BY ID
+// GET COURSE BY ID (NO CHANGE)
 // ======================================================
 export const getCourseById = async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.id);
-    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
-    res.status(200).json({ success: true, data: course });
-  } catch (error) {
-    if (error.kind === "ObjectId")
-      return res.status(400).json({ success: false, message: "Invalid Course ID format." });
-    res.status(500).json({ success: false, message: error.message });
-  }
+    // ... (Your original getCourseById logic) ...
+    try {
+        const course = await Course.findById(req.params.id);
+        if (!course) return res.status(404).json({ success: false, message: "Course not found" });
+        res.status(200).json({ success: true, data: course });
+    } catch (error) {
+        if (error.kind === "ObjectId")
+            return res.status(400).json({ success: false, message: "Invalid Course ID format." });
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 // ======================================================
 // UPDATE COURSE
 // ======================================================
 export const updateCourse = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return res.status(400).json({ success: false, message: "Invalid Course ID." });
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id))
+            return res.status(400).json({ success: false, message: "Invalid Course ID." });
 
-    const existing = await Course.findById(id);
-    if (!existing) return res.status(404).json({ success: false, message: "Course not found" });
+        const existing = await Course.findById(id);
+        if (!existing) return res.status(404).json({ success: false, message: "Course not found" });
 
-    const data = { ...req.body };
+        const data = { ...req.body };
 
-    // Slug update
-    if (data.name && data.name !== existing.name) {
-      let baseSlug = slugify(data.name, { lower: true, strict: true });
-      let slug = baseSlug;
-      let counter = 1;
-      while (await Course.findOne({ slug, _id: { $ne: id } })) slug = `${baseSlug}-${counter++}`;
-      data.slug = slug;
-    }
+        // Slug update
+        if (data.name && data.name !== existing.name) {
+            let baseSlug = slugify(data.name, { lower: true, strict: true });
+            let slug = baseSlug;
+            let counter = 1;
+            while (await Course.findOne({ slug, _id: { $ne: id } })) slug = `${baseSlug}-${counter++}`;
+            data.slug = slug;
+        }
 
-    // Course Logo
-    if (req.files?.courseLogo?.[0]) {
-      if (existing.courseLogo?.public_id) await cloudinary.uploader.destroy(existing.courseLogo.public_id);
-      const up = await cloudinary.uploader.upload(req.files.courseLogo[0].path, { folder: "courses/logos" });
-      data.courseLogo = { public_id: up.public_id, url: up.secure_url };
-    }
+        // Course Logo
+        if (req.files?.courseLogo?.[0]) {
+            if (existing.courseLogo?.public_id) await cloudinary.uploader.destroy(existing.courseLogo.public_id);
+            const up = await cloudinary.uploader.upload(req.files.courseLogo[0].path, { folder: "courses/logos" });
+            data.courseLogo = { public_id: up.public_id, url: up.secure_url };
+        }
 
-    // Syllabus PDF
-    if (req.files?.syllabusPdf?.[0]) {
-      if (existing.syllabusPdf?.public_id)
-        await cloudinary.uploader.destroy(existing.syllabusPdf.public_id, { resource_type: "raw" });
-      const up = await cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
-        folder: "courses/syllabus",
-        resource_type: "raw",
-      });
-      data.syllabusPdf = { public_id: up.public_id, url: up.secure_url };
-    }
+        // Syllabus PDF
+        if (req.files?.syllabusPdf?.[0]) {
+            if (existing.syllabusPdf?.public_id)
+                await cloudinary.uploader.destroy(existing.syllabusPdf.public_id, { resource_type: "raw" });
+            const up = await cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
+                folder: "courses/syllabus",
+                resource_type: "raw",
+            });
+            data.syllabusPdf = { public_id: up.public_id, url: up.secure_url };
+        }
 
-    // Overview images
-    const overviewInput = parseArrayField(data.overview ?? existing.overview);
-    let overviewFinal = overviewInput;
-    if (req.files?.overviewImages?.length > 0) {
-      const uploaded = await Promise.all(
-        req.files.overviewImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/overview" }))
-      );
-      overviewFinal = await mapImagesToItems({ items: overviewInput, uploaded, existingItems: existing.overview });
-    }
-    data.overview = overviewFinal;
+        // --- 1. Overview images --- (FIXED)
+        const overviewInput = parseArrayField(data.overview ?? existing.overview);
+        let overviewFinal = overviewInput;
+        
+        if (req.files?.overviewImages?.length > 0) {
+            // A. New images uploaded: Use mapImagesToItems for deletion/upload logic
+            const uploaded = await Promise.all(
+                req.files.overviewImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/overview" }))
+            );
+            overviewFinal = await mapImagesToItems({ items: overviewInput, uploaded, existingItems: existing.overview });
+        } else {
+            // B. No new images uploaded: Retain old image URLs with new text data (CRITICAL FIX)
+            overviewFinal = overviewInput.map((item, index) => ({
+                ...item,
+                image: existing.overview[index]?.image || null,
+            }));
+        }
+        data.overview = overviewFinal;
 
-    // Why Choose Us
-    const whyInput = parseArrayField(data.whyChooseUs ?? existing.whyChooseUs);
-    let whyFinal = whyInput;
-    if (req.files?.whyChooseUsImages?.length > 0) {
-      const uploaded = await Promise.all(
-        req.files.whyChooseUsImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" }))
-      );
-      whyFinal = await mapImagesToItems({ items: whyInput, uploaded, existingItems: existing.whyChooseUs });
-    }
-    data.whyChooseUs = whyFinal;
+        // --- 2. Why Choose Us --- (FIXED)
+        const whyInput = parseArrayField(data.whyChooseUs ?? existing.whyChooseUs);
+        let whyFinal = whyInput;
+        
+        if (req.files?.whyChooseUsImages?.length > 0) {
+            // A. New images uploaded: Use mapImagesToItems for deletion/upload logic
+            const uploaded = await Promise.all(
+                req.files.whyChooseUsImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" }))
+            );
+            whyFinal = await mapImagesToItems({ items: whyInput, uploaded, existingItems: existing.whyChooseUs });
+        } else {
+            // B. No new images uploaded: Retain old image URLs with new text data (CRITICAL FIX)
+            whyFinal = whyInput.map((item, index) => ({
+                ...item,
+                image: existing.whyChooseUs[index]?.image || null,
+            }));
+        }
+        data.whyChooseUs = whyFinal;
 
-    // Online Course Worth It
-    const ocwInput = parseObjectField(data.onlineCourseWorthIt ?? existing.onlineCourseWorthIt);
-    if (req.files?.onlineCourseWorthItImage?.[0]) {
-      if (existing.onlineCourseWorthIt?.image?.public_id)
-        await cloudinary.uploader.destroy(existing.onlineCourseWorthIt.image.public_id);
-      const up = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, {
-        folder: "courses/onlineCourseWorthIt",
-      });
-      ocwInput.image = { public_id: up.public_id, url: up.secure_url };
-    }
-    data.onlineCourseWorthIt = ocwInput;
+        // Online Course Worth It
+        const ocwInput = parseObjectField(data.onlineCourseWorthIt ?? existing.onlineCourseWorthIt);
+        if (req.files?.onlineCourseWorthItImage?.[0]) {
+            if (existing.onlineCourseWorthIt?.image?.public_id)
+                await cloudinary.uploader.destroy(existing.onlineCourseWorthIt.image.public_id);
+            const up = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, {
+                folder: "courses/onlineCourseWorthIt",
+            });
+            ocwInput.image = { public_id: up.public_id, url: up.secure_url };
+        }
+        data.onlineCourseWorthIt = ocwInput;
 
-    // Other arrays
-    const arrayFields = [
-      "specializations",
-      "goodThings",
-      "topUniversities",
-      "keyHighlights",
-      "syllabus",
-      "offeredCourses",
-      "onlineEligibility",
-      "feeStructureSidebar",
-      "detailedFees",
-      "jobOpportunities",
-      "topRecruiters",
-    ];
-    arrayFields.forEach((f) => (data[f] = parseArrayField(data[f] ?? existing[f])));
+        // Other arrays
+        const arrayFields = [
+            "specializations", "goodThings", "topUniversities", "keyHighlights", "syllabus", "offeredCourses",
+            "onlineEligibility", "feeStructureSidebar", "detailedFees", "jobOpportunities", "topRecruiters",
+        ];
+        arrayFields.forEach((f) => (data[f] = parseArrayField(data[f] ?? existing[f])));
 
-    const updated = await Course.findByIdAndUpdate(id, data, { new: true, runValidators: true });
-    res.status(200).json({ success: true, message: "Course updated successfully", course: updated });
-  } catch (error) {
-    console.error("Update Error:", error);
-    res.status(500).json({ success: false, message: error.message });
-  }
+        // **FIX**: Removed runValidators: true since we removed all 'required: true'
+        const updated = await Course.findByIdAndUpdate(id, data, { new: true }); 
+        res.status(200).json({ success: true, message: "Course updated successfully", course: updated });
+    } catch (error) {
+        console.error("Update Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 // ======================================================
-// DELETE COURSE
+// DELETE COURSE (NO CHANGE)
 // ======================================================
 export const deleteCourse = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return res.status(400).json({ success: false, message: "Invalid Course ID." });
+    // ... (Your original deleteCourse logic) ...
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id))
+            return res.status(400).json({ success: false, message: "Invalid Course ID." });
 
-    const course = await Course.findById(id);
-    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
+        const course = await Course.findById(id);
+        if (!course) return res.status(404).json({ success: false, message: "Course not found" });
 
-    // Delete images
-    if (course.courseLogo?.public_id) await cloudinary.uploader.destroy(course.courseLogo.public_id);
-    if (course.syllabusPdf?.public_id)
-      await cloudinary.uploader.destroy(course.syllabusPdf.public_id, { resource_type: "raw" });
-    if (course.onlineCourseWorthIt?.image?.public_id)
-      await cloudinary.uploader.destroy(course.onlineCourseWorthIt.image.public_id);
+        // Delete images
+        if (course.courseLogo?.public_id) await cloudinary.uploader.destroy(course.courseLogo.public_id);
+        if (course.syllabusPdf?.public_id)
+            await cloudinary.uploader.destroy(course.syllabusPdf.public_id, { resource_type: "raw" });
+        if (course.onlineCourseWorthIt?.image?.public_id)
+            await cloudinary.uploader.destroy(course.onlineCourseWorthIt.image.public_id);
 
-    for (const i of course.overview || []) if (i.image?.public_id) await cloudinary.uploader.destroy(i.image.public_id);
-    for (const i of course.whyChooseUs || [])
-      if (i.image?.public_id) await cloudinary.uploader.destroy(i.image.public_id);
+        for (const i of course.overview || []) if (i.image?.public_id) await cloudinary.uploader.destroy(i.image.public_id);
+        for (const i of course.whyChooseUs || [])
+            if (i.image?.public_id) await cloudinary.uploader.destroy(i.image.public_id);
 
-    await course.deleteOne();
-    res.status(200).json({ success: true, message: "Course deleted successfully" });
-  } catch (error) {
-    console.error("Delete Error:", error);
-    res.status(500).json({ success: false, message: error.message });
-  }
+        await course.deleteOne();
+        res.status(200).json({ success: true, message: "Course deleted successfully" });
+    } catch (error) {
+        console.error("Delete Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 };

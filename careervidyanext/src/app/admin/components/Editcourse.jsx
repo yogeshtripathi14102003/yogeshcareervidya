@@ -1,6 +1,3 @@
-
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,17 +7,17 @@ import api from "@/utlis/api.js"; // Adjust path as necessary
 
 // --- Utility Functions ---
 const filterEmptyObjects = (arr) =>
-    arr.filter((item) => {
-        if (typeof item === "string") return item.trim() !== "";
-        if (typeof item === "object" && item !== null) {
-            return Object.values(item).some(
-                (val) => val !== null && val !== "" && (typeof val === "string" ? val.trim() !== "" : true)
-            );
-        }
-        return false;
-    });
+    arr.filter((item) => {
+        if (typeof item === "string") return item.trim() !== "";
+        if (typeof item === "object" && item !== null) {
+            return Object.values(item).some(
+                (val) => val !== null && val !== "" && (typeof val === "string" ? val.trim() !== "" : true)
+            );
+        }
+        return false;
+    });
 
-// --- Default States for Complex Fields ---
+// --- Default States for Complex Fields (Kept original structure) ---
 const defaultOverview = { heading: "", description: "", image: null, image_old: null, videoLink: "" };
 const defaultWhyChooseUs = { image: null, image_old: null, description: "" };
 const defaultTopUniversity = { name: "", description: "" };
@@ -38,330 +35,350 @@ const defaultRecruiter = { companyName: "", packageOffered: "" };
 
 // 🚨 The Component is now designed to accept props, NOT Next.js routing params.
 export default function Editcourse({ courseId, onClose, onUpdated }) {
+    
+    // --- 1. CORE & BASIC DATA ---
+    const [name, setName] = useState("");
+    const [category, setCategory] = useState("");
+    const [duration, setDuration] = useState("");
+    const [tag, setTag] = useState("");
+    const [specializations, setSpecializations] = useState([""]);
+    const [courseLogo, setCourseLogo] = useState(null);
+    const [courseLogo_old, setCourseLogo_old] = useState("");
+    
+    // --- 2. OVERVIEW & WHY CHOOSE US ---
+    const [overview, setOverview] = useState([defaultOverview]);
+    const [whyChooseUs, setWhyChooseUs] = useState([defaultWhyChooseUs]);
+    const [goodThings, setGoodThings] = useState([""]);
+    
+    // --- 3. TOP UNIVERSITIES & HIGHLIGHTS ---
+    const [topUniversities, setTopUniversities] = useState([defaultTopUniversity]);
+    const [keyHighlights, setKeyHighlights] = useState([defaultKeyHighlight]);
+    
+    // --- 4. SYLLABUS & OFFERED COURSES ---
+    const [syllabus, setSyllabus] = useState([defaultSyllabus]);
+    const [syllabusPdf, setSyllabusPdf] = useState(null);
+    const [syllabusPdf_old, setSyllabusPdf_old] = useState("");
+    const [offeredCourses, setOfferedCourses] = useState([defaultOfferedCourse]);
+
+    // --- 5. ELIGIBILITY & WORTH IT ---
+    const [onlineEligibility, setOnlineEligibility] = useState([defaultEligibility]);
+    const [worthItDescription, setWorthItDescription] = useState("");
+    const [worthItTopics, setWorthItTopics] = useState([defaultWorthItTopic]);
+    const [worthItImage, setWorthItImage] = useState(null);
+    const [worthItImage_old, setWorthItImage_old] = useState("");
+
+    // --- 6. FEES ---
+    const [feeSidebar, setFeeSidebar] = useState([defaultFeeSidebar]);
+    const [detailedFees, setDetailedFees] = useState([defaultDetailedFee]);
+
+    // --- 7. PLACEMENTS ---
+    const [jobOpportunities, setJobOpportunities] = useState([defaultJobOpportunity]);
+    const [topRecruiters, setTopRecruiters] = useState([defaultRecruiter]);
+
+
+    // --- Utility States ---
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
+    const [dataLoadingError, setDataLoadingError] = useState(false);
+    
+    // ######################################################################
+    // 1. DATA AUTOFULL (FETCH) LOGIC (Kept same)
+    // ######################################################################
+    useEffect(() => {
+        // 🚨 This is the key fix: courseId comes from props, not params.
+        if (!courseId) {
+            setDataLoadingError(true);
+            setMessage("Error: Course ID is missing.");
+            setLoading(false);
+            return;
+        }
+
+        const fetchCourseData = async () => {
+            try {
+                setLoading(true);
+                // Use the prop courseId for the API call
+                const response = await api.get(`/api/v1/course/${courseId}`);
+                const data = response.data?.data || {};
+
+                // --- DATA MAPPING LOGIC (Same as before) ---
+                setName(data.name || "");
+                setCategory(data.category || "");
+                setDuration(data.duration || "");
+                setTag(data.tag || "");
+                setSpecializations(
+                    data.specializations?.length > 0 ? data.specializations : [""]
+                );
+                setCourseLogo_old(data.courseLogo?.url || "");
+
+                const mapImageFields = (arr, defaultObj) => (arr || []).map(item => ({ 
+                    ...defaultObj, 
+                    ...item, 
+                    image_old: item.image?.url || null, 
+                    image: null 
+                }));
+
+                setOverview(mapImageFields(data.overview, defaultOverview).length > 0 ? mapImageFields(data.overview, defaultOverview) : [defaultOverview]);
+                setWhyChooseUs(mapImageFields(data.whyChooseUs, defaultWhyChooseUs).length > 0 ? mapImageFields(data.whyChooseUs, defaultWhyChooseUs) : [defaultWhyChooseUs]);
+                setGoodThings(data.goodThings?.length > 0 ? data.goodThings : [""]);
+
+                setTopUniversities(data.topUniversities?.length > 0 ? data.topUniversities : [defaultTopUniversity]);
+                setKeyHighlights(data.keyHighlights?.length > 0 ? data.keyHighlights : [defaultKeyHighlight]);
+
+                setSyllabus(
+                    (data.syllabus || []).map(s => ({ ...s, subjects: s.subjects?.length > 0 ? s.subjects : [""] })) || [defaultSyllabus]
+                );
+                setSyllabusPdf_old(data.syllabusPdf?.url || "");
+                setOfferedCourses(
+                    (data.offeredCourses || []).map(oc => ({ ...oc, points: oc.points?.length > 0 ? oc.points : [""] })) || [defaultOfferedCourse]
+                );
+
+                setOnlineEligibility(data.onlineEligibility?.length > 0 ? data.onlineEligibility : [defaultEligibility]);
+                setWorthItDescription(data.onlineCourseWorthIt?.description || "");
+                setWorthItTopics(data.onlineCourseWorthIt?.topics?.length > 0 ? data.onlineCourseWorthIt.topics : [defaultWorthItTopic]);
+                setWorthItImage_old(data.onlineCourseWorthIt?.image?.url || "");
+
+                setFeeSidebar(
+                    (data.feeStructureSidebar || []).map(item => ({ ...item, points: item.points?.length > 0 ? item.points : [""] })) || [defaultFeeSidebar]
+                );
+                setDetailedFees(
+                    (data.detailedFees || []).map(item => ({ 
+                        ...item, 
+                        table: item.table?.length > 0 ? item.table : [defaultDetailedFeeTable] 
+                    })) || [defaultDetailedFee]
+                );
+
+                setJobOpportunities(data.jobOpportunities?.length > 0 ? data.jobOpportunities : [defaultJobOpportunity]);
+                setTopRecruiters(data.topRecruiters?.length > 0 ? data.topRecruiters : [defaultRecruiter]);
+
+                setMessage("Course data loaded successfully.");
+            } catch (error) {
+                console.error("Error fetching course data:", error);
+                setDataLoadingError(true);
+                setMessage("❌ Error loading course data: " + (error.response?.data?.message || error.message));
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCourseData();
+    }, [courseId]);
+
+    // ######################################################################
+    // 2. DYNAMIC LIST HANDLERS (Same as before)
+    // ######################################################################
+    // ... (All dynamic handlers remain the same)
     
-    // --- 1. CORE & BASIC DATA ---
-    const [name, setName] = useState("");
-    const [category, setCategory] = useState("");
-    const [duration, setDuration] = useState("");
-    const [tag, setTag] = useState("");
-    const [specializations, setSpecializations] = useState([""]);
-    const [courseLogo, setCourseLogo] = useState(null);
-    const [courseLogo_old, setCourseLogo_old] = useState("");
-    
-    // --- 2. OVERVIEW & WHY CHOOSE US ---
-    const [overview, setOverview] = useState([defaultOverview]);
-    const [whyChooseUs, setWhyChooseUs] = useState([defaultWhyChooseUs]);
-    const [goodThings, setGoodThings] = useState([""]);
-    
-    // --- 3. TOP UNIVERSITIES & HIGHLIGHTS ---
-    const [topUniversities, setTopUniversities] = useState([defaultTopUniversity]);
-    const [keyHighlights, setKeyHighlights] = useState([defaultKeyHighlight]);
-    
-    // --- 4. SYLLABUS & OFFERED COURSES ---
-    const [syllabus, setSyllabus] = useState([defaultSyllabus]);
-    const [syllabusPdf, setSyllabusPdf] = useState(null);
-    const [syllabusPdf_old, setSyllabusPdf_old] = useState("");
-    const [offeredCourses, setOfferedCourses] = useState([defaultOfferedCourse]);
+    const handleStringArrayChange = (setter) => (index, value) => {
+        setter(prev => prev.map((item, i) => (i === index ? value : item)));
+    };
+    const handleStringArrayAdd = (setter, defaultValue) => () => {
+        setter(prev => [...prev, defaultValue]);
+    };
+    const handleStringArrayRemove = (setter) => (index) => {
+        setter(prev => prev.filter((_, i) => i !== index));
+    };
 
-    // --- 5. ELIGIBILITY & WORTH IT ---
-    const [onlineEligibility, setOnlineEligibility] = useState([defaultEligibility]);
-    const [worthItDescription, setWorthItDescription] = useState("");
-    const [worthItTopics, setWorthItTopics] = useState([defaultWorthItTopic]);
-    const [worthItImage, setWorthItImage] = useState(null);
-    const [worthItImage_old, setWorthItImage_old] = useState("");
+    const handleObjectArrayChange = (setter) => (index, field, value) => {
+        setter(prev => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
+    };
+    const handleObjectArrayFileChange = (setter) => (index, field, file) => {
+        setter(prev => prev.map((item, i) => (i === index ? { ...item, [field]: file, [`${field}_old`]: null } : item)));
+    };
+    const handleObjectArrayAdd = (setter, defaultObj) => () => {
+        setter(prev => [...prev, defaultObj]);
+    };
+    const handleObjectArrayRemove = (setter) => (index) => {
+        setter(prev => prev.filter((_, i) => i !== index));
+    };
+    
+    const handleSyllabusChange = (index, field, value) => {
+        setSyllabus(prev => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
+    };
+    const handleSubjectChange = (semesterIndex, subjectIndex, value) => {
+        setSyllabus(prev => prev.map((s, i) => 
+            i === semesterIndex ? { ...s, subjects: s.subjects.map((sub, j) => (j === subjectIndex ? value : sub)) } : s
+        ));
+    };
+    const addSubject = (index) => {
+        setSyllabus(prev => prev.map((s, i) => (i === index ? { ...s, subjects: [...s.subjects, ""] } : s)));
+    };
+    const removeSubject = (semesterIndex, subjectIndex) => {
+        setSyllabus(prev => prev.map((s, i) => 
+            i === semesterIndex ? { ...s, subjects: s.subjects.filter((_, j) => j !== subjectIndex) } : s
+        ));
+    };
 
-    // --- 6. FEES ---
-    const [feeSidebar, setFeeSidebar] = useState([defaultFeeSidebar]);
-    const [detailedFees, setDetailedFees] = useState([defaultDetailedFee]);
+    const handleOfferedCourseChange = (index, field, value) => {
+        setOfferedCourses(prev => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
+    };
+    const handleOfferedCoursePointChange = (blockIndex, pointIndex, value) => {
+        setOfferedCourses(prev => prev.map((oc, i) => 
+            i === blockIndex ? { ...oc, points: oc.points.map((p, j) => (j === pointIndex ? value : p)) } : oc
+        ));
+    };
+    const addOfferedCoursePoint = (index) => {
+        setOfferedCourses(prev => prev.map((oc, i) => (i === index ? { ...oc, points: [...oc.points, ""] } : oc)));
+    };
+    const removeOfferedCoursePoint = (blockIndex, pointIndex) => {
+        setOfferedCourses(prev => prev.map((oc, i) => 
+            i === blockIndex ? { ...oc, points: oc.points.filter((_, j) => j !== pointIndex) } : oc
+        ));
+    };
 
-    // --- 7. PLACEMENTS ---
-    const [jobOpportunities, setJobOpportunities] = useState([defaultJobOpportunity]);
-    const [topRecruiters, setTopRecruiters] = useState([defaultRecruiter]);
+    const handleDetailedFeesTableChange = (sectionIndex, rowIndex, field, value) => {
+        setDetailedFees(prev => prev.map((section, si) =>
+            si === sectionIndex ? { ...section, table: section.table.map((row, ri) => 
+                ri === rowIndex ? { ...row, [field]: value } : row
+            ) } : section
+        ));
+    };
+    const addDetailedFeesTable = (sectionIndex) => {
+        setDetailedFees(prev => prev.map((section, si) =>
+            si === sectionIndex ? { ...section, table: [...section.table, defaultDetailedFeeTable] } : section
+        ));
+    };
+    const removeDetailedFeesTable = (sectionIndex, rowIndex) => {
+        setDetailedFees(prev => prev.map((section, si) =>
+            si === sectionIndex ? { ...section, table: section.table.filter((_, ri) => ri !== rowIndex) } : section
+        ));
+    };
 
 
-    // --- Utility States ---
-    const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState("");
-    const [dataLoadingError, setDataLoadingError] = useState(false);
-    
-    // ######################################################################
-    // 1. DATA AUTOFULL (FETCH) LOGIC
-    // ######################################################################
-    useEffect(() => {
-        // 🚨 This is the key fix: courseId comes from props, not params.
-        if (!courseId) {
-            setDataLoadingError(true);
-            setMessage("Error: Course ID is missing.");
-            setLoading(false);
-            return;
-        }
+    // ######################################################################
+    // 3. SUBMIT HANDLER - CRITICAL FIELD MATCHING FIXES HERE
+    // ######################################################################
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setMessage("");
+        setLoading(true);
 
-        const fetchCourseData = async () => {
-            try {
-                setLoading(true);
-                // Use the prop courseId for the API call
-                const response = await api.get(`/api/v1/course/${courseId}`);
-                const data = response.data?.data || {};
+        try {
+            const formData = new FormData();
 
-                // --- DATA MAPPING LOGIC (Same as before) ---
-                setName(data.name || "");
-                setCategory(data.category || "");
-                setDuration(data.duration || "");
-                setTag(data.tag || "");
-                setSpecializations(
-                    data.specializations?.length > 0 ? data.specializations : [""]
-                );
-                setCourseLogo_old(data.courseLogo?.url || "");
+            // FIX: This helper now correctly appends files with Multer's expected indexed naming.
+            const prepareArrayForSubmission = (arr, fileFieldName, formDataKey) => {
+                const data = arr.map(item => ({
+                    ...item,
+                    // Prepare JSON data: use placeholder if file exists, otherwise old URL or null
+                    [fileFieldName]: item[fileFieldName] instanceof File ? "new_file" : item[`${fileFieldName}_old`] || null,
+                }));
+                
+                // Append actual File objects to FormData using the correct Multer indexed name
+                arr.forEach((item, index) => {
+                    if (item[fileFieldName] instanceof File) {
+                        // CRITICAL FIX: Match Multer field name exactly (e.g., overviewImages[0])
+                        formData.append(formDataKey, item[fileFieldName]); // Multer/Busboy handles the index automatically when name is same
+                    }
+                });
+                
+                return JSON.stringify(filterEmptyObjects(data));
+            };
 
-                const mapImageFields = (arr, defaultObj) => (arr || []).map(item => ({ 
-                    ...defaultObj, 
-                    ...item, 
-                    image_old: item.image?.url || null, 
-                    image: null 
-                }));
+            // --- 1. CORE & BASIC DATA ---
+            formData.append("name", name);
+            formData.append("category", category);
+            formData.append("duration", duration);
+            formData.append("tag", tag);
+            formData.append("specializations", JSON.stringify(filterEmptyObjects(specializations)));
+            
+            // courseLogo - Multer name: "courseLogo"
+            if (courseLogo instanceof File) formData.append("courseLogo", courseLogo);
 
-                setOverview(mapImageFields(data.overview, defaultOverview).length > 0 ? mapImageFields(data.overview, defaultOverview) : [defaultOverview]);
-                setWhyChooseUs(mapImageFields(data.whyChooseUs, defaultWhyChooseUs).length > 0 ? mapImageFields(data.whyChooseUs, defaultWhyChooseUs) : [defaultWhyChooseUs]);
-                setGoodThings(data.goodThings?.length > 0 ? data.goodThings : [""]);
+            // --- 2. OVERVIEW & WHY CHOOSE US ---
+            // Multer names: "overviewImages"
+            formData.append("overview", prepareArrayForSubmission(overview, "image", "overviewImages"));
+            
+            // Multer names: "whyChooseUsImages"
+            formData.append("whyChooseUs", prepareArrayForSubmission(whyChooseUs, "image", "whyChooseUsImages"));
+            formData.append("goodThings", JSON.stringify(filterEmptyObjects(goodThings)));
 
-                setTopUniversities(data.topUniversities?.length > 0 ? data.topUniversities : [defaultTopUniversity]);
-                setKeyHighlights(data.keyHighlights?.length > 0 ? data.keyHighlights : [defaultKeyHighlight]);
+            // --- 3. TOP UNIVERSITIES & HIGHLIGHTS (No files) ---
+            formData.append("topUniversities", JSON.stringify(filterEmptyObjects(topUniversities)));
+            formData.append("keyHighlights", JSON.stringify(filterEmptyObjects(keyHighlights)));
 
-                setSyllabus(
-                    (data.syllabus || []).map(s => ({ ...s, subjects: s.subjects?.length > 0 ? s.subjects : [""] })) || [defaultSyllabus]
-                );
-                setSyllabusPdf_old(data.syllabusPdf?.url || "");
-                setOfferedCourses(
-                    (data.offeredCourses || []).map(oc => ({ ...oc, points: oc.points?.length > 0 ? oc.points : [""] })) || [defaultOfferedCourse]
-                );
+            // --- 4. SYLLABUS & OFFERED COURSES ---
+            const cleanedSyllabus = syllabus.map(s => ({ ...s, subjects: filterEmptyObjects(s.subjects) }));
+            formData.append("syllabus", JSON.stringify(filterEmptyObjects(cleanedSyllabus)));
+            
+            // syllabusPdf - Multer name: "syllabusPdf"
+            if (syllabusPdf instanceof File) formData.append("syllabusPdf", syllabusPdf);
 
-                setOnlineEligibility(data.onlineEligibility?.length > 0 ? data.onlineEligibility : [defaultEligibility]);
-                setWorthItDescription(data.onlineCourseWorthIt?.description || "");
-                setWorthItTopics(data.onlineCourseWorthIt?.topics?.length > 0 ? data.onlineCourseWorthIt.topics : [defaultWorthItTopic]);
-                setWorthItImage_old(data.onlineCourseWorthIt?.image?.url || "");
+            const cleanedOfferedCourses = offeredCourses.map(oc => ({ ...oc, points: filterEmptyObjects(oc.points) }));
+            formData.append("offeredCourses", JSON.stringify(filterEmptyObjects(cleanedOfferedCourses)));
 
-                setFeeSidebar(
-                    (data.feeStructureSidebar || []).map(item => ({ ...item, points: item.points?.length > 0 ? item.points : [""] })) || [defaultFeeSidebar]
-                );
-                setDetailedFees(
-                    (data.detailedFees || []).map(item => ({ 
-                        ...item, 
-                        table: item.table?.length > 0 ? item.table : [defaultDetailedFeeTable] 
-                    })) || [defaultDetailedFee]
-                );
+            // --- 5. ELIGIBILITY & WORTH IT ---
+            formData.append("onlineEligibility", JSON.stringify(filterEmptyObjects(onlineEligibility)));
+            
+            const worthItData = {
+                description: worthItDescription,
+                topics: filterEmptyObjects(worthItTopics),
+                // Pass a placeholder if a new file exists, otherwise old URL or null
+                image: worthItImage instanceof File ? "new_file" : worthItImage_old || null
+            };
+            formData.append("onlineCourseWorthIt", JSON.stringify(worthItData));
+            
+            // CRITICAL FIX: Multer field name is "onlineCourseWorthItImage"
+            if (worthItImage instanceof File) formData.append("onlineCourseWorthItImage", worthItImage);
 
-                setJobOpportunities(data.jobOpportunities?.length > 0 ? data.jobOpportunities : [defaultJobOpportunity]);
-                setTopRecruiters(data.topRecruiters?.length > 0 ? data.topRecruiters : [defaultRecruiter]);
+            // --- 6. FEES (No files) ---
+            const cleanedFeeSidebar = feeSidebar.map(item => ({...item, points: filterEmptyObjects(item.points)}));
+            formData.append("feeStructureSidebar", JSON.stringify(filterEmptyObjects(cleanedFeeSidebar)));
 
-                setMessage("Course data loaded successfully.");
-            } catch (error) {
-                console.error("Error fetching course data:", error);
-                setDataLoadingError(true);
-                setMessage("❌ Error loading course data: " + (error.response?.data?.message || error.message));
-            } finally {
-                setLoading(false);
+            const cleanedDetailedFees = detailedFees.map(section => ({...section, table: filterEmptyObjects(section.table)}));
+            formData.append("detailedFees", JSON.stringify(filterEmptyObjects(cleanedDetailedFees)));
+
+            // --- 7. PLACEMENTS (No files) ---
+            formData.append("jobOpportunities", JSON.stringify(filterEmptyObjects(jobOpportunities)));
+            formData.append("topRecruiters", JSON.stringify(filterEmptyObjects(topRecruiters)));
+
+            // 💡 CRITICAL DEBUG: Console log all file keys sent to Multer
+            console.log("--- FormData File Keys SENT TO MULTER ---");
+            for (const [key, value] of formData.entries()) {
+                if (value instanceof File) {
+                    console.log(`FILE KEY: ${key}, File Name: ${value.name}`);
+                }
             }
-        };
-
-        fetchCourseData();
-    }, [courseId]);
-
-    // ######################################################################
-    // 2. DYNAMIC LIST HANDLERS (Same as before)
-    // ######################################################################
-
-    const handleStringArrayChange = (setter) => (index, value) => {
-        setter(prev => prev.map((item, i) => (i === index ? value : item)));
-    };
-    const handleStringArrayAdd = (setter, defaultValue) => () => {
-        setter(prev => [...prev, defaultValue]);
-    };
-    const handleStringArrayRemove = (setter) => (index) => {
-        setter(prev => prev.filter((_, i) => i !== index));
-    };
-
-    const handleObjectArrayChange = (setter) => (index, field, value) => {
-        setter(prev => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
-    };
-    const handleObjectArrayFileChange = (setter) => (index, field, file) => {
-        setter(prev => prev.map((item, i) => (i === index ? { ...item, [field]: file, [`${field}_old`]: null } : item)));
-    };
-    const handleObjectArrayAdd = (setter, defaultObj) => () => {
-        setter(prev => [...prev, defaultObj]);
-    };
-    const handleObjectArrayRemove = (setter) => (index) => {
-        setter(prev => prev.filter((_, i) => i !== index));
-    };
-    
-    const handleSyllabusChange = (index, field, value) => {
-        setSyllabus(prev => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
-    };
-    const handleSubjectChange = (semesterIndex, subjectIndex, value) => {
-        setSyllabus(prev => prev.map((s, i) => 
-            i === semesterIndex ? { ...s, subjects: s.subjects.map((sub, j) => (j === subjectIndex ? value : sub)) } : s
-        ));
-    };
-    const addSubject = (index) => {
-        setSyllabus(prev => prev.map((s, i) => (i === index ? { ...s, subjects: [...s.subjects, ""] } : s)));
-    };
-    const removeSubject = (semesterIndex, subjectIndex) => {
-        setSyllabus(prev => prev.map((s, i) => 
-            i === semesterIndex ? { ...s, subjects: s.subjects.filter((_, j) => j !== subjectIndex) } : s
-        ));
-    };
-
-    const handleOfferedCourseChange = (index, field, value) => {
-        setOfferedCourses(prev => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
-    };
-    const handleOfferedCoursePointChange = (blockIndex, pointIndex, value) => {
-        setOfferedCourses(prev => prev.map((oc, i) => 
-            i === blockIndex ? { ...oc, points: oc.points.map((p, j) => (j === pointIndex ? value : p)) } : oc
-        ));
-    };
-    const addOfferedCoursePoint = (index) => {
-        setOfferedCourses(prev => prev.map((oc, i) => (i === index ? { ...oc, points: [...oc.points, ""] } : oc)));
-    };
-    const removeOfferedCoursePoint = (blockIndex, pointIndex) => {
-        setOfferedCourses(prev => prev.map((oc, i) => 
-            i === blockIndex ? { ...oc, points: oc.points.filter((_, j) => j !== pointIndex) } : oc
-        ));
-    };
-
-    const handleDetailedFeesTableChange = (sectionIndex, rowIndex, field, value) => {
-        setDetailedFees(prev => prev.map((section, si) =>
-            si === sectionIndex ? { ...section, table: section.table.map((row, ri) => 
-                ri === rowIndex ? { ...row, [field]: value } : row
-            ) } : section
-        ));
-    };
-    const addDetailedFeesTable = (sectionIndex) => {
-        setDetailedFees(prev => prev.map((section, si) =>
-            si === sectionIndex ? { ...section, table: [...section.table, defaultDetailedFeeTable] } : section
-        ));
-    };
-    const removeDetailedFeesTable = (sectionIndex, rowIndex) => {
-        setDetailedFees(prev => prev.map((section, si) =>
-            si === sectionIndex ? { ...section, table: section.table.filter((_, ri) => ri !== rowIndex) } : section
-        ));
-    };
-
-
-    // ######################################################################
-    // 3. SUBMIT HANDLER
-    // ######################################################################
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setMessage("");
-        setLoading(true);
-
-        try {
-            const formData = new FormData();
-
-            const prepareArrayForSubmission = (arr, fileFieldName) => {
-                const data = arr.map(item => ({
-                    ...item,
-                    // Use "new_file" placeholder if a file object is present, otherwise use old URL or null
-                    [fileFieldName]: item[fileFieldName] instanceof File ? "new_file" : item[`${fileFieldName}_old`] || null,
-                }));
-                arr.forEach((item, index) => {
-                    if (item[fileFieldName] instanceof File) {
-                        formData.append(`${fileFieldName}[${index}]`, item[fileFieldName]);
-                    }
-                });
-                return JSON.stringify(filterEmptyObjects(data));
-            };
-
-            // --- 1. CORE & BASIC DATA ---
-            formData.append("name", name);
-            formData.append("category", category);
-            formData.append("duration", duration);
-            formData.append("tag", tag);
-            formData.append("specializations", JSON.stringify(filterEmptyObjects(specializations)));
-            formData.append("courseLogo_old", courseLogo_old || "");
-            if (courseLogo instanceof File) formData.append("courseLogo", courseLogo);
-
-            // --- 2. OVERVIEW & WHY CHOOSE US ---
-            formData.append("overview", prepareArrayForSubmission(overview, "image"));
-            formData.append("whyChooseUs", prepareArrayForSubmission(whyChooseUs, "image"));
-            formData.append("goodThings", JSON.stringify(filterEmptyObjects(goodThings)));
-
-            // --- 3. TOP UNIVERSITIES & HIGHLIGHTS ---
-            formData.append("topUniversities", JSON.stringify(filterEmptyObjects(topUniversities)));
-            formData.append("keyHighlights", JSON.stringify(filterEmptyObjects(keyHighlights)));
-
-            // --- 4. SYLLABUS & OFFERED COURSES ---
-            const cleanedSyllabus = syllabus.map(s => ({ ...s, subjects: filterEmptyObjects(s.subjects) }));
-            formData.append("syllabus", JSON.stringify(filterEmptyObjects(cleanedSyllabus)));
+            console.log("-----------------------------------------");
             
-            formData.append("syllabusPdf_old", syllabusPdf_old || "");
-            if (syllabusPdf instanceof File) formData.append("syllabusPdf", syllabusPdf);
 
-            const cleanedOfferedCourses = offeredCourses.map(oc => ({ ...oc, points: filterEmptyObjects(oc.points) }));
-            formData.append("offeredCourses", JSON.stringify(filterEmptyObjects(cleanedOfferedCourses)));
+            // PUT request to update, using the prop courseId
+            const response = await api.put(`/api/v1/course/${courseId}`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
 
-            // --- 5. ELIGIBILITY & WORTH IT ---
-            formData.append("onlineEligibility", JSON.stringify(filterEmptyObjects(onlineEligibility)));
-            
-            const worthItData = {
-                description: worthItDescription,
-                topics: filterEmptyObjects(worthItTopics),
-                // Pass a placeholder if a new file exists, otherwise old URL or null
-                image: worthItImage instanceof File ? "new_file" : worthItImage_old || null
-            };
-            formData.append("onlineCourseWorthIt", JSON.stringify(worthItData));
-            if (worthItImage instanceof File) formData.append("worthItImage", worthItImage);
-
-            // --- 6. FEES ---
-            const cleanedFeeSidebar = feeSidebar.map(item => ({...item, points: filterEmptyObjects(item.points)}));
-            formData.append("feeStructureSidebar", JSON.stringify(filterEmptyObjects(cleanedFeeSidebar)));
-
-            const cleanedDetailedFees = detailedFees.map(section => ({...section, table: filterEmptyObjects(section.table)}));
-            formData.append("detailedFees", JSON.stringify(filterEmptyObjects(cleanedDetailedFees)));
-
-            // --- 7. PLACEMENTS ---
-            formData.append("jobOpportunities", JSON.stringify(filterEmptyObjects(jobOpportunities)));
-            formData.append("topRecruiters", JSON.stringify(filterEmptyObjects(topRecruiters)));
+            setMessage("✅ Course updated successfully!");
+            onUpdated(); // Call the update callback to refresh the list table
+            // onClose(); // Optionally close the modal upon success
+        } catch (error) {
+            console.error("Submission Error:", error);
+            setMessage(
+                "❌ Error updating course: " +
+                (error.response?.data?.error || error.response?.data?.message || error.message)
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
-            // PUT request to update, using the prop courseId
-            const response = await api.put(`/api/v1/course/${courseId}`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
+    // ######################################################################
+    // 4. RENDER LOGIC
+    // ######################################################################
+    // ... (Render logic remains the same)
+    if (loading && !dataLoadingError) {
+        return <div className="max-w-4xl w-full p-8 text-center text-xl font-semibold bg-white rounded-xl">🔄 Loading Course Data...</div>;
+    }
 
-            setMessage("✅ Course updated successfully!");
-            onUpdated(); // Call the update callback to refresh the list table
-            // onClose(); // Optionally close the modal upon success
-        } catch (error) {
-            console.error("Submission Error:", error);
-            setMessage(
-                "❌ Error updating course: " +
-                (error.response?.data?.error || error.response?.data?.message || error.message)
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-
-    // ######################################################################
-    // 4. RENDER LOGIC
-    // ######################################################################
-
-    if (loading && !dataLoadingError) {
-        return <div className="max-w-4xl w-full p-8 text-center text-xl font-semibold bg-white rounded-xl">🔄 Loading Course Data...</div>;
-    }
-
-    if (dataLoadingError) {
-        return (
-            <div className="max-w-4xl w-full p-8 text-center text-xl font-semibold bg-white rounded-xl">
-                🛑 Failed to load data. {message}
-                <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm block mx-auto mt-4">
-                    Close
-                </button>
-            </div>
-        );
-    }
-    
+    if (dataLoadingError) {
+        return (
+            <div className="max-w-4xl w-full p-8 text-center text-xl font-semibold bg-white rounded-xl">
+                🛑 Failed to load data. {message}
+                <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm block mx-auto mt-4">
+                    Close
+                </button>
+            </div>
+        );
+    }
     // Main form render
     return (
         <div className="max-w-6xl w-full mx-auto p-8 bg-white shadow-2xl rounded-xl">
