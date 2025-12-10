@@ -23,8 +23,8 @@
 //     },
 //     {
 //       id: 3,
-//       target: 37,
-//       label: "Highest Salary Package (LPA)",
+//       target: 37 (LPA),
+//       label: "Highest Salary Package ",
 //       icon: <Star className="w-7 h-7 text-[#0056B3] fill-[#F58220]" />,
 //     },
 //     {
