@@ -374,7 +374,7 @@ export default function HeroSlider() {
   // Auto slide (FAST SPEED)
   useEffect(() => {
     if (!slides.length) return;
-    const timer = setInterval(() => handleNext(), 8000); // 3 seconds
+    const timer = setInterval(() => handleNext(), 5000); // 3 seconds
     return () => clearInterval(timer);
   }, [slides]);
 
