@@ -386,7 +386,9 @@
 //     res.status(500).json({ success: false, message: error.message });
 //   }
 // };
+ 
 
+ // updated code  without validation 
 import Course from "../models/Admin/Course.js";
 import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
