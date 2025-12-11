@@ -226,6 +226,8 @@
 //     </>
 //   );
 // }
+
+
 "use client";
 
 import { useState } from "react";
@@ -261,20 +263,22 @@ export default function Header() {
             </div>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-3">
-              <Link href="https://x.com/CareerVidya" target="_blank" rel="noopener noreferrer">
-                <Twitter size={31} className={iconBtn} />
-              </Link>
-              <Link href="https://www.instagram.com/career_vidya" target="_blank" rel="noopener noreferrer">
-                <Instagram size={31} className={iconBtn} />
-              </Link>
-              <Link href="https://www.facebook.com/careervidya" target="_blank" rel="noopener noreferrer">
-                <Facebook size={31} className={iconBtn} />
-              </Link>
-              <Link href="https://www.linkedin.com/company/careervidya" target="_blank" rel="noopener noreferrer">
-                <Linkedin size={31} className={iconBtn} />
-              </Link>
-            </div>
+             <div className="flex justify-center gap-4 mt-3">
+            {[
+              { src: "/icons/y1.svg", alt: "X", link: "https://x.com/CareerVidya" },
+              { src: "/icons/y2.svg", alt: "Instagram", link: "https://www.instagram.com/career_vidya/" },
+              { src: "/icons/y3.svg", alt: "Facebook", link: "https://www.facebook.com/Career-Vidya" },
+              { src: "/icons/linked.svg", alt: "LinkedIn", link: "https://www.linkedin.com/company/career-vidya/" },
+            ].map((icon, i) => (
+              <a key={i} href={icon.link} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={icon.src}
+                  alt={icon.alt}
+                  className="h-5 w-5 hover:scale-110 transition-transform"
+                />
+              </a>
+            ))}
+          </div>
 
             {/* Close Button */}
             <button
