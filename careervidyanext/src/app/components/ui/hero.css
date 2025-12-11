@@ -93,3 +93,44 @@
   padding: 40px;
   font-size: 20px;
 }
+
+
+@media (max-width: 767px) {
+    
+    /* 1. मोबाइल व्यू में स्लाइडर बटन को छुपाएं */
+    .slider-btn {
+        display: none !important;
+    }
+    
+    /* बाकी responsive फिक्स जो हमने पहले दिए थे */
+    .slider-container {
+        height: 21vh; 
+        /* border-radius: 12px; */
+        /* margin: 0 15px;  */
+        /* width: calc(100% - 30px); */
+    }
+    
+    /* चूंकि बटन अब छुप गए हैं, हमें left/right एडजस्टमेंट की ज़रूरत नहीं है, 
+       लेकिन overlay और title को साफ रखने के लिए यह कोड रखा जा सकता है। */
+    .slide-overlay { 
+        bottom: 25px; 
+        left: 35px; 
+    }
+    .slide-title { 
+        font-size: 24px; 
+    }
+
+    /* .slider-dots को भी थोड़ा एडजस्ट किया जा सकता है यदि आवश्यक हो */
+    .slider-dots {
+        bottom: 10px;
+    }
+}
+
+/* ---------------------------------------------------- */
+/* डेस्कटॉप (768px और ऊपर) के लिए बटन विज़िबल रहेंगे */
+.slider-btn {
+    /* यह बटन को वापस विज़िबल करता है अगर यह किसी अन्य जगह पर हिडन हो */
+    display: block; 
+}
+
+/* ... बाकी आपका मूल CSS ... */

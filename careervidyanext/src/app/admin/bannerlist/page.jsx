@@ -228,6 +228,7 @@ export default function Page() {
   const fetchBanners = async () => {
     try {
       const res = await axios.get("https://api.careervidya.in/api/v1/banner", {
+        // const res = await axios.get("http://localhost:8080/api/v1/banner", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -254,6 +255,7 @@ export default function Page() {
 
     try {
       await axios.delete(`https://api.careervidya.in/api/v1/banner/${id}`, {
+        // await axios.delete(`http://localhost:8080/api/v1/banner/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
