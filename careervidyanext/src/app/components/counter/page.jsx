@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { Users, GraduationCap, IndianRupee, Award } from "lucide-react";
 
-const ICON_COLOR_CLASS = "text-[#0056B3]";
+// Common styles for the icon container - now smaller and on the left
+const ICON_CONTAINER_CLASS = "w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-full bg-[#0056B3] flex items-center justify-center mr-3 shadow-md"; // margin slightly reduced for mobile space
+// Icon color inside the circle (White) - also slightly smaller
+const ICON_COLOR_CLASS = "text-white w-5 h-5 md:w-6 md:h-6";
 
 export default function Counter() {
   const counters = [
@@ -11,43 +14,44 @@ export default function Counter() {
       id: 1,
       target: 10000,
       label: "Admissions Done",
-      icon: <GraduationCap className={`w-6 h-6 ${ICON_COLOR_CLASS}`} />,
+      icon: <GraduationCap className={ICON_COLOR_CLASS} />,
     },
     {
       id: 2,
       target: 150,
       label: "Academic Partners",
-      icon: <Users className={`w-6 h-6 ${ICON_COLOR_CLASS}`} />,
+      icon: <Users className={ICON_COLOR_CLASS} />,
     },
     {
       id: 3,
       target: 37,
       label: "Highest Salary Package",
-      icon: <IndianRupee className={`w-6 h-6 ${ICON_COLOR_CLASS}`} />,
+      icon: <IndianRupee className={ICON_COLOR_CLASS} />,
       suffix: " LPA+",
-      fromBottom: true,
     },
     {
       id: 4,
       target: 10000,
       label: "Alumni Network",
-      icon: <Award className={`w-6 h-6 ${ICON_COLOR_CLASS}`} />,
+      icon: <Award className={ICON_COLOR_CLASS} />,
     },
   ];
 
   const [counts, setCounts] = useState(counters.map(() => 0));
 
+  // Counter animation logic 
   useEffect(() => {
-    const duration = 1800;
+    const duration = 2000;
     const stepTime = 20;
     const steps = duration / stepTime;
 
     const timers = counters.map((counter, i) => {
-      let start = counter.fromBottom ? -counter.target : 0;
+      let start = 0;
       const increment = counter.target / steps;
 
       const timer = setInterval(() => {
         start += increment;
+
         setCounts((prev) => {
           const updated = [...prev];
           updated[i] =
@@ -64,34 +68,59 @@ export default function Counter() {
     return () => timers.forEach(clearInterval);
   }, []);
 
+  // Function to format the number display (kept same)
+  const formatNumber = (count, target, suffix, isLPA) => {
+    const flooredCount = Math.floor(count);
+
+    if (isLPA) {
+      return `${flooredCount}${suffix}`;
+    }
+
+    if (target >= 1000) {
+      // Show K+ formatting (e.g., 10K+)
+      const displayK = Math.floor(flooredCount / 100) / 10; 
+      return `${displayK}K+`;
+    }
+
+    return `${flooredCount}+`;
+  };
+
   return (
-    <section className="bg-white py-3">
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 px-2">
-        {counters.map((counter, i) => (
-          <div
-            key={counter.id}
-            className="bg-white rounded-xl p-3 text-center transition-all duration-300 hover:scale-[1.03] shadow-sm"
-          >
-            {/* Icon */}
-            <div className="flex justify-center mb-1.5">
-              {counter.icon}
+    <section className="bg-gray-50 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 px-3"> {/* CHANGED: grid-cols-2 on small screens */}
+        {counters.map((counter, i) => {
+          const isLPA = counter.id === 3;
+          return (
+            <div
+              key={counter.id}
+              // Card styles with Flex for horizontal layout
+              className="bg-white rounded-xl p-3 md:p-5 flex items-center shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+            >
+              {/* Icon Container (Circle) - On the left */}
+              <div className={ICON_CONTAINER_CLASS}>
+                {counter.icon}
+              </div>
+
+              {/* Text Content - On the right */}
+              <div className="text-left">
+                {/* Number (SMALLER BOLD TEXT) */}
+                <h3 className="text-lg md:text-2xl font-bold tracking-tight tabular-nums text-black mb-0 leading-tight"> {/* text-lg for small screens */}
+                  {formatNumber(
+                    counts[i],
+                    counter.target,
+                    counter.suffix,
+                    isLPA
+                  )}
+                </h3>
+
+                {/* Label (SMALLER LIGHT TEXT) */}
+                <p className="text-xs md:text-sm font-light leading-snug"> {/* text-xs for small screens */}
+                  {counter.label}
+                </p>
+              </div>
             </div>
-
-            {/* Number (EXTRA THIN + SMALLER) */}
-            <h3 className="text-2xl md:text-3xl font-extralight tracking-tight tabular-nums text-black mb-0.5">
-              {counter.id === 3
-                ? `${Math.floor(counts[i])}${counter.suffix}`
-                : counter.target >= 1000
-                ? `${Math.floor(counts[i] / 1000)}K+`
-                : `${Math.floor(counts[i])}+`}
-            </h3>
-
-            {/* Label */}
-            <p className="text-gray-700 text-xs md:text-sm font-medium">
-              {counter.label}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
