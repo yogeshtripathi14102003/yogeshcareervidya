@@ -110,17 +110,40 @@
 // }
 
 
-
-
-
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
+/* ========= SCROLL REVEAL HOOK ========= */
+function useScrollReveal(threshold = 0.25) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, visible };
+}
+
 export default function TestimonialsSlider() {
+  const section = useScrollReveal(0.2);
+
   const testimonials = [
     {
       text: "Before coming to Career Vidya, I had no idea which stream or career to choose. The counsellors patiently guided me through every step and helped me make an informed decision. I’m extremely satisfied with their support!",
@@ -161,17 +184,23 @@ export default function TestimonialsSlider() {
   ];
 
   return (
-    <section className="text-gray-900 py-20 bg-[#F7FAFF]">
+    <section
+      ref={section.ref}
+      className={`text-gray-900 py-20 bg-white transition-all duration-1000 ease-out
+      ${section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
+    >
       <div className="max-w-7xl mx-auto px-6 text-center">
-        
+
         {/* Heading */}
         <h2 className="text-3xl md:text-4xl font-bold mb-3">
-          <span className="text-black">Students Who Found Their True Direction!  </span>
-          {/* <span className="text-[#0056B3]">Read inspiring journeys of learners who identified their goals</span> */}
+          <span className="text-black">
+            Students Who Found Their True Direction!
+          </span>
         </h2>
 
         <p className="text-gray-700 mb-12 max-w-3xl mx-auto">
-         Read inspiring journeys of learners who identified their goals built confidence, and shaped a successful future with {" "}
+          Read inspiring journeys of learners who identified their goals, built
+          confidence, and shaped a successful future with{" "}
           <span className="font-semibold text-[#0056B3]">Career Vidya</span>.
         </p>
 
@@ -192,28 +221,27 @@ export default function TestimonialsSlider() {
             <SwiperSlide key={i}>
               <div
                 className={`group relative bg-white
-                border border-[#0056B3]
-                rounded-xl p-4 shadow-sm transition-all duration-300
-                hover:border-[#003E7E]
-                hover:bg-gradient-to-br hover:from-[#FFF5EE] hover:to-[#E6F0FF]
-                hover:shadow-[0_4px_12px_rgba(0,86,179,0.25)]
-                max-w-[300px] mx-auto h-auto flex flex-col items-center`}
+                  border border-[#0056B3]
+                  rounded-xl p-4 shadow-sm
+                  transition-all duration-700 ease-out
+                  hover:border-[#003E7E]
+                  hover:bg-gradient-to-br hover:from-[#FFF5EE] hover:to-[#E6F0FF]
+                  hover:shadow-[0_4px_12px_rgba(0,86,179,0.25)]
+                  max-w-[300px] mx-auto h-auto flex flex-col items-center
+                  ${section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
               >
-                {/* Avatar */}
                 <img
                   src={t.img}
                   alt={t.name}
                   className="w-14 h-14 rounded-full mb-3 object-cover border-4 border-white shadow-md"
                 />
 
-                {/* Text */}
                 <p className="italic text-gray-800 mb-3 text-sm leading-relaxed text-center">
                   <span className="text-black">“</span>
                   <span className="text-[#003E7E]">{t.text}</span>
                   <span className="text-black">”</span>
                 </p>
 
-                {/* Name + Designation */}
                 <div className="mt-2 text-center">
                   <p className="font-bold text-gray-900">{t.name}</p>
                   <p className="text-[#0056B3] text-sm font-medium">
@@ -226,7 +254,6 @@ export default function TestimonialsSlider() {
         </Swiper>
       </div>
 
-      {/* Pagination Styling */}
       <style jsx global>{`
         .testimonials-swiper .swiper-pagination-bullet {
           background: #7fa5cc;

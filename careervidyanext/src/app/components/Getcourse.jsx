@@ -263,6 +263,8 @@
 //   );
 // } "use client";
 
+
+
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -270,6 +272,68 @@ import api from "@/utlis/api.js";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
 
+/* ================= SCROLL ANIMATION HOOK ================= */
+function useScrollAnimation() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, visible };
+}
+
+/* ================= COURSE CARD ================= */
+const CourseCard = ({ course }) => {
+  const { ref, visible } = useScrollAnimation();
+
+  return (
+    <div
+      ref={ref}
+      className={`flex flex-col justify-between bg-white border border-gray-200 rounded-md
+      shadow-sm cursor-pointer p-2 min-h-[120px]
+      transition-all duration-700 ease-out
+      ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}
+      hover:shadow-md hover:scale-[1.02]`}
+    >
+      <Link href={`/course/${course.slug}`} className="flex-1 flex flex-col">
+        <div className="flex justify-center mt-1">
+          <img
+            src={course.courseLogo?.url || "/placeholder.png"}
+            alt={course.name}
+            className="w-8 h-8 object-contain"
+          />
+        </div>
+
+        <div className="text-center mt-2 mb-1 px-1 flex-1">
+          <h3 className="font-semibold text-gray-800 text-[10px] line-clamp-2 leading-tight">
+            {course.name}
+          </h3>
+        </div>
+      </Link>
+
+      <Link href={`/course/${course.slug}`}>
+        <button className="bg-[#0056B3] text-white text-[9px] font-semibold py-1 w-full rounded mt-1 hover:opacity-90">
+          Know More
+        </button>
+      </Link>
+    </div>
+  );
+};
+
+/* ================= MAIN PAGE ================= */
 export default function CoursesListingPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -290,13 +354,11 @@ export default function CoursesListingPage() {
     {
       key: "Doctorate",
       title: "Doctorate",
-      subtitle: "Get Dr. Title (After UG + Work Ex)",
+      subtitle: "Get Dr. Title",
     },
   ];
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -311,7 +373,7 @@ export default function CoursesListingPage() {
         const res = await api.get(url);
         setCourses(res.data.courses || []);
       } catch (err) {
-        console.error("❌ Error fetching courses:", err);
+        console.error("Error fetching courses:", err);
       } finally {
         setLoading(false);
       }
@@ -320,80 +382,43 @@ export default function CoursesListingPage() {
     fetchCourses();
   }, [isMounted, selectedCategory]);
 
-  const scrollLeft = () => {
-    if (scrollRef.current)
-      scrollRef.current.scrollBy({ left: -150, behavior: "smooth" });
-  };
+  const scrollLeft = () =>
+    scrollRef.current?.scrollBy({ left: -150, behavior: "smooth" });
+  const scrollRight = () =>
+    scrollRef.current?.scrollBy({ left: 150, behavior: "smooth" });
 
-  const scrollRight = () => {
-    if (scrollRef.current)
-      scrollRef.current.scrollBy({ left: 150, behavior: "smooth" });
-  };
+  if (!isMounted) return null;
 
-  const CourseCard = ({ course }) => (
-    <div className="flex flex-col justify-between bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer p-2 min-h-[120px]">
-      
-      <Link href={`/course/${course.slug}`} passHref className="flex-1 flex flex-col">
-        <div className="flex justify-center mt-1">
-          <img
-            src={course.courseLogo?.url || "/placeholder.png"} // placeholder if missing
-            alt={course.name || "Course Image"}
-            className="w-8 h-8 object-contain"
-          />
-        </div>
-
-        <div className="text-center mt-2 mb-1 px-1 flex-1">
-          <h3 className="font-semibold text-gray-800 text-[10px] line-clamp-2 leading-tight">
-            {course.name}
-          </h3>
-        </div>
-      </Link>
-
-      <Link href={`/course/${course.slug}`} passHref>
-        <button className="bg-[#0056B3] text-white hover:opacity-90 transition-all text-[9px] font-semibold py-1 w-full rounded mt-1">
-          Know More
-        </button>
-      </Link>
-    </div>
-  );
-
-  if (!isMounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
-        Loading...
-      </div>
-    );
-  }
-
-  // Desktop: Max 4 rows × 5 columns = 20 courses
   const desktopCourses = courses.slice(0, 20);
-  // Mobile: First 6 courses
   const mobileCourses = courses.slice(0, 6);
 
   return (
-    <div className="flex justify-center py-0 h-full w-full bg-white">
+    <div className="flex justify-center w-full bg-white">
       <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 px-4 md:px-6 py-4 shadow-lg rounded-lg">
 
-        {/* Sidebar */}
-        <aside className="lg:w-1/5 lg:bg-white lg:border lg:border-gray-200 lg:shadow p-4">
-          <h3 className="hidden lg:block text-2xl font-bold text-[#0056B3] mb-6">
+        {/* ================= SIDEBAR ================= */}
+        <aside className="lg:w-1/5 lg:bg-white lg:border lg:border-gray-200 lg:shadow p-4 rounded-lg">
+
+          <h3 className="hidden lg:block text-xl font-bold text-[#0056B3] mb-6">
             Categories
           </h3>
 
-          {/* Mobile Horizontal Scroll */}
+          {/* MOBILE CATEGORY SCROLL */}
           <div className="block lg:hidden relative mb-6">
             <button
               onClick={scrollLeft}
-              className="absolute left-0 top-1/2 -translate-y-1/2 bg-transparent border border-gray-300 p-1 rounded-full shadow z-10"
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border p-1 rounded-full shadow z-10"
             >
               <ChevronLeft className="w-4 h-4 text-[#0056B3]" />
             </button>
+
             <button
               onClick={scrollRight}
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent border border-gray-300 p-1 rounded-full shadow z-10"
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border p-1 rounded-full shadow z-10"
             >
               <ChevronRight className="w-4 h-4 text-[#0056B3]" />
             </button>
+
             <div
               ref={scrollRef}
               className="flex gap-3 overflow-x-auto scrollbar-hide px-6"
@@ -402,11 +427,12 @@ export default function CoursesListingPage() {
                 <button
                   key={item.key}
                   onClick={() => setSelectedCategory(item.key)}
-                  className={`whitespace-nowrap px-4 py-2 text-sm font-semibold transition-all border ${
-                    selectedCategory === item.key
-                      ? "bg-[#0056B3] text-white border-[#0056B3]"
-                      : "bg-white text-[#0056B3] border-gray-300 hover:bg-blue-50"
-                  }`}
+                  className={`whitespace-nowrap px-4 py-2 text-sm font-semibold border transition-all
+                    ${
+                      selectedCategory === item.key
+                        ? "bg-[#0056B3] text-white border-[#0056B3]"
+                        : "bg-white text-[#0056B3] border-gray-300"
+                    }`}
                 >
                   {item.title}
                 </button>
@@ -414,104 +440,72 @@ export default function CoursesListingPage() {
             </div>
           </div>
 
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block">
+          {/* DESKTOP SIDEBAR */}
+          <div className="hidden lg:block space-y-3">
             {sidebarItems.map((item) => (
               <div
                 key={item.key}
                 onClick={() => setSelectedCategory(item.key)}
-                className={`mb-4 p-4 cursor-pointer border-2 transition-all rounded-lg ${
-                  selectedCategory === item.key
-                    ? "border-[#F58220] bg-orange-50 shadow-md"
-                    : "border-transparent hover:border-[#0056B3]/30 hover:bg-blue-50/30"
-                }`}
+                className={`p-3 cursor-pointer rounded-lg border transition-all
+                  ${
+                    selectedCategory === item.key
+                      ? "border-[#0056B3] bg-blue-50 shadow-sm"
+                      : "border-transparent hover:border-[#0056B3]/30 hover:bg-blue-50/40"
+                  }`}
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`p-3 flex justify-center items-center transition-all rounded-md ${
-                      selectedCategory === item.key
-                        ? "bg-gradient-to-r from-[#0056B3] to-[#F58220] text-white"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    <i className="fa-solid fa-graduation-cap text-base"></i>
-                  </div>
-                  <div>
-                    <h3
-                      className={`font-semibold text-[16px] ${
-                        selectedCategory === item.key
-                          ? "text-[#0056B3]"
-                          : "text-gray-800"
-                      }`}
-                    >
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-gray-500">↳ {item.subtitle}</p>
-                  </div>
-                </div>
+                <h4 className="font-semibold text-gray-800 text-sm">
+                  {item.title}
+                </h4>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {item.subtitle}
+                </p>
               </div>
             ))}
           </div>
         </aside>
 
-        {/* Main Section */}
-        <main className="flex-1 pb-0">
-          <h2 className="text-3xl font-extrabold text-center lg:text-left mb-5 text-[#0056B3]">
+        {/* ================= MAIN ================= */}
+        <main className="flex-1">
+          <h2 className="text-3xl font-extrabold mb-5 text-[#0056B3]">
             {loading ? "Loading..." : `${selectedCategory} Courses`}
           </h2>
 
-          {/* Desktop Grid: 5 columns, 4 rows */}
-          <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            {loading ? (
-              <p className="col-span-full text-center text-gray-500 animate-pulse">
-                Loading courses...
-              </p>
-            ) : desktopCourses.length === 0 ? (
-              <p className="col-span-full text-center text-gray-500">
-                No courses found.
-              </p>
-            ) : (
-              desktopCourses.map((course) => (
-                <CourseCard key={course._id} course={course} />
-              ))
-            )}
+          {/* Desktop Grid */}
+          <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            {desktopCourses.map((course) => (
+              <CourseCard key={course._id} course={course} />
+            ))}
           </div>
 
           {/* Mobile Grid */}
-          <div className="sm:hidden grid grid-cols-3 gap-2 w-full">
+          <div className="sm:hidden grid grid-cols-3 gap-2">
             {mobileCourses.map((course) => (
               <CourseCard key={course._id} course={course} />
             ))}
           </div>
 
-          {/* View All Button - Desktop + Mobile */}
-          <div className="text-center mt-6 w-full">
+          <div className="text-center mt-6">
             <button
               onClick={() => setShowAll(true)}
-              className="bg-[#0056B3] hover:bg-[#004494] text-white font-semibold px-6 py-2 text-sm uppercase w-full sm:w-auto rounded-md"
+              className="bg-[#0056B3] text-white px-6 py-2 rounded-md font-semibold"
             >
               View All
             </button>
           </div>
         </main>
 
-        {/* All Courses Modal */}
+        {/* ================= MODAL ================= */}
         {showAll && (
           <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-start pt-12 p-4 overflow-y-auto">
-            <div className="bg-white w-full sm:max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 rounded-xl">
+            <div className="bg-white w-full max-w-5xl p-6 rounded-xl relative">
               <button
                 onClick={() => setShowAll(false)}
-                className="absolute top-4 right-4 bg-gray-200 hover:bg-gray-300 rounded-full p-1"
+                className="absolute top-4 right-4 bg-gray-200 rounded-full p-1"
               >
-                <X className="w-5 h-5 text-gray-700" />
+                <X className="w-5 h-5" />
               </button>
 
-              <h3 className="text-2xl font-bold text-[#0056B3] mb-6 text-center">
-                All {selectedCategory} Courses
-              </h3>
-
-              {/* Modal Grid: 3 Columns */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid sm:grid-cols-3 gap-3">
                 {courses.map((course) => (
                   <CourseCard key={course._id} course={course} />
                 ))}
@@ -525,7 +519,6 @@ export default function CoursesListingPage() {
             display: none;
           }
           .scrollbar-hide {
-            -ms-overflow-style: none;
             scrollbar-width: none;
           }
         `}</style>
