@@ -62,11 +62,37 @@ export default function WhyStudentsTrustUs() {
     return () => observer.disconnect();
   }, []);
 
+  /* 🔒 DISABLE COPY / SELECT / RIGHT CLICK / SHORTCUTS */
+  useEffect(() => {
+    const disableContextMenu = (e) => e.preventDefault();
+
+    const disableKeys = (e) => {
+      if (
+        (e.ctrlKey &&
+          ["c", "a", "u", "s"].includes(e.key.toLowerCase())) ||
+        e.key === "F12"
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("contextmenu", disableContextMenu);
+    document.addEventListener("keydown", disableKeys);
+
+    return () => {
+      document.removeEventListener("contextmenu", disableContextMenu);
+      document.removeEventListener("keydown", disableKeys);
+    };
+  }, []);
+
   return (
     <section
       ref={sectionRef}
-      className={`py-14 bg-white transition-all duration-1000 ease-out
+      className={`py-14 bg-white transition-all duration-1000 ease-out select-none
       ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
+      onContextMenu={(e) => e.preventDefault()}
+      onCopy={(e) => e.preventDefault()}
+      onCut={(e) => e.preventDefault()}
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* ===== Heading ===== */}
@@ -102,7 +128,8 @@ export default function WhyStudentsTrustUs() {
                   alt={item.title}
                   width={40}
                   height={40}
-                  className="object-contain"
+                  draggable={false}
+                  className="object-contain pointer-events-none"
                 />
               </div>
 

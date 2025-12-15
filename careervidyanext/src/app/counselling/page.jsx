@@ -106,16 +106,18 @@ const Signup = () => {
   return (
     <>
       <Header />
-<div className="w-full h-[70vh] flex items-center justify-center bg-gradient-to-r from-[#1E90FF]/10 via-white to-[#FFA500]/10 p-4">
 
+      {/* Page Wrapper: Always white */}
+      <div className="w-full min-h-[70vh] flex items-center justify-center bg-white p-4">
         <div className="bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row w-full max-w-5xl">
+
           {/* ===== Left Info Section ===== */}
-          <div className="w-full md:w-1/2 p-8 bg-gradient-to-br from-[#E6F0FF] to-[#FFF5E5] flex flex-col justify-center text-[#333333]">
-            <h1 className="text-4xl font-bold text-[#1E90FF] mb-4">Career Vidya</h1>
-            <h2 className="text-2xl font-semibold mb-6 text-[#FFA500]">
+          <div className="w-full md:w-1/2 p-6 md:p-8 bg-gradient-to-br from-[#E6F0FF] to-[#FFF5E5] flex flex-col justify-center text-[#333333]">
+            <h1 className="text-3xl md:text-4xl font-bold text-[#1E90FF] mb-3 md:mb-4">Career Vidya</h1>
+            <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 text-[#FFA500]">
               Unlock Your Future with Career Vidya
             </h2>
-            <ul className="list-disc list-inside mb-6 space-y-2 text-gray-700">
+            <ul className="list-disc list-inside mb-4 md:mb-6 space-y-1 md:space-y-2 text-[#333333] text-sm md:text-base">
               <li>Exam Alerts — Timely updates for smart decisions</li>
               <li>Mock Tests — Practice. Perform. Perfect.</li>
               <li>AI Predictions — Data-driven college matches</li>
@@ -124,27 +126,30 @@ const Signup = () => {
           </div>
 
           {/* ===== Right Form Section ===== */}
-          <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
+          <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
             <div className="w-full max-w-md mx-auto">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+
+                {/* Name */}
                 <input
                   type="text"
                   name="name"
                   placeholder="Full Name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                   required
                 />
 
-                <div className="flex space-x-4">
+                {/* Email & Mobile */}
+                <div className="flex flex-col md:flex-row md:space-x-4 space-y-3 md:space-y-0">
                   <input
                     type="email"
                     name="email"
                     placeholder="Email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                    className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                     required
                   />
                   <input
@@ -153,19 +158,20 @@ const Signup = () => {
                     placeholder="Mobile Number"
                     value={formData.mobileNumber}
                     onChange={handleChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                    className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                     required
                   />
                 </div>
 
-                <div className="flex space-x-4">
+                {/* City & State */}
+                <div className="flex flex-col md:flex-row md:space-x-4 space-y-3 md:space-y-0">
                   <input
                     type="text"
                     name="city"
                     placeholder="City"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                    className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                     required
                   />
                   <input
@@ -174,26 +180,27 @@ const Signup = () => {
                     placeholder="State"
                     value={formData.state}
                     onChange={handleChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                    className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                     required
                   />
                 </div>
 
-                <div className="flex space-x-4">
+                {/* Course & Gender */}
+                <div className="flex flex-col md:flex-row md:space-x-4 space-y-3 md:space-y-0">
                   <input
                     type="text"
                     name="course"
                     placeholder="Course"
                     value={formData.course}
                     onChange={handleChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                    className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                     required
                   />
                   <select
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                    className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                     required
                   >
                     <option value="">Gender</option>
@@ -203,16 +210,18 @@ const Signup = () => {
                   </select>
                 </div>
 
+                {/* Address */}
                 <input
                   type="text"
                   name="addresses"
                   placeholder="Address"
                   value={formData.addresses}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                  className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                   required
                 />
 
+                {/* OTP */}
                 {otpSent && (
                   <input
                     type="text"
@@ -220,14 +229,15 @@ const Signup = () => {
                     placeholder="Enter OTP"
                     value={formData.otp}
                     onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
+                    className="text-[#333333] placeholder:text-gray-400 w-full p-2 md:p-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#1E90FF]"
                   />
                 )}
 
+                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full p-2 rounded-md text-white font-semibold transition ${
+                  className={`w-full p-2 md:p-3 rounded-md text-white font-semibold transition ${
                     !otpSent ? "bg-[#FFA500]" : "bg-[#1E90FF]"
                   } hover:opacity-90`}
                 >
@@ -235,7 +245,7 @@ const Signup = () => {
                 </button>
               </form>
 
-              <p className="mt-4 text-center text-[#1E90FF]">
+              <p className="mt-3 md:mt-4 text-center text-[#1E90FF] text-sm md:text-base">
                 Already have a Career Vidya account?{" "}
                 <Link href="/login" className="text-[#FFA500] hover:underline">
                   Login to continue
@@ -243,13 +253,13 @@ const Signup = () => {
               </p>
             </div>
           </div>
-        </div>
-      
-      </div>
-        <Counter />
-        <FLOW />
-        <Footer />
 
+        </div>
+      </div>
+
+      <Counter />
+      <FLOW />
+      <Footer />
     </>
   );
 };

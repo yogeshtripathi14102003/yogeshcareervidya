@@ -109,7 +109,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -143,6 +142,28 @@ function useScrollReveal(threshold = 0.25) {
 
 export default function TestimonialsSlider() {
   const section = useScrollReveal(0.2);
+
+  /* 🔒 DISABLE COPY / SELECT / RIGHT CLICK / SHORTCUTS */
+  useEffect(() => {
+    const disableContextMenu = (e) => e.preventDefault();
+    const disableKeys = (e) => {
+      if (
+        (e.ctrlKey &&
+          ["c", "a", "u", "s"].includes(e.key.toLowerCase())) ||
+        e.key === "F12"
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("contextmenu", disableContextMenu);
+    document.addEventListener("keydown", disableKeys);
+
+    return () => {
+      document.removeEventListener("contextmenu", disableContextMenu);
+      document.removeEventListener("keydown", disableKeys);
+    };
+  }, []);
 
   const testimonials = [
     {
@@ -186,11 +207,13 @@ export default function TestimonialsSlider() {
   return (
     <section
       ref={section.ref}
-      className={`text-gray-900 py-20 bg-white transition-all duration-1000 ease-out
+      className={`text-gray-900 py-20 bg-white transition-all duration-1000 ease-out select-none
       ${section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
+      onContextMenu={(e) => e.preventDefault()}
+      onCopy={(e) => e.preventDefault()}
+      onCut={(e) => e.preventDefault()}
     >
       <div className="max-w-7xl mx-auto px-6 text-center">
-
         {/* Heading */}
         <h2 className="text-3xl md:text-4xl font-bold mb-3">
           <span className="text-black">
@@ -233,7 +256,8 @@ export default function TestimonialsSlider() {
                 <img
                   src={t.img}
                   alt={t.name}
-                  className="w-14 h-14 rounded-full mb-3 object-cover border-4 border-white shadow-md"
+                  draggable={false}
+                  className="w-14 h-14 rounded-full mb-3 object-cover border-4 border-white shadow-md pointer-events-none"
                 />
 
                 <p className="italic text-gray-800 mb-3 text-sm leading-relaxed text-center">

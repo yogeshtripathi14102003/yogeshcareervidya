@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { Users, GraduationCap, IndianRupee, Award } from "lucide-react";
 
-// Common styles for the icon container - now smaller and on the left
-const ICON_CONTAINER_CLASS = "w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-full bg-[#0056B3] flex items-center justify-center mr-3 shadow-md"; // margin slightly reduced for mobile space
-// Icon color inside the circle (White) - also slightly smaller
+// Common styles for the icon container
+const ICON_CONTAINER_CLASS = "w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-full bg-[#0056B3] flex items-center justify-center mr-3 shadow-md";
 const ICON_COLOR_CLASS = "text-white w-5 h-5 md:w-6 md:h-6";
 
 export default function Counter() {
@@ -68,7 +67,6 @@ export default function Counter() {
     return () => timers.forEach(clearInterval);
   }, []);
 
-  // Function to format the number display (kept same)
   const formatNumber = (count, target, suffix, isLPA) => {
     const flooredCount = Math.floor(count);
 
@@ -77,7 +75,6 @@ export default function Counter() {
     }
 
     if (target >= 1000) {
-      // Show K+ formatting (e.g., 10K+)
       const displayK = Math.floor(flooredCount / 100) / 10; 
       return `${displayK}K+`;
     }
@@ -86,25 +83,21 @@ export default function Counter() {
   };
 
   return (
-    <section className="bg-gray-50 py-8 md:py-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 px-3"> {/* CHANGED: grid-cols-2 on small screens */}
+    <section className="bg-white py-8 md:py-12"> {/* Background always white */}
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 px-3">
         {counters.map((counter, i) => {
           const isLPA = counter.id === 3;
           return (
             <div
               key={counter.id}
-              // Card styles with Flex for horizontal layout
-              className="bg-white rounded-xl p-3 md:p-5 flex items-center shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+              className="bg-white rounded-xl p-3 md:p-5 flex items-center shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]" // Cards bg always white
             >
-              {/* Icon Container (Circle) - On the left */}
               <div className={ICON_CONTAINER_CLASS}>
                 {counter.icon}
               </div>
 
-              {/* Text Content - On the right */}
               <div className="text-left">
-                {/* Number (SMALLER BOLD TEXT) */}
-                <h3 className="text-lg md:text-2xl font-bold tracking-tight tabular-nums text-black mb-0 leading-tight"> {/* text-lg for small screens */}
+                <h3 className="text-lg md:text-2xl font-bold tracking-tight tabular-nums text-black mb-0 leading-tight">
                   {formatNumber(
                     counts[i],
                     counter.target,
@@ -113,8 +106,7 @@ export default function Counter() {
                   )}
                 </h3>
 
-                {/* Label (SMALLER LIGHT TEXT) */}
-                <p className="text-xs md:text-sm font-light leading-snug"> {/* text-xs for small screens */}
+                <p className="text-xs md:text-sm font-light leading-snug text-black">
                   {counter.label}
                 </p>
               </div>
