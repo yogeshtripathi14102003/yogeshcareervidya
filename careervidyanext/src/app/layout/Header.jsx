@@ -562,7 +562,7 @@ export default function Header() {
                 Explore Programs
               </Link>
 
-              <Link href="/counselling">
+              <Link href="/teamexpand">
                 Free Counselling
               </Link>
 
@@ -589,7 +589,7 @@ export default function Header() {
 
         {/* MOBILE MENU (Keep as is) */}
         {menuOpen && (
-          <div className="mobile-menu animate-slideDown">
+         <div className="mobile-menu animate-slideDown">
             <div className="mobile-menu-buttons">
               <Link href="/explore" onClick={() => setMenuOpen(false)}>
                 <button className="mobile-menu-btn-primary">
@@ -597,7 +597,7 @@ export default function Header() {
                 </button>
               </Link>
 
-              <Link href="/counselling" onClick={() => setMenuOpen(false)}>
+              <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>
                 <button className="mobile-menu-btn-outline">
                   Free Counselling
                 </button>

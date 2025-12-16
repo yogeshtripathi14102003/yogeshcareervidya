@@ -283,3 +283,48 @@ cursor: pointer;
 }
 
 
+/* --- New Sidebar/Drawer Styles --- */
+
+/* 1. Full-screen overlay when the menu is open */
+.mobile-menu {
+  position: fixed; /* Fixed position relative to the viewport */
+  top: 0;
+  left: 0;
+  width: 100%; /* Take up the entire width */
+  height: 100%; /* Take up the entire height */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+  z-index: 999; /* Ensure it's above other content */
+  overflow: hidden; /* Important for containing the sliding drawer */
+}
+
+/* 2. The Actual Drawer/Sidebar that slides in */
+.mobile-menu .mobile-menu-buttons {
+  /* This div acts as the actual sidebar/drawer */
+  position: absolute;
+  top: 0;
+  left: 0; /* Starts from the left edge */
+  width: 80%; /* Takes up 80% of the screen width (adjust as needed) */
+  max-width: 300px; /* Optional: Set a max width for large phones/tablets */
+  height: 100%;
+  background-color: #fff; /* White background for the drawer content */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  transform: translateX(0); /* Final position: fully visible */
+  transition: transform 0.3s ease-in-out; /* Smooth slide animation */
+  padding: 20px; /* Add some padding inside the drawer */
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Spacing between the buttons */
+}
+
+
+
+/* Initial hidden state (if you want an animation from the start, this is a bit complex
+   with conditional rendering, but we can target the inner content for a clean animation): */
+.mobile-menu:not(.animate-slideDown) .mobile-menu-buttons {
+    /* If you keep the `animate-slideDown` class, this block is not needed.
+       We will rely on the default behavior of the `transition` on mount.
+       If you want a smoother animation, you might need a different pattern (like Framer Motion). 
+       For this basic CSS transition, the movement is handled on the inner div. 
+    */
+}
+

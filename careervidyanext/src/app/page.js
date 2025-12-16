@@ -16,6 +16,9 @@ import LogoSlider from "./components/LogoSlider";
 
 import  Universityimage  from "../app/components/universityimage";
 import ChatbotFloating from "./components/ChatbotFloating";
+import SocialSidebar from "./components/SocialSidebar";
+// import ServiceSlider from "./components/ServiceSlider";
+
 
 export default function Home() {
   return (
@@ -25,6 +28,8 @@ export default function Home() {
       <Slider />
       <Counter />
       <Getcourse  />
+      {/* <ServiceSlider /> */}
+      
       <FLOW />
       <TeamSection />
      
@@ -40,6 +45,7 @@ export default function Home() {
 
       <Footer />
         <ChatbotFloating />
+        <SocialSidebar />
     </div>
   );
 }

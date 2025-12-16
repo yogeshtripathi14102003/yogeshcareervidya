@@ -45,19 +45,19 @@ export default function TopHeader() {
 
           <Link href="https://instagram.com" target="_blank">
             <div className="social-circle">
-              <Image src="/images/i3.png" alt="Instagram" width={26} height={26} className="circle-img" />
+              <Image src="/images/i3.png" alt="Instagram" width={24} height={24} className="circle-img" />
             </div>
           </Link>
 
           <Link href="https://facebook.com" target="_blank">
             <div className="social-circle">
-              <Image src="/images/i2.png" alt="Facebook" width={28} height={28} className="circle-img" />
+              <Image src="/images/i2.png" alt="Facebook" width={26} height={26} className="circle-img" />
             </div>
           </Link>
 
           <Link href="https://youtube.com" target="_blank">
             <div className="social-circle">
-              <Image src="/images/i1.png" alt="YouTube" width={33} height={33} className="circle-img" />
+              <Image src="/images/i1.png" alt="YouTube" width={30} height={30} className="circle-img" />
             </div>
           </Link>
 

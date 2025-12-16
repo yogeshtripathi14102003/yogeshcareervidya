@@ -64,6 +64,7 @@ export default function TeamSlider() {
             320: { slidesPerView: 1, spaceBetween: 20 },
             480: { slidesPerView: 1.2, spaceBetween: 20 },
             640: { slidesPerView: 2, spaceBetween: 20 },
+            768: { slidesPerView: 2, spaceBetween: 25 }, // Tablet
             1024: { slidesPerView: 3, spaceBetween: 25 },
             1280: { slidesPerView: 4, spaceBetween: 30 },
           }}
@@ -78,29 +79,28 @@ export default function TeamSlider() {
 
             return (
               <SwiperSlide key={member._id ?? idx}>
-                {/* === Entire Card Clickable === */}
+                {/* Entire Card Clickable */}
                 <div
                   onClick={() => window.location.href = `/teamexpand?id=${member._id}`}
                   className="bg-white cursor-pointer rounded-3xl shadow-lg hover:shadow-2xl 
                    transition-all duration-300 overflow-hidden relative flex flex-col items-center group"
                 >
-                  {/* Image Container: Added bg-white as requested */}
-                  <div className="relative w-full h-72 sm:h-80 md:h-72 lg:h-80 overflow-hidden bg-white">
+                  {/* Image Container */}
+                  <div className="relative w-full h-64 sm:h-72 md:h-72 lg:h-80 overflow-hidden bg-white">
                     <img
                       src={imageUrl}
                       alt={member.name}
-                      /* FIX: Default (mobile) is object-contain (no cropping); md:object-cover for desktop fill */
-                      className="w-full h-full object-contain md:object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain lg:object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                   </div>
 
-                  {/* ===== Info Section ===== */}
+                  {/* Info Section */}
                   <div
                     className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md 
                      rounded-xl px-3 py-2 text-center shadow-md w-[88%] md:w-[85%]"
-                    onClick={(e) => e.stopPropagation()} // prevent card click
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <h3 className="text-sm md:text-base font-semibold text-gray-900 truncate">
                       {member.name}

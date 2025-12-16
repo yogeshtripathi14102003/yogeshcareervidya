@@ -11,25 +11,17 @@ export default function FAQSection() {
   useEffect(() => {
     setMounted(true);
 
-    // ❌ Disable right click
-    const disableRightClick = (e) => e.preventDefault();
-
-    // ❌ Disable copy / inspect shortcuts
-    const disableKeys = (e) => {
-      if (
-        (e.ctrlKey && ["c", "u", "s"].includes(e.key.toLowerCase())) ||
-        (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")
-      ) {
+    // ❌ Disable ONLY copy shortcuts
+    const disableCopyKeys = (e) => {
+      if (e.ctrlKey && e.key.toLowerCase() === "c") {
         e.preventDefault();
       }
     };
 
-    document.addEventListener("contextmenu", disableRightClick);
-    document.addEventListener("keydown", disableKeys);
+    document.addEventListener("keydown", disableCopyKeys);
 
     return () => {
-      document.removeEventListener("contextmenu", disableRightClick);
-      document.removeEventListener("keydown", disableKeys);
+      document.removeEventListener("keydown", disableCopyKeys);
     };
   }, []);
 
@@ -44,55 +36,55 @@ export default function FAQSection() {
       id: 2,
       question: "What services does Career Vidya offer?",
       answer:
-        "We offer career counselling, university/course selection assistance, admission guidance, scholarship information, and placement preparation support. Our goal is to help learners make informed career decisions and achieve their professional goals.",
+        "We offer career counselling, university/course selection assistance, admission guidance, scholarship information, and placement preparation support.",
     },
     {
       id: 3,
       question: "Are your counselling services free?",
       answer:
-        "We offer both free initial counselling sessions and premium guidance packages depending on the level of support required — including one-on-one expert counselling and complete admission assistance.",
+        "We offer both free initial counselling sessions and premium guidance packages.",
     },
     {
       id: 4,
       question: "How can I book a counselling session?",
       answer:
-        "You can easily book a session through our website’s “Book Counselling” form or by contacting our support team via WhatsApp, email, or phone. Our counsellor will reach out to confirm your slot.",
+        "You can book a session via our website or contact our support team.",
     },
     {
       id: 5,
       question: "Does Career Vidya guarantee admission or placement?",
       answer:
-        "No, we do not guarantee admission, internship, or job placement. Final decisions depend on respective universities, institutions, and employers. However, we ensure you receive the best possible guidance to maximize your success chances.",
+        "No, final decisions depend on universities and employers.",
     },
     {
       id: 6,
       question: "Which courses and universities do you guide for?",
       answer:
-        "We provide guidance for UG, PG, Diploma, and Online Learning Programs including MBA, BBA, B.Tech, MCA, M.Com, BA, B.Sc, and more — across UGC-approved universities and AICTE-recognized institutes in India and abroad.",
+        "UG, PG, Diploma, and Online Programs across UGC-approved universities.",
     },
     {
       id: 7,
-      question: "How does Career Vidya ensure authenticity and transparency?",
+      question: "How does Career Vidya ensure transparency?",
       answer:
-        "We only partner with verified universities and share accurate, up-to-date information regarding courses, eligibility, and fees. Our recommendations are unbiased and based on your academic profile and goals.",
+        "We only partner with verified universities and provide accurate data.",
     },
     {
       id: 8,
-      question: "Can working professionals also get counselling?",
+      question: "Can working professionals get counselling?",
       answer:
-        "Absolutely. We specialize in helping working professionals choose the right online or distance learning programs to upgrade their skills and career prospects.",
+        "Yes, we specialize in counselling for working professionals.",
     },
     {
       id: 9,
       question: "How can I contact Career Vidya?",
       answer:
-        "📧 Email: info@careervidya.in\n📞 Phone/WhatsApp: +91-9289712364\n🌐 Website: www.careervidya.in",
+        "📧 info@careervidya.in\n📞 +91-9289712364",
     },
     {
       id: 10,
-      question: "Is my personal information safe with Career Vidya?",
+      question: "Is my personal information safe?",
       answer:
-        "Yes, your data is completely safe. We follow strict privacy policies and do not share your personal information with third parties without consent.",
+        "Yes, we follow strict privacy policies.",
     },
   ];
 
@@ -106,15 +98,11 @@ export default function FAQSection() {
 
   return (
     <div
-      className="bg-white min-h-screen select-none"
-      style={{
-        WebkitUserSelect: "none",
-        userSelect: "none",
-        colorScheme: "light", // 🔒 Dark/Light dono me same color
-      }}
+      className="bg-white min-h-screen"
+      onCopy={(e) => e.preventDefault()}   // ❌ Disable copy
     >
       <section className="max-w-4xl mx-auto px-4 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 text-gray-900 dark:text-gray-900">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 text-gray-900">
           Frequently Asked Questions
         </h2>
 
@@ -122,32 +110,29 @@ export default function FAQSection() {
           {visibleFaqs.map((faq, index) => (
             <div
               key={faq.id}
-              className="border rounded-lg bg-white shadow-sm hover:shadow-md transition
-                         text-gray-900 dark:text-gray-900"
+              className="border rounded-lg bg-white shadow-sm hover:shadow-md transition"
             >
               <button
                 type="button"
                 onClick={() => toggleFAQ(index)}
-                className="w-full flex justify-between items-center p-4 text-left
-                           text-gray-900 dark:text-gray-900"
+                className="w-full flex justify-between items-center p-4 text-left text-gray-900"
               >
                 <div className="flex items-center gap-3">
                   <span className="bg-[#0057A0] text-white w-6 h-6 flex items-center justify-center rounded-full text-sm">
                     {faq.id}
                   </span>
-                  <span className="font-medium">
-                    {faq.question}
-                  </span>
+                  <span className="font-medium">{faq.question}</span>
                 </div>
+
                 <ChevronDown
-                  className={`w-5 h-5 text-gray-700 dark:text-gray-700 transition-transform ${
+                  className={`w-5 h-5 text-gray-700 transition-transform ${
                     openIndex === index ? "rotate-180" : ""
                   }`}
                 />
               </button>
 
               {openIndex === index && (
-                <div className="px-12 pb-4 text-gray-600 dark:text-gray-600 text-sm whitespace-pre-line leading-relaxed">
+                <div className="px-12 pb-4 text-gray-600 text-sm whitespace-pre-line leading-relaxed">
                   {faq.answer}
                 </div>
               )}

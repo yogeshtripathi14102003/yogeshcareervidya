@@ -280,14 +280,15 @@
 
 // export default Signup;
 
+
+
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import api from "@/utlis/api"; // Assuming this path is correct
 
-// --- Helper Components Integrated (for cleaner JSX) ---
-
+// --- Helper Components (Unchanged) ---
 const InputBox = ({ className = "", ...props }) => (
     <input
         {...props}
@@ -334,7 +335,7 @@ const Signup = ({ onClose }) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Validation logic (omitted for brevity, assume it's functional)
+    // --- Validation, OTP Send/Verify Logic (Omitted for brevity) ---
     const validateAllFields = () => {
         const requiredFields = [
             "name", "mobileNumber", "email", "city", "state", "course", "gender", "addresses",
@@ -349,7 +350,6 @@ const Signup = ({ onClose }) => {
         return true;
     };
 
-    // Send OTP (Logic remains the same)
     const handleSendOtp = async (e) => {
         e.preventDefault();
         if (!validateAllFields()) return;
@@ -367,7 +367,6 @@ const Signup = ({ onClose }) => {
         }
     };
 
-    // Verify OTP (Logic remains the same)
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
         if (!formData.otp) { alert("Please enter OTP to continue."); return; }
@@ -385,7 +384,6 @@ const Signup = ({ onClose }) => {
         }
     };
 
-    // Form submit handler
     const handleSubmit = (e) => {
         if (!otpSent) handleSendOtp(e);
         else handleVerifyOtp(e);
@@ -401,7 +399,7 @@ const Signup = ({ onClose }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* ------------------------------------- */}
-                {/* CLOSE BUTTON (Moved to Modal Container) */}
+                {/* CLOSE BUTTON (Unchanged) */}
                 {/* ------------------------------------- */}
                 <button
                     onClick={onClose}
@@ -416,12 +414,10 @@ const Signup = ({ onClose }) => {
                 {/* Left Section (Dark/Content) */}
                 <div className="w-full md:w-1/2 p-10 relative z-10 bg-dark-overlay border-r border-r-gray-700">
                     
-                    {/* Golden Corner Accents */}
+                    {/* Golden Corner Accents (Unchanged) */}
                     <div className="golden-accent top-left"></div>
-                    {/* Removed top-right accent to make room for the close button */}
                     <div className="golden-accent bottom-left"></div>
-                    <div className="golden-accent bottom-right-left-panel"></div> {/* Renamed this one */}
-
+                    <div className="golden-accent bottom-right-left-panel"></div>
 
                     <h1 className="text-5xl font-extrabold text-white mb-2 [text-shadow:0_0_8px_rgba(255,215,0,0.5)]">
                         Career Vidya
@@ -430,9 +426,9 @@ const Signup = ({ onClose }) => {
                         Unlock Your Future
                     </h2>
                     
-                    {/* Key Features */}
+                    {/* Key Features: FIXED ALIGNMENT HERE */}
                     <ul className="space-y-4 text-lg">
-                        <li className="flex items-start gap-3">
+                        <li className="flex items-center gap-3"> {/* CHANGED items-start to items-center */}
                             <span className="text-gold-gradient text-xl">
                                 &#9733;
                             </span>
@@ -440,7 +436,7 @@ const Signup = ({ onClose }) => {
                                 <strong className="text-white">Exam Alerts:</strong> Timely updates & notifications.
                             </div>
                         </li>
-                        <li className="flex items-start gap-3">
+                        <li className="flex items-center gap-3"> {/* CHANGED items-start to items-center */}
                             <span className="text-gold-gradient text-xl">
                                 &#9999;
                             </span>
@@ -448,7 +444,7 @@ const Signup = ({ onClose }) => {
                                 <strong className="text-white">Mock Tests:</strong> Practice. Perform. Perfect.
                             </div>
                         </li>
-                        <li className="flex items-start gap-3">
+                        <li className="flex items-center gap-3"> {/* CHANGED items-start to items-center */}
                             <span className="text-gold-gradient text-xl">
                                 &#9889;
                             </span>
@@ -456,7 +452,7 @@ const Signup = ({ onClose }) => {
                                 <strong className="text-white">AI Predictions:</strong> Smart College Match & Roadmap.
                             </div>
                         </li>
-                        <li className="flex items-start gap-3">
+                        <li className="flex items-center gap-3"> {/* CHANGED items-start to items-center */}
                             <span className="text-gold-gradient text-xl">
                                 &#9734;
                             </span>
@@ -467,10 +463,9 @@ const Signup = ({ onClose }) => {
                     </ul>
                 </div>
 
-                {/* Right Section (Glassmorphism Form) */}
+                {/* Right Section (Glassmorphism Form) - Unchanged */}
                 <div className="w-full md:w-1/2 p-10 relative z-20 backdrop-blur-md bg-white/10 flex flex-col justify-center">
                     
-                    {/* Padding adjustment to account for the top-right button being outside this box */}
                     <div className="w-full max-w-md mx-auto py-4"> 
                         <form onSubmit={handleSubmit} noValidate className="space-y-4">
                             
@@ -527,26 +522,20 @@ const Signup = ({ onClose }) => {
             </div>
 
             <style jsx global>{`
-                /* --- Custom Styles for Expensive Look --- */
+                /* --- Custom Styles (Unchanged) --- */
                 
-                /* Modal Wrapper - Applies background image and dark overlay */
                 .modal-container {
-                    /* Placeholder background image. Update path as needed */
                     background-image: url('/images/career-vidya-bg.jpg'); 
                     background-size: cover;
                     background-position: center;
                     border: 1px solid rgba(255, 255, 255, 0.2); 
-                    /* Set position: relative here for the absolute close button */
                     position: relative; 
                 }
 
-                /* Dark Overlay for the Left Content Section */
                 .bg-dark-overlay {
-                    /* Rich blue/navy color with slight transparency */
-                    background-color: rgba(23, 45, 111, 0.95); 
+                    background-color: hsla(225, 66%, 26%, 0.95); 
                 }
 
-                /* Custom Golden Gradient Text and Button Background */
                 .text-gold-gradient {
                     background: linear-gradient(135deg, #FFD700, #F0E68C, #B8860B);
                     -webkit-background-clip: text;
@@ -554,12 +543,11 @@ const Signup = ({ onClose }) => {
                 }
 
                 .bg-orange-gradient {
-                    background: linear-gradient(to right, #FF8C00, #FF4500); /* Dark Orange to Red-Orange */
+                    background: linear-gradient(to right, #FF8C00, #FF4500);
                     box-shadow: 0 4px 15px rgba(255, 140, 0, 0.7);
-                    color: white; /* Ensure text is white */
+                    color: white;
                 }
 
-                /* Golden Corner Accents */
                 .golden-accent {
                     position: absolute;
                     width: 20px;
@@ -570,43 +558,38 @@ const Signup = ({ onClose }) => {
                     z-index: 5;
                 }
                 .top-left { top: 0; left: 0; border-width: 2px 0 0 2px; }
-                /* Corner accent on the bottom-right of the left panel (acts as a border corner) */
                 .bottom-right-left-panel { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
                 .bottom-left { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
 
 
-                /* Glassmorphism Input Styling */
                 .glass-input {
                     width: 100%;
-                    background-color: rgba(255, 255, 255, 0.15); /* Light, frosted background */
-                    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
+                    background-color: rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                     color: white;
                     padding: 12px;
                     border-radius: 8px;
                     transition: all 0.2s;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
                     outline: none;
-                    /* Fix for select arrow on the right side */
                     -webkit-appearance: none;
                     -moz-appearance: none;
                     appearance: none;
                 }
                 .glass-input::placeholder {
-                    color: rgba(255, 255, 255, 0.7); /* Light gray placeholder text */
+                    color: rgba(255, 255, 255, 0.7);
                 }
                 .glass-input:focus {
                     background-color: rgba(255, 255, 255, 0.25);
-                    border-color: #FFD700; /* Gold focus glow */
+                    border-color: #FFD700;
                     box-shadow: 0 0 0 2px #FFD700;
                 }
                 .glass-input option {
-                    background-color: #1a237e; /* Dark background for options menu */
+                    background-color: #1a237e;
                     color: white;
                 }
 
-                /* Custom Arrow for Select Box */
                 .custom-select-arrow {
-                    /* Custom down arrow (white SVG) */
                     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23FFFFFF' d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/%3E%3C/svg%3E");
                     background-repeat: no-repeat;
                     background-position: right 10px center;

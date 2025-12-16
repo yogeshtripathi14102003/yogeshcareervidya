@@ -109,6 +109,7 @@
 //   );
 // }
 
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -143,25 +144,17 @@ function useScrollReveal(threshold = 0.25) {
 export default function TestimonialsSlider() {
   const section = useScrollReveal(0.2);
 
-  /* 🔒 DISABLE COPY / SELECT / RIGHT CLICK / SHORTCUTS */
+  /* 🔒 ONLY BLOCK COPY, allow right click & F12 */
   useEffect(() => {
-    const disableContextMenu = (e) => e.preventDefault();
-    const disableKeys = (e) => {
-      if (
-        (e.ctrlKey &&
-          ["c", "a", "u", "s"].includes(e.key.toLowerCase())) ||
-        e.key === "F12"
-      ) {
-        e.preventDefault();
-      }
+    const blockCopy = (e) => {
+      e.preventDefault(); // block copying content
+      alert("Copying content is disabled on this page.");
     };
 
-    document.addEventListener("contextmenu", disableContextMenu);
-    document.addEventListener("keydown", disableKeys);
+    document.addEventListener("copy", blockCopy);
 
     return () => {
-      document.removeEventListener("contextmenu", disableContextMenu);
-      document.removeEventListener("keydown", disableKeys);
+      document.removeEventListener("copy", blockCopy);
     };
   }, []);
 
@@ -207,11 +200,8 @@ export default function TestimonialsSlider() {
   return (
     <section
       ref={section.ref}
-      className={`text-gray-900 py-20 bg-white transition-all duration-1000 ease-out select-none
+      className={`text-gray-900 py-20 bg-white transition-all duration-1000 ease-out select-text
       ${section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
-      onContextMenu={(e) => e.preventDefault()}
-      onCopy={(e) => e.preventDefault()}
-      onCut={(e) => e.preventDefault()}
     >
       <div className="max-w-7xl mx-auto px-6 text-center">
         {/* Heading */}
