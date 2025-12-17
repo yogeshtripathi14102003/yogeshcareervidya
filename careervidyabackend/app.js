@@ -17,6 +17,7 @@ import universityRoutes from "./router/universityRoutes.js";
 import getinTouchRouter from "./router/getInTouchRouter.js";
 import applyRouter from "./router/applyRouter.js";
 import addjobRouter from "./router/addjobRouter.js";
+import reviewRouter from "./router/reviewRouter.js";
 // import chatbotRoutes from "./router/chatbotRoutes.js";
 
 const app = express();
@@ -50,6 +51,7 @@ app.use("/api/v1/university", universityRoutes);
 app.use("/api/v1/getintouch",getinTouchRouter);
 app.use("/api/v1/resume", applyRouter);
 app.use("/api/v1/addjob", addjobRouter);
+app.use("/api/v1", reviewRouter);
 // app.use("/api/v1",chatbotRoutes);
 
 // ✅ Simple Ping Route

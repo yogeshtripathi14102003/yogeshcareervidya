@@ -13,16 +13,18 @@ export default function GetUniversityData() {
 
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  // FIX — handle object based image
+  // ✅ SAFE IMAGE URL (NO fallback image)
   const getImage = (imageObj) => {
-    const url = imageObj?.url || imageObj; // supports string OR object
+    const url = imageObj?.url || imageObj;
 
-    if (!url) return "/no-image.png";
-    if (url.startsWith("http")) return url;
+    if (!url) return null;
+    if (typeof url === "string" && url.startsWith("http")) return url;
 
-    if (BASE_URL) return `${BASE_URL}/${url.replace(/^\/+/, "")}`;
+    if (BASE_URL && typeof url === "string") {
+      return `${BASE_URL}/${url.replace(/^\/+/, "")}`;
+    }
 
-    return "/no-image.png";
+    return null;
   };
 
   const fetchUniversities = async () => {
@@ -79,49 +81,58 @@ export default function GetUniversityData() {
           </thead>
 
           <tbody>
-            {universities.map((uni, i) => (
-              <tr key={uni._id} className="border-t">
-                <td className="p-3">{i + 1}</td>
+            {universities.map((uni, i) => {
+              const imageUrl = getImage(uni.universityImage);
 
-                <td className="p-3">
-                  <img
-                    src={getImage(uni.universityImage)} 
-                    onError={(e) => (e.target.src = "/no-image.png")}
-                    className="h-14 w-14 rounded-full object-cover border"
-                    alt={uni.name || "University"}
-                  />
-                </td>
+              return (
+                <tr key={uni._id} className="border-t">
+                  <td className="p-3">{i + 1}</td>
 
-                <td className="p-3 font-medium">{uni.name}</td>
-                <td className="p-3">{uni.approvals?.length || 0} approvals</td>
-                <td className="p-3">
-                  {uni.recognition?.recognitionHeading || "N/A"}
-                </td>
-                <td className="p-3">
-                  {uni.admission?.admissionHeading || "N/A"}
-                </td>
-                <td className="p-3">{uni.courses?.length || 0}</td>
+                  <td className="p-3">
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        className="h-14 w-14 rounded-full object-cover border"
+                        alt={uni.name || "University"}
+                      />
+                    ) : (
+                      <div className="h-14 w-14 rounded-full border bg-gray-100 flex items-center justify-center text-xs text-gray-500">
+                        N/A
+                      </div>
+                    )}
+                  </td>
 
-                <td className="p-3 text-center">
-                  <div className="flex justify-center gap-3">
-                    <button
-                      onClick={() => setEditUni(uni)}
-                      className="p-2 rounded-full hover:bg-blue-100 text-blue-600"
-                    >
-                      <Pencil size={18} />
-                    </button>
+                  <td className="p-3 font-medium">{uni.name}</td>
+                  <td className="p-3">{uni.approvals?.length || 0} approvals</td>
+                  <td className="p-3">
+                    {uni.recognition?.recognitionHeading || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {uni.admission?.admissionHeading || "N/A"}
+                  </td>
+                  <td className="p-3">{uni.courses?.length || 0}</td>
 
-                    <button
-                      onClick={() => handleDelete(uni._id)}
-                      disabled={deleting === uni._id}
-                      className="p-2 rounded-full hover:bg-red-100 text-red-600"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  <td className="p-3 text-center">
+                    <div className="flex justify-center gap-3">
+                      <button
+                        onClick={() => setEditUni(uni)}
+                        className="p-2 rounded-full hover:bg-blue-100 text-blue-600"
+                      >
+                        <Pencil size={18} />
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(uni._id)}
+                        disabled={deleting === uni._id}
+                        className="p-2 rounded-full hover:bg-red-100 text-red-600"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

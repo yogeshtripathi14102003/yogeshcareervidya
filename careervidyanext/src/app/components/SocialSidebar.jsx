@@ -77,26 +77,26 @@ export default function SocialSidebar() {
     {
       name: "Facebook",
       icon: <Facebook size={18} />,
-      url: "https://facebook.com/",
+      url: "https://www.facebook.com/Career-Vidya",
       color: "bg-[#1877F2]",
     },
     {
       name: "Instagram",
       icon: <Instagram size={18} />,
-      url: "https://instagram.com/",
+      url: "https://www.instagram.com/career_vidya/",
       color:
         "bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600",
     },
     {
       name: "LinkedIn",
       icon: <Linkedin size={18} />,
-      url: "https://linkedin.com/",
+      url: "https://www.linkedin.com/company/career-vidya/",
       color: "bg-[#0A66C2]",
     },
     {
       name: "X",
       icon: <X size={18} />, // ✅ X icon
-      url: "https://x.com/",
+      url: "https://x.com/CareerVidya",
       color: "bg-black",
     },
     {
