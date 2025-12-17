@@ -170,7 +170,7 @@ export default function TeamDetailPage() {
             {/* Reviews Section */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-bold text-gray-900">Patient Feedbacks</h3>
+                <h3 className="text-2xl font-bold text-gray-900"> Student Feedbacks</h3>
                 <div className="text-right">
                   <p className="text-3xl font-bold text-gray-900">{mentor.rating || "0.0"}</p>
                   <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Overall Rating</p>
