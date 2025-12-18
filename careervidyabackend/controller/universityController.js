@@ -229,8 +229,6 @@
 // };
 
 
-
-// controllers/universityController.js
 import University from '../models/Admin/University.js';
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
@@ -243,87 +241,76 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Upload File
+// --- Helpers ---
+
 const uploadToCloudinary = async (buffer, folder) => {
     return new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
+        const stream = cloudinary.uploader.upload_stream(
             { folder },
             (err, result) => {
                 if (err) return reject(err);
                 resolve(result.secure_url);
             }
-        ).end(buffer);
+        );
+        stream.end(buffer);
     });
 };
 
-// Upload Service
-const UploadService = {
-    uploadFile: (file, folder) => uploadToCloudinary(file.buffer, `university_assets/${folder}`),
-    deleteFile: async () => true
-};
-
-// FIX: CORRECT FILE FLATTEN FUNCTION
 const getFlattenedFiles = (filesObject) => {
     if (!filesObject) return [];
-
     const result = [];
-
     Object.keys(filesObject).forEach((key) => {
         filesObject[key].forEach(file => {
-            file.fieldname = key; // IMPORTANT FIX
+            file.fieldname = key; 
             result.push(file);
         });
     });
-
     return result;
 };
 
-// MAIN HANDLER — UNIVERSAL FUNCTION
-const handleUniversityData = async (body, files) => {
-    let universityImageUrl = body.universityImage_old;
-    let certificateImageUrl = body.certificateImage_old;
+// --- Main Data Handler ---
 
-    const uploadTasks = [];
+const handleUniversityData = async (body, files, existingData = null) => {
+    // Agar existingData hai (Update case), toh purani images use karo, warna null
+    let universityImageUrl = existingData ? existingData.universityImage : null;
+    let certificateImageUrl = (existingData && existingData.recognition) ? existingData.recognition.certificateImage : null;
 
-    // University main image
+    // 1. Check & Upload University main image
     const uniImage = files.find(f => f.fieldname === "universityImage");
-    if (uniImage) uploadTasks.push(
-        UploadService.uploadFile(uniImage, "images").then(url => universityImageUrl = url)
-    );
+    if (uniImage) {
+        universityImageUrl = await uploadToCloudinary(uniImage.buffer, "university_assets/images");
+    }
 
-    // Certificate Image
+    // 2. Check & Upload Certificate Image
     const certImage = files.find(f => f.fieldname === "certificateImage");
-    if (certImage) uploadTasks.push(
-        UploadService.uploadFile(certImage, "certificates").then(url => certificateImageUrl = url)
-    );
+    if (certImage) {
+        certificateImageUrl = await uploadToCloudinary(certImage.buffer, "university_assets/certificates");
+    }
 
-    // JSON parse safely
+    // JSON Parse Safely (Frontend se arrays string ban kar aate hain)
     const approvals = JSON.parse(String(body.approvals || "[]"));
     const courses = JSON.parse(String(body.courses || "[]"));
 
-    // APPROVAL LOGOS
+    // 3. Handle Approvals (Keep old logo if new one isn't uploaded)
     const finalApprovals = await Promise.all(
-        approvals.map((item, index) => {
+        approvals.map(async (item, index) => {
             const file = files.find(f => f.fieldname === `approvals[${index}][logo]`);
             if (file) {
-                return UploadService.uploadFile(file, "logos").then(url => ({
-                    ...item,
-                    logo: url
-                }));
+                const url = await uploadToCloudinary(file.buffer, "university_assets/logos");
+                return { ...item, logo: url };
             }
+            // Agar file nahi hai, toh item ka purana logo hi rehne do
             return item;
         })
     );
 
-    // COURSES LOGOS
+    // 4. Handle Courses (Keep old logo if new one isn't uploaded)
     const finalCourses = await Promise.all(
-        courses.map((item, index) => {
+        courses.map(async (item, index) => {
             const file = files.find(f => f.fieldname === `courses[${index}][logo]`);
             if (file) {
-                return UploadService.uploadFile(file, "logos").then(url => ({
-                    ...item,
-                    logo: url
-                }));
+                const url = await uploadToCloudinary(file.buffer, "university_assets/logos");
+                return { ...item, logo: url };
             }
             return item;
         })
@@ -331,107 +318,112 @@ const handleUniversityData = async (body, files) => {
 
     return {
         name: body.name,
-        slug: body.name.toLowerCase().replace(/\s+/g, '-'), // 🔹 auto-generate slug
         description: body.description,
         universityImage: universityImageUrl,
         youtubeLink: body.youtubeLink,
         shareDescription: body.shareDescription,
         cardDescription: body.cardDescription,
-
         highlights: {
             heading: body.heading,
             points: JSON.parse(String(body.points || "[]"))
         },
-
         facts: {
             factsHeading: body.factsHeading,
             factsSubHeading: body.factsSubHeading,
             factsPoints: JSON.parse(String(body.factsPoints || "[]"))
         },
-
         approvals: finalApprovals,
-
         recognition: {
             recognitionHeading: body.recognitionHeading,
             recognitionDescription: body.recognitionDescription,
             recognitionPoints: JSON.parse(String(body.recognitionPoints || "[]")),
             certificateImage: certificateImageUrl
         },
-
         admission: {
             admissionHeading: body.admissionHeading,
             admissionSubHeading: body.admissionSubHeading,
             admissionDescription: body.admissionDescription,
             admissionPoints: JSON.parse(String(body.admissionPoints || "[]"))
         },
-
         courses: finalCourses
     };
 };
 
-// CREATE
+// --- Controller Methods ---
+
+// 1. CREATE
 export const createUniversity = async (req, res) => {
     try {
         const files = getFlattenedFiles(req.files);
         const data = await handleUniversityData(req.body, files);
         const uni = await University.create(data);
-
         res.status(201).json({ success: true, data: uni });
     } catch (err) {
+        console.error("Create Error:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-// GET ALL
-export const getUniversities = async (req, res) => {
-    const unis = await University.find();
-    res.json({ success: true, data: unis });
-};
-
-// GET ONE BY ID
-export const getUniversityById = async (req, res) => {
-    const uni = await University.findById(req.params.id);
-    if (!uni) return res.status(404).json({ success: false, message: "Not found" });
-
-    res.json({ success: true, data: uni });
-};
-
-// GET ONE BY SLUG
-export const getUniversityBySlug = async (req, res) => {
-    try {
-        const uni = await University.findOne({ slug: req.params.slug });
-        if (!uni) return res.status(404).json({ success: false, message: "Not found" });
-
-        res.json({ success: true, data: uni });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-};
-
-// UPDATE
+// 2. UPDATE (Sab kuchh safe rakhta hai)
 export const updateUniversity = async (req, res) => {
     try {
-        const oldUni = await University.findById(req.params.id);
-
-        req.body.universityImage_old = oldUni.universityImage;
-        req.body.certificateImage_old = oldUni.recognition.certificateImage;
+        const existingUni = await University.findById(req.params.id);
+        if (!existingUni) return res.status(404).json({ success: false, message: "Not found" });
 
         const files = getFlattenedFiles(req.files);
-        const updated = await handleUniversityData(req.body, files);
+        // existingUni pass karne se purani images delete nahi hongi agar nayi nahi aayi toh
+        const updatedData = await handleUniversityData(req.body, files, existingUni);
 
-        const saved = await University.findByIdAndUpdate(req.params.id, updated, {
+        const saved = await University.findByIdAndUpdate(req.params.id, updatedData, {
             new: true,
             runValidators: true
         });
 
         res.json({ success: true, data: saved });
     } catch (err) {
+        console.error("Update Error:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-// DELETE
+// 3. GET ALL
+export const getUniversities = async (req, res) => {
+    try {
+        const unis = await University.find().sort({ createdAt: -1 });
+        res.json({ success: true, data: unis });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// 4. GET BY SLUG
+export const getUniversityBySlug = async (req, res) => {
+    try {
+        const uni = await University.findOne({ slug: req.params.slug });
+        if (!uni) return res.status(404).json({ success: false, message: "Not found" });
+        res.json({ success: true, data: uni });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// 5. GET BY ID
+export const getUniversityById = async (req, res) => {
+    try {
+        const uni = await University.findById(req.params.id);
+        if (!uni) return res.status(404).json({ success: false, message: "Not found" });
+        res.json({ success: true, data: uni });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// 6. DELETE
 export const deleteUniversity = async (req, res) => {
-    await University.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Deleted" });
+    try {
+        await University.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: "Deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 };
