@@ -27,11 +27,7 @@ export default function CardSlider() {
     const fetchStripBanners = async () => {
       try {
         const res = await api.get("/api/v1/banner");
-
-        const stripBanners = res.data.filter(
-          (b) => b.position === "STRIP"
-        );
-
+        const stripBanners = res.data.filter((b) => b.position === "STRIP");
         setSlides(stripBanners);
       } catch (error) {
         console.error("❌ Error fetching strip banners:", error);
@@ -77,7 +73,7 @@ export default function CardSlider() {
 
   if (slides.length === 0) {
     return (
-      <div className="w-full h-[220px] flex items-center justify-center bg-gray-100">
+      <div className="w-full flex items-center justify-center bg-gray-100 py-6">
         <p className="text-gray-600">No strip banners found</p>
       </div>
     );
@@ -88,25 +84,24 @@ export default function CardSlider() {
       {/* ================= SLIDER ================= */}
       <div className="flex justify-center gap-6 transition-all duration-700 ease-in-out">
         {displaySlides.map((slide, i) => {
-          const imageUrl =
-            typeof window !== "undefined" && window.innerWidth < 640
-              ? slide.mobileImage?.url
-              : slide.desktopImage?.url;
+          const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+          const imageUrl = isMobile ? slide.mobileImage?.url : slide.desktopImage?.url;
 
           return (
             <div
               key={slide._id || i}
-              className="relative w-[90%] sm:w-[45%] lg:w-[350px]
-                         h-[180px] sm:h-[200px] lg:h-[220px]
-                         bg-white rounded-2xl shadow-md overflow-hidden"
+              className="w-[90%] sm:w-[45%] lg:w-[350px] bg-white rounded-2xl shadow-md overflow-hidden"
             >
-              <Image
-                src={imageUrl || "/images/default-banner.jpg"}
-                alt={slide.title || "Strip Banner"}
-                fill
-                className="object-cover"
-                unoptimized
-              />
+              {imageUrl && (
+                <Image
+                  src={imageUrl}
+                  alt={slide.title || "Strip Banner"}
+                  width={isMobile ? 300 : 350}
+                  height={isMobile ? 180 : 220} // approximate aspect ratio
+                  className="object-contain w-full h-auto"
+                  unoptimized
+                />
+              )}
             </div>
           );
         })}
