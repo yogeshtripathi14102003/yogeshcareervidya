@@ -1,465 +1,3 @@
-// "use client";
-
-// import { useState } from "react";
-// import Image from "next/image";
-// import Link from "next/link";
-// import { Menu, X, Bell, Mail, User, Instagram, Twitter, Facebook, Linkedin } from "lucide-react";
-// import Signup from "../signup/page.jsx";
-// import { useRouter } from "next/navigation";
-
-// export default function Header() {
-//   const [menuOpen, setMenuOpen] = useState(false);
-//   const [showSignup, setShowSignup] = useState(false);
-//   const [topHeaderVisible, setTopHeaderVisible] = useState(true);
-//   const router = useRouter();
-
-//   const primaryBtn =
-//     "hover-btn bg-white text-gray-600 px-4 py-2 rounded-md transition text-sm font-semibold cursor-pointer";
-
-//   const outlineBtn =
-//     "hover-btn bg-white text-gray-600 px-4 py-2 rounded-md transition text-sm font-semibold cursor-pointer border border-gray-300";
-
-//   const iconBtn = "icon-btn p-1.5 rounded-md text-gray-600 transition";
-
-//   return (
-//     <>
-//       {/* TOP DESKTOP HEADER */}
-//       {topHeaderVisible && (
-//         <div className="hidden md:flex bg-white text-gray-700 text-sm border-b border-gray-200 relative">
-//           <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-1 w-full">
-//             {/* Contact Info */}
-//             <div className="flex items-center gap-4">
-//               {/* <span>📞   +91 9289712364</span>
-//               <span>✉️  Info@careervidya.in</span> */}
-//             </div>
-
-//             {/* Social Icons */}
-//             <div className="flex items-center gap-3">
-//               <Link href="https://x.com/CareerVidya" target="_blank" rel="noopener noreferrer">
-//                 <Twitter size={24} className={iconBtn} />
-//               </Link>
-//               <Link href="https://www.instagram.com/career_vidya" target="_blank" rel="noopener noreferrer">
-//                 <Instagram size={24} className={iconBtn} />
-//               </Link>
-//               <Link href="https://www.facebook.com/careervidya" target="_blank" rel="noopener noreferrer">
-//                 <Facebook size={24} className={iconBtn} />
-//               </Link>
-//               <Link href="https://www.linkedin.com/company/careervidya" target="_blank" rel="noopener noreferrer">
-//                 <Linkedin size={24} className={iconBtn} />
-//               </Link>
-//               {/* <Link href="/profile">
-//                 <User size={24} className={iconBtn} />
-//               </Link> */}
-//             </div>
-
-//             {/* Close Button */}
-//             <button
-//               onClick={() => setTopHeaderVisible(false)}
-//               className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900"
-//             >
-//               <X size={20} />
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* MAIN HEADER */}
-//       <header className="w-full bg-white border-b border-gray-200 shadow-sm text-gray-700">
-//         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-6 py-2">
-
-//           {/* MOBILE HEADER */}
-//           <div className="flex items-center justify-between w-full md:hidden">
-//             <Link href="/" className="flex items-center">
-//               <Image
-//                 src="/images/LogoUpdated1.png"
-//                 alt="Career Vidya Logo"
-//                 width={130}
-//                 height={60}
-//                 className="object-contain transition-all duration-300"
-//                 priority
-//               />
-//             </Link>
-
-//             <div className="flex items-center gap-3">
-//               <button
-//                 onClick={() => setShowSignup(true)}
-//                 className="bg-gray-400 hover:bg-blue-600 text-white px-4 py-1 rounded-md transition text-sm font-semibold"
-//               >
-//                 Signup
-//               </button>
-
-//               <button
-//                 className="p-2 rounded-lg hover:bg-gray-100 transition"
-//                 onClick={() => setMenuOpen(!menuOpen)}
-//               >
-//                 {menuOpen ? <X size={26} /> : <Menu size={26} />}
-//               </button>
-//             </div>
-//           </div>
-
-//           {/* DESKTOP LOGO */}
-//           <div className="hidden md:flex items-center gap-2">
-//             <Link href="/" className="flex items-center">
-//               <Image
-//                 src="/images/LogoUpdated1.png"
-//                 alt="Career Vidya Logo"
-//                 width={130}
-//                 height={60}
-//                 className="object-contain transition-all duration-300"
-//                 priority
-//               />
-//             </Link>
-//           </div>
-
-//           {/* DESKTOP SEARCH */}
-//           <div className="hidden md:flex flex-1 justify-center px-6">
-//             <div
-//               onClick={() => router.push("/explore")}
-//               className="relative w-full max-w-xl cursor-pointer"
-//             >
-//               <input
-//                 type="text"
-//                 placeholder="Search universities, courses & more..."
-//                 readOnly
-//                 className="w-full border border-gray-300 rounded-full py-2.5 pl-10 pr-3 text-gray-700 text-sm focus:outline-blue-500 hover:shadow-md transition bg-white"
-//               />
-//               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-//                 🔍
-//               </span>
-//             </div>
-//           </div>
-
-//           {/* DESKTOP BUTTONS */}
-//           <nav className="hidden md:flex items-center gap-3 header-desktop">
-//             <Link href="/explore">
-//               <button className={primaryBtn}>Explore Programs</button>
-//             </Link>
-
-//             <Link href="/counselling">
-//               <button className={outlineBtn}>Free Counselling</button>
-//             </Link>
-
-//             <Link href="/counselling">
-//               <button className={outlineBtn}>Top University</button>
-//             </Link>
-
-//             <button onClick={() => setShowSignup(true)} className={primaryBtn}>
-//               Signup
-//             </button>
-//           </nav>
-//         </div>
-
-//         {/* MOBILE MENU DROPDOWN */}
-//         {menuOpen && (
-//           <div className="md:hidden bg-white px-4 pb-4 shadow animate-slideDown text-gray-700">
-//             <div className="flex flex-col gap-3">
-//               <Link href="/explore" onClick={() => setMenuOpen(false)}>
-//                 <button className="w-full py-2.5 rounded-full text-white bg-blue-600 hover:bg-blue-700 transition shadow-md">
-//                   Explore Programs
-//                 </button>
-//               </Link>
-
-//               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-//                 <button className="w-full py-2.5 rounded-full border border-blue-600 text-blue-600 hover:bg-blue-50 transition">
-//                   Free Counselling
-//                 </button>
-//               </Link>
-
-//               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-//                 <button className="w-full py-2.5 rounded-full border border-blue-600 text-blue-600 hover:bg-blue-50 transition">
-//                   Top University
-//                 </button>
-//               </Link>
-
-//               <button
-//                 onClick={() => {
-//                   setShowSignup(true);
-//                   setMenuOpen(false);
-//                 }}
-//                 className="w-full py-2.5 rounded-full text-white bg-blue-700 hover:bg-blue-800 transition shadow-md"
-//               >
-//                 Signup
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//       </header>
-
-//       {showSignup && <Signup onClose={() => setShowSignup(false)} />}
-
-//       <style jsx global>{`
-//         .header-desktop .hover-btn {
-//           background-color: white;
-//           color: #4b5563;
-//         }
-//         .header-desktop .hover-btn:hover,
-//         .header-desktop .hover-btn:focus {
-//           background-color: #2563eb !important;
-//           color: #ffffff !important;
-//         }
-//         .header-desktop .icon-btn {
-//           color: #4b5563;
-//         }
-//         .header-desktop .icon-btn:hover,
-//         .header-desktop .icon-btn:focus {
-//           background-color: #2563eb !important;
-//           color: #ffffff !important;
-//         }
-//         .header-desktop .icon-btn:hover {
-//           padding: 0.35rem !important;
-//         }
-
-//         @keyframes slideDown {
-//           from {
-//             opacity: 0;
-//             transform: translateY(-10px);
-//           }
-//           to {
-//             opacity: 1;
-//             transform: translateY(0);
-//           }
-//         }
-//         .animate-slideDown {
-//           animation: slideDown 0.25s ease-out;
-//         }
-//       `}</style>
-//     </>
-//   );
-// }
-
-
-// "use client";
-
-// import { useState } from "react";
-// import Image from "next/image";
-// import Link from "next/link";
-// import { Menu, X, Instagram, Twitter, Facebook, Linkedin } from "lucide-react";
-// import Signup from "../signup/page.jsx";
-// import { useRouter } from "next/navigation";
-
-// export default function Header() {
-//   const [menuOpen, setMenuOpen] = useState(false);
-//   const [showSignup, setShowSignup] = useState(false);
-//   const [topHeaderVisible, setTopHeaderVisible] = useState(true);
-//   const router = useRouter();
-
-//   const primaryBtn =
-//     "hover-btn bg-white text-gray-600 px-4 py-2 rounded-md transition text-sm font-semibold cursor-pointer";
-
-//   const outlineBtn =
-//     "hover-btn bg-white text-gray-600 px-4 py-2 rounded-md transition text-sm font-semibold cursor-pointer border border-gray-300";
-
-//   const iconBtn = "icon-btn p-1.5 rounded-md text-gray-600 transition";
-
-//   return (
-//     <>
-//       {/* TOP DESKTOP HEADER */}
-//       {topHeaderVisible && (
-//         <div className="hidden md:flex bg-white text-gray-700 text-sm border-b border-gray-200 relative">
-//           <div className="flex items-center justify-between px-12 py-1 w-full">
-//              <div className="flex items-center gap-4">
-//               {/* <span>📞   +91 9289712364</span>
-// //               <span>✉️  Info@careervidya.in</span> */}
-//             </div>
-
-//             {/* Social Icons */}
-//              <div className="flex justify-center gap-4 mt-3">
-//             {[
-//               { src: "/icons/y1.svg", alt: "X", link: "https://x.com/CareerVidya" },
-//               { src: "/icons/y2.svg", alt: "Instagram", link: "https://www.instagram.com/career_vidya/" },
-//               { src: "/icons/y3.svg", alt: "Facebook", link: "https://www.facebook.com/Career-Vidya" },
-//               { src: "/icons/linked.svg", alt: "LinkedIn", link: "https://www.linkedin.com/company/career-vidya/" },
-//             ].map((icon, i) => (
-//               <a key={i} href={icon.link} target="_blank" rel="noopener noreferrer">
-//                 <img
-//                   src={icon.src}
-//                   alt={icon.alt}
-//                   className="h-6 w-5 hover:scale-110 transition-transform"
-//                 />
-//               </a>
-//             ))}
-//           </div>
-
-//             {/* Close Button */}
-//             <button
-//               onClick={() => setTopHeaderVisible(false)}
-//               className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900"
-//             >
-//               <X size={20} />
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* MAIN HEADER */}
-//       <header className="w-full bg-white border-b border-gray-200 shadow-sm text-gray-700">
-//         <div className="flex items-center justify-between px-6 md:px-12 py-2">
-
-//           {/* MOBILE HEADER */}
-//           <div className="flex items-center justify-between w-full md:hidden">
-//             <Link href="/" className="flex items-center">
-//               <Image
-//                 src="/images/swith.jpg"
-//                 alt="Career Vidya Logo"
-//                 width={130}
-//                 height={60}
-//                 className="object-contain transition-all duration-300"
-//                 priority
-//               />
-//             </Link>
-
-//             <div className="flex items-center gap-3">
-//               <button
-//                 onClick={() => setShowSignup(true)}
-//                 className="bg-gray-400 hover:bg-blue-600 text-white px-4 py-1 rounded-md transition text-sm font-semibold"
-//               >
-//                 Signup
-//               </button>
-
-//               <button
-//                 className="p-2 rounded-lg hover:bg-gray-100 transition"
-//                 onClick={() => setMenuOpen(!menuOpen)}
-//               >
-//                 {menuOpen ? <X size={26} /> : <Menu size={26} />}
-//               </button>
-//             </div>
-//           </div>
-
-//           {/* DESKTOP HEADER: LOGO + SEARCH + BUTTONS */}
-//           <div className="hidden md:flex items-center justify-between w-full ">
-//             {/* LOGO */}
-//             <div className="flex-shrink-0 rounded-full">
-//               <Link href="/" className="flex items-center">
-//                 <Image
-//                   // src="/icons/newlogo.jpg"
-//                   src="/images/swith.jpg"
-//                   alt="Career Vidya Logo"
-//                   width={230}
-//                   height={65}
-//                   className="object-contain transition-all duration-300"
-//                   priority
-//                 />
-//               </Link>
-//             </div>
-
-//             {/* RIGHT SIDE: SEARCH + BUTTONS */}
-//             <div className="flex items-center gap-4">
-//               {/* SEARCH */}
-//               <div
-//                 onClick={() => router.push("/explore")}
-//                 className="relative w-64 cursor-pointer"
-//               >
-//                 <input
-//                   type="text"
-//                   placeholder="Search universities, courses & more..."
-//                   readOnly
-//                   className="w-full border border-gray-300 rounded-full py-2 pl-10 pr-3 text-gray-700 text-sm focus:outline-blue-500 hover:shadow-md transition bg-white"
-//                 />
-//                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-//                   🔍
-//                 </span>
-//               </div>
-
-//               {/* BUTTONS */}
-//               <nav className="flex items-center gap-2">
-//                 <Link href="/explore">
-//                   <button className={primaryBtn}>Explore Programs</button>
-//                 </Link>
-
-//                 <Link href="/counselling">
-//                   <button className={outlineBtn}>Free Counselling</button>
-//                 </Link>
-
-//                 <Link href="/counselling">
-//                   <button className={outlineBtn}>Top University</button>
-//                 </Link>
-
-//                 <button onClick={() => setShowSignup(true)} className={primaryBtn}>
-//                   Signup
-//                 </button>
-//               </nav>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* MOBILE MENU DROPDOWN */}
-//         {menuOpen && (
-//           <div className="md:hidden bg-white px-4 pb-4 shadow animate-slideDown text-gray-700">
-//             <div className="flex flex-col gap-3">
-//               <Link href="/explore" onClick={() => setMenuOpen(false)}>
-//                 <button className="w-full py-2.5 rounded-full text-white bg-blue-600 hover:bg-blue-700 transition shadow-md">
-//                   Explore Programs
-//                 </button>
-//               </Link>
-
-//               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-//                 <button className="w-full py-2.5 rounded-full border border-blue-600 text-blue-600 hover:bg-blue-50 transition">
-//                   Free Counselling
-//                 </button>
-//               </Link>
-
-//               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-//                 <button className="w-full py-2.5 rounded-full border border-blue-600 text-blue-600 hover:bg-blue-50 transition">
-//                   Top University
-//                 </button>
-//               </Link>
-
-//               <button
-//                 onClick={() => {
-//                   setShowSignup(true);
-//                   setMenuOpen(false);
-//                 }}
-//                 className="w-full py-2.5 rounded-full text-white bg-blue-700 hover:bg-blue-800 transition shadow-md"
-//               >
-//                 Signup
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//       </header>
-
-//       {showSignup && <Signup onClose={() => setShowSignup(false)} />}
-
-//       <style jsx global>{`
-//         .header-desktop .hover-btn {
-//           background-color: white;
-//           color: #4b5563;
-//         }
-//         .header-desktop .hover-btn:hover,
-//         .header-desktop .hover-btn:focus {
-//           background-color: #2563eb !important;
-//           color: #ffffff !important;
-//         }
-//         .header-desktop .icon-btn {
-//           color: #4b5563;
-//         }
-//         .header-desktop .icon-btn:hover,
-//         .header-desktop .icon-btn:focus {
-//           background-color: #2563eb !important;
-//           color: #ffffff !important;
-//         }
-//         .header-desktop .icon-btn:hover {
-//           padding: 0.35rem !important;
-//         }
-
-//         @keyframes slideDown {
-//           from {
-//             opacity: 0;
-//             transform: translateY(-10px);
-//           }
-//           to {
-//             opacity: 1;
-//             transform: translateY(0);
-//           }
-//         }
-//         .animate-slideDown {
-//           animation: slideDown 0.25s ease-out;
-//         }
-//       `}</style>
-//     </>
-//   );
-// }
-
 
 
 "use client";
@@ -633,3 +171,113 @@ export default function Header() {
     </>
   );
 }
+
+
+
+// "use client";
+
+// import { useState, useEffect } from "react";
+// import Link from "next/link";
+// import Image from "next/image";
+
+// import Sidebar from "../sidebar";
+// import ViewMore from "@/app/layout/ViewMore.jsx";
+// import CompanyInfoMenu from "../submanu/company/company";
+
+// const menuItems = [
+//   { label: "COMPANY", dropdown: true, component: <CompanyInfoMenu /> },
+//   { label: "SERVICES", dropdown: true, component: <ViewMore /> },
+//   { label: "INVESTOR", component: "" },
+// ];
+
+// const Navbar = () => {
+//   const [hoveredIndex, setHoveredIndex] = useState(null);
+//   const [toggle, settoggle] = useState(false);
+//   const [scrolled, setScrolled] = useState(false);
+
+//   useEffect(() => {
+//     const handleScroll = () => {
+//       setScrolled(window.scrollY > 400);
+//     };
+//     window.addEventListener("scroll", handleScroll);
+//     return () => window.removeEventListener("scroll", handleScroll);
+//   }, []);
+
+//   return (
+//     <nav
+//       className={`w-full px-6 bg-white shadow-sm flex items-center justify-between z-50 ${
+//         scrolled ? "fixed top-0 left-0" : "bg-transparent"
+//       }`}
+//     >
+//       {/* ===== LOGO ===== */}
+//       <Link href="/">
+//         <div className="flex items-center md:space-x-2 md:ml-8 cursor-pointer">
+//           <Image
+//             src="/logo-without-bg.png"
+//             alt="Logo"
+//             width={80}
+//             height={80}
+//             className="object-contain"
+//             priority
+//           />
+//         </div>
+//       </Link>
+
+//       {/* ===== DESKTOP MENU ===== */}
+//       <ul className="hidden md:flex space-x-6 items-center">
+//         <li className="text-sm text-gray-700 font-medium cursor-pointer">
+//           <Link href="/">HOME</Link>
+//         </li>
+
+//         {menuItems.map((item, idx) => (
+//           <li
+//             key={idx}
+//             className="relative group"
+//             onMouseEnter={() => setHoveredIndex(idx)}
+//             onMouseLeave={() => setHoveredIndex(null)}
+//           >
+//             <div className="text-sm text-gray-700 font-medium cursor-pointer flex items-center space-x-1">
+//               <span>{item.label}</span>
+//               {item.dropdown && <span className="text-xs">▼</span>}
+//             </div>
+
+//             {hoveredIndex === idx && item.dropdown && (
+//               <div className="absolute top-full left-0">
+//                 {item.component}
+//               </div>
+//             )}
+//           </li>
+//         ))}
+
+//         <li className="text-sm text-gray-700 font-medium cursor-pointer">
+//           <Link href="/blog">BLOG</Link>
+//         </li>
+
+//         <li>
+//           <Link href="/contact">
+//             <button className="bg-[#05347f] text-white px-4 py-2 rounded-md transition text-sm font-semibold hover:bg-[#042a63]">
+//               CONTACT US
+//             </button>
+//           </Link>
+//         </li>
+//       </ul>
+
+//       {/* ===== MOBILE MENU ===== */}
+//       <div className="md:hidden">
+//         <button
+//           className="text-[#05347f] text-2xl cursor-pointer"
+//           onClick={() => settoggle((prev) => !prev)}
+//         >
+//           &#9776;
+//         </button>
+
+//         <Sidebar
+//           mainMenu={toggle}
+//           setMainMenu={settoggle}
+//         />
+//       </div>
+//     </nav>
+//   );
+// };
+
+// export default Navbar;

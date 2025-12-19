@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useGSAP } from "@gsap/react";
+import api from "@/utlis/api.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
+import { useGSAP } from "@gsap/react";
 import {
   FaBullhorn,
   FaProjectDiagram,
@@ -28,49 +29,49 @@ gsap.registerPlugin(ScrollTrigger);
 /* ===================== SERVICES DATA ===================== */
 const services = [
   {
-    id: 1,
+    id: "s1",
     title: "Digital Marketing Service",
     icon: <FaBullhorn size={60} />,
     bgColor: "bg-blue-500",
     textColor: "text-white",
   },
   {
-    id: 2,
+    id: "s2",
     title: "CRM Development",
     icon: <FaProjectDiagram size={60} />,
     bgColor: "bg-orange-300",
     textColor: "text-black",
   },
   {
-    id: 3,
+    id: "s3",
     title: "ERP Development",
     icon: <FaCogs size={60} />,
     bgColor: "bg-blue-500",
     textColor: "text-white",
   },
   {
-    id: 4,
+    id: "s4",
     title: "Web Development",
     icon: <FaLaptopCode size={60} />,
     bgColor: "bg-orange-300",
     textColor: "text-black",
   },
   {
-    id: 5,
+    id: "s5",
     title: "Mobile Development",
     icon: <FaMobileAlt size={60} />,
     bgColor: "bg-blue-500",
     textColor: "text-black",
   },
   {
-    id: 6,
+    id: "s6",
     title: "Digital Services",
     icon: <FaDigitalOcean size={60} />,
     bgColor: "bg-orange-300",
     textColor: "text-black",
   },
   {
-    id: 7,
+    id: "s7",
     title: "Software Development",
     icon: <FaCode size={60} />,
     bgColor: "bg-blue-500",
@@ -78,8 +79,35 @@ const services = [
   },
 ];
 
-/* ===================== SLIDER COMPONENT ===================== */
+/* ===================== SERVICE + BANNER SLIDER ===================== */
 const ServiceSlider = () => {
+  const [banners, setBanners] = useState([]);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await api.get("/api/v1/banner");
+        const stripBanners = res.data.filter((b) => b.position === "STRIP");
+        setBanners(stripBanners);
+      } catch (error) {
+        console.error("❌ Error fetching strip banners:", error);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  // Merge services and banners into a single array
+  const sliderItems = [
+    ...services,
+    ...banners.map((banner) => ({
+      id: banner._id,
+      title: banner.title,
+      image: banner.desktopImage?.url || banner.mobileImage?.url,
+      isBanner: true,
+    })),
+  ];
+
   const settings = {
     dots: false,
     infinite: true,
@@ -100,18 +128,33 @@ const ServiceSlider = () => {
   return (
     <div className="px-2 md:px-8">
       <Slider {...settings}>
-        {services.map((service) => (
-          <div key={service.id} className="px-2">
-            <div
-              className={`h-64 rounded-xl p-6 flex flex-col justify-center items-center ${service.bgColor}`}
-            >
-              <div className="mb-4">{service.icon}</div>
-              <h3
-                className={`text-lg font-semibold text-center ${service.textColor}`}
+        {sliderItems.map((item) => (
+          <div key={item.id} className="px-2">
+            {item.isBanner ? (
+              <div className="h-64 rounded-xl overflow-hidden bg-white flex items-center justify-center">
+                {item.image && (
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    width={350}
+                    height={220}
+                    className="object-contain w-full h-full"
+                    unoptimized
+                  />
+                )}
+              </div>
+            ) : (
+              <div
+                className={`h-64 rounded-xl p-6 flex flex-col justify-center items-center ${item.bgColor}`}
               >
-                {service.title}
-              </h3>
-            </div>
+                <div className="mb-4">{item.icon}</div>
+                <h3
+                  className={`text-lg font-semibold text-center ${item.textColor}`}
+                >
+                  {item.title}
+                </h3>
+              </div>
+            )}
           </div>
         ))}
       </Slider>
@@ -153,7 +196,6 @@ const COMP = () => {
   return (
     <div ref={containerRef} className="bg px-5">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center py-6">
-
         {/* LEFT */}
         <div className="md:col-span-4 flex flex-col justify-center text-center md:text-left">
           <div className="animate-left space-y-4 px-2 md:px-6">
@@ -170,7 +212,7 @@ const COMP = () => {
         {/* RIGHT */}
         <div className="md:col-span-8 text-center space-y-12">
           <h2 className="text-xl md:text-4xl text-blue-900 font-semibold">
-            Our Core Services
+            Our Core Services & Banners
           </h2>
 
           <ServiceSlider />

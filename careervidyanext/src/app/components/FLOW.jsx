@@ -34,11 +34,12 @@ export default function AdmissionProcess() {
   const button = useScrollReveal(0.2);
 
   return (
-    <section className="w-full flex flex-col items-center text-center py-12 bg-white overflow-hidden">
+    <section className="w-full bg-white py-14 overflow-hidden">
+      
       {/* ===== Heading ===== */}
       <h2
         ref={heading.ref}
-        className={`text-3xl md:text-4xl font-bold text-gray-900 transition-all duration-700 ease-out
+        className={`text-3xl md:text-4xl font-bold text-gray-900 text-center transition-all duration-700 ease-out
         ${
           heading.visible
             ? "opacity-100 translate-y-0"
@@ -52,7 +53,7 @@ export default function AdmissionProcess() {
       {/* ===== Subheading ===== */}
       <p
         ref={text.ref}
-        className={`text-gray-600 mt-3 max-w-2xl transition-all duration-700 delay-150
+        className={`text-gray-600 mt-3 mx-auto max-w-3xl text-center transition-all duration-700 delay-150
         ${
           text.visible
             ? "opacity-100 translate-y-0"
@@ -63,10 +64,10 @@ export default function AdmissionProcess() {
         across India.
       </p>
 
-      {/* ===== Image Section ===== */}
+      {/* ===== FULL WIDTH IMAGE ===== */}
       <div
         ref={image.ref}
-        className={`relative w-full max-w-5xl mt-10 px-4 transition-all duration-1000 ease-out
+        className={`w-full mt-12 px-4 md:px-10 transition-all duration-1000 ease-out
         ${
           image.visible
             ? "opacity-100 translate-y-0 scale-100"
@@ -76,25 +77,29 @@ export default function AdmissionProcess() {
         <Image
           src="/images/Process.png"
           alt="Admission Process Flow"
-          width={1200}
-          height={600}
-          className="rounded-lg object-contain mx-auto"
+          width={1920}
+          height={800}
+          priority
+          className="w-full h-auto object-contain mx-auto"
         />
       </div>
 
       {/* ===== Button ===== */}
-      <Link
-        ref={button.ref}
-        href="/counselling"
-        className={`mt-10 inline-block bg-[#0057A0] text-white font-medium px-6 py-3 rounded-md transition-all duration-700 delay-300
-        ${
-          button.visible
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6"
-        }`}
-      >
-        Apply Now
-      </Link>
+      <div className="flex justify-center">
+        <Link
+          ref={button.ref}
+          href="/counselling"
+          className={`mt-12 inline-block bg-[#0057A0] text-white font-medium px-8 py-3 rounded-md transition-all duration-700 delay-300
+          ${
+            button.visible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-6"
+          }`}
+        >
+          Apply Now
+        </Link>
+      </div>
+
     </section>
   );
 }

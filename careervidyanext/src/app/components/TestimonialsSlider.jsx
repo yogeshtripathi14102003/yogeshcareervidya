@@ -1,14 +1,13 @@
-
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
+import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import "swiper/css/navigation";
 
-/* ========= SCROLL REVEAL HOOK ========= */
+/* ================= SCROLL REVEAL HOOK ================= */
 function useScrollReveal(threshold = 0.25) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -34,53 +33,39 @@ function useScrollReveal(threshold = 0.25) {
 export default function TestimonialsSlider() {
   const section = useScrollReveal(0.2);
 
-  /* 🔒 ONLY BLOCK COPY, allow right click & F12 */
-  useEffect(() => {
-    const blockCopy = (e) => {
-      e.preventDefault(); // block copying content
-      alert("Copying content is disabled on this page.");
-    };
-
-    document.addEventListener("copy", blockCopy);
-
-    return () => {
-      document.removeEventListener("copy", blockCopy);
-    };
-  }, []);
-
   const testimonials = [
     {
-      text: "Before coming to Career Vidya, I had no idea which stream or career to choose. The counsellors patiently guided me through every step and helped me make an informed decision. I’m extremely satisfied with their support!",
+      text: "Before Career Vidya, I was confused about my stream. Their counsellors guided me through every step to make an informed decision.",
       name: "Atul Kumar",
       designation: "Student",
       img: "/images/AtulKumar.png",
     },
     {
-      text: "Career Vidya’s assessment and one-on-one counselling session helped me understand my interests and strengths. I’m now pursuing a course I genuinely enjoy — thank you for the clarity and confidence!",
+      text: "The assessment helped me understand my strengths. I’m now pursuing a course I genuinely enjoy—thanks for the confidence!",
       name: "Vishal Vishwakarma",
       designation: "Student",
       img: "/images/teti1.png",
     },
     {
-      text: "The team at Career Vidya really cares about students. Their expert guidance not only helped me choose the right career but also boosted my self-belief.",
-      name: "Praveen singh",
+      text: "The team really cares. Their expert guidance not only helped me choose the right career but also boosted my self-belief significantly.",
+      name: "Praveen Singh",
       designation: "Student",
       img: "/images/Praveensingh.png",
     },
     {
-      text: "I highly recommend Career Vidya to every student who feels lost or confused. Their approach is scientific, professional, and truly student-focused.",
-      name: "Gyanendu Sundar Rana",
+      text: "I highly recommend Career Vidya to every student who feels lost. Their approach is scientific and truly student-focused.",
+      name: "Gyanendu Sundar",
       designation: "Engineering Aspirant",
       img: "/images/GyanenduSundarRana.png",
     },
     {
-      text: "After attending Career Vidya’s session, I realized how important the right guidance is. I’m now sure about my goals and the path to achieve them.",
+      text: "After their session, I realized how important right guidance is. I’m now sure about my goals and the path to achieve them.",
       name: "Gopal Sharma",
       designation: "Commerce Student",
       img: "/images/GopalSharma.png",
     },
     {
-      text: "Career Vidya से जुड़ने से पहले मुझे समझ नहीं आ रहा था कि कौन-सा विषय और करियर मेरे लिए सही रहेगा। उनके काउंसलर ने मुझे बहुत सहजता से गाइड किया और अब मैं सही दिशा में हूँ। मैं बहुत संतुष्ट हूँ।",
+      text: "Career Vidya के काउंसलर ने मुझे बहुत सहजता से गाइड किया। अब मैं सही दिशा में हूँ और अपने भविष्य को लेकर पूरी तरह से स्पष्ट हूँ।",
       name: "Chetan Ahir",
       designation: "Student",
       img: "/images/ChetanAhir.png",
@@ -90,82 +75,104 @@ export default function TestimonialsSlider() {
   return (
     <section
       ref={section.ref}
-      className={`text-gray-900 py-20 bg-white transition-all duration-1000 ease-out select-text
-      ${section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
+      className={`py-16 transition-all duration-1000 ease-out overflow-hidden
+        ${section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}
+        bg-white`}   // ✅ FORCE WHITE BACKGROUND
     >
-      <div className="max-w-7xl mx-auto px-6 text-center">
-        {/* Heading */}
-        <h2 className="text-3xl md:text-4xl font-bold mb-3">
-          <span className="text-black">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* ================= HEADING CENTER ================= */}
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-[#05347f]">
             Students Who Found Their True Direction!
-          </span>
-        </h2>
+          </h2>
+          <p className="text-lg text-gray-600">
+            Read inspiring journeys with{" "}
+            <span className="font-semibold text-[#05347f]">
+              Career Vidya
+            </span>
+            .
+          </p>
+        </div>
 
-        <p className="text-gray-700 mb-12 max-w-3xl mx-auto">
-          Read inspiring journeys of learners who identified their goals, built
-          confidence, and shaped a successful future with{" "}
-          <span className="font-semibold text-[#0056B3]">Career Vidya</span>.
-        </p>
+        {/* ================= SLIDER ================= */}
+        <div className="relative">
+          <Swiper
+            modules={[Pagination, Autoplay, Navigation]}
+            spaceBetween={20}
+            slidesPerView={1}
+            pagination={{ clickable: true }}
+            navigation
+            autoplay={{ delay: 5000 }}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+              1280: { slidesPerView: 4 },
+            }}
+            className="pb-16 testimonials-swiper"
+          >
+            {testimonials.map((t, i) => (
+              <SwiperSlide key={i} className="h-full">
+                <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex flex-col justify-between h-full min-h-[320px] border border-gray-100">
+                  <div>
+                    <div className="text-[#3498db] mb-4 text-4xl font-serif opacity-70">
+                      “
+                    </div>
+                    <p className="text-gray-700 text-[15px] leading-relaxed line-clamp-5">
+                      {t.text}
+                    </p>
+                  </div>
 
-        {/* Slider */}
-        <Swiper
-          modules={[Pagination, Autoplay]}
-          spaceBetween={25}
-          slidesPerView={1}
-          pagination={{ clickable: true }}
-          autoplay={{ delay: 4000, disableOnInteraction: false }}
-          breakpoints={{
-            768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
-          }}
-          className="pb-12 testimonials-swiper"
-        >
-          {testimonials.map((t, i) => (
-            <SwiperSlide key={i}>
-              <div
-                className={`group relative bg-white
-                  border border-[#0056B3]
-                  rounded-xl p-4 shadow-sm
-                  transition-all duration-700 ease-out
-                  hover:border-[#003E7E]
-                  hover:bg-gradient-to-br hover:from-[#FFF5EE] hover:to-[#E6F0FF]
-                  hover:shadow-[0_4px_12px_rgba(0,86,179,0.25)]
-                  max-w-[300px] mx-auto h-auto flex flex-col items-center
-                  ${section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-              >
-                <img
-                  src={t.img}
-                  alt={t.name}
-                  draggable={false}
-                  className="w-14 h-14 rounded-full mb-3 object-cover border-4 border-white shadow-md pointer-events-none"
-                />
-
-                <p className="italic text-gray-800 mb-3 text-sm leading-relaxed text-center">
-                  <span className="text-black">“</span>
-                  <span className="text-[#003E7E]">{t.text}</span>
-                  <span className="text-black">”</span>
-                </p>
-
-                <div className="mt-2 text-center">
-                  <p className="font-bold text-gray-900">{t.name}</p>
-                  <p className="text-[#0056B3] text-sm font-medium">
-                    {t.designation}
-                  </p>
+                  <div className="flex items-center gap-3 border-t border-gray-100 pt-4 mt-4">
+                    <img
+                      src={t.img}
+                      alt={t.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#3498db]"
+                    />
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-sm uppercase">
+                        {t.name}
+                      </h4>
+                      <p className="text-gray-500 text-xs font-medium">
+                        {t.designation}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </div>
 
+      {/* ================= GLOBAL STYLES ================= */}
       <style jsx global>{`
         .testimonials-swiper .swiper-pagination-bullet {
-          background: #7fa5cc;
-          opacity: 0.8;
+          background: #05347f !important;
+          opacity: 0.3;
         }
         .testimonials-swiper .swiper-pagination-bullet-active {
-          background: #0056b3;
+          background: #05347f !important;
           opacity: 1;
+        }
+
+        .testimonials-swiper .swiper-button-next,
+        .testimonials-swiper .swiper-button-prev {
+          background-color: #05347f;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          color: white;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonials-swiper .swiper-button-next::after,
+        .testimonials-swiper .swiper-button-prev::after {
+          font-size: 16px;
+          font-weight: bold;
+        }
+
+        .swiper-slide {
+          height: auto !important;
         }
       `}</style>
     </section>
