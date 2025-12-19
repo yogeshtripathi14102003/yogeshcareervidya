@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import api from "@/utlis/api.js";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /* ================= SCROLL ANIMATION HOOK ================= */
 function useScrollAnimation() {
@@ -34,8 +34,8 @@ const CourseCard = ({ course }) => {
   return (
     <div
       ref={ref}
-      className={`flex flex-col justify-between bg-white border border-gray-200 rounded-md
-      shadow-sm cursor-pointer p-2 min-h-[120px]
+      className={`w-full max-w-[160px] flex flex-col justify-between bg-white 
+      border border-gray-200 rounded-md shadow-sm cursor-pointer p-2 min-h-[120px]
       transition-all duration-700 ease-out
       ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}
       hover:shadow-md hover:scale-[1.02]`}
@@ -115,7 +115,7 @@ export default function CoursesListingPage() {
     <div className="w-full bg-white">
       <div className="w-full mx-auto px-4 md:px-6 py-4">
 
-        {/* ================= MOBILE CATEGORY BAR (UNCHANGED) ================= */}
+        {/* ================= MOBILE CATEGORY BAR ================= */}
         <div className="block lg:hidden relative mb-6">
           <button
             onClick={scrollLeft}
@@ -152,21 +152,21 @@ export default function CoursesListingPage() {
           </div>
         </div>
 
-        {/* ================= MAIN CONTENT (FULL WIDTH DESKTOP) ================= */}
+        {/* ================= MAIN CONTENT ================= */}
         <main className="w-full">
           <h2 className="text-3xl font-extrabold mb-5 text-[#0056B3] text-center">
             {loading ? "Loading..." : `${selectedCategory} Courses`}
           </h2>
 
-          {/* Desktop Grid */}
-          <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
+          {/* ===== DESKTOP GRID (FIXED WIDTH) ===== */}
+          <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 place-items-center">
             {desktopCourses.map((course) => (
               <CourseCard key={course._id} course={course} />
             ))}
           </div>
 
-          {/* Mobile Grid */}
-          <div className="sm:hidden grid grid-cols-3 gap-2">
+          {/* ===== MOBILE GRID ===== */}
+          <div className="sm:hidden grid grid-cols-3 gap-2 place-items-center">
             {mobileCourses.map((course) => (
               <CourseCard key={course._id} course={course} />
             ))}
