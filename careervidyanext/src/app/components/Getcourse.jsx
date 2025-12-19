@@ -34,13 +34,14 @@ const CourseCard = ({ course }) => {
   return (
     <div
       ref={ref}
-      className={`w-full max-w-[160px] flex flex-col justify-between bg-white 
-      border border-gray-200 rounded-md shadow-sm cursor-pointer p-2 min-h-[120px]
+      // Width ko full karke max-width ko thoda badhaya hai taaki gaps cover ho jayein
+      className={`w-full max-w-[180px] bg-white 
+      border border-gray-100 rounded-lg shadow-sm cursor-pointer p-3
       transition-all duration-700 ease-out
       ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}
-      hover:shadow-md hover:scale-[1.02]`}
+      hover:shadow-md hover:scale-[1.03] flex flex-col items-center justify-between`}
     >
-      <div className="flex justify-center mt-1">
+      <div className="flex justify-center mb-2">
         <img
           src={course.courseLogo?.url || "/placeholder.png"}
           alt={course.name}
@@ -48,13 +49,13 @@ const CourseCard = ({ course }) => {
         />
       </div>
 
-      <div className="text-center mt-2 mb-1 px-1 flex-1">
-        <h3 className="font-semibold text-gray-800 text-[10px] line-clamp-2 leading-tight">
+      <div className="text-center mb-2 px-1">
+        <h3 className="font-bold text-gray-800 text-[11px] line-clamp-2 leading-tight">
           {course.name}
         </h3>
       </div>
 
-      <button className="bg-[#0056B3] text-white text-[9px] font-semibold py-1 w-full rounded mt-1 hover:opacity-90">
+      <button className="bg-[#0056B3] text-white text-[10px] font-bold py-1.5 w-full rounded-md hover:opacity-90 cursor-pointer transition-colors">
         Know More
       </button>
     </div>
@@ -72,7 +73,7 @@ export default function CoursesListingPage() {
   const sidebarItems = [
     { key: "All", title: "All Courses" },
     { key: "PG", title: "PG Courses" },
-    { key: "ExecutiveEducation", title: "Executive Education" },
+    { key: "ExecutiveEducation", title: "Executive" },
     { key: "UG", title: "UG Courses" },
     { key: "Doctorate", title: "Doctorate" },
   ];
@@ -108,43 +109,29 @@ export default function CoursesListingPage() {
 
   if (!isMounted) return null;
 
-  const desktopCourses = courses.slice(0, 20);
-  const mobileCourses = courses.slice(0, 6);
+  // Desktop par zyada courses dikhane ke liye limit badha sakte hain
+  const desktopCourses = courses.slice(0, 24);
+  const mobileCourses = courses.slice(0, 9);
 
   return (
-    <div className="w-full bg-white">
-      <div className="w-full mx-auto px-4 md:px-6 py-4">
+    <div className="w-full bg-[#FBFBFB]">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
 
         {/* ================= MOBILE CATEGORY BAR ================= */}
-        <div className="block lg:hidden relative mb-6">
-          <button
-            onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border p-1 rounded-full shadow z-10"
-          >
+        <div className="block lg:hidden relative mb-8">
+          <button onClick={scrollLeft} className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border p-1 rounded-full shadow-lg z-10 cursor-pointer">
             <ChevronLeft className="w-4 h-4 text-[#0056B3]" />
           </button>
-
-          <button
-            onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border p-1 rounded-full shadow z-10"
-          >
+          <button onClick={scrollRight} className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border p-1 rounded-full shadow-lg z-10 cursor-pointer">
             <ChevronRight className="w-4 h-4 text-[#0056B3]" />
           </button>
-
-          <div
-            ref={scrollRef}
-            className="flex gap-3 overflow-x-auto scrollbar-hide px-6"
-          >
+          <div ref={scrollRef} className="flex gap-2 overflow-x-auto scrollbar-hide px-8">
             {sidebarItems.map((item) => (
               <button
                 key={item.key}
                 onClick={() => setSelectedCategory(item.key)}
-                className={`whitespace-nowrap px-4 py-2 text-sm font-semibold border
-                  ${
-                    selectedCategory === item.key
-                      ? "bg-[#0056B3] text-white border-[#0056B3]"
-                      : "bg-white text-[#0056B3] border-gray-300"
-                  }`}
+                className={`whitespace-nowrap px-5 py-2 text-xs font-bold border rounded-full transition-all cursor-pointer
+                  ${selectedCategory === item.key ? "bg-[#0056B3] text-white border-[#0056B3]" : "bg-white text-gray-600 border-gray-200"}`}
               >
                 {item.title}
               </button>
@@ -154,19 +141,19 @@ export default function CoursesListingPage() {
 
         {/* ================= MAIN CONTENT ================= */}
         <main className="w-full">
-          <h2 className="text-3xl font-extrabold mb-5 text-[#0056B3] text-center">
-            {loading ? "Loading..." : `${selectedCategory} Courses`}
+          <h2 className="text-2xl md:text-3xl font-black mb-8 text-[#0056B3] text-center uppercase tracking-tight">
+            {loading ? "Loading..." : `${selectedCategory} Programs`}
           </h2>
 
-          {/* ===== DESKTOP GRID (FIXED WIDTH) ===== */}
-          <div className="hidden sm:grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 place-items-center">
+          {/* ===== DESKTOP GRID (Gaps and Alignment Fixed) ===== */}
+          <div className="hidden sm:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 justify-items-center">
             {desktopCourses.map((course) => (
               <CourseCard key={course._id} course={course} />
             ))}
           </div>
 
-          {/* ===== MOBILE GRID ===== */}
-          <div className="sm:hidden grid grid-cols-3 gap-2 place-items-center">
+          {/* ===== MOBILE GRID (Optimized) ===== */}
+          <div className="sm:hidden grid grid-cols-2 gap-4">
             {mobileCourses.map((course) => (
               <CourseCard key={course._id} course={course} />
             ))}
@@ -174,12 +161,8 @@ export default function CoursesListingPage() {
         </main>
 
         <style jsx>{`
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-          .scrollbar-hide {
-            scrollbar-width: none;
-          }
+          .scrollbar-hide::-webkit-scrollbar { display: none; }
+          .scrollbar-hide { scrollbar-width: none; }
         `}</style>
       </div>
     </div>
