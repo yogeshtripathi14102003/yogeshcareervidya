@@ -173,7 +173,7 @@ export default function TeamListingPage() {
             <div className="relative bg-blue-700 h-80 flex items-center justify-center text-center overflow-hidden" style={{ backgroundImage: `url('/images/counselor-banner-placeholder.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
                 <div className="relative z-10 p-4 max-w-4xl">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight uppercase">Meet Our Expert Career Counsellors</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight uppercase">Meet Our Expert Career Counselors</h1>
                     <p className="mt-3 text-lg text-gray-200 font-medium">Find the right mentor to guide your future and book a personalized session today.</p>
                     <a href="#mentor-list" className="mt-5 bg-yellow-400 text-blue-900 font-bold px-8 py-3 rounded-full text-base shadow-lg hover:bg-yellow-300 transition duration-300 inline-block">View All Counsellors Below</a>
                 </div>

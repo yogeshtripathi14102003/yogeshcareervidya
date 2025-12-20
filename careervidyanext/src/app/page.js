@@ -1,4 +1,4 @@
-import CardSlider from "./components/cardslider/page";
+// import CardSlider from "./components/cardslider/page";
 import Counter from "./components/counter/page";
 import Slider from "./components/slider/page";
 import TeamSection from "./components/TeamSection";
@@ -39,7 +39,7 @@ export default function Home() {
       <Studentimageslider />
          <LogoSlider />
       <Studentstrustus />
-         <CardSlider />
+         {/* <CardSlider /> */}
       <Universityimage  />
       <FAQ />
 
