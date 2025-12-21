@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 /* ========= SCROLL ANIMATION HOOK ========= */
-function useScrollReveal(threshold = 0.2) {
+function useScrollReveal(threshold = 0.1) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -28,72 +28,57 @@ function useScrollReveal(threshold = 0.2) {
 }
 
 export default function AdmissionProcess() {
-  const heading = useScrollReveal(0.3);
-  const text = useScrollReveal(0.35);
-  const image = useScrollReveal(0.25);
-  const button = useScrollReveal(0.2);
+  const heading = useScrollReveal(0.1);
+  const image = useScrollReveal(0.1);
+  const button = useScrollReveal(0.1);
 
   return (
-    <section className="w-full bg-white py-14 overflow-hidden">
+    <section className="w-full bg-[] py-6 md:py-10 overflow-hidden">
       
-      {/* ===== Heading ===== */}
+      {/* 1. HEADING */}
       <h2
         ref={heading.ref}
-        className={`text-3xl md:text-4xl font-bold text-gray-900 text-center transition-all duration-700 ease-out
+        className={`text-lg md:text-2xl font-bold text-gray-900 text-center transition-all duration-700 ease-out
         ${
           heading.visible
             ? "opacity-100 translate-y-0"
-            : "opacity-0 -translate-y-6"
+            : "opacity-0 -translate-y-4"
         }`}
       >
         Admission Process{" "}
-        <span className="text-[#172d6ff2]">With Online Universities</span>
+        <span className="">With Online Universities</span>
       </h2>
 
-      {/* ===== Subheading ===== */}
-      <p
-        ref={text.ref}
-        className={`text-gray-600 mt-3 mx-auto max-w-3xl text-center transition-all duration-700 delay-150
-        ${
-          text.visible
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-4"
-        }`}
-      >
-        Follow these simple steps to get admission in accredited online universities
-        across India.
-      </p>
-
-      {/* ===== FULL WIDTH IMAGE ===== */}
+      {/* 2. IMAGE — SAME WIDTH AS CARDS */}
       <div
         ref={image.ref}
-        className={`w-full mt-12 px-4 md:px-10 transition-all duration-1000 ease-out
+        className={`max-w-7xl mx-auto px-4 mt-6 transition-all duration-1000 ease-out
         ${
           image.visible
             ? "opacity-100 translate-y-0 scale-100"
-            : "opacity-0 translate-y-8 scale-95"
+            : "opacity-0 translate-y-6 scale-95"
         }`}
       >
         <Image
-          src="/images/w.jpg"
+          src="/images/21a.png"
           alt="Admission Process Flow"
-          width={1920}
-          height={800}
+          width={1600}
+          height={300}
           priority
-          className="w-full h-auto object-contain mx-auto"
+          className="w-full h-auto max-h-[160px] md:max-h-[350px] "
         />
       </div>
 
-      {/* ===== Button ===== */}
-      <div className="flex justify-center">
+      {/* 3. BUTTON */}
+      <div className="flex justify-center mt-6">
         <Link
           ref={button.ref}
           href="/counselling"
-          className={`mt-12 inline-block bg-[#0057A0] text-white font-medium px-8 py-3 rounded-md transition-all duration-700 delay-300
+          className={`inline-block bg-[#0056B3] text-white font-medium px-8 py-2 rounded-md text-xs md:text-sm transition-all duration-700 delay-200 hover:bg-[#004494] shadow-sm
           ${
             button.visible
               ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
+              : "opacity-0 translate-y-2"
           }`}
         >
           Apply Now

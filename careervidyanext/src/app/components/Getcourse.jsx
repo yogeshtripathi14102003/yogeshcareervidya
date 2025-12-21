@@ -136,7 +136,7 @@ export default function CoursesListingPage() {
   if (!isMounted) return null;
 
   return (
-    <div className="w-full bg-[#f4f4f4]">
+    <div className="w-full bg-[#ffffff]">
       <div className="max-w-7xl mx-auto px-2 md:px-6 py-10">
 
         {/* MOBILE CATEGORY */}

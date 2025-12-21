@@ -38,7 +38,6 @@ export default function Counter() {
 
   const [counts, setCounts] = useState(counters.map(() => 0));
 
-  // Counter animation logic 
   useEffect(() => {
     const duration = 2000;
     const stepTime = 20;
@@ -69,28 +68,24 @@ export default function Counter() {
 
   const formatNumber = (count, target, suffix, isLPA) => {
     const flooredCount = Math.floor(count);
-
-    if (isLPA) {
-      return `${flooredCount}${suffix}`;
-    }
-
+    if (isLPA) return `${flooredCount}${suffix}`;
     if (target >= 1000) {
       const displayK = Math.floor(flooredCount / 100) / 10; 
       return `${displayK}K+`;
     }
-
     return `${flooredCount}+`;
   };
 
   return (
-    <section className="bg-white py-8 md:py-12"> {/* Background always white */}
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 px-3">
+    /* py-0 se top aur bottom ka space khatam ho gaya hai */
+    <section className="bg-[#ffffff] py-0"> 
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 px-3 py-4 md:py-6">
         {counters.map((counter, i) => {
           const isLPA = counter.id === 3;
           return (
             <div
               key={counter.id}
-              className="bg-white rounded-xl p-3 md:p-5 flex items-center shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]" // Cards bg always white
+              className="bg-white rounded-xl p-3 md:p-5 flex items-center shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
             >
               <div className={ICON_CONTAINER_CLASS}>
                 {counter.icon}

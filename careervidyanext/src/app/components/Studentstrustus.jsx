@@ -88,7 +88,8 @@ export default function WhyStudentsTrustUs() {
   return (
     <section
       ref={sectionRef}
-      className={`py-14 bg-white transition-all duration-1000 ease-out select-none
+      /* ✅ BG Color changed to #f4f4f4 */
+      className={`py-14 bg-[#f4f4f4] transition-all duration-1000 ease-out select-none
       ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
       onContextMenu={(e) => e.preventDefault()}
       onCopy={(e) => e.preventDefault()}
@@ -114,6 +115,7 @@ export default function WhyStudentsTrustUs() {
             <div
               key={index}
               style={{ transitionDelay: `${index * 120}ms` }}
+              /* ✅ Cards kept white for contrast against #f4f4f4 bg */
               className={`group relative bg-white border border-transparent rounded-xl p-6
               shadow-sm transition-all duration-700 ease-out
               hover:border-[#0056B3]

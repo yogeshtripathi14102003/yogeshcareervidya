@@ -329,3 +329,44 @@ cursor: pointer;
     */
 }
 
+/* --- SANTA SLIDING ANIMATION (Only for Desktop) --- */
+.santa-wrapper {
+  position: absolute;
+  top: 10px; /* Header ke top se kitni dur */
+  left: -100px; /* Screen ke left se kitne pixels bahar se start hoga */
+  z-index: 100; /* Santa ko baaki elements ke upar dikhane ke liye */
+  pointer-events: none; /* Santa ke upar click hone se rokne ke liye */
+  animation: santaSlide 18s linear infinite; /* Animation speed aur loop */
+  display: none; /* Default hidden, media query se desktop par show hoga */
+}
+
+/* For larger screens (desktop), show Santa */
+@media (min-width: 768px) { /* md breakpoint for Tailwind CSS */
+  .santa-wrapper {
+    display: block;
+  }
+}
+
+.santa-icon {
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2)); /* Thoda shadow add kiya */
+}
+
+@keyframes santaSlide {
+  0% {
+    left: -100px; /* Left edge se bahar */
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(3px) rotate(1deg); /* Thoda upar-niche movement */
+  }
+  50% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+  100% {
+    left: calc(100% + 100px); /* Right edge se bahar */
+    transform: translateY(0px) rotate(0deg);
+  }
+}

@@ -51,72 +51,69 @@ export default function CourseDetailPage() {
         
 {/* OVERVIEW SECTION */}
 {course.overview?.length > 0 && (
-  <section className="w-full max-w-7xl lg:max-w-none mx-auto px-4 lg:px-0 py-10 lg:py-0 bg-[#f8fafc]">
+  <section className="w-full bg-[#f8fafc] overflow-hidden">
     {course.overview.map((item, i) => (
       <div
         key={i}
-        className="flex flex-col lg:flex-row items-center gap-6 md:gap-10 lg:gap-0 mb-16 lg:mb-0 last:mb-0"
+        /* Full width flex container with alternating direction */
+        className={`flex flex-col lg:flex-row items-center w-full min-h-[500px] ${
+          i % 2 !== 0 ? "lg:flex-row-reverse" : ""
+        }`}
       >
-        {/* IMAGE CONTAINER - Desktop me koi space nahi, No cropping */}
-        <div className="w-full lg:w-1/2 group">
-          <div className="relative p-0 lg:p-0">
-            {/* Mobile Decoration - Only visible on small screens */}
-            <div className="absolute inset-0 bg-blue-600/5 rounded-2xl md:rounded-[2rem] rotate-2 lg:hidden" />
-
-            {item.image?.url ? (
-              <div className="relative z-10 w-full overflow-hidden rounded-2xl md:rounded-[2rem] lg:rounded-none shadow-xl lg:shadow-none bg-white">
-                <img
-                  src={item.image.url}
-                  alt={item.heading}
-                  /* - aspect-video: mobile par ratio maintain karega
-                    - lg:aspect-auto & lg:h-[500px]: desktop par height fix rakhega
-                    - lg:object-contain: desktop par image crop nahi hone dega
-                  */
-                  className="w-full h-auto aspect-video lg:aspect-auto lg:h-[550px] object-cover lg:object-contain transition-transform duration-500"
-                />
-              </div>
-            ) : (
-              <div className="relative z-10 w-full aspect-video lg:h-[550px] bg-slate-200 rounded-2xl lg:rounded-none flex items-center justify-center">
-                <span className="text-slate-400 font-bold text-sm">Image Placeholder</span>
-              </div>
-            )}
-          </div>
+        {/* IMAGE SIDE - 50% Width */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center bg-white/40">
+          {item.image?.url ? (
+            <div className="w-full h-full flex items-center justify-center p-4 lg:p-0">
+              <img
+                src={item.image.url}
+                alt={item.heading}
+                /* h-[550px] for desktop uniformity, object-contain for NO CROPPING */
+                className="w-full h-auto max-h-[400px] lg:max-h-none lg:h-[550px] object-contain transition-transform duration-500 hover:scale-105"
+              />
+            </div>
+          ) : (
+            <div className="w-full h-[300px] lg:h-[550px] bg-slate-200 flex items-center justify-center">
+              <span className="text-slate-400 font-bold">Image Placeholder</span>
+            </div>
+          )}
         </div>
 
-        {/* CONTENT SECTION - Mobile: Left Aligned | Desktop: No side space */}
-        <div className="w-full lg:w-1/2 px-2 lg:px-20 text-left mt-4 lg:mt-0">
-          <div className="inline-block px-3 py-1 mb-3 bg-blue-100/50 text-blue-700 rounded-full text-[10px] font-bold uppercase tracking-widest">
-            Career Vidya Insight
-          </div>
+        {/* CONTENT SIDE - 50% Width */}
+        <div className="w-full lg:w-1/2 px-6 md:px-16 lg:px-24 py-12 lg:py-0">
+          <div className="max-w-xl mx-auto lg:mx-0">
+            <div className="inline-block px-3 py-1 mb-4 bg-blue-100/80 text-blue-700 rounded-full text-[11px] font-bold uppercase tracking-widest">
+              Career Vidya Insight
+            </div>
 
-          <h2 className="text-2xl md:text-4xl font-extrabold text-[#002147] mb-3 leading-tight">
-            {item.heading}
-          </h2>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-[#002147] mb-5 leading-tight">
+              {item.heading}
+            </h2>
 
-          <p className="text-slate-500 text-sm md:text-lg leading-relaxed mb-6">
-            {item.description}
-          </p>
+            <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-8">
+              {item.description}
+            </p>
 
-          {/* Buttons: Mobile me side-by-side (sm:flex-row) ya Stacked */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-start items-center">
-            <a
-              href={course?.syllabusFile?.url || "#"}
-              className="w-full sm:w-auto bg-[#002147] text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-800 transition-all text-center"
-            >
-              Get Full Syllabus
-            </a>
-
-            {item.videoLink && (
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-5 items-center justify-start">
               <a
-                href={item.videoLink}
-                className="flex items-center gap-2 text-[#002147] font-bold hover:text-blue-600 py-2 self-start"
+                href={course?.syllabusFile?.url || "#"}
+                className="w-full sm:w-auto bg-[#002147] text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:bg-blue-900 transition-all text-center"
               >
-                <span className="w-10 h-10 flex items-center justify-center rounded-full bg-white border shadow-sm">
-                  ▶
-                </span>
-                Watch Details
+                Get Full Syllabus
               </a>
-            )}
+
+              {item.videoLink && (
+                <a
+                  href={item.videoLink}
+                  className="flex items-center gap-3 text-[#002147] font-bold hover:text-blue-600 transition-colors py-2 group"
+                >
+                  <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
+                    ▶
+                  </span>
+                  Watch Details
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -246,33 +243,36 @@ export default function CourseDetailPage() {
     </div>
   </section>
 )}
-{/* PROGRAM HIGHLIGHTS - COMPACT & MINIMALIST */}
+
+{/* PROGRAM HIGHLIGHTS - FULL WIDTH BG WITH BALANCED CARDS */}
 {course.goodThings?.length > 0 && (
-  <section className="w-full py-16 bg-white">
-    <div className="max-w-6xl mx-auto px-6">
+  <section className="w-full py-16 bg-white border-t border-slate-100">
+    {/* Background full width rahega, lekin content 7xl tak limit rahega taki stretch na ho */}
+    <div className="max-w-7xl mx-auto px-6 md:px-12">
       
-      {/* Small Header */}
+      {/* Header */}
       <div className="mb-10 border-b border-slate-100 pb-6">
         <h2 className="text-2xl md:text-3xl font-bold text-[#002147] tracking-tight">
-          Program Highlights
+          KEY Highlights
         </h2>
       </div>
 
-      {/* Compact Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Grid: 'grid-cols-auto' jaisa behavior dene ke liye humne xl:grid-cols-4 rakha hai */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {course.goodThings.map((g, i) => (
           <div 
             key={i} 
-            className="group p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all duration-300"
+            /* h-full lagaya hai taki agar ek card me text zyada ho to baaki card chote na dikhen */
+            className="group p-6 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all duration-300 flex flex-col h-full"
           >
             <div className="flex flex-col gap-3">
-              {/* Simple Number Thread */}
-              <span className="text-xs font-bold text-blue-500/50 tracking-widest uppercase">
+              {/* Feature Label: Dark & Bold */}
+              <span className="text-xs font-black text-black tracking-widest uppercase">
                 Feature {i + 1 < 10 ? `0${i + 1}` : i + 1}
               </span>
               
-              {/* Gray & Slim Text */}
-              <p className="text-gray-600 text-[15px] leading-relaxed font-medium group-hover:text-gray-900 transition-colors">
+              {/* Description Text: Original Gray */}
+              <p className="text-gray-600 text-[15px] leading-relaxed font-medium">
                 {g}
               </p>
             </div>
