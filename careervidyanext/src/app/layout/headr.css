@@ -384,7 +384,7 @@ cursor: pointer;
   position: absolute;
   z-index: 9999 !important; /* visibility ke liye high rakha hai */
   top: 5px; 
-  left: 115px;  
+  left: 115px; 
   pointer-events: none;
   
   /* --- SHADOW REMOVAL --- */

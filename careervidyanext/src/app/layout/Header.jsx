@@ -246,7 +246,7 @@ export default function Header() {
                 <div className="desktop-logo-box santa-container">
                   {/* SANTA FOR DESKTOP */}
                   <Image
-                    src="/images/anm.gif" 
+                    src="/images/anm1.gif" 
                     alt="Santa"
                     width={60}
                     height={60}
