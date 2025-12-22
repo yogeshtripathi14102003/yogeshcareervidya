@@ -174,6 +174,7 @@
 
 
 
+
 "use client";
 
 import { useState } from "react";
@@ -195,23 +196,20 @@ export default function Header() {
     <>
       <Subheader />
 
-    {/* <div className="santa-wrapper">
-    <Image
-      src="/images/giphy.gif"
-      alt="Santa"
-      width={90}
-      height={90}
-      className="santa-icon"
-      priority
-    />
-  </div> */}
-
       <header className="header-container">
         <div className="header-inner">
           {/* MOBILE HEADER */}
           <div className="mobile-header">
             <Link href="/" className="logo-wrapper">
-              <div className="mobile-logo-box">
+              <div className="mobile-logo-box santa-container">
+                {/* SANTA FOR MOBILE */}
+                <Image
+                  src="/images/nesanta.mp4"
+                  alt="Santa"
+                  width={40}
+                  height={40}
+                  className="santa-icon"
+                />
                 <Image
                   src="/images/n12.png"
                   alt="Career Vidya Logo"
@@ -243,9 +241,18 @@ export default function Header() {
           {/* DESKTOP HEADER */}
           <div className="container">
             <div className="desktop-header">
-              {/* LEFT LOGO */}
+              {/* LEFT LOGO WITH SANTA */}
               <Link href="/" className="logo-wrapper">
-                <div className="desktop-logo-box">
+                <div className="desktop-logo-box santa-container">
+                  {/* SANTA FOR DESKTOP */}
+                  <Image
+                    src="/images/anm.gif" 
+                    alt="Santa"
+                    width={60}
+                    height={60}
+                    className="santa-icon"
+                    priority
+                  />
                   <Image
                     src="/images/n12.png"
                     alt="Career Vidya Logo"
@@ -294,29 +301,17 @@ export default function Header() {
           <div className="mobile-menu animate-slideDown">
             <div className="mobile-menu-buttons">
               <Link href="/explore" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-primary">
-                  Explore Programs
-                </button>
+                <button className="mobile-menu-btn-primary">Explore Programs</button>
               </Link>
-
               <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-outline">
-                  Free Counselling
-                </button>
+                <button className="mobile-menu-btn-outline">Free Counselling</button>
               </Link>
-
               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-outline">
-                  Top University
-                </button>
+                <button className="mobile-menu-btn-outline">Top University</button>
               </Link>
-
               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-outline">
-                  View More
-                </button>
+                <button className="mobile-menu-btn-outline">View More</button>
               </Link>
-
               <button
                 onClick={() => {
                   setShowSignup(true);

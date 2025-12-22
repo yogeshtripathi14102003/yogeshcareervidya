@@ -284,7 +284,7 @@ cursor: pointer;
 }
 
 
-/* --- New Sidebar/Drawer Styles --- */
+/* --- New Sidebar/Drawer Styles sanata slder hai  --- */
 
 /* 1. Full-screen overlay when the menu is open */
 .mobile-menu {
@@ -368,5 +368,46 @@ cursor: pointer;
   100% {
     left: calc(100% + 100px); /* Right edge se bahar */
     transform: translateY(0px) rotate(0deg);
+  }
+}
+/* Container check */
+.santa-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* Kisi bhi tarah ka shadow container se hatane ke liye */
+  box-shadow: none !important;
+}
+
+/* The Santa Icon */
+.santa-icon {
+  position: absolute;
+  z-index: 9999 !important; /* visibility ke liye high rakha hai */
+  top: 5px; 
+  left: 115px;  
+  pointer-events: none;
+  
+  /* --- SHADOW REMOVAL --- */
+  box-shadow: none !important;
+  filter: none !important; /* Isse drop-shadow hat jati hai */
+  -webkit-filter: none !important;
+  
+  /* Background hatane ke liye (Agar white background hai) */
+  mix-blend-mode: multiply; 
+  
+  /* Border aur outline removal */
+  border: none !important;
+  outline: none !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .santa-icon {
+    width: 35px !important;
+    height: 35px !important;
+    top: -18px;
+    left: 45px;
+    box-shadow: none !important;
+    filter: none !important;
   }
 }

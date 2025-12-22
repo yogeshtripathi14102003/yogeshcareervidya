@@ -46,7 +46,7 @@ export default function QueryPopup() {
       <div className="bg-white w-[90%] max-w-3xl rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row relative animate-slideUpMobile md:animate-fadeIn">
         {/* Left Blue Panel */}
         <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center">
-          <img src="/images/q.jpeg" alt="help" className="w-16 h-16 mb-4" />
+          <img src="/images/may.png" alt="help" className="w-25 h-25 mb-4" />
           <h3 className="text-lg font-semibold mb-2">May I help you?</h3>
           <p className="text-sm leading-snug">
             Fill up your details <br /> for enquiry

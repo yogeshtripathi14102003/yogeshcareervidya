@@ -51,130 +51,125 @@ export default function CourseDetailPage() {
         
 {/* OVERVIEW SECTION */}
 {course.overview?.length > 0 && (
-  <section className="w-full bg-[#f8fafc] overflow-hidden">
-    {course.overview.map((item, i) => (
-      <div
-        key={i}
-        /* Full width flex container with alternating direction */
-        className={`flex flex-col lg:flex-row items-center w-full min-h-[500px] ${
-          i % 2 !== 0 ? "lg:flex-row-reverse" : ""
-        }`}
-      >
-        {/* IMAGE SIDE - 50% Width */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center bg-white/40">
-          {item.image?.url ? (
-            <div className="w-full h-full flex items-center justify-center p-4 lg:p-0">
-              <img
-                src={item.image.url}
-                alt={item.heading}
-                /* h-[550px] for desktop uniformity, object-contain for NO CROPPING */
-                className="w-full h-auto max-h-[400px] lg:max-h-none lg:h-[550px] object-contain transition-transform duration-500 hover:scale-105"
-              />
-            </div>
-          ) : (
-            <div className="w-full h-[300px] lg:h-[550px] bg-slate-200 flex items-center justify-center">
-              <span className="text-slate-400 font-bold">Image Placeholder</span>
-            </div>
-          )}
-        </div>
+  <section className="w-full bg-white overflow-hidden">
+    {/* Increased container width for desktop */}
+    <div className="max-w-[1400px] lg:w-[90%] mx-auto">
+      {course.overview.map((item, i) => (
+        <div
+          key={i}
+          className={`flex flex-col lg:flex-row items-center w-full min-h-[350px] bg-white ${
+            i % 2 !== 0 ? "lg:flex-row-reverse" : ""
+          }`}
+        >
+          {/* IMAGE SIDE - 50% Width */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center">
+            {item.image?.url ? (
+              <div className="w-full h-full flex items-center justify-center p-4 lg:p-6">
+                <img
+                  src={item.image.url}
+                  alt={item.heading}
+                  className="w-full h-auto max-h-[250px] lg:max-h-none lg:h-[350px] object-contain transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+            ) : (
+              <div className="w-full h-[200px] lg:h-[350px] bg-slate-50 flex items-center justify-center">
+                <span className="text-slate-400 font-bold">Image Placeholder</span>
+              </div>
+            )}
+          </div>
 
-        {/* CONTENT SIDE - 50% Width */}
-        <div className="w-full lg:w-1/2 px-6 md:px-16 lg:px-24 py-12 lg:py-0">
-          <div className="max-w-xl mx-auto lg:mx-0">
-            <div className="inline-block px-3 py-1 mb-4 bg-blue-100/80 text-blue-700 rounded-full text-[11px] font-bold uppercase tracking-widest">
-              Career Vidya Insight
-            </div>
+          {/* CONTENT SIDE - 50% Width */}
+          <div className="w-full lg:w-1/2 px-6 md:px-16 lg:px-10 py-6 lg:py-4">
+            <div className="max-w-2xl mx-auto lg:mx-0">
+              <div className="inline-block px-3 py-1 mb-3 bg-blue-100/80 text-blue-700 rounded-full text-[11px] font-bold uppercase tracking-widest">
+                Career Vidya Insight
+              </div>
 
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#002147] mb-5 leading-tight">
-              {item.heading}
-            </h2>
+              <h2 className="text-2xl md:text-2xl font-extrabold text-[#002147] mb-3 leading-tight">
+                {item.heading}
+              </h2>
 
-            <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-8">
-              {item.description}
-            </p>
+              <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6">
+                {item.description}
+              </p>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-5 items-center justify-start">
-              <a
-                href={course?.syllabusFile?.url || "#"}
-                className="w-full sm:w-auto bg-[#002147] text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:bg-blue-900 transition-all text-center"
-              >
-                Get Full Syllabus
-              </a>
-
-              {item.videoLink && (
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-start">
                 <a
-                  href={item.videoLink}
-                  className="flex items-center gap-3 text-[#002147] font-bold hover:text-blue-600 transition-colors py-2 group"
+                  href={course?.syllabusFile?.url || "#"}
+                  className="w-full sm:w-auto bg-[#002147] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-900 transition-all text-center text-sm"
                 >
-                  <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
-                    ▶
-                  </span>
-                  Watch Details
+                  Get Full Syllabus
                 </a>
-              )}
+
+                {item.videoLink && (
+                  <a
+                    href={item.videoLink}
+                    className="flex items-center gap-3 text-[#002147] font-bold hover:text-blue-600 transition-colors py-1 group text-sm"
+                  >
+                    <span className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
+                      ▶
+                    </span>
+                    Watch Details
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    ))}
+      ))}
+    </div>
   </section>
 )}
 
-
 {/* WHY CHOOSE US - NO-CROP IMAGE STYLE */}
 {course.whyChooseUs?.length > 0 && (
-  <section className="relative w-full py-20 bg-white overflow-hidden">
+  <section className="relative w-full py-12 bg-white overflow-hidden">
     <div className="max-w-7xl w-full px-6 mx-auto">
       
-      {/* Heading */}
-      <div className="text-center mb-20">
-        <h2 className="text-4xl md:text-5xl font-black text-[#002147] mb-4">
-          Why Choose Us
+      {/* Heading - Reduced margin from mb-12 to mb-8 */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl md:text-2xl font-black text-[#002147] mb-3">
+          Why {course.name}
         </h2>
-        <div className="w-20 h-1.5 bg-[#002147] mx-auto rounded-full"></div>
+        <div className="w-16 h-1 bg-[#002147] mx-auto rounded-full"></div>
       </div>
 
-      <div className="space-y-24">
+      {/* Reduced space-y from 12 to 8 */}
+      <div className="space-y-8">
         {course.whyChooseUs.map((item, i) => (
           <div 
             key={i} 
-            className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-20 ${
+            className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
               i % 2 !== 0 ? "lg:flex-row-reverse" : ""
             }`}
           >
-            {/* TEXT CONTENT */}
-            <div className="w-full lg:w-1/2">
+            {/* TEXT CONTENT - Reduced padding */}
+            <div className="w-full lg:w-1/2 flex flex-col justify-center py-2">
               <div className="relative">
-                <span className="absolute -top-12 -left-8 text-9xl text-slate-100 font-serif leading-none select-none -z-10">“</span>
-                <p className="text-gray-600 text-lg md:text-xl leading-[1.8] text-justify font-medium">
+                <span className="absolute -top-8 -left-6 text-7xl text-slate-100 font-serif leading-none select-none -z-10">“</span>
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify font-medium">
                   {item.description}
                 </p>
               </div>
               
-              <div className="mt-8 flex items-center gap-4 text-[#002147] font-bold">
-                <span className="h-[2px] w-12 bg-[#002147]"></span>
-                <span className="uppercase text-sm tracking-widest">Career Vidya Excellence</span>
+              <div className="mt-4 flex items-center gap-4 text-[#002147] font-bold">
+                <span className="h-[2px] w-10 bg-[#002147]"></span>
+                <span className="uppercase text-[10px] tracking-widest">Career Vidya Excellence</span>
               </div>
             </div>
 
-            {/* IMAGE BLOCK - ASPECT RATIO PRESERVED */}
+            {/* IMAGE BLOCK - Fixed Cropping Issue */}
             {item.image?.url && (
               <div className="w-full lg:w-1/2 group">
-                <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-50 border border-slate-100 shadow-xl transition-all duration-500">
-                  {/* object-contain use kiya hai taki image puri dikhe (crop na ho) */}
+                {/* Changed h-full to h-auto or fixed max-h to prevent cropping */}
+                <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
                   <img
                     src={item.image.url}
                     alt="Why Choose Us"
-                    className="w-full h-auto max-h-[450px] block object-contain mx-auto transition-transform duration-700 group-hover:scale-105"
+                    /* Added max-h-full to ensure it never bleeds out or crops */
+                    className="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
                   />
-                  
-                  {/* Subtle Floating Tag */}
-                  {/* <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-xl shadow-md border-l-4 border-[#002147] z-20">
-                     <p className="text-[#002147] font-bold text-xs uppercase tracking-wider">
-                       World-Class Mentorship
-                     </p>
-                  </div> */}
                 </div>
               </div>
             )}
@@ -185,13 +180,12 @@ export default function CourseDetailPage() {
   </section>
 )}
 
-
  {/* TOP UNIVERSITIES - FORCED WHITE MODE */}
 {course.topUniversities?.length > 0 && (
   <section className="mt-10 w-full flex justify-center bg-white py-10">
     <div className="w-full max-w-6xl px-4">
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-[#002147]">
-        Top Affordable Universities for Online {course.courseName}
+      <h2 className="text-2xl md:text-2xl font-bold mb-6 text-[#002147]">
+        Top Affordable Universities for {course.name}
       </h2>
 
       <div className="overflow-x-auto shadow-md rounded-lg">
@@ -252,8 +246,8 @@ export default function CourseDetailPage() {
       
       {/* Header */}
       <div className="mb-10 border-b border-slate-100 pb-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#002147] tracking-tight">
-          KEY Highlights
+        <h2 className="text-2xl md:text-2xl font-bold text-[#002147] tracking-tight">
+          Key Highlights
         </h2>
       </div>
 
@@ -268,7 +262,7 @@ export default function CourseDetailPage() {
             <div className="flex flex-col gap-3">
               {/* Feature Label: Dark & Bold */}
               <span className="text-xs font-black text-black tracking-widest uppercase">
-                Feature {i + 1 < 10 ? `0${i + 1}` : i + 1}
+                Feature {i + 1 < 20 ? `0${i + 1}` : i + 1}
               </span>
               
               {/* Description Text: Original Gray */}
@@ -293,8 +287,8 @@ export default function CourseDetailPage() {
       
       {/* Heading - Now Full Width Align */}
       <div className="mb-12">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-[#002147] leading-tight">
-          Key Highlights of Online {course.courseName} In India
+        <h2 className="text-2xl md:text-4xl font-extrabold text-[#002147] leading-tight">
+         What You’ll Learn & Gain {course.courseName} In India
         </h2>
         <div className="w-20 h-1.5 bg-blue-600 mt-4 rounded-full"></div>
       </div>

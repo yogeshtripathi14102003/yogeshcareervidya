@@ -73,7 +73,7 @@ const CourseCard = ({ course, isPopup = false, index }) => {
         </h3>
       </div>
 
-      <div className="bg-[#0056B3] text-white text-[8px] md:text-[10px] font-black py-1.5 w-full rounded-sm text-center uppercase pointer-events-none">
+      <div className="bg-[#0056B3] text-white text-[8px] md:text-[10px] py-1.5 w-full rounded-sm text-center uppercase pointer-events-none">
         Know More
       </div>
     </div>
