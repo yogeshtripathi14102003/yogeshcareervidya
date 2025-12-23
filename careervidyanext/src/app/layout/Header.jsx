@@ -172,9 +172,6 @@
 //   );
 // }
 
-
-
-
 "use client";
 
 import { useState } from "react";
@@ -182,150 +179,182 @@ import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, Search } from "lucide-react";
 import Signup from "../signup/page.jsx";
-import { useRouter } from "next/navigation";
-
 import Subheader from "@/app/components/Subheader.jsx";
 import "./headr.css";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const router = useRouter();
 
   return (
     <>
       <Subheader />
-
       <header className="header-container">
         <div className="header-inner">
-          {/* MOBILE HEADER */}
-          <div className="mobile-header">
-            <Link href="/" className="logo-wrapper">
-              <div className="mobile-logo-box santa-container">
-                {/* SANTA FOR MOBILE */}
+          
+          {/* LOGO */}
+          <Link href="/" className="logo-wrapper">
+            <div className="logo-box">
+              <div className="desktop-only">
                 <Image
-                  src="/images/nesanta.mp4"
+                  src="/images/anm1.gif"
                   alt="Santa"
-                  width={40}
-                  height={40}
+                  width={45}
+                  height={45}
                   className="santa-icon"
-                />
-                <Image
-                  src="/images/n12.png"
-                  alt="Career Vidya Logo"
-                  width={64}
-                  height={64}
-                  className="logo-img"
                   priority
                 />
               </div>
-            </Link>
+              <Image
+                src="/images/n12.png"
+                alt="Logo"
+                width={110}
+                height={40}
+                className="logo-img"
+                priority
+              />
+            </div>
+          </Link>
 
-            <div className="mobile-actions">
-              <button
-                onClick={() => setShowSignup(true)}
-                className="mobile-signup-btn"
-              >
-                Signup
+          {/* DESKTOP SEARCH */}
+          <div className="header-search-container desktop-only">
+            <div className="main-search-bar">
+              <input
+                type="text"
+                placeholder="Explore Courses"
+                className="main-search-input"
+              />
+              <button className="search-icon-btn">
+                <Search size={22} color="white" />
               </button>
 
-              <button
-                className="menu-toggle-btn"
-                onClick={() => setMenuOpen(!menuOpen)}
-              >
-                {menuOpen ? <X size={26} /> : <Menu size={26} />}
-              </button>
+              <div className="search-dropdown-overlay">
+                <div className="dropdown-search-inner">
+                  <Search size={20} color="#666" />
+                  <input
+                    type="text"
+                    placeholder="Search for colleges, exams, courses and more..."
+                    className="dropdown-input"
+                  />
+                  <button className="dropdown-search-btn">Search</button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* DESKTOP HEADER */}
-          <div className="container">
-            <div className="desktop-header">
-              {/* LEFT LOGO WITH SANTA */}
-              <Link href="/" className="logo-wrapper">
-                <div className="desktop-logo-box santa-container">
-                  {/* SANTA FOR DESKTOP */}
-                  <Image
-                    src="/images/anm1.gif" 
-                    alt="Santa"
-                    width={60}
-                    height={60}
-                    className="santa-icon"
-                    priority
-                  />
-                  <Image
-                    src="/images/n12.png"
-                    alt="Career Vidya Logo"
-                    width={100}
-                    height={100}
-                    className="logo-img"
-                    priority
-                  />
-                </div>
-              </Link>
+          {/* DESKTOP NAV */}
+          <nav className="nav-right desktop-only">
+            <Link href="/explore">Explore Programs</Link>
+            <Link href="/teamexpand">Free Counselling</Link>
+            <Link href="/counselling">Top University</Link>
 
-              {/* SEARCH BAR */}
-              <div className="header-search-container">
-                <div className="main-search-bar">
-                  <input
-                    type="text"
-                    placeholder="Explore Courses"
-                    className="main-search-input"
-                  />
-                  <button className="search-icon-btn">
-                    <Search size={22} color="white" />
-                  </button>
+            <div className="nav-item-more">
+              <Link href="#">View More</Link>
+
+              {/* ================= MEGA MENU (COMMENTED) ================= */}
+              {/*
+              <div className="mega-menu">
+                <div className="mega-menu-inner">
+
+                  <div className="mega-column">
+                    <h3>About Us</h3>
+                    <Link href="/about">Our Story</Link>
+                    <Link href="/team">Our Team</Link>
+                    <Link href="/careers">Careers</Link>
+                  </div>
+
+                  <div className="mega-column">
+                    <h3>Services</h3>
+                    <Link href="/admission">Admission Guidance</Link>
+                    <Link href="/visa">Visa Assistance</Link>
+                    <Link href="/loans">Education Loans</Link>
+                  </div>
+
+                  <div className="mega-column">
+                    <h3>Contact</h3>
+                    <Link href="/contact">Get in Touch</Link>
+                    <Link href="/support">Help Center</Link>
+                    <Link href="/locations">Our Offices</Link>
+                  </div>
+
                 </div>
               </div>
-
-              {/* RIGHT MENU */}
-              <nav className="nav-right">
-                <Link href="/explore">Explore Programs</Link>
-                <Link href="/teamexpand">Free Counselling</Link>
-                <Link href="/counselling">Top University</Link>
-                <Link href="/counselling">View More</Link>
-
-                <button
-                  onClick={() => setShowSignup(true)}
-                  className="btn1-primary"
-                >
-                  Signup
-                </button>
-              </nav>
+              */}
+              {/* ========================================================= */}
             </div>
+
+            <button
+              onClick={() => setShowSignup(true)}
+              className="btn1-primary"
+            >
+              Signup
+            </button>
+          </nav>
+
+          {/* MOBILE ACTIONS */}
+          <div className="mobile-actions mobile-only">
+            <button
+              onClick={() => setShowSignup(true)}
+              className="mobile-signup-btn"
+            >
+              Signup
+            </button>
+            <button
+              className="menu-toggle-btn"
+              onClick={() => setMenuOpen(true)}
+            >
+              <Menu size={28} color="black" />
+            </button>
           </div>
         </div>
 
-        {/* MOBILE MENU */}
-        {menuOpen && (
-          <div className="mobile-menu animate-slideDown">
-            <div className="mobile-menu-buttons">
+        {/* MOBILE SIDEBAR */}
+        <div
+          className={`mobile-sidebar-overlay ${menuOpen ? "active" : ""}`}
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            className={`mobile-sidebar ${menuOpen ? "open" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sidebar-header">
+              <span className="sidebar-title">Menu</span>
+              <button
+                className="close-btn"
+                onClick={() => setMenuOpen(false)}
+              >
+                <X size={30} color="#333" />
+              </button>
+            </div>
+
+            <nav className="mobile-nav-links">
               <Link href="/explore" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-primary">Explore Programs</button>
+                Explore Programs
               </Link>
               <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-outline">Free Counselling</button>
+                Free Counselling
               </Link>
               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-outline">Top University</button>
+                Top University
               </Link>
               <Link href="/counselling" onClick={() => setMenuOpen(false)}>
-                <button className="mobile-menu-btn-outline">View More</button>
+                View More
               </Link>
               <button
                 onClick={() => {
                   setShowSignup(true);
                   setMenuOpen(false);
                 }}
-                className="mobile-menu-btn-primary"
+                className="mobile-sidebar-signup"
               >
                 Signup
               </button>
-            </div>
+            </nav>
           </div>
-        )}
+        </div>
       </header>
 
+      {/* SIGNUP MODAL */}
       {showSignup && <Signup onClose={() => setShowSignup(false)} />}
     </>
   );

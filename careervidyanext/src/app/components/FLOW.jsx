@@ -73,7 +73,7 @@ export default function AdmissionProcess() {
       <div className="flex justify-center mt-6">
         <Link
           ref={button.ref}
-          href="/counselling"
+          href="/"
           className={`inline-block bg-[#0056B3] text-white font-medium px-8 py-2 rounded-md text-xs md:text-sm transition-all duration-700 delay-200 hover:bg-[#004494] shadow-sm
           ${
             button.visible

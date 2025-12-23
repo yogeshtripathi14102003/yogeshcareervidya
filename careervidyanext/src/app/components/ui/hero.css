@@ -1,13 +1,16 @@
+/* --- Global Slider Styles --- */
 .slider-container {
   position: relative;
   width: 100%;
-  height: 59vh;
+  height: 51vh; /* Aapki original height */
   overflow: hidden;
+  background-color: #f0f0f0;
 }
+
 .slider-wrapper {
   display: flex;
   height: 100%;
-  transition: transform 0.4s ease-in-out; 
+  transition: transform 0.4s ease-in-out;
 }
 
 .slide {
@@ -16,35 +19,46 @@
   position: relative;
 }
 
-.slide-image {
-  /* object-fit: cover; */
-  z-index: 1;
+/* --- Responsive Fixes --- */
+
+/* 1. Tablet View Fix (768px se 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .slider-container {
+    height: auto !important; /* Height auto taki image na kategi */
+    aspect-ratio: 16 / 7;    /* Tablet ke liye perfect ratio */
+  }
+  .slide img {
+    object-fit: contain !important; /* Poori image dikhayega */
+  }
 }
 
-.slide-overlay {
-  position: absolute;
-  bottom: 50px;
-  left: 40px;
-  z-index: 2;
-  color: #fff;
+/* 2. Desktop View (1025px aur upar) */
+@media (min-width: 1025px) {
+  .slider-container {
+    height: 51vh; /* Desktop par aapki purani height wapas */
+  }
+  .slide img {
+    object-fit: cover !important; /* Desktop par perfection ke liye */
+  }
 }
 
-.slide-title {
-  font-size: 32px;
-  font-weight: bold;
+/* 3. Mobile View (767px aur niche) */
+@media (max-width: 767px) {
+  .slider-container {
+    height: 21vh; /* Mobile view height */
+  }
+  .slider-btn {
+    display: none !important; /* Mobile par buttons chhupayen */
+  }
+  .slide img {
+    object-fit: fill !important; /* Mobile par stretch karega bina crop kiye */
+  }
+  .slide-title {
+    font-size: 24px;
+  }
 }
 
-.slide-button {
-  background: #ffffff;
-  color: #000;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-block;
-  margin-top: 10px;
-}
-
-
+/* --- Buttons, Dots & UI --- */
 .slider-btn {
   background: transparent !important;
   border: none !important;
@@ -55,17 +69,10 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  padding: 0;
 }
 
-.slider-btn.left {
-  left: 20px;
-}
-
-.slider-btn.right {
-  right: 20px;
-}
-
+.slider-btn.left { left: 20px; }
+.slider-btn.right { right: 20px; }
 
 .slider-dots {
   position: absolute;
@@ -82,10 +89,22 @@
   margin: 0 5px;
   cursor: pointer;
   border: none;
+  display: inline-block;
 }
 
-.active-dot {
-  background: white;
+.active-dot { background: white; }
+
+.slide-overlay {
+  position: absolute;
+  bottom: 50px;
+  left: 40px;
+  z-index: 2;
+  color: #fff;
+}
+
+.slide-title {
+  font-size: 32px;
+  font-weight: bold;
 }
 
 .slider-loading {
@@ -93,8 +112,7 @@
   padding: 40px;
   font-size: 20px;
 }
-
-
+ 
 @media (max-width: 767px) {
     
     /* 1. मोबाइल व्यू में स्लाइडर बटन को छुपाएं */

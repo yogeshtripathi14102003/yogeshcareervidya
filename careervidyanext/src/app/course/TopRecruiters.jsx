@@ -17,15 +17,16 @@ export default function TopRecruiters({ topRecruiters, courseTitle }) {
 
     return (
         <section className="mt-12 w-full flex justify-center py-10 bg-gray-50">
-            <div className="w-full max-w-6xl px-4">
+            {/* Width increased to 1600px as requested */}
+            <div className="w-full max-w-[1600px] px-4 md:px-10">
 
-                {/* Main Heading */}
-                <h2 className="text-3xl font-bold mb-4 text-gray-800">
+                {/* Main Heading - Updated to #002D62 */}
+                <h2 className="text-3xl font-bold mb-4 text-[#002D62]">
                     Top Recruiters for Online {dynamicCourseTitle}
                 </h2>
                 
                 {/* Introductory Description */}
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <p className="text-gray-600 mb-6 leading-relaxed max-w-5xl">
                     Multiple top recruiters of the top MNCs in India and abroad can hire online {dynamicCourseTitle} course graduates and offer higher packages. However, there is a top company list that provides good salary packages yearly to the Online {dynamicCourseTitle} degree pursuer who gets through it.
                 </p>
                 <p className="text-sm italic text-gray-500 mb-8">
@@ -41,13 +42,13 @@ export default function TopRecruiters({ topRecruiters, courseTitle }) {
                             <tr>
                                 <th 
                                     scope="col" 
-                                    className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider"
+                                    className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider"
                                 >
-                                    Top MNCs hire the  {dynamicCourseTitle} Course 
+                                    Top MNCs hire the {dynamicCourseTitle} Course 
                                 </th>
                                 <th 
                                     scope="col" 
-                                    className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider"
+                                    className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider"
                                 >
                                     Salary Packages (yearly) (in INR)
                                 </th>
@@ -57,11 +58,11 @@ export default function TopRecruiters({ topRecruiters, courseTitle }) {
                         {/* Table Body */}
                         <tbody className="bg-white divide-y divide-gray-200">
                             {topRecruiters.map((recruiter, index) => (
-                                <tr key={index} className="hover:bg-gray-100">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 border-r border-gray-100">
                                         {recruiter.companyName}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">
                                         {recruiter.packageOffered}
                                     </td>
                                 </tr>

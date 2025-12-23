@@ -108,7 +108,7 @@ const Signup = () => {
       
       {/* Left Side - MOBILE VIEW ME CHHUPAYA GAYA */}
       <div className="w-full md:w-1/2 p-8 bg-gradient-to-r from-[#F0F8FF] to-[#E6F0FF] flex-col justify-center items-start text-[#333333] hidden md:flex">
-        <h1 className="text-4xl font-bold text-[#1E90FF] mb-4">Career Vidya</h1>
+        <h1 className="text-4xl font-bold text-[#05347f] mb-4">Career Vidya</h1>
         <h2 className="text-2xl font-semibold mb-6">Unlock Your Future with Career Vidya</h2>
         <ul className="list-disc list-inside mb-6 space-y-2">
           <li>Exam Alerts – Timely updates</li>
@@ -122,7 +122,7 @@ const Signup = () => {
       <div className="w-full md:w-1/2 p-8 flex flex-col justify-center items-center relative">
         <div className="w-full max-w-md relative">
 
-          <h2 className="text-2xl font-bold text-center mb-4 text-[#1E90FF]">
+          <h2 className="text-2xl font-bold text-center mb-4 text-[#05347f]">
             Apply Online Course Form
           </h2>
 
@@ -266,7 +266,7 @@ const Signup = () => {
             <button
               type="button"
               onClick={() => setExpanded(true)}
-              className="bg-[#1E90FF] w-12 h-12 rounded-full flex justify-center items-center 
+              className="bg-[#05347f] w-12 h-12 rounded-full flex justify-center items-center 
               text-white text-3xl shadow-lg hover:shadow-xl transition-all duration-300 
               absolute bottom-0 left-1/2 -translate-x-1/2"
             >

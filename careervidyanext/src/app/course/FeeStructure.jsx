@@ -15,7 +15,8 @@ export default function FeeStructure({
 
     return (
         <section className="mt-12 w-full flex justify-center py-10 bg-gray-50">
-            <div className="w-full max-w-6xl px-4">
+            {/* Width updated to 1600px */}
+            <div className="w-full max-w-[1600px] px-4">
 
                 {/* --- Main Grid Layout --- */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -74,41 +75,7 @@ export default function FeeStructure({
                     {/* === COLUMN 2: Sidebar === */}
                     <div className="lg:col-span-1 space-y-8 h-fit sticky top-4">
                         
-                        {/* 1. SECTION WITH APPLY NOW BUTTON - COMMENTED OUT (NOT DELETED) */}
-                        {/* {feeStructureSidebar?.map((block, blockIndex) => (
-                            <div key={blockIndex} className="bg-white p-6 rounded-xl shadow-lg border border-blue-500">
-                                <h3 className="text-xl font-bold mb-4 text-blue-600">
-                                    {block.heading || `Program Fee Summary`}
-                                </h3>
-
-                                <ul className="list-none space-y-3">
-                                    {block.points?.map((point, pointIndex) => (
-                                        <li key={pointIndex} className="text-gray-700 leading-relaxed">
-                                            <span className="font-semibold">{point}</span>
-                                            {pointIndex === 0 && (
-                                                <button className="ml-4 bg-blue-600 text-white px-4 py-1 rounded-full shadow hover:bg-blue-700 text-sm">
-                                                    Apply Now
-                                                </button>
-                                            )}
-                                            {point.toLowerCase().includes('emi') && (
-                                                <span className="ml-3 inline-block bg-yellow-400 text-gray-800 text-xs px-2 py-0.5 rounded-full font-semibold">
-                                                    Recommended
-                                                </span>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                {block.description && (
-                                    <p className="mt-4 text-sm text-gray-600">
-                                        {block.description}
-                                    </p>
-                                )}
-                            </div>
-                        ))} 
-                        */}
-                        
-                        {/* 2. Benefits of learning from us - YE SECTION ACTIVE HAI */}
+                        {/* 2. Benefits of learning from us - ACTIVE */}
                         <div className="bg-white p-6 rounded-xl shadow-lg border">
                             <h3 className="text-xl font-bold mb-4 text-gray-800">
                                 Benefits of learning from us

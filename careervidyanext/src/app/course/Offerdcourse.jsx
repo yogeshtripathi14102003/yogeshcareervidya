@@ -14,9 +14,10 @@ export default function Offerdcourse({ offeredCourses, courseName = "Programs" }
 
   return (
     <section className="w-full flex justify-center bg-gray-50 py-10">
-      <div className="w-full max-w-5xl px-4">
+      {/* Width changed to 1600px as requested */}
+      <div className="w-full max-w-[1600px] px-4">
         {/* Main Heading */}
-        <h2 className="text-3xl font-bold mb-8 text-center text-[#002D62]">
+        <h2 className="text-2xl font-bold mb-8 text-center text-[#002D62]">
           Offered {courseName} Programs & Courses
         </h2>
 
@@ -38,7 +39,7 @@ export default function Offerdcourse({ offeredCourses, courseName = "Programs" }
               "
             >
               {/* Course Heading */}
-              <h3 className="text-xl font-semibold mb-4 text-blue-600 border-b pb-2">
+          <h3 className="text-xl font-semibold mb-4 text-[#002D62] border-b pb-2">
                 {offer.heading}
               </h3>
 

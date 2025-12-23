@@ -1,124 +1,127 @@
+/* ================================================= */
+/* GLOBAL HEADER STYLES */
+/* ================================================= */
 .header-container {
     width: 100%;
     background: white;
-    color: #333;
-    padding:1px 0px;
     border-bottom: 1px solid #e5e5e5;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    /* height: 70px; */
     position: sticky;
     top: 0;
     z-index: 50;
 }
 
 .header-inner {
-       justify-content: space-between;
-    align-items: center;
-    max-width: 1280px;
-    height: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0 16px;
-}
-
-/* Desktop Padding */
-/* @media (min-width: 1024px) {
-    .header-inner {
-        padding: 0 24px;
-    }
-} */
-
-
-
-.mobile-header {
     display: flex;
     justify-content: space-between;
-    width: 100%;
-    height: 100%;
     align-items: center;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 15px;
+    height: 65px;
 }
 
 @media (min-width: 1024px) {
-    .mobile-header {
-        display: none;
+    .header-inner {
+        height: 80px;
+        padding: 0 40px;
     }
 }
 
-/* MOBILE LOGO - Centered, smaller box for mobile */
-.mobile-logo-box {
-    width: 50px;
-    /* Smaller logo for mobile */
-    height: 50px;
+/* Visibility Helpers */
+.desktop-only { display: none !important; }
+.mobile-only { display: flex !important; }
+
+@media (min-width: 1024px) {
+    .desktop-only { display: flex !important; }
+    .mobile-only { display: none !important; }
+}
+
+/* --- LOGO --- */
+.logo-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-img {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+}
+
+@media (min-width: 1024px) {
+    .logo-img { width: 140px; }
+}
+
+/* --- DESKTOP SEARCH BAR --- */
+.header-search-container.desktop-only {
+    margin-left: auto;
+    margin-right: 35px;
+}
+
+.main-search-bar {
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #cccccc70;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    width: 320px;
+    height: 44px;
+    padding: 4px 4px 4px 20px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+}
+
+.main-search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 13px;
+    font-family: 'Geist', sans-serif;
+}
+
+.search-icon-btn {
+    cursor: pointer;
+    background-color: #c15304;
+    border: 3px solid #be500d;
     border-radius: 50%;
-    overflow: hidden;
-    border: 1px solid #ddd;
+    width: 37px;
+    height: 37px;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: absolute;
+    right: 3px;
 }
 
-.mobile-actions {
+/* --- NAV & BUTTONS --- */
+.nav-right {
     display: flex;
-    align-items: center;
     gap: 12px;
-}
-
-.mobile-signup-btn {
-    background: #2563eb;
-    color: white;
-    /* FONT SIZE/PADDING FOR MOBILE */
-    padding: 6px 14px;
-    font-size: 14px;
-    border-radius: 6px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-
-.mobile-signup-btn:hover {
-    background: #1d4ed8;
-}
-
-.menu-toggle-btn {
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    background: transparent;
-    cursor: pointer;
-    transition: 0.2s;
-    color: #333;
-}
-
-.menu-toggle-btn:hover {
-    background: #f2f2f2;
-}
-
-/* ================================================= */
-/* DESKTOP HEADER */
-/* ================================================= */
-.desktop-header {
-    display: none;
-    /* width: 100%; */
     align-items: center;
-    justify-content: space-between;
-    height: 100%;
-     width: 95%;
-    margin: 0px auto;
-
-    /* No margin required if using header-inner padding */
 }
 
+.nav-right a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    padding: 8px 10px;
+}
 
 .btn1-primary {
-cursor: pointer;
-    background-color: rgba(0, 0, 0, 0);
-    border: 1.4px solid #04458b;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1.5px solid #04458b;
     border-radius: 4px;
-    padding: 7px 20px;
-    font-weight: 500;
-    font-size: 15px;
-    font-family: Geist;
+    padding: 8px 22px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #04458b;
+    transition: all 0.2s;
 }
 
 .btn1-primary:hover {
@@ -126,288 +129,319 @@ cursor: pointer;
     color: white;
 }
 
-
-
-@media (min-width: 1024px) {
-    .desktop-header {
-        display: flex;
-    }
-}
-
-.desktop-logo-box {
-
-    display: flex;
+/* ================================================= */
+/* MOBILE SIDEBAR (DRAWER) STYLES */
+/* ================================================= */
+.mobile-actions {
     align-items: center;
-
-    margin-right: 20px;
+    gap: 10px;
 }
 
-/* LOGO IMAGE INSIDE THE BOX */
-.logo-img {
-    object-fit: contain;
-    max-width: 100%;
-    max-height: 100%;
-    width: 100%;
-    height: 100%;
-        width: 120px;
-         /* width: 159px; */
+.mobile-signup-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-
-
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 0px;
-}
-
-.nav-right a,
-.nav-right {
-
-    white-space: nowrap;
-    border-radius: 8px;
-    align-items: center;
-    padding: 8px 12px;
-    font-family: 'Geist';
-    font-weight: 600 !important;
-    text-decoration: none;
-    transition: all .2s;
-    display: flex;
-    font-size: 14px !important;
-}
-
-
-.nav-right button.bg-\[\#0056B3\] {
-    background-color: #0056B3 !important;
-    color: white !important;
-    padding: 10px 18px;
-}
-
-
-.nav-right button.bg-blue-50\/70 {
-    padding: 8px 12px;
-    font-weight: 500;
-}
-
-
-.nav-right button.border-blue-500 {
-
-    padding: 9px 16px;
-    font-weight: 500;
-    border-width: 2px;
-}
-
-
-.nav-right button.bg-blue-50 {
-
-    padding: 8px 12px;
-}
-
-
-/* .nav-right a:not([class*="button"]):not([class*="btn-"]) {
-    color: #333;
-    padding: 10px 0px;
-    font-weight: 500;
-}
-
-.nav-right a:not([class*="button"]):not([class*="btn-"]):hover {
-    color: #0056B3;
-} */
-
-
-
-
-
-
-.main-search-bar {
+.menu-toggle-btn {
+    background: transparent;
+    border: none;
     cursor: pointer;
-    background-color: #fff;
-    border: 1px solid #cccccc70;
-    border-radius: 30px;
-    flex-shrink: 0;
-    align-items: center;
-    width: 328px;
-    height: 44px;
-    margin: 0 40px;
-    padding: 4px 4px 4px 20px;
-    transition: box-shadow .3s, border-color .3s;
+}
+
+/* Overlay Background */
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.mobile-sidebar-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* White Side Panel */
+.mobile-sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 290px;
+    height: 100%;
+    background: white;
+    padding: 25px;
     display: flex;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+    flex-direction: column;
+    transition: right 0.3s ease-in-out;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+}
+
+.mobile-sidebar.open {
+    right: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #002D62;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.mobile-nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.mobile-nav-links a:hover {
+    background: #f8f9fa;
+    color: #04458b;
+}
+
+.sidebar-footer-btn {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.mobile-sidebar-signup-btn {
+    width: 100%;
+    background: #04458b;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+
+
+
+
+/* --- NAV ITEM WRAPPER --- */
+.nav-item-more {
+    position: relative;
+    display: inline-block;
+    height: 100%;
+}
+
+.nav-item-more > a {
+    padding: 30px 10px; /* Header height ke hisab se align karne ke liye */
+}
+
+/* --- MEGA MENU BASE --- */
+.mega-menu {
+    position: absolute;
+    top: 210%; /* Header ke bilkul niche khulega */
+    right: -100px;
+    width: 600px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border-top: 3px solid #04458b;
+    border-radius: 0 0 8px 8px;
+    padding: 25px;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    
+}
+
+/* Hover karne par Menu dikhega */
+.nav-item-more:hover .mega-menu {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.mega-menu-inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+    gap: 20px;
+}
+
+/* --- MEGA COLUMNS --- */
+.mega-column h3 {
+    font-size: 15px;
+    color: #04458b;
+    margin-bottom: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.mega-column a {
+    display: block;
+    color: #555 !important;
+    font-size: 14px !important;
+    padding: 6px 0 !important;
+    font-weight: 500 !important;
+    transition: 0.2s;
+}
+
+.mega-column a:hover {
+    color: #c15304 !important;
+    padding-left: 5px !important;
+}
+
+/* --- SANTA & LOGO ADJUSTMENT (RIGHT SIDE) --- */
+.logo-box {
+    display: flex;
+    align-items: center;
     position: relative;
 }
 
-.main-search-bar:hover {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    border-color: #aaa;
+.logo-img {
+    order: 1;
+    width: 130px;
+} 
+
+.santa-icon {
+    order: 2;
+    width: 70px;
+    margin-left: 0px; /* Logo ke ander shift karne ke liye */
+    margin-bottom: 0px;
+    z-index: 5;
+    animation: santaFloat 3s ease-in-out infinite;
 }
 
-.main-search-input {
-    color: #333;
-    background: none;
+@keyframes santaFloat {
+    0%, 100% { transform: translateY(0) rotate(3deg); }
+    50% { transform: translateY(-5px) rotate(-3deg); }
+}
+
+/* --- POPUP Z-INDEX FIX --- */
+.signup-overlay, 
+div[class*="signup"], 
+div[class*="Signup"] {
+    z-index: 99999 !important;
+    position: fixed !important;
+}
+
+/* Mobile par Mega Menu chupa de kyuki mobile ke liye sidebar alag hai */
+@media (max-width: 1024px) {
+    .mega-menu { display: none; }
+    .santa-icon { display: none; }
+}
+
+/* --- SEARCH CONTAINER BASE --- */
+.header-search-container.desktop-only {
+    position: relative; 
+    margin-left: auto;
+    margin-right: 35px;
+}
+
+/* --- SEARCH DROPDOWN (Laptop/Desktop Fix) --- */
+.search-dropdown-overlay {
+    position: absolute;
+    top: 61px; /* Search bar ke thoda niche */
+    
+    /* Center karne ke liye logic */
+    left: 60%; 
+    transform: translateX(-50%) translateY(-10px); /* Pehle se thoda upar aur center */
+    
+    width: 900px; /* Laptop par badi bar dikhane ke liye width badhayi hai */
+    max-width: 90vw; /* Screen se bahar na jaye */
+    
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border: 1px solid #e0e0e0;
+    
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+/* Hover par alignment fix */
+.header-search-container:hover .search-dropdown-overlay {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Center mein drop hoga */
+}
+
+/* Inner Search Bar Style (Screenshot jaisa) */
+.dropdown-search-inner {
+    display: flex;
+    align-items: center;
+    border: 2px solid #eee;
+    border-radius: 6px;
+    padding: 2px 5px 2px 15px;
+    background: #fff;
+}
+
+.dropdown-input {
+    flex: 1;
     border: none;
     outline: none;
-    flex-grow: 1;
-    margin-right: 12px;
-    padding: 0;
-    font-size: 13px;
-    font-weight: 400;
-    font-family: 'Geist';
+    padding: 15px;
+    font-size: 16px;
+    color: #333;
+    font-family: inherit;
 }
 
-.main-search-input::placeholder {
-    color: #888;
-    font-weight: 400;
-}
-
-
-.search-icon-btn {
+.dropdown-search-btn {
+    background: #c15304; 
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-weight: 600;
     cursor: pointer;
-    background-color: #c15304;
-    border: 3px solid #be500d;
-    margin-left: 20px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    justify-content: center;
-    align-items: center;
-    width: 37px;
-    height: 37px;
-    padding: 0;
-    transition: background-color .2s;
-    display: flex;
-    /* box-shadow: 0 1px 3px rgba(0, 0, 0, .1); */
-    position: absolute;
-    right: 3px;
+    font-size: 15px;
+    transition: background 0.2s;
 }
 
-.search-icon-btn:hover {
-    background-color: #be500d;
+.dropdown-search-btn:hover {
+    background: #a14503;
 }
 
-
-/* --- New Sidebar/Drawer Styles sanata slder hai  --- */
-
-/* 1. Full-screen overlay when the menu is open */
-.mobile-menu {
-  position: fixed; /* Fixed position relative to the viewport */
-  top: 0;
-  left: 0;
-  width: 100%; /* Take up the entire width */
-  height: 100%; /* Take up the entire height */
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
-  z-index: 999; /* Ensure it's above other content */
-  overflow: hidden; /* Important for containing the sliding drawer */
-}
-
-/* 2. The Actual Drawer/Sidebar that slides in */
-.mobile-menu .mobile-menu-buttons {
-  /* This div acts as the actual sidebar/drawer */
-  position: absolute;
-  top: 0;
-  left: 0; /* Starts from the left edge */
-  width: 80%; /* Takes up 80% of the screen width (adjust as needed) */
-  max-width: 300px; /* Optional: Set a max width for large phones/tablets */
-  height: 100%;
-  background-color: #fff; /* White background for the drawer content */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-  transform: translateX(0); /* Final position: fully visible */
-  transition: transform 0.3s ease-in-out; /* Smooth slide animation */
-  padding: 20px; /* Add some padding inside the drawer */
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Spacing between the buttons */
-}
-
-
-
-/* Initial hidden state (if you want an animation from the start, this is a bit complex
-   with conditional rendering, but we can target the inner content for a clean animation): */
-.mobile-menu:not(.animate-slideDown) .mobile-menu-buttons {
-    /* If you keep the `animate-slideDown` class, this block is not needed.
-       We will rely on the default behavior of the `transition` on mount.
-       If you want a smoother animation, you might need a different pattern (like Framer Motion). 
-       For this basic CSS transition, the movement is handled on the inner div. 
-    */
-}
-
-/* --- SANTA SLIDING ANIMATION (Only for Desktop) --- */
-.santa-wrapper {
-  position: absolute;
-  top: 10px; /* Header ke top se kitni dur */
-  left: -100px; /* Screen ke left se kitne pixels bahar se start hoga */
-  z-index: 100; /* Santa ko baaki elements ke upar dikhane ke liye */
-  pointer-events: none; /* Santa ke upar click hone se rokne ke liye */
-  animation: santaSlide 18s linear infinite; /* Animation speed aur loop */
-  display: none; /* Default hidden, media query se desktop par show hoga */
-}
-
-/* For larger screens (desktop), show Santa */
-@media (min-width: 768px) { /* md breakpoint for Tailwind CSS */
-  .santa-wrapper {
-    display: block;
-  }
-}
-
-.santa-icon {
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2)); /* Thoda shadow add kiya */
-}
-
-@keyframes santaSlide {
-  0% {
-    left: -100px; /* Left edge se bahar */
-    transform: translateY(0px) rotate(0deg);
-  }
-  25% {
-    transform: translateY(3px) rotate(1deg); /* Thoda upar-niche movement */
-  }
-  50% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-3px) rotate(-1deg);
-  }
-  100% {
-    left: calc(100% + 100px); /* Right edge se bahar */
-    transform: translateY(0px) rotate(0deg);
-  }
-}
-/* Container check */
-.santa-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  /* Kisi bhi tarah ka shadow container se hatane ke liye */
-  box-shadow: none !important;
-}
-
-/* The Santa Icon */
-.santa-icon {
-  position: absolute;
-  z-index: 9999 !important; /* visibility ke liye high rakha hai */
-  top: 5px; 
-  left: 115px; 
-  pointer-events: none;
-  
-  /* --- SHADOW REMOVAL --- */
-  box-shadow: none !important;
-  filter: none !important; /* Isse drop-shadow hat jati hai */
-  -webkit-filter: none !important;
-  
-  /* Background hatane ke liye (Agar white background hai) */
-  mix-blend-mode: multiply; 
-  
-  /* Border aur outline removal */
-  border: none !important;
-  outline: none !important;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .santa-icon {
-    width: 35px !important;
-    height: 35px !important;
-    top: -18px;
-    left: 45px;
-    box-shadow: none !important;
-    filter: none !important;
-  }
+/* --- Responsive adjustment for smaller laptops --- */
+@media (max-width: 1200px) {
+    .search-dropdown-overlay {
+        width: 700px;
+        right: auto;
+    }
 }
