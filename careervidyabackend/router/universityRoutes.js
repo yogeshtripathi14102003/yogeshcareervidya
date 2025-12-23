@@ -46,7 +46,6 @@
 
 
 // export default router;
-
 import express from "express";
 import multer from "multer";
 import {
@@ -80,6 +79,9 @@ const upload = multer({
 const universityUploadFields = upload.fields([
     { name: "universityImage", maxCount: 1 },
     { name: "certificateImage", maxCount: 1 },
+
+    /* ===== BACKGROUND IMAGE (ADDED) ===== */
+    { name: "backgroundImage", maxCount: 1 },
 
     // Dynamic approvals logos
     { name: "approvals[0][logo]" },

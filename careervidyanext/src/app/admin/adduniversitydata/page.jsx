@@ -38,6 +38,11 @@ export default function AddUniversityPage() {
     const [admissionDescription, setAdmissionDescription] = useState("");
     const [admissionPoints, setAdmissionPoints] = useState([""]);
 
+
+    // Background Section (ADD ONLY)
+const [backgroundImage, setBackgroundImage] = useState(null);
+const [backgroundDescription, setBackgroundDescription] = useState("");
+
     // Course State
     const [courses, setCourses] = useState([{ name: "", logo: null, duration: "" }]);
     const [courseApiData, setCourseApiData] = useState([]); 
@@ -166,6 +171,11 @@ export default function AddUniversityPage() {
             // 3. File Fields (Single)
             if (universityImage) formData.append("universityImage", universityImage);
             if (certificateImage) formData.append("certificateImage", certificateImage);
+// Background fields (ADD ONLY)
+formData.append("backgroundDescription", backgroundDescription);
+if (backgroundImage) {
+    formData.append("backgroundImage", backgroundImage);
+}
 
             // 4. COMPLEX ARRAY FIELDS (Approvals and Courses)
             
@@ -266,10 +276,29 @@ export default function AddUniversityPage() {
                     </div>
                 </div>
                 
+                {/* ===== Background Section (ADD ONLY) ===== */}
+<div className="p-6 bg-white rounded-lg shadow-sm border border-gray-100 max-w-md">
+    <h3 className="text-lg font-semibold mb-4 text-gray-800">Background Section</h3>
+
+    <textarea
+        placeholder="Background Description"
+        value={backgroundDescription}
+        onChange={(e) => setBackgroundDescription(e.target.value)}
+        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4 min-h-[100px]"
+    />
+
+    <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setBackgroundImage(e.target.files[0])}
+        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor:pointer"
+    />
+</div>
                 {/* 2. University Facts (Section 2) */}
                 <div className="p-6 border border-green-300 rounded-xl bg-green-50 shadow-sm">
                     <h3 className="font-bold text-xl mb-4 text-[#006400]">2. University Facts (Highlights & Statistics)</h3>
                     
+
                     {/* Highlights Section */}
                     <div className="mb-6 p-4 border border-green-200 rounded-lg bg-white">
                          <h4 className="font-semibold text-lg mb-3 text-green-800">Highlights Section</h4>
