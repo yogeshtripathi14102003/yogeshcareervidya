@@ -22,7 +22,7 @@ export default function Footer() {
     setMessage("");
     try {
       const res = await fetch(
-        "http://localhost:8080/api/v1/subscribe",
+        "https://api.careervidya.in/api/v1/subscribe",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

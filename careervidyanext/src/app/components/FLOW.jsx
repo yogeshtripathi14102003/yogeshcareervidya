@@ -62,7 +62,7 @@ export default function AdmissionProcess() {
         <Image
           src="/images/anm2.jpeg"
           alt="Admission Process Flow"
-          width={1600}
+          width={1800}
           height={300}
           priority
           className="w-full h-auto max-h-[160px] md:max-h-[350px] "

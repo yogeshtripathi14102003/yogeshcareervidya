@@ -339,17 +339,23 @@
 .santa-icon {
     order: 2;
     width: 70px;
-    margin-left: 0px; /* Logo ke ander shift karne ke liye */
+    margin-left: 0px; 
     margin-bottom: 0px;
     z-index: 5;
     animation: santaFloat 3s ease-in-out infinite;
+    
+    /* TRANSPARENT BACKGROUND FIX */
+    background-color: transparent !important; /* Ab koi gray ya white color nahi dikhega */
+    border: none !important;                  /* Kisi bhi tarah ka border hatane ke liye */
+    border-radius: 0 !important;              /* Radius ki zaroorat nahi */
+    padding: 0;                               /* Padding zero taaki icon apni asli jagah rahe */
+    display: inline-block;
 }
 
 @keyframes santaFloat {
     0%, 100% { transform: translateY(0) rotate(3deg); }
     50% { transform: translateY(-5px) rotate(-3deg); }
 }
-
 /* --- POPUP Z-INDEX FIX --- */
 .signup-overlay, 
 div[class*="signup"], 

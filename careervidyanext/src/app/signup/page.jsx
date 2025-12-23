@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import api from "@/utlis/api";
+import { X, GraduationCap, CheckCircle2 } from "lucide-react";
 
 const Signup = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -20,25 +21,13 @@ const Signup = ({ onClose }) => {
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Validate required fields before sending OTP
   const validateAllFields = () => {
-    const requiredFields = [
-      "name",
-      "mobileNumber",
-      "email",
-      "city",
-      "state",
-      "course",
-      "gender",
-      "addresses",
-    ];
-
+    const requiredFields = ["name", "mobileNumber", "email", "city", "state", "course", "gender", "addresses"];
     for (let field of requiredFields) {
       if (!formData[field]) {
         alert(`Please fill the "${field}" field before sending OTP.`);
@@ -48,156 +37,104 @@ const Signup = ({ onClose }) => {
     return true;
   };
 
-  // Send OTP
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!validateAllFields()) return;
-
     try {
       setLoading(true);
-      const payload = {
-        emailOrPhone: formData.email || formData.mobileNumber,
-        purpose: "register",
-      };
+      const payload = { emailOrPhone: formData.email || formData.mobileNumber, purpose: "register" };
       await api.post("/api/v1/send-otp", payload);
-      alert("OTP sent successfully! Check your email or phone.");
+      alert("OTP sent successfully!");
       setOtpSent(true);
     } catch (error) {
-      console.error(error);
       alert("Failed to send OTP. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!formData.otp) {
-      alert("Please enter OTP to continue.");
+      alert("Please enter OTP.");
       return;
     }
-
     try {
       setLoading(true);
-      const payload = {
-        ...formData,
-        emailOrPhone: formData.email || formData.mobileNumber,
-        purpose: "register",
-      };
+      const payload = { ...formData, emailOrPhone: formData.email || formData.mobileNumber, purpose: "register" };
       await api.post("/api/v1/verify-otp", payload);
-      alert("Registration successful! Now you can login.");
+      alert("Registration successful!");
       onClose?.();
     } catch (error) {
-      console.error(error);
-      alert("Invalid OTP. Try again.");
+      alert("Invalid OTP.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Form submit
   const handleSubmit = (e) => {
     if (!otpSent) handleSendOtp(e);
     else handleVerifyOtp(e);
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white text-gray-900 rounded-2xl shadow-xl w-[95%] md:w-[900px] overflow-hidden flex flex-col md:flex-row relative animate-fadeIn"
+    <div className="fixed inset-0 bg-black/75 flex justify-center items-center z-[100] p-4 backdrop-blur-sm cursor-pointer" onClick={onClose}>
+      {/* Container with overflow-hidden and rounded corners on ALL sides */}
+      <div 
+        className="bg-white text-gray-900 rounded-2xl shadow-2xl w-full max-w-[850px] flex flex-col md:flex-row relative animate-fadeIn cursor-default max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left Section */}
-        <div className="w-full md:w-1/2 p-8 bg-gradient-to-r from-[#F0F8FF] to-[#E6F0FF] flex flex-col justify-center">
-          <h1 className="text-4xl font-bold text-[#1E90FF] mb-4">Career Vidya</h1>
-          <h2 className="text-2xl font-semibold mb-6">
-            Unlock Your Future with Career Vidya
-          </h2>
-          <ul className="list-disc list-inside mb-6 space-y-2">
-            <li>Exam Alerts – Timely updates</li>
-            <li>Mock Tests – Practice. Perform. Perfect.</li>
-            <li>AI Predictions – Smart College Match</li>
-            <li>Counselling – Personal Guidance</li>
-          </ul>
+        {/* CLOSE BUTTON - Fixed to top-right corner */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-all p-2 bg-white/90 md:bg-white/20 backdrop-blur-md rounded-full cursor-pointer z-[110] shadow-md md:shadow-none active:scale-90"
+        >
+          <X size={20} />
+        </button>
+
+        {/* Left Section - Blue Part */}
+        <div className="w-full md:w-[32%] p-6 bg-[#05347f] text-white flex flex-col justify-center relative min-h-[120px] md:min-h-full">
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2 md:mb-4">
+              <GraduationCap size={28} className="text-yellow-400" />
+              <h1 className="text-lg font-bold">Career Vidya</h1>
+            </div>
+            <h2 className="text-sm font-semibold mb-2 opacity-90 hidden md:block">Unlock Your Future</h2>
+            <ul className="space-y-2 hidden md:block">
+              {["Exam Alerts", "Mock Tests", "AI Predictions"].map((item, index) => (
+                <li key={index} className="flex items-center gap-2 text-[11px] opacity-80">
+                  <CheckCircle2 size={12} className="text-green-400" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        {/* Right Section */}
-        <div className="w-full md:w-1/2 p-8 relative">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
-          >
-            ✕
-          </button>
+        {/* Right Section - Form Part */}
+        <div className="w-full md:w-[68%] p-6 md:p-8 overflow-y-auto">
+          <div className="max-w-md mx-auto">
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-gray-800 uppercase tracking-wide">Signup</h3>
+              <p className="text-gray-500 text-[10px]">Create an account to get started.</p>
+            </div>
 
-          <div className="w-full max-w-md mx-auto">
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="inputBox"
-              />
+            <form onSubmit={handleSubmit} noValidate className="space-y-2.5">
+              <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} className="inputStyle" />
 
-              <div className="flex space-x-4">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="inputBox w-1/2"
-                />
-                <input
-                  type="tel"
-                  name="mobileNumber"
-                  placeholder="Mobile Number"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  className="inputBox w-1/2"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="inputStyle" />
+                <input type="tel" name="mobileNumber" placeholder="Mobile Number" value={formData.mobileNumber} onChange={handleChange} className="inputStyle" />
               </div>
 
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="inputBox w-1/2"
-                />
-                <input
-                  type="text"
-                  name="state"
-                  placeholder="State"
-                  value={formData.state}
-                  onChange={handleChange}
-                  className="inputBox w-1/2"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="inputStyle" />
+                <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} className="inputStyle" />
               </div>
 
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  name="course"
-                  placeholder="Course"
-                  value={formData.course}
-                  onChange={handleChange}
-                  className="inputBox w-1/2"
-                />
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  className="inputBox w-1/2"
-                >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <input type="text" name="course" placeholder="Course" value={formData.course} onChange={handleChange} className="inputStyle" />
+                <select name="gender" value={formData.gender} onChange={handleChange} className="inputStyle cursor-pointer">
                   <option value="">Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -205,74 +142,53 @@ const Signup = ({ onClose }) => {
                 </select>
               </div>
 
-              <input
-                type="text"
-                name="addresses"
-                placeholder="Address"
-                value={formData.addresses}
-                onChange={handleChange}
-                className="inputBox"
-              />
+              <input type="text" name="addresses" placeholder="Address" value={formData.addresses} onChange={handleChange} className="inputStyle" />
 
               {otpSent && (
-                <input
-                  type="text"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  value={formData.otp}
-                  onChange={handleChange}
-                  className="inputBox"
-                />
+                <div className="animate-slideUp">
+                  <input type="text" name="otp" placeholder="Enter OTP" value={formData.otp} onChange={handleChange} className="inputStyle border-blue-400 bg-blue-50/50" />
+                </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full p-2 rounded-md text-white transition ${
-                  !otpSent ? "bg-[#FFA500]" : "bg-[#1E90FF]"
-                } hover:opacity-90`}
+                className={`w-full py-2.5 rounded-lg text-white font-bold text-xs transition-all shadow-md cursor-pointer active:scale-95 mt-1 ${
+                  !otpSent ? "bg-[#c15304] hover:bg-orange-600 shadow-orange-100" : "bg-[#05347f] hover:bg-blue-800 shadow-blue-100"
+                } disabled:opacity-50`}
               >
-                {loading
-                  ? "Please wait..."
-                  : !otpSent
-                  ? "Send OTP"
-                  : "Verify OTP"}
+                {loading ? "Please wait..." : !otpSent ? "Send OTP" : "Verify & Register"}
               </button>
             </form>
 
-            <p className="mt-4 text-center text-[#1E90FF]">
-              Already have a Career Vidya account?{" "}
-              <Link href="/login">Login to continue</Link>
+            <p className="mt-4 text-center text-[11px] text-gray-500">
+              Already have account? <Link href="/login" className="text-blue-600 font-bold hover:underline cursor-pointer">Login</Link>
             </p>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        .inputBox {
+        .inputStyle {
           width: 100%;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 8px;
+          padding: 7px 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
           outline: none;
+          background: white;
+          font-size: 13px;
+          transition: all 0.2s ease;
         }
-        .inputBox:focus {
-          border-color: #1e90ff;
+        .inputStyle:focus {
+          border-color: #05347f;
+          box-shadow: 0 0 0 2px rgba(5, 52, 127, 0.1);
         }
-
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
         }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .animate-slideUp { animation: slideUp 0.3s ease-out; }
       `}</style>
     </div>
   );

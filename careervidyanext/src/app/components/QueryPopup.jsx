@@ -1,9 +1,7 @@
-
-
 "use client";
 
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Send } from "lucide-react";
 import api from "@/utlis/api";
 
 export default function QueryPopup() {
@@ -42,27 +40,34 @@ export default function QueryPopup() {
   if (!showPopup) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white w-[90%] max-w-3xl rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row relative animate-slideUpMobile md:animate-fadeIn">
-        {/* Left Blue Panel */}
-        <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center">
-          <img src="/images/may.png" alt="help" className="w-25 h-25 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">May I help you?</h3>
-          <p className="text-sm leading-snug">
-            Fill up your details <br /> for enquiry
+    <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative animate-slideUpMobile md:animate-fadeIn">
+        
+        {/* CLOSE BUTTON - Added cursor-pointer */}
+        <button
+          onClick={() => setShowPopup(false)}
+          className="absolute top-3 right-3 z-[110] bg-white/90 md:bg-gray-100 p-2 rounded-full shadow-md md:shadow-none text-gray-500 hover:text-blue-600 transition-all duration-300 group cursor-pointer"
+          aria-label="Close"
+        >
+          <X size={22} className="group-hover:rotate-90 transition-transform" />
+        </button>
+
+        {/* Left Panel */}
+        <div className="bg-[#05347f] text-white w-full md:w-1/3 p-8 flex flex-col justify-center items-center text-center">
+          <div className="bg-white/10 p-4 rounded-full mb-4">
+            <img src="/images/may.png" alt="help" className="w-16 h-16 md:w-20 md:h-20 object-contain" />
+          </div>
+          <h3 className="text-xl font-bold mb-2">May I help you?</h3>
+          <p className="text-sm opacity-80 leading-snug">
+            Fill up your details <br className="hidden md:block" /> for quick enquiry
           </p>
         </div>
 
         {/* Right Form */}
-        <div className="w-full md:w-2/3 p-6 md:p-8 relative text-gray-900">
-          <button
-            onClick={() => setShowPopup(false)}
-            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
-          >
-            <X size={20} />
-          </button>
-
-          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 mt-4">
+        <div className="w-full md:w-2/3 p-6 md:p-10 text-gray-900">
+          <h2 className="text-xl font-bold mb-6 text-[#05347f] md:block hidden">Quick Enquiry</h2>
+          
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               type="text"
               name="name"
@@ -70,7 +75,7 @@ export default function QueryPopup() {
               onChange={handleChange}
               placeholder="Your Name"
               required
-              className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+              className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none w-full transition-all"
             />
             <input
               type="email"
@@ -79,7 +84,7 @@ export default function QueryPopup() {
               onChange={handleChange}
               placeholder="Your Email"
               required
-              className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+              className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none w-full transition-all"
             />
             <input
               type="tel"
@@ -88,7 +93,7 @@ export default function QueryPopup() {
               onChange={handleChange}
               placeholder="Mobile No"
               required
-              className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+              className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none w-full transition-all"
             />
             <input
               type="text"
@@ -97,24 +102,26 @@ export default function QueryPopup() {
               onChange={handleChange}
               placeholder="City"
               required
-              className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+              className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none w-full transition-all"
             />
             <textarea
               name="message"
               value={formData.message}
               onChange={handleChange}
-              placeholder="Your Message"
+              placeholder="How can we help you?"
               required
               rows="3"
-              className="col-span-2 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+              className="md:col-span-2 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none w-full transition-all"
             ></textarea>
 
-            <div className="col-span-2">
+            <div className="md:col-span-2 mt-2">
+              {/* SUBMIT BUTTON - Added cursor-pointer */}
               <button
                 type="submit"
-                className="w-full bg-[#05347f] text-white py-2 rounded-lg mt-4 hover:bg-blue-700 transition"
+                className="w-full bg-[#05347f] text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
               >
-                Send Message
+                <span>Send Message</span>
+                <Send size={18} />
               </button>
             </div>
           </form>
@@ -123,33 +130,18 @@ export default function QueryPopup() {
 
       <style jsx>{`
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(0);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
         }
-
         @keyframes slideUpMobile {
-          0% {
-            opacity: 0;
-            transform: translateY(100%);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          0% { opacity: 0; transform: translateY(30%); }
+          100% { opacity: 1; transform: translateY(0); }
         }
-
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.3s ease-out forwards;
         }
-
         .animate-slideUpMobile {
-          animation: slideUpMobile 0.5s ease-out;
+          animation: slideUpMobile 0.4s ease-out forwards;
         }
       `}</style>
     </div>
