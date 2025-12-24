@@ -100,6 +100,8 @@ export const verifyOTP = async (req, res) => {
       gender,
       addresses,
       mobileNumber,
+       branch,
+  description,
     } = req.body;
 
     if (!emailOrPhone || !otp || !purpose) {
@@ -154,7 +156,10 @@ export const verifyOTP = async (req, res) => {
         course,
         gender,
         addresses,
+          branch,
+  description,
       });
+
     }
 
     if (purpose === "login" && !student)
@@ -237,6 +242,8 @@ export const verifyOTP = async (req, res) => {
         course: student.course,
         gender: student.gender,
         addresses: student.addresses,
+          branch: student.branch,
+  description: student.description,
         role: student.role,
       },
     });

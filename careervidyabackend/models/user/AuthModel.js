@@ -1,61 +1,147 @@
+// import mongoose from "mongoose";
+
+// const studentSchema = new mongoose.Schema({
+//   name: {
+//     type: String,
+//     required: true,
+//     trim: true
+//   },
+//   email: {
+//     type: String,
+//     unique: true,
+//     lowercase: true,
+//     trim: true,
+//     match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+//   },
+//   mobileNumber: {
+//     type: String,
+//     match: /^[0-9]{10,15}$/,
+//   },
+
+//   state: {
+//     type: String,
+//   },
+
+//   // ✅ FIXED SPELLING
+//   course: {
+//     type: String,
+//   },
+// isSystemAdmin: {
+//   type: Boolean,
+//   default: false
+// }
+// ,
+//   gender: {
+//     type: String,
+//     enum: ["male", "female", "other"],
+//     default: "other",
+//   },
+
+//   city: {
+//     type: String,
+//   },
+
+//   addresses: {
+//     type: String,
+//   },
+
+//   role: {
+//     type: String,
+//     enum: ["user", "admin", "subadmin"],
+//     default: "user",
+//   },
+
+//   oauthId: {
+//     type: String,
+//   }
+// }, { timestamps: true });
+
+// const Student = mongoose.model("Student", studentSchema);
+
+// export default Student;
+
+
+
 import mongoose from "mongoose";
 
-const studentSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  email: {
-    type: String,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
-  },
-  mobileNumber: {
-    type: String,
-    match: /^[0-9]{10,15}$/,
-  },
+const studentSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-  state: {
-    type: String,
-  },
+    email: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+    },
 
-  // ✅ FIXED SPELLING
-  course: {
-    type: String,
-  },
-isSystemAdmin: {
-  type: Boolean,
-  default: false
-}
-,
-  gender: {
-    type: String,
-    enum: ["male", "female", "other"],
-    default: "other",
-  },
+    mobileNumber: {
+      type: String,
+      match: /^[0-9]{10,15}$/,
+    },
 
-  city: {
-    type: String,
-  },
+    state: {
+      type: String,
+      trim: true,
+    },
 
-  addresses: {
-    type: String,
-  },
+    city: {
+      type: String,
+      trim: true,
+    },
 
-  role: {
-    type: String,
-    enum: ["user", "admin", "subadmin"],
-    default: "user",
-  },
+    addresses: {
+      type: String,
+      trim: true,
+    },
 
-  oauthId: {
-    type: String,
-  }
-}, { timestamps: true });
+    course: {
+      type: String,
+      trim: true,
+    },
+
+    // ✅ NEW FIELD
+    branch: {
+      type: String,
+      trim: true,
+      // example: CSE, IT, Mechanical
+    },
+
+    // ✅ NEW FIELD
+    description: {
+      type: String,
+      trim: true,
+      maxlength: 500,
+    },
+
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
+      default: "other",
+    },
+
+    role: {
+      type: String,
+      enum: ["user", "admin", "subadmin"],
+      default: "user",
+    },
+
+    isSystemAdmin: {
+      type: Boolean,
+      default: false,
+    },
+
+    oauthId: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
 
 const Student = mongoose.model("Student", studentSchema);
-
 export default Student;

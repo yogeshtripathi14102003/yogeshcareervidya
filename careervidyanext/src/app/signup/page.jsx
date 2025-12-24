@@ -16,6 +16,8 @@ const Signup = ({ onClose }) => {
     course: "",
     gender: "",
     addresses: "",
+      branch:"",
+  description: "",
   });
 
   const [otpSent, setOtpSent] = useState(false);
@@ -27,7 +29,7 @@ const Signup = ({ onClose }) => {
   };
 
   const validateAllFields = () => {
-    const requiredFields = ["name", "mobileNumber", "email", "city", "state", "course", "gender", "addresses"];
+    const requiredFields = ["name", "mobileNumber", "email", "city", "state", "course", "gender", "addresses", "branch"];
     for (let field of requiredFields) {
       if (!formData[field]) {
         alert(`Please fill the "${field}" field before sending OTP.`);
@@ -134,6 +136,7 @@ const Signup = ({ onClose }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <input type="text" name="course" placeholder="Course" value={formData.course} onChange={handleChange} className="inputStyle" />
+                <input type="text" name="branch" placeholder="Branch" value={formData.branch} onChange={handleChange} className="inputStyle" />
                 <select name="gender" value={formData.gender} onChange={handleChange} className="inputStyle cursor-pointer">
                   <option value="">Gender</option>
                   <option value="male">Male</option>
@@ -154,7 +157,7 @@ const Signup = ({ onClose }) => {
                 type="submit"
                 disabled={loading}
                 className={`w-full py-2.5 rounded-lg text-white font-bold text-xs transition-all shadow-md cursor-pointer active:scale-95 mt-1 ${
-                  !otpSent ? "bg-[#c15304] hover:bg-orange-600 shadow-orange-100" : "bg-[#05347f] hover:bg-blue-800 shadow-blue-100"
+                  !otpSent ? "bg-[#FFA500] hover:bg-orange-600 shadow-orange-100" : "bg-[#05347f] hover:bg-blue-800 shadow-blue-100"
                 } disabled:opacity-50`}
               >
                 {loading ? "Please wait..." : !otpSent ? "Send OTP" : "Verify & Register"}

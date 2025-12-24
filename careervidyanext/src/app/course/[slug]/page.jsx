@@ -54,12 +54,12 @@ export default function CourseDetailPage() {
 {course?.overview?.length > 0 && (
   <CourseOverview course={course} />
 )}
-{/* WHY CHOOSE US - NO-CROP IMAGE STYLE */}
+{/* WHY CHOOSE US - WHITE BG IMAGE (NO CROP) */}
 {course.whyChooseUs?.length > 0 && (
   <section className="relative w-full py-12 bg-white overflow-hidden">
-    {/* Width increased to 1800px as requested */}
+    {/* Width increased to 1800px */}
     <div className="max-w-[1800px] w-full px-6 mx-auto">
-      
+
       {/* Heading */}
       <div className="text-center mb-8">
         <h2 className="text-3xl md:text-2xl font-black text-[#002147] mb-3">
@@ -68,11 +68,11 @@ export default function CourseDetailPage() {
         <div className="w-16 h-1 bg-[#002147] mx-auto rounded-full"></div>
       </div>
 
-      {/* Main Content Container */}
+      {/* Main Content */}
       <div className="space-y-8">
         {course.whyChooseUs.map((item, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
               i % 2 !== 0 ? "lg:flex-row-reverse" : ""
             }`}
@@ -80,26 +80,33 @@ export default function CourseDetailPage() {
             {/* TEXT CONTENT */}
             <div className="w-full lg:w-1/2 flex flex-col justify-center py-2">
               <div className="relative">
-                <span className="absolute -top-8 -left-6 text-7xl text-slate-100 font-serif leading-none select-none -z-10">“</span>
+                <span className="absolute -top-8 -left-6 text-7xl text-slate-100 font-serif leading-none select-none -z-10">
+                  “
+                </span>
                 <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify font-medium">
                   {item.description}
                 </p>
               </div>
-              
+
               <div className="mt-4 flex items-center gap-4 text-[#002147] font-bold">
                 <span className="h-[2px] w-10 bg-[#002147]"></span>
-                <span className="uppercase text-[10px] tracking-widest">Career Vidya Excellence</span>
+                <span className="uppercase text-[10px] tracking-widest">
+                  Career Vidya Excellence
+                </span>
               </div>
             </div>
 
             {/* IMAGE BLOCK */}
             {item.image?.url && (
               <div className="w-full lg:w-1/2 group">
-                <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
+                <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-white border border-slate-100 shadow-sm">
                   <img
                     src={item.image.url}
                     alt="Why Choose Us"
                     className="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
                   />
                 </div>
               </div>
@@ -110,6 +117,7 @@ export default function CourseDetailPage() {
     </div>
   </section>
 )}
+
 
 {/* TOP UNIVERSITIES - FORCED WHITE MODE */}
 {course.topUniversities?.length > 0 && (
