@@ -246,7 +246,7 @@ export default function Header() {
           <nav className="nav-right desktop-only">
             <Link href="/explore">Explore Programs</Link>
             <Link href="/teamexpand">Free Counselling</Link>
-            <Link href="/topunive">Top University</Link>
+            <Link href="/topuniver">Top University</Link>
 
             <div className="nav-item-more">
               <Link href="#">View More</Link>

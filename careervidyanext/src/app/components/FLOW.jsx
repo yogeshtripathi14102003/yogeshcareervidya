@@ -60,7 +60,7 @@ export default function AdmissionProcess() {
         }`}
       >
         <Image
-          src="/images/anm2.jpeg"
+          src="/images/an2.png"
           alt="Admission Process Flow"
           width={1800}
           height={300}

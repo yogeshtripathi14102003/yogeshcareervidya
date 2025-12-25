@@ -34,7 +34,7 @@ const CourseCard = ({ course, isPopup = false, index }) => {
   const { ref, visible } = useScrollAnimation();
 
   // Sirf pehle 5 items click honge (0, 1, 2, 3, 4)
-  const isClickable = index < 3;
+  const isClickable = index < 4;
 
   const handleClick = () => {
     if (isClickable) {
@@ -68,7 +68,7 @@ const CourseCard = ({ course, isPopup = false, index }) => {
       </div>
 
       <div className="text-center mb-1.5 px-0.5 pointer-events-none">
-        <h3 className="font-black text-gray-600 text-[9px] md:text-[11px] line-clamp-2 leading-tight uppercase">
+        <h3 className="font-black  text-gray-900 text-[8px] md:text-[11px] line-clamp-2 leading-tight uppercase">
           {course.name}
         </h3>
       </div>

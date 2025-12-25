@@ -16,6 +16,7 @@ import JobOpportunities from "@/app/course/JobOpportunities.jsx";
 import TopRecruiters from "@/app/course/TopRecruiters.jsx";
 import CourseKeyHighlights from "@/app/course/CourseKeyHighlights.jsx";
 import CourseOverview from "@/app/course/CourseOverview.jsx";
+import  Universityappro from "@/app/course/Universityappro.jsx";
 export default function CourseDetailPage() {
   const { slug } = useParams();
   const [course, setCourse] = useState(null);
@@ -54,12 +55,12 @@ export default function CourseDetailPage() {
 {course?.overview?.length > 0 && (
   <CourseOverview course={course} />
 )}
-{/* WHY CHOOSE US - WHITE BG IMAGE (NO CROP) */}
+{/* WHY CHOOSE US - NO-CROP IMAGE STYLE */}
 {course.whyChooseUs?.length > 0 && (
   <section className="relative w-full py-12 bg-white overflow-hidden">
-    {/* Width increased to 1800px */}
+    {/* Width increased to 1800px as requested */}
     <div className="max-w-[1800px] w-full px-6 mx-auto">
-
+      
       {/* Heading */}
       <div className="text-center mb-8">
         <h2 className="text-3xl md:text-2xl font-black text-[#002147] mb-3">
@@ -68,11 +69,11 @@ export default function CourseDetailPage() {
         <div className="w-16 h-1 bg-[#002147] mx-auto rounded-full"></div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Container */}
       <div className="space-y-8">
         {course.whyChooseUs.map((item, i) => (
-          <div
-            key={i}
+          <div 
+            key={i} 
             className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
               i % 2 !== 0 ? "lg:flex-row-reverse" : ""
             }`}
@@ -80,33 +81,26 @@ export default function CourseDetailPage() {
             {/* TEXT CONTENT */}
             <div className="w-full lg:w-1/2 flex flex-col justify-center py-2">
               <div className="relative">
-                <span className="absolute -top-8 -left-6 text-7xl text-slate-100 font-serif leading-none select-none -z-10">
-                  “
-                </span>
+                <span className="absolute -top-8 -left-6 text-7xl text-slate-100 font-serif leading-none select-none -z-10">“</span>
                 <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify font-medium">
                   {item.description}
                 </p>
               </div>
-
+              
               <div className="mt-4 flex items-center gap-4 text-[#002147] font-bold">
                 <span className="h-[2px] w-10 bg-[#002147]"></span>
-                <span className="uppercase text-[10px] tracking-widest">
-                  Career Vidya Excellence
-                </span>
+                <span className="uppercase text-[10px] tracking-widest">Career Vidya Excellence</span>
               </div>
             </div>
 
             {/* IMAGE BLOCK */}
             {item.image?.url && (
               <div className="w-full lg:w-1/2 group">
-                <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-white border border-slate-100 shadow-sm">
+                <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
                   <img
                     src={item.image.url}
                     alt="Why Choose Us"
                     className="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
                   />
                 </div>
               </div>
@@ -117,7 +111,6 @@ export default function CourseDetailPage() {
     </div>
   </section>
 )}
-
 
 {/* TOP UNIVERSITIES - FORCED WHITE MODE */}
 {course.topUniversities?.length > 0 && (
@@ -170,10 +163,18 @@ export default function CourseDetailPage() {
   </section>
 )}
 
+{/* {Array.isArray(course.universities) &&
+  course.universities.length > 0 && (
+    <Universityappro
+      universities={course.universities}
+      courseName={course.name}   // 👈 slug se aaya hua course name
+    />
+)} */}
+
+
 {/* PROGRAM HIGHLIGHTS - FULL WIDTH BG WITH BALANCED CARDS */}
 {course.goodThings?.length > 0 && (
   <section className="w-full py-16 bg-white border-t border-slate-100">
-    {/* Container width updated to 1800px */}
     <div className="max-w-[1800px] mx-auto px-6 md:px-12">
       
       {/* Header */}
@@ -183,7 +184,7 @@ export default function CourseDetailPage() {
         </h2>
       </div>
 
-      {/* Grid: 1800px width par 4 ya 5 columns kaafi acche lagenge */}
+      {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
         {course.goodThings.map((g, i) => (
           <div 
@@ -191,16 +192,17 @@ export default function CourseDetailPage() {
             className="group p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full"
           >
             <div className="flex flex-col gap-4">
-              {/* Feature Label */}
+              
+              {/* Feature Label - changed font family */}
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                <span className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">
+                <span className=" "></span>
+                <span className="text-[13px] text-[#002147]  font-normal  tracking-[0.2em] uppercase font-serif">
                   Feature {i + 1 < 10 ? `0${i + 1}` : i + 1}
                 </span>
               </div>
               
               {/* Description Text */}
-              <p className="text-slate-700 text-[16px] leading-relaxed font-semibold">
+              <p className="text-[#002147] text-[16px] leading-relaxed font-normal">
                 {g}
               </p>
             </div>
@@ -210,6 +212,11 @@ export default function CourseDetailPage() {
     </div>
   </section>
 )}
+
+
+
+
+
         <Detailsignup />
 
       
@@ -346,6 +353,11 @@ export default function CourseDetailPage() {
           <OnlineCourseEligibility onlineEligibility={course.onlineEligibility} />
         )}
 
+
+
+
+
+
         {(course.feeStructureSidebar?.length > 0 || course.detailedFees?.length > 0) && (
           <FeeStructure 
             courseTitle={course.name}
@@ -367,6 +379,7 @@ export default function CourseDetailPage() {
             courseTitle={course.name}
           />
         )}
+
 
         {course.topRecruiters?.length > 0 && (
           <TopRecruiters

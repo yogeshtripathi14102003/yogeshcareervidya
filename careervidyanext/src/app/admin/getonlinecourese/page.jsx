@@ -17,6 +17,10 @@ export default function CoursesPage() {
   const [overview, setOverview] = useState([
     { heading: "", description: "", image: null, videoLink: "" },
   ]);
+
+  // For Universities selection
+const [universities, setUniversities] = useState([]);
+
   const [whyChooseUs, setWhyChooseUs] = useState([
     { image: null, description: "" },
   ]);
@@ -267,6 +271,9 @@ export default function CoursesPage() {
 
       // 3. Good Things 
       payload.append("goodThings", JSON.stringify(goodThings.filter((g) => g.trim() !== "")));
+// Add this inside handleSubmit AFTER you created `const payload = new FormData();`
+
+payload.append("universities", JSON.stringify(universities));
 
 
       // 4. Top Universities
@@ -321,7 +328,7 @@ export default function CoursesPage() {
         }));
       payload.append("detailedFees", JSON.stringify(filteredDetailedFees));
 
-
+    
       // Online Course Worth It (Object with a file - must send text/json separately)
       const ocwTextData = {
         description: onlineCourseWorthIt.description,
@@ -636,7 +643,8 @@ export default function CoursesPage() {
           </button>
         </section>
 
-        {/* --- */}
+
+
 
         {/* TOP UNIVERSITIES (Existing) */}
         <section>
@@ -684,7 +692,10 @@ export default function CoursesPage() {
           >
             + Add
           </button>
-           <UniversitiesFetchComponent />
+       <UniversitiesFetchComponent onSelect={setUniversities} />
+
+
+
         </section>
 
         {/* --- */}

@@ -416,6 +416,17 @@ const parseArrayField = (data) => {
     }
     return [];
 };
+const parseUniversitiesField = (data) => {
+  const universities = parseArrayField(data);
+
+  return universities.map((uni) => ({
+    name: uni?.name || "",
+    approvals: parseArrayField(uni?.approvals).map((appr) => ({
+      name: appr?.name || "",
+      logo: appr?.logo || null,
+    })),
+  }));
+};
 
 const parseObjectField = (data) => {
     if (!data) return {};
@@ -478,7 +489,7 @@ export const createCourse = async (req, res) => {
     // ... (Your original createCourse logic) ...
     try {
         const {
-            name, category, duration, tag, specializations, overview, whyChooseUs, goodThings, topUniversities, keyHighlights, syllabus, offeredCourses, onlineEligibility, feeStructureSidebar, detailedFees, onlineCourseWorthIt, jobOpportunities, topRecruiters,
+            name, category, duration, tag, specializations, overview, whyChooseUs, goodThings, topUniversities, keyHighlights, syllabus, offeredCourses, onlineEligibility, feeStructureSidebar, detailedFees, onlineCourseWorthIt, jobOpportunities, universities, topRecruiters,
         } = req.body;
 
         // **FIX**: Mongoose required check removed. 
@@ -556,6 +567,8 @@ export const createCourse = async (req, res) => {
             topRecruiters: parseArrayField(topRecruiters),
             courseLogo,
             syllabusPdf,
+   universities: parseUniversitiesField(universities),
+
         });
 
         await newCourse.save();
@@ -704,10 +717,13 @@ export const updateCourse = async (req, res) => {
         // Other arrays
         const arrayFields = [
             "specializations", "goodThings", "topUniversities", "keyHighlights", "syllabus", "offeredCourses",
-            "onlineEligibility", "feeStructureSidebar", "detailedFees", "jobOpportunities", "topRecruiters",
+            "onlineEligibility", "feeStructureSidebar", "detailedFees", "jobOpportunities", "topRecruiters", 
         ];
         arrayFields.forEach((f) => (data[f] = parseArrayField(data[f] ?? existing[f])));
 
+data.universities = parseUniversitiesField(
+  data.universities ?? existing.universities
+);
         // **FIX**: Removed runValidators: true since we removed all 'required: true'
         const updated = await Course.findByIdAndUpdate(id, data, { new: true }); 
         res.status(200).json({ success: true, message: "Course updated successfully", course: updated });
