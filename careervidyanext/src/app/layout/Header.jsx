@@ -195,7 +195,7 @@ export default function Header() {
           {/* LOGO */}
           <Link href="/" className="logo-wrapper">
             <div className="logo-box">
-              <div className="desktop-only">
+              {/* <div className="desktop-only">
                 <Image
                   src="/images/"
                   alt="Santa"
@@ -204,7 +204,7 @@ export default function Header() {
                   className="santa-icon"
                   priority
                 />
-              </div>
+              </div> */}
               <Image
                 src="/images/n12.png"
                 alt="Logo"
