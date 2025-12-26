@@ -18,13 +18,14 @@ import  Universityimage  from "../app/components/universityimage";
 import ChatbotFloating from "./components/ChatbotFloating";
 import SocialSidebar from "./components/SocialSidebar";
 // import ServiceSlider from "./components/ServiceSlider";
-
+import Notification from "../app/components/Notification";
 
 export default function Home() {
   return (
     <div> 
     
       <Header />
+      <Notification />
       <Slider />
       <Counter />
       <Getcourse  />

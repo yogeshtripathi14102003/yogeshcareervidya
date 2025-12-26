@@ -30,37 +30,13 @@ export default function TopHeader() {
 
         {/* Social Icons */}
         <div className="topheader-right">
-
-          <Link href="https://www.linkedin.com/company/career-vidya/" target="_blank">
-            <div className="social-circle">
-              <Image src="/images/i5.png" alt="LinkedIn" width={20} height={20} className="circle-img" />
-            </div>
-          </Link>
-
-          <Link href="https://x.com/CareerVidya" target="_blank">
-            <div className="social-circle">
-              <Image src="/images/i4.png" alt="Twitter" width={20} height={20} className="circle-img" />
-            </div>
-          </Link>
-
-          <Link href="https://www.instagram.com/career_vidya/" target="_blank">
-            <div className="social-circle">
-              <Image src="/images/i3.png" alt="Instagram" width={24} height={24} className="circle-img" />
-            </div>
-          </Link>
-
-          <Link href="https://www.facebook.com/Career-Vidya" target="_blank">
-            <div className="social-circle">
-              <Image src="/images/i2.png" alt="Facebook" width={26} height={26} className="circle-img" />
-            </div>
-          </Link>
-
-          <Link href="https://youtube.com/@careervidya02?si=swLAL7f0kcr1ecqb" target="_blank">
-            <div className="social-circle">
-              <Image src="/images/i1.png" alt="YouTube" width={30} height={30} className="circle-img" />
-            </div>
-          </Link>
-
+          <nav className="top-nav-links">
+            <Link href="/Aboutus" className="top-link">About</Link>
+            <span className="separator">|</span>
+            <Link href="/contactus" className="top-link">Contact</Link>
+            <span className="separator">|</span>
+            <Link href="/coming-soon" className="top-link">Blog</Link>
+          </nav>
         </div>
 
       </div>

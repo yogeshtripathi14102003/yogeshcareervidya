@@ -103,10 +103,10 @@ export default function WhyStudentsTrustUs() {
           ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
           Why{" "}
-          <span className="text-[#0056B3] font-bold italic">
-            Students Trust
+          <span className="text-gray-900 font-bold ">
+            students trust
           </span>{" "}
-          Us
+          us
         </h2>
 
         {/* ===== Cards ===== */}

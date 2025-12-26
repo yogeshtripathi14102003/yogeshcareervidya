@@ -31,18 +31,18 @@ export default function StudentPlacementSlider() {
     return <div className="text-center text-white py-10">Loading...</div>;
 
   return (
-    <section className="bg-[#000a1f] text-white py-16">
+    <section className="bg-[#001a41] text-white py-16">
       {/* Header */}
       <div className="text-center mb-10">
-        <h2 className="text-6xl font-extrabold text-blue-400">100000+</h2>
+        <h2 className="text-6xl font-extrabold text-white">10000+</h2>
         <p className="mt-2">
-          <span className="bg-blue-600 text-white px-4 py-1 rounded-md font-semibold">
+          <span className="bg-[#0056B3]  text-white px-4 py-1 rounded-md font-semibold">
             Students Placed
           </span>
         </p>
         <p className="mt-3 text-gray-300">
         
-          VIDYA HAI TOH SUCCESS HAI
+         #VIDYAHAITOHSUCCESSHAI!
 
         </p>
       </div>

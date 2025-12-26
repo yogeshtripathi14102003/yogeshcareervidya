@@ -1,72 +1,60 @@
 .topheader-container {
   width: 100%;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: #012347;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .topheader-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 7px 24px;
-  background: #f8f9fa;
-  width: 95%;
-  margin:0px auto;
+  padding: 8px 40px; /* Header ki height thodi kam rakhi hai padding se */
+  background: #02264c;
+  width: 100%;
+  margin: 0px auto;
 }
 
-/* Center Logo */
-.topheader-center {
-  flex: 1;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.topheader-logo {
-  object-fit: contain;
-}
-
-/* SOCIAL ICON CIRCLES */
+/* Right Side Wrapper */
 .topheader-right {
   display: flex;
   align-items: center;
-  gap: 15px;
 }
-/* .topheader-right>a>.social-circle>img{
-    width: 19px;
-    height: 19px;
-        border-radius: 2px;
-} */
-.social-circle {
-  /* width: 40px;
-  height: 40px; */
-  /* background: #f1f5f9; */
-  /* border-radius: 50%; */
+
+/* 🛠️ ASLI FIX YAHAN HAI: Nav ke andar gap apply kiya */
+.top-nav-links {
   display: flex;
-  justify-content: center;
   align-items: center;
-  transition: 0.25s ease;
-  cursor: pointer;
+  gap: 35px; /* Yahan se aap jitna chahe space badha sakte hain */
 }
 
-.social-circle:hover {
-  background: #e2e8f0;
+/* Links Styling */
+.top-link {
+  text-decoration: none;
+  color: #ffffff !important; /* Force white color */
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  opacity: 0.9;
 }
 
-/* inside image */
-/* .circle-img {
-  width: 20px !important;
-  height: 20px !important;
-  object-fit: contain !important;
-} */
+.top-link:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
 
-/* LOGO BLINK */
-/* .blinking-logo {
-  animation: blink 1.5s infinite;
-} */
+/* Pipe Separator Styling */
+.separator {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  margin: 0 -5px; /* Separator ko center mein rakhne ke liye */
+}
 
-/* @keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-} */
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .topheader-inner {
+    padding: 8px 15px;
+  }
+  .top-nav-links {
+    gap: 15px; /* Mobile par space thoda kam auto-adjust */
+  }
+}

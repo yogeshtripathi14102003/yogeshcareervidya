@@ -11,7 +11,7 @@ export default function Counter() {
   const counters = [
     {
       id: 1,
-      target: 10000,
+      target: 15000,
       label: "Admissions Done",
       icon: <GraduationCap className={ICON_COLOR_CLASS} />,
     },
@@ -30,7 +30,7 @@ export default function Counter() {
     },
     {
       id: 4,
-      target: 10000,
+      target: 12000,
       label: "Alumni Network",
       icon: <Award className={ICON_COLOR_CLASS} />,
     },

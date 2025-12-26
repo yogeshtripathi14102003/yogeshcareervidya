@@ -200,9 +200,6 @@
 // };
 
 
-
-
-
 import University from '../models/Admin/University.js';
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
@@ -269,7 +266,7 @@ const handleUniversityData = async (body, files, existingData = null) => {
         );
     }
 
-    // 3. Background Image (NEW)
+    // 3. Background Image
     const bgImage = files.find(f => f.fieldname === "backgroundImage");
     if (bgImage) {
         backgroundImageUrl = await uploadToCloudinary(
@@ -299,20 +296,31 @@ const handleUniversityData = async (body, files, existingData = null) => {
         })
     );
 
-    // 5. Courses
+    // 5. Courses - Yahan hum manually enter ki gayi fees aur details ko save kar rahe hain
     const finalCourses = await Promise.all(
         courses.map(async (item, index) => {
+            // Check if there's a new logo file for this specific course
             const file = files.find(
                 f => f.fieldname === `courses[${index}][logo]`
             );
+            
+            let logoUrl = item.logo || null;
+
             if (file) {
-                const url = await uploadToCloudinary(
+                logoUrl = await uploadToCloudinary(
                     file.buffer,
                     "university_assets/logos"
                 );
-                return { ...item, logo: url };
             }
-            return item;
+
+            // Database Schema ke according data return ho raha hai
+            return { 
+                name: item.name || "", 
+                duration: item.duration || "N/A",
+                logo: logoUrl, 
+                fees: item.fees || "",       // User ne jo type kiya form mein
+                details: item.details || ""  // User ne jo type kiya form mein
+            };
         })
     );
 
@@ -325,7 +333,6 @@ const handleUniversityData = async (body, files, existingData = null) => {
         shareDescription: body.shareDescription,
         cardDescription: body.cardDescription,
 
-        /* ===== BACKGROUND SECTION (ADDED) ===== */
         background: {
             backgroundImage: backgroundImageUrl,
             backgroundDescription: body.backgroundDescription || ""
@@ -364,7 +371,6 @@ const handleUniversityData = async (body, files, existingData = null) => {
 
 // --- Controller Methods ---
 
-// CREATE
 export const createUniversity = async (req, res) => {
     try {
         const files = getFlattenedFiles(req.files);
@@ -377,7 +383,6 @@ export const createUniversity = async (req, res) => {
     }
 };
 
-// UPDATE
 export const updateUniversity = async (req, res) => {
     try {
         const existingUni = await University.findById(req.params.id);
@@ -404,7 +409,6 @@ export const updateUniversity = async (req, res) => {
     }
 };
 
-// GET ALL
 export const getUniversities = async (req, res) => {
     try {
         const unis = await University.find().sort({ createdAt: -1 });
@@ -414,7 +418,6 @@ export const getUniversities = async (req, res) => {
     }
 };
 
-// GET BY SLUG
 export const getUniversityBySlug = async (req, res) => {
     try {
         const uni = await University.findOne({ slug: req.params.slug });
@@ -426,7 +429,6 @@ export const getUniversityBySlug = async (req, res) => {
     }
 };
 
-// GET BY ID
 export const getUniversityById = async (req, res) => {
     try {
         const uni = await University.findById(req.params.id);
@@ -438,7 +440,6 @@ export const getUniversityById = async (req, res) => {
     }
 };
 
-// DELETE
 export const deleteUniversity = async (req, res) => {
     try {
         await University.findByIdAndDelete(req.params.id);

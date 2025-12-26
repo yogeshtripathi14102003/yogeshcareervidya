@@ -172,6 +172,7 @@
 //   );
 // }
 
+
 "use client";
 
 import { useState } from "react";
@@ -192,29 +193,29 @@ export default function Header() {
       <header className="header-container">
         <div className="header-inner">
           
-          {/* LOGO */}
-          <Link href="/" className="logo-wrapper">
-            <div className="logo-box">
-              {/* <div className="desktop-only">
-                <Image
-                  src="/images/"
-                  alt="Santa"
-                  width={45}
-                  height={45}
-                  className="santa-icon"
-                  priority
-                />
-              </div> */}
-              <Image
-                src="/images/n12.png"
-                alt="Logo"
-                width={110}
-                height={40}
-                className="logo-img"
-                priority
-              />
-            </div>
-          </Link>
+{/* LOGO */}
+<Link href="/" className="logo-wrapper">
+  <div className="logo-box">
+    <Image
+      src="/images/n12.png"
+      alt="Logo"
+      width={110}
+      height={40}
+      className="logo-img"
+      priority
+    />
+
+    <Image
+      src="/images/1.png"
+      alt="Free Counselling Done"
+      width={80}
+      height={45}
+      className="counselling-badge"
+      priority
+    />
+  </div>
+</Link>
+
 
           {/* DESKTOP SEARCH */}
           <div className="header-search-container desktop-only">

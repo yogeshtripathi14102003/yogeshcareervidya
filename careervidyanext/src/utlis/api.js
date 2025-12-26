@@ -8,7 +8,7 @@ const api = axios.create({
  //baseURL: "http://localhost:8080",
  
  
- baseURL: process.env.NEXT_PUBLIC_BASE_URL || "https://api.careervidya.in",
+baseURL: process.env.NEXT_PUBLIC_BASE_URL || "https://api.careervidya.in",
   withCredentials: true,
 });
 

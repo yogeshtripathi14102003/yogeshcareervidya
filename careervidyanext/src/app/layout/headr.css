@@ -15,7 +15,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1600px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 15px;
     height: 65px;
@@ -24,7 +24,8 @@
 @media (min-width: 1024px) {
     .header-inner {
         height: 80px;
-        padding: 0 40px;
+        padding: 0 20px; /*header logo ko side me thoda space dene ke liye */
+        max-width: 100%;
     }
 }
 
@@ -37,11 +38,21 @@
     .mobile-only { display: none !important; }
 }
 
-/* --- LOGO --- */
+/* ================================================= */
+/* LOGO AREA (SAFE FIX – NO OVERLAP) */
+/* ================================================= */
+
+.logo-wrapper {
+    flex-shrink: 0;
+    max-width: 320px;
+}
+
 .logo-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    max-width: 320px;
+    overflow: hidden;
 }
 
 .logo-img {
@@ -51,13 +62,34 @@
 }
 
 @media (min-width: 1024px) {
-    .logo-img { width: 140px; }
+    .logo-img {
+        width: 140px;
+    }
 }
 
-/* --- DESKTOP SEARCH BAR --- */
+/* --- FREE COUNSELLING BADGE --- */
+.counselling-badge {
+    width: 85px;
+    height: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Mobile me hide */
+@media (max-width: 768px) {
+    .counselling-badge {
+        display: none;
+    }
+}
+
+/* ================================================= */
+/* DESKTOP SEARCH BAR */
+/* ================================================= */
+
 .header-search-container.desktop-only {
     margin-left: auto;
-    margin-right: 35px;
+    margin-right: 30px;
+    flex-shrink: 0;
 }
 
 .main-search-bar {
@@ -96,11 +128,15 @@
     right: 3px;
 }
 
-/* --- NAV & BUTTONS --- */
+/* ================================================= */
+/* NAV & BUTTONS */
+/* ================================================= */
+
 .nav-right {
     display: flex;
     gap: 12px;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .nav-right a {
@@ -130,8 +166,9 @@
 }
 
 /* ================================================= */
-/* MOBILE SIDEBAR (DRAWER) STYLES */
+/* MOBILE SIDEBAR */
 /* ================================================= */
+
 .mobile-actions {
     align-items: center;
     gap: 10px;
@@ -153,7 +190,6 @@
     cursor: pointer;
 }
 
-/* Overlay Background */
 .mobile-sidebar-overlay {
     position: fixed;
     top: 0;
@@ -173,7 +209,6 @@
     opacity: 1;
 }
 
-/* White Side Panel */
 .mobile-sidebar {
     position: fixed;
     top: 0;
@@ -192,13 +227,84 @@
     right: 0;
 }
 
+/* ================================================= */
+/* SEARCH DROPDOWN */
+/* ================================================= */
+
+.search-dropdown-overlay {
+    position: absolute;
+    top: 61px;
+    left: 65%;
+    transform: translateX(-50%) translateY(-10px);
+    width: 900px;
+    max-width: 90vw;
+    background: white;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border: 1px solid #e0e0e0;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.header-search-container:hover .search-dropdown-overlay {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+/* ================================================= */
+/* MOBILE SIDEBAR – COMPLETE & SAFE */
+/* ================================================= */
+
+/* Overlay */
+.mobile-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 9998;
+}
+
+.mobile-sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar Drawer */
+.mobile-sidebar {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    max-width: 85vw;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: -8px 0 20px rgba(0,0,0,0.15);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.35s ease;
+    z-index: 9999;
+    overflow-y: auto;
+}
+
+.mobile-sidebar.open {
+    right: 0;
+}
+
+/* Sidebar Header */
 .sidebar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
 }
 
 .sidebar-title {
@@ -213,241 +319,86 @@
     cursor: pointer;
 }
 
+/* Nav Links */
 .mobile-nav-links {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
 .mobile-nav-links a {
     text-decoration: none;
-    color: #333;
     font-size: 16px;
-    font-weight: 500;
-    padding: 12px 15px;
+    font-weight: 600;
+    color: #333;
+    padding: 12px 14px;
     border-radius: 8px;
-    transition: 0.2s;
+    transition: background 0.25s, color 0.25s;
 }
 
 .mobile-nav-links a:hover {
-    background: #f8f9fa;
+    background: #f5f7fa;
     color: #04458b;
 }
 
-.sidebar-footer-btn {
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid #f0f0f0;
-}
-
-.mobile-sidebar-signup-btn {
-    width: 100%;
+/* Signup Button */
+.mobile-sidebar-signup {
+    margin-top: auto;
     background: #04458b;
-    color: white;
+    color: #fff;
     border: none;
     padding: 14px;
-    border-radius: 8px;
-    font-weight: 600;
+    border-radius: 10px;
     font-size: 15px;
-    cursor: pointer;
-}
-
-
-
-
-
-/* --- NAV ITEM WRAPPER --- */
-.nav-item-more {
-    position: relative;
-    display: inline-block;
-    height: 100%;
-}
-
-.nav-item-more > a {
-    padding: 30px 10px; /* Header height ke hisab se align karne ke liye */
-}
-
-/* --- MEGA MENU BASE --- */
-.mega-menu {
-    position: absolute;
-    top: 210%; /* Header ke bilkul niche khulega */
-    right: -100px;
-    width: 600px;
-    background: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    border-top: 3px solid #04458b;
-    border-radius: 0 0 8px 8px;
-    padding: 25px;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(15px);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    
-}
-
-/* Hover karne par Menu dikhega */
-.nav-item-more:hover .mega-menu {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.mega-menu-inner {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 Columns */
-    gap: 20px;
-}
-
-/* --- MEGA COLUMNS --- */
-.mega-column h3 {
-    font-size: 15px;
-    color: #04458b;
-    margin-bottom: 12px;
     font-weight: 700;
-    text-transform: uppercase;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
-}
-
-.mega-column a {
-    display: block;
-    color: #555 !important;
-    font-size: 14px !important;
-    padding: 6px 0 !important;
-    font-weight: 500 !important;
-    transition: 0.2s;
-}
-
-.mega-column a:hover {
-    color: #c15304 !important;
-    padding-left: 5px !important;
-}
-
-/* --- SANTA & LOGO ADJUSTMENT (RIGHT SIDE) --- */
-.logo-box {
-    display: flex;
-    align-items: center;
-    position: relative;
-}
-
-.logo-img {
-    order: 1;
-    width: 130px;
-} 
-
-.santa-icon {
-    order: 2;
-    width: 70px;
-    margin-left: 0px; 
-    margin-bottom: 0px;
-    z-index: 5;
-    animation: santaFloat 3s ease-in-out infinite;
-    
-    /* TRANSPARENT BACKGROUND FIX */
-    background-color: transparent !important; /* Ab koi gray ya white color nahi dikhega */
-    border: none !important;                  /* Kisi bhi tarah ka border hatane ke liye */
-    border-radius: 0 !important;              /* Radius ki zaroorat nahi */
-    padding: 0;                               /* Padding zero taaki icon apni asli jagah rahe */
-    display: inline-block;
-}
-
-@keyframes santaFloat {
-    0%, 100% { transform: translateY(0) rotate(3deg); }
-    50% { transform: translateY(-5px) rotate(-3deg); }
-}
-/* --- POPUP Z-INDEX FIX --- */
-.signup-overlay, 
-div[class*="signup"], 
-div[class*="Signup"] {
-    z-index: 99999 !important;
-    position: fixed !important;
-}
-
-/* Mobile par Mega Menu chupa de kyuki mobile ke liye sidebar alag hai */
-@media (max-width: 1024px) {
-    .mega-menu { display: none; }
-    .santa-icon { display: none; }
-}
-
-/* --- SEARCH CONTAINER BASE --- */
-.header-search-container.desktop-only {
-    position: relative; 
-    margin-left: auto;
-    margin-right: 35px;
-}
-
-/* --- SEARCH DROPDOWN (Laptop/Desktop Fix) --- */
-.search-dropdown-overlay {
-    position: absolute;
-    top: 61px; /* Search bar ke thoda niche */
-    
-    /* Center karne ke liye logic */
-    left: 60%; 
-    transform: translateX(-50%) translateY(-10px); /* Pehle se thoda upar aur center */
-    
-    width: 900px; /* Laptop par badi bar dikhane ke liye width badhayi hai */
-    max-width: 90vw; /* Screen se bahar na jaye */
-    
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    border: 1px solid #e0e0e0;
-    
-    visibility: hidden;
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-}
-
-/* Hover par alignment fix */
-.header-search-container:hover .search-dropdown-overlay {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(0); /* Center mein drop hoga */
-}
-
-/* Inner Search Bar Style (Screenshot jaisa) */
-.dropdown-search-inner {
-    display: flex;
-    align-items: center;
-    border: 2px solid #eee;
-    border-radius: 6px;
-    padding: 2px 5px 2px 15px;
-    background: #fff;
-}
-
-.dropdown-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 15px;
-    font-size: 16px;
-    color: #333;
-    font-family: inherit;
-}
-
-.dropdown-search-btn {
-    background: #c15304; 
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 4px;
-    font-weight: 600;
     cursor: pointer;
-    font-size: 15px;
-    transition: background 0.2s;
 }
 
-.dropdown-search-btn:hover {
-    background: #a14503;
-}
-
-/* --- Responsive adjustment for smaller laptops --- */
-@media (max-width: 1200px) {
-    .search-dropdown-overlay {
-        width: 700px;
-        right: auto;
+/* Hide sidebar on desktop */
+@media (min-width: 1024px) {
+    .mobile-sidebar,
+    .mobile-sidebar-overlay {
+        display: none !important;
     }
+}
+/* ================================================= */
+/* MOBILE SIDEBAR – FONT STYLE (SAP TYPE LOOK) */
+/* ================================================= */
+
+.mobile-sidebar,
+.mobile-sidebar * {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Sidebar Menu Items */
+.mobile-nav-links a {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    color: #2b2b2b;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+/* Remove last border */
+.mobile-nav-links a:last-child {
+    border-bottom: none;
+}
+
+/* Section spacing look */
+.mobile-nav-links {
+    margin-top: 10px;
+}
+
+/* Header title */
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Close icon alignment */
+.close-btn svg {
+    width: 26px;
+    height: 26px;
 }
