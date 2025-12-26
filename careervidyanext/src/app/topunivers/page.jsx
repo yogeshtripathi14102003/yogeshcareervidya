@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // Navigation ke liye
+import { useRouter } from "next/navigation"; 
 import api from "@/utlis/api.js";
 import { X } from "lucide-react"; 
 import Header from "@/app/layout/Header.jsx";
@@ -23,7 +23,6 @@ export default function UniversitiesPage() {
   const initialLimit = 8;
   const [displayLimit, setDisplayLimit] = useState(initialLimit);
 
-  // --- Comparison State ---
   const [selectedForCompare, setSelectedForCompare] = useState([]);
 
   const fetchUniversities = async () => {
@@ -41,14 +40,11 @@ export default function UniversitiesPage() {
     fetchUniversities();
   }, []);
 
-  // --- Navigation Logic ---
   const handleDetailsClick = (uni) => {
-    // Agar slug exist karta hai toh slug use karein, warna ID
     const path = uni.slug ? uni.slug : uni._id;
     router.push(`/university/${path}`);
   };
 
-  // --- Compare Logic ---
   const handleCompareClick = (uni) => {
     if (!selectedForCompare.find((item) => item._id === uni._id)) {
       if (selectedForCompare.length < 3) {
@@ -76,12 +72,15 @@ export default function UniversitiesPage() {
     <>
       <Header />
       <section className="py-10 bg-[#F8FAFC] relative min-h-screen">
-        <div className="max-w-[1200px] mx-auto px-4 pb-40"> {/* pb-40 bar ke liye space */}
+        <div className="max-w-[1200px] mx-auto px-4 pb-40"> 
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {universities.slice(0, displayLimit).map((uni) => {
-              const certFullUrl = getFullImageUrl(uni.recognition?.certificateImage);
+              
+              // --- यहाँ बदलाव किया गया है: Background Image का पाथ निकाला गया है ---
+              const backgroundFullUrl = getFullImageUrl(uni.background?.backgroundImage);
               const bannerFullUrl = getFullImageUrl(uni.universityImage);
+              
               const rawPoints = uni.approvals || uni.recognition?.recognitionPoints || [];
               const approvalsText = Array.isArray(rawPoints)
                 ? rawPoints.map((item) => (typeof item === "object" ? item.name || item.label : item)).join(", ")
@@ -89,11 +88,17 @@ export default function UniversitiesPage() {
 
               return (
                 <div key={uni._id} className="bg-white rounded-[1.2rem] border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
-                  
-                  {/* Clickable Image */}
-                  <div className="w-full bg-white cursor-pointer" onClick={() => handleDetailsClick(uni)}>
-                    <Image src={certFullUrl || "/fallback.png"} alt="University" width={600} height={300} className="w-full h-auto object-contain" />
-                  </div>
+             {/* Clickable Background Image */}
+<div className="w-full h-[190px] relative bg-white cursor-pointer overflow-hidden border-b border-gray-100" onClick={() => handleDetailsClick(uni)}>
+  <Image 
+      src={backgroundFullUrl || "/fallback-bg.png"} 
+      alt={uni.name} 
+      fill 
+      // 'object-fill' इमेज को बिना काटे पूरे कंटेनर के साइज (190px) में फिट कर देगा
+      // 'p-0' ताकि इमेज किनारों से पूरी चिपकी रहे
+      className="object-fill transition-transform duration-500 hover:scale-105" 
+  />
+</div>
 
                   <div className="p-3 flex flex-col h-full">
                     <h3 
@@ -111,7 +116,7 @@ export default function UniversitiesPage() {
                         </p>
                       </div>
                       {bannerFullUrl && (
-                        <div className="relative w-20 h-13 flex-shrink-0 bg-white rounded-md overflow-hidden border border-gray-200">
+                        <div className="relative w-20 h-13 flex-shrink-0 bg-white rounded-md overflow-hidden border border-gray-200 p-1">
                           <img src={bannerFullUrl} alt="Logo" className="w-full h-full object-contain" />
                         </div>
                       )}
@@ -149,7 +154,6 @@ export default function UniversitiesPage() {
             })}
           </div>
 
-          {/* View More Button */}
           {universities.length > initialLimit && (
             <div className="mt-10 flex justify-center">
               <button onClick={toggleView} className="px-8 py-2.5 rounded-full font-bold text-[10px] bg-[#0056B3] text-white uppercase tracking-widest">
@@ -159,9 +163,8 @@ export default function UniversitiesPage() {
           )}
         </div>
 
-        {/* --- FLOATING COMPARISON BAR (Jaisa aapki image me tha) --- */}
         {selectedForCompare.length > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t border-gray-200 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] p-4 animate-in slide-in-from-bottom duration-500">
+          <div className="fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t border-gray-200 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] p-4">
             <div className="max-w-[1000px] mx-auto text-center">
               <h4 className="text-sm font-bold text-[#0A1D37] mb-3 uppercase tracking-tighter">Add upto 3 Universities</h4>
               
@@ -189,7 +192,6 @@ export default function UniversitiesPage() {
                   </div>
                 ))}
                 
-                {/* Empty Placeholder slots */}
                 {selectedForCompare.length < 3 && Array(3 - selectedForCompare.length).fill(0).map((_, i) => (
                   <div key={i} className="hidden md:flex w-44 border-2 border-dashed border-gray-100 rounded-lg items-center justify-center text-gray-300 text-[10px] font-medium italic">
                     Slot {selectedForCompare.length + i + 1}
@@ -204,7 +206,7 @@ export default function UniversitiesPage() {
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
                   : "bg-orange-400 text-white hover:bg-orange-500 active:scale-95"
                 }`}
-                onClick={() => router.push('/compare')} // Comparison page path
+                onClick={() => router.push('/compare')}
               >
                 Compare Now
               </button>
@@ -215,7 +217,6 @@ export default function UniversitiesPage() {
     </>
   );
 }
-
 
 
 // "use client";

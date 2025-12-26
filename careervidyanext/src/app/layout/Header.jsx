@@ -197,7 +197,7 @@ export default function Header() {
             <div className="logo-box">
               <div className="desktop-only">
                 <Image
-                  src="/images/anm1.gif"
+                  src="/images/"
                   alt="Santa"
                   width={45}
                   height={45}
@@ -246,7 +246,7 @@ export default function Header() {
           <nav className="nav-right desktop-only">
             <Link href="/explore">Explore Programs</Link>
             <Link href="/teamexpand">Free Counselling</Link>
-            <Link href="/topuniver">Top University</Link>
+            <Link href="/coming-soon">Top University</Link>
 
             <div className="nav-item-more">
               <Link href="#">View More</Link>
