@@ -205,14 +205,14 @@ export default function Header() {
       priority
     />
 
-    <Image
-      src="/images/1.png"
+    {/* <Image
+      src="/images/newyerl.png"
       alt="Free Counselling Done"
       width={80}
       height={45}
       className="counselling-badge"
       priority
-    />
+    /> */}
   </div>
 </Link>
 
@@ -229,7 +229,7 @@ export default function Header() {
                 <Search size={22} color="white" />
               </button>
 
-              <div className="search-dropdown-overlay">
+              {/* <div className="search-dropdown-overlay">
                 <div className="dropdown-search-inner">
                   <Search size={20} color="#666" />
                   <input
@@ -239,7 +239,7 @@ export default function Header() {
                   />
                   <button className="dropdown-search-btn">Search</button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -248,7 +248,7 @@ export default function Header() {
             <Link href="/explore">Explore Programs</Link>
             <Link href="/teamexpand">Free Counselling</Link>
             <Link href="/coming-soon">Top University</Link>
-
+{/* <Link href="/topunivers">Top University</Link> */}
             <div className="nav-item-more">
               <Link href="#">View More</Link>
 

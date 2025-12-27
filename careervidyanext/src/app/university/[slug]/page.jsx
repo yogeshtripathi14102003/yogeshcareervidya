@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import api from "@/utlis/api.js";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Plus, Download, MessageSquare, ChevronRight } from 'lucide-react';
+import { Star, MessageSquare, ChevronRight } from 'lucide-react';
 import Header from "@/app/layout/Header";
 import Applictionpopup from "@/app/university/Applictionpopup";
 import UniversityCertificate from "@/app/components/UniversityCertificate"; 
@@ -28,6 +28,12 @@ export default function UniversityDetail() {
     const [popupOpen, setPopupOpen] = useState(false);
     const [popupType, setPopupType] = useState("apply");
 
+    const overviewRef = useRef(null);
+    const coursesRef = useRef(null);
+    const admissionRef = useRef(null);
+    const certificateRef = useRef(null);
+    const factsRef = useRef(null);
+
     useEffect(() => {
         if (slug) {
             api.get(`/api/v1/university/slug/${slug}`)
@@ -41,6 +47,21 @@ export default function UniversityDetail() {
                 });
         }
     }, [slug]);
+
+    const tabs = ["Overview", "Key Highlight", "Courses", "Eligibility", "Fees", "Admission Process", "Placement", "Review", "Faq"];
+
+    const handleTabClick = (tab) => {
+        const refMap = {
+            "Overview": overviewRef,
+            "Courses": coursesRef,
+            "Admission Process": admissionRef,
+            "Key Highlight": certificateRef,
+            "Placement": factsRef,
+        };
+        if (refMap[tab]?.current) {
+            refMap[tab].current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
 
     if (loading) return <div className="p-10 text-center bg-white text-black font-semibold">Loading Content...</div>;
     if (!data) return <div className="p-10 text-center bg-white text-black font-semibold">University not found.</div>;
@@ -98,8 +119,12 @@ export default function UniversityDetail() {
             <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm overflow-x-auto no-scrollbar">
                 <div className="max-w-7xl mx-auto px-4 py-4">
                     <div className="flex items-center gap-3 min-w-max">
-                        {["Overview", "Key Highlight", "Courses", "Eligibility", "Fees", "Admission Process", "Placement", "Review", "Faq"].map((tab, index) => (
-                            <button key={index} className={`px-6 py-3 rounded-lg border font-semibold text-sm transition-all whitespace-nowrap cursor-pointer ${index === 0 ? "text-orange-500 border-orange-200 bg-orange-50" : "text-gray-600 border-gray-200"}`}>
+                        {tabs.map((tab, index) => (
+                            <button
+                                key={index}
+                                className="px-6 py-3 rounded-lg border font-semibold text-sm transition-all whitespace-nowrap cursor-pointer text-gray-600 border-gray-200 hover:text-orange-500 hover:border-orange-200"
+                                onClick={() => handleTabClick(tab)}
+                            >
                                 {tab}
                             </button>
                         ))}
@@ -107,11 +132,11 @@ export default function UniversityDetail() {
                 </div>
             </div>
 
-            {/* --- MAIN CONTENT (OVERVIEW AS PER IMAGE) --- */}
-            <div className="max-w-7xl mx-auto px-6 py-12">
-                <div className="max-w-6xl mx-auto">
-                    
-                    {/* --- IMAGE STYLE OVERVIEW SECTION --- */}
+            {/* --- MAIN CONTENT --- */}
+            <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
+
+                {/* Overview */}
+                <div ref={overviewRef}>
                     <div className="bg-white border border-gray-200 rounded-xl p-8 md:p-12 shadow-sm mb-12">
                         <h2 className="text-[#0056D2] text-4xl font-bold mb-8">Overview</h2>
                         <div 
@@ -119,33 +144,54 @@ export default function UniversityDetail() {
                             dangerouslySetInnerHTML={{ __html: data.description || "No description available." }} 
                         />
                     </div>
+                </div>
 
-                    {/* --- COURSES TABLE --- */}
-                    <div className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
-                        <h3 className="text-xl font-bold text-white bg-blue-700 p-5 text-center uppercase tracking-wide">Explore Online Programs</h3>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <tbody className="bg-white">
-                                    {data.courses?.map((course, index) => (
-                                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                                            <td className="p-5">
-                                                <Link href={`/course/${course.slug}`} className="text-blue-600 font-bold hover:underline flex items-center justify-between">
-                                                    <span>{course.name} Online</span>
-                                                    <ChevronRight size={14} className="text-gray-400" />
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                {/* Key Highlight */}
+                <div ref={certificateRef}>
+                    <UniversityCertificate slug={data.slug} />
+                </div>
+
+               {/* Courses */}
+<div ref={coursesRef}>
+    <div className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+        <h3 className="text-xl font-bold text-white bg-blue-700 p-5 text-center uppercase tracking-wide">
+            Explore Online Programs
+        </h3>
+        
+        {/* Container ko grid mein badla gaya hai */}
+        <div className="bg-white p-2">
+            <div className="grid grid-cols-1 md:grid-cols-2">
+                {data.courses?.map((course, index) => (
+                    <div 
+                        key={index} 
+                        className={`transition hover:bg-gray-50 border-gray-100 
+                            ${index % 2 === 0 ? 'md:border-r' : ''} 
+                            border-b`}
+                    >
+                        <div className="p-5">
+                            <Link 
+                                href={`/course/${course.slug}`} 
+                                className="text-blue-600 font-bold hover:underline flex items-center justify-between"
+                            >
+                                <span>{course.name} Online</span>
+                                <ChevronRight size={14} className="text-gray-400" />
+                            </Link>
                         </div>
                     </div>
+                ))}
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <div className="space-y-24 pb-20">
-                        <UniversityCertificate slug={data.slug} />
-                        <AdmissionProcess slug={data.slug} />
-                        <FactsSection slug={data.slug} />
-                    </div>
+                {/* Admission Process */}
+                <div ref={admissionRef}>
+                    <AdmissionProcess slug={data.slug} />
+                </div>
+
+                {/* Placement / Facts */}
+                <div ref={factsRef}>
+                    <FactsSection slug={data.slug} />
                 </div>
             </div>
 

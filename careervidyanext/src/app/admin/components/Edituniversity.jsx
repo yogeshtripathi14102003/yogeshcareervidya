@@ -5,7 +5,6 @@ import api from "@/utlis/api.js";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-
 export default function EditUniversityPage({ params }) {
   const router = useRouter();
   const universityId = params?.id;
@@ -19,6 +18,11 @@ export default function EditUniversityPage({ params }) {
 
   const [shareDescription, setShareDescription] = useState("");
   const [cardDescription, setCardDescription] = useState("");
+
+  // New Background Fields
+  const [backgroundImage, setBackgroundImage] = useState(null);
+  const [backgroundImage_old, setBackgroundImage_old] = useState("");
+  const [backgroundDescription, setBackgroundDescription] = useState("");
 
   const [heading, setHeading] = useState("");
   const [points, setPoints] = useState([""]);
@@ -39,7 +43,9 @@ export default function EditUniversityPage({ params }) {
   const [admissionDescription, setAdmissionDescription] = useState("");
   const [admissionPoints, setAdmissionPoints] = useState([""]);
 
-  const [courses, setCourses] = useState([{ name: "", logo: null, logo_old: null, duration: "" }]);
+  // Updated Courses State to include fees and details
+  const [courses, setCourses] = useState([{ name: "", logo: null, logo_old: null, duration: "", fees: "", details: "" }]);
+  
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [dataLoadingError, setDataLoadingError] = useState(false);
@@ -84,6 +90,10 @@ export default function EditUniversityPage({ params }) {
         setShareDescription(data.shareDescription || "");
         setCardDescription(data.cardDescription || "");
 
+        // Background (New)
+        setBackgroundImage_old(data.background?.backgroundImage || "");
+        setBackgroundDescription(data.background?.backgroundDescription || "");
+
         // Highlights
         setHeading(data.highlights?.heading || "");
         setPoints(
@@ -97,7 +107,7 @@ export default function EditUniversityPage({ params }) {
           data.facts?.factsPoints && data.facts.factsPoints.length > 0 ? data.facts.factsPoints : [""]
         );
 
-        // Approvals (prepare logo_old)
+        // Approvals
         const mappedApprovals = (data.approvals || []).map((app) => ({
           name: app.name || "",
           logo_old: app.logo || null,
@@ -123,14 +133,16 @@ export default function EditUniversityPage({ params }) {
           data.admission?.admissionPoints && data.admission.admissionPoints.length > 0 ? data.admission.admissionPoints : [""]
         );
 
-        // Courses
+        // Courses (Updated with fees/details)
         const mappedCourses = (data.courses || []).map((c) => ({
           name: c.name || "",
           duration: c.duration || "",
+          fees: c.fees || "",
+          details: c.details || "",
           logo_old: c.logo || null,
           logo: null,
         }));
-        setCourses(mappedCourses.length > 0 ? mappedCourses : [{ name: "", logo: null, logo_old: null, duration: "" }]);
+        setCourses(mappedCourses.length > 0 ? mappedCourses : [{ name: "", logo: null, logo_old: null, duration: "", fees: "", details: "" }]);
 
         setMessage("Data loaded successfully.");
       } catch (error) {
@@ -187,7 +199,7 @@ export default function EditUniversityPage({ params }) {
   const addApproval = () => setApprovals([...approvals, { name: "", logo: null, logo_old: null }]);
   const removeApproval = (index) => setApprovals(approvals.filter((_, i) => i !== index));
 
-  const addCourse = () => setCourses([...courses, { name: "", logo: null, logo_old: null, duration: "" }]);
+  const addCourse = () => setCourses([...courses, { name: "", logo: null, logo_old: null, duration: "", fees: "", details: "" }]);
   const removeCourse = (index) => setCourses(courses.filter((_, i) => i !== index));
   const handleCourseChange = (index, field, value) => {
     const updated = [...courses];
@@ -210,6 +222,12 @@ export default function EditUniversityPage({ params }) {
       formData.append("youtubeLink", youtubeLink || "");
       formData.append("shareDescription", shareDescription || "");
       formData.append("cardDescription", cardDescription || "");
+      
+      // New Background Logic
+      formData.append("backgroundDescription", backgroundDescription || "");
+      formData.append("backgroundImage_old", backgroundImage_old || "");
+      if (backgroundImage instanceof File) formData.append("backgroundImage", backgroundImage);
+
       formData.append("heading", heading || "");
       formData.append("factsHeading", factsHeading || "");
       formData.append("factsSubHeading", factsSubHeading || "");
@@ -219,11 +237,11 @@ export default function EditUniversityPage({ params }) {
       formData.append("admissionSubHeading", admissionSubHeading || "");
       formData.append("admissionDescription", admissionDescription || "");
 
-      // Old image URLs (so backend can decide whether to keep)
+      // Old image URLs
       formData.append("universityImage_old", universityImage_old || "");
       formData.append("certificateImage_old", certificateImage_old || "");
 
-      // Array fields as JSON
+      // Array fields
       formData.append("points", JSON.stringify(filterEmptyObjects(points)));
       formData.append("factsPoints", JSON.stringify(filterEmptyObjects(factsPoints)));
       formData.append("recognitionPoints", JSON.stringify(filterEmptyObjects(recognitionPoints)));
@@ -233,7 +251,7 @@ export default function EditUniversityPage({ params }) {
       if (universityImage instanceof File) formData.append("universityImage", universityImage);
       if (certificateImage instanceof File) formData.append("certificateImage", certificateImage);
 
-      // Approvals: send JSON representation and append any file logos
+      // Approvals
       const approvalsDataForBody = approvals.map((a) => ({
         name: a.name || "",
         logo: a.logo ? "new_file" : a.logo_old || null,
@@ -246,10 +264,12 @@ export default function EditUniversityPage({ params }) {
         }
       });
 
-      // Courses: JSON + files
+      // Courses (Updated with fees/details)
       const coursesDataForBody = courses.map((c) => ({
         name: c.name || "",
         duration: c.duration || "",
+        fees: c.fees || "",
+        details: c.details || "",
         logo: c.logo ? "new_file" : c.logo_old || null,
       }));
       formData.append("courses", JSON.stringify(filterEmptyObjects(coursesDataForBody)));
@@ -260,25 +280,23 @@ export default function EditUniversityPage({ params }) {
         }
       });
 
-      // PUT request to update
       const response = await api.put(`/api/v1/university/${universityId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       setMessage("✅ University updated successfully!");
-      // optionally redirect: router.push('/admin/universities');
     } catch (error) {
       console.error("Submission Error:", error);
-      setMessage(
-        "❌ Error updating university: " +
-        (error.response?.data?.error || error.response?.data?.message || error.message)
-      );
+      setMessage("❌ Error updating university: " + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
   };
+  // -
 
-  // --- Render states ---
+
+
+  // -- Render states ---
   if (loading && !dataLoadingError) {
     return (
       <div className="max-w-4xl mx-auto p-6 text-center text-xl font-semibold mt-20">🔄 Loading University Data...</div>
@@ -309,7 +327,6 @@ export default function EditUniversityPage({ params }) {
             <div className="mb-6 p-3 border border-blue-300 rounded-lg bg-white flex flex-col items-center">
               <h4 className="font-semibold text-base mb-2 text-blue-800">Current University Logo</h4>
               <div className="w-32 h-16 overflow-hidden">
-                {/* Using plain img to avoid next/image external domain config issues */}
                 <img src={universityImage_old} alt={`${name} Logo`} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
               </div>
             </div>
@@ -334,6 +351,24 @@ export default function EditUniversityPage({ params }) {
             <div className="md:col-span-2">
               <label className="block font-medium mb-1">Main Description (Detailed)</label>
               <textarea rows="4" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border rounded-lg p-3 border-gray-300" placeholder="Detailed information about the university" />
+            </div>
+          </div>
+        </div>
+
+        {/* NEW SECTION: Background Details */}
+        <div className="p-6 border border-indigo-200 rounded-xl bg-indigo-50 shadow-sm">
+          <h3 className="font-bold text-xl mb-4 text-[#4B0082]">1.1 Background Section</h3>
+          <div className="grid md:grid-cols-1 gap-6">
+             <div>
+              <label className="block font-medium mb-1">Background Image</label>
+              <input type="file" accept="image/*" onChange={(e) => { setBackgroundImage(e.target.files[0]); setBackgroundImage_old(null); }} className="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-100 file:text-[#4B0082] hover:file:bg-indigo-200 cursor-pointer" />
+              {isValidUrl(backgroundImage_old) && !backgroundImage && (
+                <p className="text-sm text-gray-500 mt-1">Current Background: <a href={backgroundImage_old} target="_blank" className="text-indigo-700 hover:underline">View Current</a></p>
+              )}
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Background Description</label>
+              <textarea rows="3" value={backgroundDescription} onChange={(e) => setBackgroundDescription(e.target.value)} className="w-full border rounded-lg p-3 border-gray-300" placeholder="History or background details of the university" />
             </div>
           </div>
         </div>
@@ -496,7 +531,7 @@ export default function EditUniversityPage({ params }) {
           <div className="p-6 border border-gray-300 rounded-xl bg-gray-50 shadow-sm">
             <h3 className="font-bold text-xl mb-4 text-[#0056B3]">Final University Courses List</h3>
             {courses.map((course, index) => (
-              <div key={`c-${index}`} className="grid md:grid-cols-4 gap-4 items-end mb-6 p-4 border rounded-lg border-gray-200 bg-white shadow-sm">
+              <div key={`c-${index}`} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 items-end mb-8 p-6 border rounded-lg border-gray-200 bg-white shadow-sm">
                 <div>
                   <label className="block text-sm font-medium mb-1">Course Name</label>
                   <input type="text" value={course.name} onChange={(e) => handleCourseChange(index, "name", e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="e.g. B.Tech Computer Science" />
@@ -506,15 +541,23 @@ export default function EditUniversityPage({ params }) {
                   <input type="text" value={course.duration} onChange={(e) => handleCourseChange(index, "duration", e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="e.g. 4 Years" />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium mb-1">Course Fees</label>
+                  <input type="text" value={course.fees} onChange={(e) => handleCourseChange(index, "fees", e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="e.g. ₹ 50,000 / Year" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-1">Course Details (Extra Info)</label>
+                  <input type="text" value={course.details} onChange={(e) => handleCourseChange(index, "details", e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="e.g. Includes lab fees and industrial visit" />
+                </div>
+                <div>
                   <label className="block text-sm font-medium mb-1">Course Logo</label>
                   <input type="file" accept="image/*" onChange={(e) => handleCourseChange(index, "logo", e.target.files[0])} className="w-full text-gray-700 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 cursor-pointer" />
                   {course.logo_old && !course.logo && (
                     <p className="text-xs text-gray-500 mt-1">Current Logo: <a href={course.logo_old} target="_blank" className="text-purple-700 hover:underline">View</a></p>
                   )}
                 </div>
-                <div className="md:col-span-1">
+                <div className="lg:col-span-3 mt-2">
                   {courses.length > 1 && (
-                    <button type="button" onClick={() => removeCourse(index)} className="w-full bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm transition shadow-md">Remove Course</button>
+                    <button type="button" onClick={() => removeCourse(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm transition shadow-md">Remove This Course</button>
                   )}
                 </div>
               </div>
@@ -538,4 +581,4 @@ export default function EditUniversityPage({ params }) {
       </form>
     </div>
   );
-}
+};
