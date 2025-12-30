@@ -1,5 +1,8 @@
 "use client";
 
+// Force client-side rendering (disable SSR/prerender)
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -204,12 +207,6 @@ const SearchPage = () => {
                   key={result._id}
                   className="bg-white rounded-2xl shadow hover:shadow-lg transition p-5 flex gap-5"
                 >
-                  {/* Logo commented out */}
-                  {/* <img
-                    src={result.universityImage || "/fallback-logo.png"}
-                    className="w-28 h-20 object-contain bg-gray-50 rounded-lg p-2"
-                  /> */}
-
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900">
                       {result.name}
@@ -229,13 +226,6 @@ const SearchPage = () => {
                         </span>
                       ))}
                     </div>
-
-                    {/* <Link
-                      href={`/university/${result.slug}`}
-                      className="inline-block mt-4 text-blue-600 font-bold text-sm"
-                    >
-                      View Profile →
-                    </Link> */}
                   </div>
                 </div>
               ))}
