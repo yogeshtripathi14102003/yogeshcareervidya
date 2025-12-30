@@ -1,209 +1,274 @@
 "use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import api from "@/utlis/api.js";
+
+const APPROVAL_LIST = ["UGC", "AICTE", "NAAC", "NBA"];
 
 const SearchPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([
-    { id: 1, title: 'IIT Delhi', type: 'College', description: 'Top engineering college in India', location: 'Delhi' },
-    { id: 2, title: 'JEE Main 2024', type: 'Exam', description: 'Joint Entrance Examination Main', date: 'Jan 2024' },
-    { id: 3, title: 'Delhi Public School', type: 'School', description: 'CBSE affiliated school', location: 'Delhi' },
-    { id: 4, title: 'NEET 2024', type: 'Exam', description: 'National Eligibility cum Entrance Test', date: 'May 2024' },
-    { id: 5, title: 'BITS Pilani', type: 'College', description: 'Premier institute of technology', location: 'Pilani' },
-    { id: 6, title: 'St. Xavier\'s School', type: 'School', description: 'ICSE affiliated school', location: 'Mumbai' },
-  ]);
-  const [filterType, setFilterType] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const resultsPerPage = 5;
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
 
-  const filteredResults = searchResults.filter(result => 
-    result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    result.description.toLowerCase().includes(searchQuery.toLowerCase())
-  ).filter(result => 
-    filterType === 'all' || result.type.toLowerCase() === filterType
-  );
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [filterType, setFilterType] = useState("all");
+  const [selectedApprovals, setSelectedApprovals] = useState([]);
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const resultsPerPage = 5; // Show only 5 cards per page
+
+  // ================= FETCH SEARCH =================
+  const fetchResults = async (q) => {
+    setLoading(true);
+    setCurrentPage(1);
+    try {
+      const res = await api.get(`/api/v1/university/search/all?query=${q}`);
+      setSearchResults(res.data.data || []);
+    } catch (err) {
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setSearchQuery(initialQuery);
+    fetchResults(initialQuery);
+  }, [initialQuery]);
+
+  // ================= SUGGESTIONS =================
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await api.get(
+          `/api/v1/university/search/all?query=${searchQuery}`
+        );
+        setSuggestions(res.data.data.slice(0, 6));
+        setShowSuggestions(true);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // ================= FILTER =================
+  const filteredResults = searchResults.filter((result) => {
+    if (filterType !== "all" && result.type !== filterType) return false;
+
+    if (selectedApprovals.length > 0) {
+      const approvalNames = result.approvals?.map((a) => a.name) || [];
+      return selectedApprovals.every((a) => approvalNames.includes(a));
+    }
+    return true;
+  });
 
   const indexOfLastResult = currentPage * resultsPerPage;
-  const indexOfFirstResult = indexOfLastResult - resultsPerPage;
-  const currentResults = filteredResults.slice(indexOfFirstResult, indexOfLastResult);
+  const currentResults = filteredResults.slice(
+    indexOfLastResult - resultsPerPage,
+    indexOfLastResult
+  );
   const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
 
+  const clearFilters = () => {
+    setFilterType("all");
+    setSelectedApprovals([]);
+    setSearchQuery("");
+    fetchResults("");
+  };
+
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
-      {/* Header */}
-      <header className="bg-[#F5F5F5] p-4 border-b border-[#333333]">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
-          <div className="flex items-center space-x-4 mb-4 md:mb-0">
-            <Link href="/">
-              <img src="/CV LOGO BACKGROUND.jpg" alt="Logo" className="h-16 w-auto" />
-            </Link>
-          </div>
-          <div className="relative w-full md:w-96">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* ================= HEADER ================= */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-center gap-4">
+          {/* Logo commented out */}
+          {/* <Link href="/">
+            <img src="/CV LOGO BACKGROUND.jpg" className="h-11" />
+          </Link> */}
+
+          <div className="relative w-full md:w-1/2">
             <input
-              type="text"
-              placeholder="Search Colleges, Exams, Schools & more"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-[#1E90FF] rounded-full p-2 pl-10 w-full text-[#333333] focus:outline-none text-sm shadow-md hover:shadow-lg"
+              onKeyDown={(e) =>
+                e.key === "Enter" && fetchResults(searchQuery)
+              }
+              placeholder="Search universities, approvals, courses..."
+              className="w-full rounded-full px-5 py-3 pl-12 shadow focus:ring-2 focus:ring-blue-500 outline-none"
             />
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">
+              🔍
+            </span> 
+
+            {/* ================= SUGGESTIONS DROPDOWN ================= */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute w-full mt-2 bg-white rounded-xl shadow-lg border overflow-hidden max-h-72 overflow-y-auto z-50">
+                {suggestions.map((item, i) => (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      setSearchQuery(item.name);
+                      fetchResults(item.name);
+                      setShowSuggestions(false);
+                    }}
+                    className="flex items-start gap-3 px-4 py-3 hover:bg-blue-50 cursor-pointer"
+                  >
+                    <span className="text-gray-500 mt-1">🔍</span>
+
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-900">
+                        {item.name}
+                      </span>
+                      <span className="text-xs text-blue-600 capitalize">
+                        {item.type === "university"
+                          ? "University"
+                          : "University Course"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Filters Sidebar */}
-          <div className="w-full lg:w-1/4 bg-white rounded-lg p-4 shadow-md">
-            <h3 className="text-lg font-semibold text-[#1E90FF] mb-4">Filters</h3>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="filterType"
-                  value="all"
-                  checked={filterType === 'all'}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className="mr-2"
-                />
-                All
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="filterType"
-                  value="college"
-                  checked={filterType === 'college'}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className="mr-2"
-                />
-                Colleges
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="filterType"
-                  value="exam"
-                  checked={filterType === 'exam'}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className="mr-2"
-                />
-                Exams
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="filterType"
-                  value="school"
-                  checked={filterType === 'school'}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className="mr-2"
-                />
-                Schools
-              </label>
-            </div>
-            <div className="mt-6">
-              <button className="w-full bg-[#FFA500] text-white py-2 rounded-md hover:bg-[#87CEEB]">
-                Clear Filters
+      {/* ================= CONTENT ================= */}
+      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        {/* ============ SIDEBAR ============ */}
+        <aside className="lg:w-1/4 bg-white rounded-2xl shadow p-5 h-fit">
+          <h3 className="font-bold text-lg mb-4 text-gray-800">
+            Filter by Approval
+          </h3>
+
+          <div className="flex flex-wrap gap-2">
+            {APPROVAL_LIST.map((appr) => (
+              <button
+                key={appr}
+                onClick={() =>
+                  setSelectedApprovals((prev) =>
+                    prev.includes(appr)
+                      ? prev.filter((a) => a !== appr)
+                      : [...prev, appr]
+                  )
+                }
+                className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
+                  selectedApprovals.includes(appr)
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 hover:bg-blue-50"
+                }`}
+              >
+                {appr}
               </button>
-            </div>
+            ))}
           </div>
 
-          {/* Search Results */}
-          <div className="w-full lg:w-3/4">
-            <div className="bg-white rounded-lg p-6 shadow-md">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-[#1E90FF]">
-                  Search Results for "{searchQuery || 'everything'}"
-                </h2>
-                <span className="text-gray-600">
-                  {filteredResults.length} results found
-                </span>
-              </div>
+          <button
+            onClick={clearFilters}
+            className="mt-6 w-full py-2 rounded-lg bg-orange-100 text-orange-600 font-semibold hover:bg-orange-200"
+          >
+            Reset Filters
+          </button>
+        </aside>
 
-              {/* Results List */}
-              <div className="space-y-4">
-                {currentResults.length > 0 ? (
-                  currentResults.map((result) => (
-                    <Link href={`/search/${result.id}`} key={result.id} className="block">
-                      <div className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-[#333333]">{result.title}</h3>
-                            <span className="inline-block bg-[#1E90FF] text-white px-2 py-1 rounded-full text-sm mt-1">
-                              {result.type}
-                            </span>
-                            <p className="text-gray-600 mt-2">{result.description}</p>
-                            {result.location && (
-                              <p className="text-gray-500 text-sm mt-1">📍 {result.location}</p>
-                            )}
-                            {result.date && (
-                              <p className="text-gray-500 text-sm mt-1">📅 {result.date}</p>
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <button className="bg-[#FFA500] text-white px-3 py-1 rounded-full text-sm hover:bg-[#87CEEB]">
-                              View Details
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="text-6xl mb-4">🔍</div>
-                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No results found</h3>
-                    <p className="text-gray-500">Try adjusting your search terms</p>
-                  </div>
-                )}
-              </div>
+        {/* ============ RESULTS ============ */}
+        <main className="lg:w-3/4">
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-32 bg-gray-200 rounded-xl animate-pulse"
+                />
+              ))}
+            </div>
+          ) : currentResults.length > 0 ? (
+            <div className="space-y-5">
+              {currentResults.map((result) => (
+                <div
+                  key={result._id}
+                  className="bg-white rounded-2xl shadow hover:shadow-lg transition p-5 flex gap-5"
+                >
+                  {/* Logo commented out */}
+                  {/* <img
+                    src={result.universityImage || "/fallback-logo.png"}
+                    className="w-28 h-20 object-contain bg-gray-50 rounded-lg p-2"
+                  /> */}
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center mt-8 space-x-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 border rounded-md disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 rounded-md ${
-                        currentPage === i + 1
-                          ? 'bg-[#1E90FF] text-white'
-                          : 'border border-gray-300'
-                      }`}
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-gray-900">
+                      {result.name}
+                    </h3>
+
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                      {result.cardDescription || result.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {result.approvals?.map((appr, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1 rounded-full text-xs bg-green-100 text-green-700 font-semibold"
+                        >
+                          {appr.name}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* <Link
+                      href={`/university/${result.slug}`}
+                      className="inline-block mt-4 text-blue-600 font-bold text-sm"
                     >
-                      {i + 1}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 border rounded-md disabled:opacity-50"
-                  >
-                    Next
-                  </button>
+                      View Profile →
+                    </Link> */}
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
-          </div>
-        </div>
-      </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-20 text-center shadow">
+              <h3 className="text-xl font-bold">No Results Found</h3>
+              <p className="text-gray-500 mt-2">
+                Try different keywords or filters
+              </p>
+            </div>
+          )}
 
-      {/* Footer */}
-      <footer className="bg-[#333333] text-white py-4 mt-8">
-        <div className="max-w-6xl mx-auto text-center">
-          <p>&copy; 2024 Career Vidya. All rights reserved.</p>
-        </div>
-      </footer>
+          {/* PAGINATION */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-10">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-10 h-10 rounded-full font-bold ${
+                    currentPage === i + 1
+                      ? "bg-blue-600 text-white"
+                      : "bg-white border hover:bg-blue-50"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 };

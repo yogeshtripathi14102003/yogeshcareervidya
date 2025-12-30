@@ -205,43 +205,33 @@ export default function Header() {
       priority
     />
 
-    {/* <Image
-      src="/images/newyerl.png"
+    <Image
+      src="/images/Lak.png"
       alt="Free Counselling Done"
       width={80}
       height={45}
       className="counselling-badge"
       priority
-    /> */}
+    />
   </div>
 </Link>
 
 
           {/* DESKTOP SEARCH */}
-          <div className="header-search-container desktop-only">
-            <div className="main-search-bar">
-              <input
-                type="text"
-                placeholder="Explore Courses"
-                className="main-search-input"
-              />
-              <button className="search-icon-btn">
-                <Search size={22} color="white" />
-              </button>
-
-              {/* <div className="search-dropdown-overlay">
-                <div className="dropdown-search-inner">
-                  <Search size={20} color="#666" />
-                  <input
-                    type="text"
-                    placeholder="Search for colleges, exams, courses and more..."
-                    className="dropdown-input"
-                  />
-                  <button className="dropdown-search-btn">Search</button>
-                </div>
-              </div> */}
-            </div>
-          </div>
+        <Link href="/layout/serarch" className="header-search-container desktop-only">
+  <div className="main-search-bar">
+    <input
+      type="text"
+      placeholder="Explore Courses"
+      className="main-search-input"
+      readOnly
+      style={{ cursor: 'pointer' }}
+    />
+    <div className="search-icon-btn">
+      <Search size={22} color="white" />
+    </div>
+  </div>
+</Link>
 
           {/* DESKTOP NAV */}
           <nav className="nav-right desktop-only">

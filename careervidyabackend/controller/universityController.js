@@ -202,7 +202,9 @@
 
 import University from '../models/Admin/University.js';
 import { v2 as cloudinary } from 'cloudinary';
+import slugify from 'slugify';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 // CLOUDINARY CONFIG
@@ -213,7 +215,6 @@ cloudinary.config({
 });
 
 // --- Helpers ---
-
 const uploadToCloudinary = async (buffer, folder) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
@@ -240,91 +241,67 @@ const getFlattenedFiles = (filesObject) => {
 };
 
 // --- Main Data Handler ---
-
 const handleUniversityData = async (body, files, existingData = null) => {
-
-    // Existing images safe rakho (UPDATE case)
     let universityImageUrl = existingData ? existingData.universityImage : null;
     let certificateImageUrl = existingData?.recognition?.certificateImage || null;
     let backgroundImageUrl = existingData?.background?.backgroundImage || null;
 
-    // 1. University Image
     const uniImage = files.find(f => f.fieldname === "universityImage");
-    if (uniImage) {
-        universityImageUrl = await uploadToCloudinary(
-            uniImage.buffer,
-            "university_assets/images"
-        );
-    }
+    if (uniImage) universityImageUrl = await uploadToCloudinary(uniImage.buffer, "university_assets/images");
 
-    // 2. Certificate Image
     const certImage = files.find(f => f.fieldname === "certificateImage");
-    if (certImage) {
-        certificateImageUrl = await uploadToCloudinary(
-            certImage.buffer,
-            "university_assets/certificates"
-        );
-    }
+    if (certImage) certificateImageUrl = await uploadToCloudinary(certImage.buffer, "university_assets/certificates");
 
-    // 3. Background Image
     const bgImage = files.find(f => f.fieldname === "backgroundImage");
-    if (bgImage) {
-        backgroundImageUrl = await uploadToCloudinary(
-            bgImage.buffer,
-            "university_assets/backgrounds"
-        );
-    }
+    if (bgImage) backgroundImageUrl = await uploadToCloudinary(bgImage.buffer, "university_assets/backgrounds");
 
-    // JSON Parse
     const approvals = JSON.parse(String(body.approvals || "[]"));
-    const courses = JSON.parse(String(body.courses || "[]"));
+    const coursesRaw = JSON.parse(String(body.courses || "[]"));
 
-    // 4. Approvals
     const finalApprovals = await Promise.all(
         approvals.map(async (item, index) => {
-            const file = files.find(
-                f => f.fieldname === `approvals[${index}][logo]`
-            );
+            const file = files.find(f => f.fieldname === `approvals[${index}][logo]`);
             if (file) {
-                const url = await uploadToCloudinary(
-                    file.buffer,
-                    "university_assets/logos"
-                );
+                const url = await uploadToCloudinary(file.buffer, "university_assets/logos");
                 return { ...item, logo: url };
             }
             return item;
         })
     );
 
-    // 5. Courses - Yahan hum manually enter ki gayi fees aur details ko save kar rahe hain
     const finalCourses = await Promise.all(
-        courses.map(async (item, index) => {
-            // Check if there's a new logo file for this specific course
-            const file = files.find(
-                f => f.fieldname === `courses[${index}][logo]`
-            );
-            
+        coursesRaw.map(async (item, index) => {
             let logoUrl = item.logo || null;
-
+            const file = files.find(f => f.fieldname === `courses[${index}][logo]`);
             if (file) {
-                logoUrl = await uploadToCloudinary(
-                    file.buffer,
-                    "university_assets/logos"
-                );
+                logoUrl = await uploadToCloudinary(file.buffer, "university_assets/logos");
             }
 
-            // Database Schema ke according data return ho raha hai
+            let actualId = null;
+            if (item.courseId) {
+                actualId = typeof item.courseId === 'object' ? (item.courseId._id || item.courseId.id) : item.courseId;
+            } else if (item._id) {
+                actualId = typeof item._id === 'object' ? (item._id._id || item._id.id) : item._id;
+            }
+            if (actualId === "null" || actualId === "undefined") actualId = null;
+
+            let savedCourseSlug = item.courseSlug || item.slug || "";
+            if (!savedCourseSlug && item.name) {
+                savedCourseSlug = slugify(item.name, { lower: true, strict: true });
+            }
+
             return { 
+                courseId: actualId,
+                courseSlug: savedCourseSlug,
                 name: item.name || "", 
                 duration: item.duration || "N/A",
                 logo: logoUrl, 
-                fees: item.fees || "",       // User ne jo type kiya form mein
-                details: item.details || ""  // User ne jo type kiya form mein
+                fees: item.fees || "",           
+                details: item.details || ""      
             };
         })
     );
 
-    // FINAL DATA RETURN
     return {
         name: body.name,
         description: body.description,
@@ -332,44 +309,37 @@ const handleUniversityData = async (body, files, existingData = null) => {
         youtubeLink: body.youtubeLink,
         shareDescription: body.shareDescription,
         cardDescription: body.cardDescription,
-
         background: {
             backgroundImage: backgroundImageUrl,
             backgroundDescription: body.backgroundDescription || ""
         },
-
         highlights: {
             heading: body.heading,
             points: JSON.parse(String(body.points || "[]"))
         },
-
         facts: {
             factsHeading: body.factsHeading,
             factsSubHeading: body.factsSubHeading,
             factsPoints: JSON.parse(String(body.factsPoints || "[]"))
         },
-
         approvals: finalApprovals,
-
         recognition: {
             recognitionHeading: body.recognitionHeading,
             recognitionDescription: body.recognitionDescription,
             recognitionPoints: JSON.parse(String(body.recognitionPoints || "[]")),
             certificateImage: certificateImageUrl
         },
-
         admission: {
             admissionHeading: body.admissionHeading,
             admissionSubHeading: body.admissionSubHeading,
             admissionDescription: body.admissionDescription,
             admissionPoints: JSON.parse(String(body.admissionPoints || "[]"))
         },
-
         courses: finalCourses
     };
 };
 
-// --- Controller Methods ---
+// --- Exported Controller Methods ---
 
 export const createUniversity = async (req, res) => {
     try {
@@ -378,7 +348,6 @@ export const createUniversity = async (req, res) => {
         const uni = await University.create(data);
         res.status(201).json({ success: true, data: uni });
     } catch (err) {
-        console.error("Create Error:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
@@ -386,25 +355,12 @@ export const createUniversity = async (req, res) => {
 export const updateUniversity = async (req, res) => {
     try {
         const existingUni = await University.findById(req.params.id);
-        if (!existingUni)
-            return res.status(404).json({ success: false, message: "Not found" });
-
+        if (!existingUni) return res.status(404).json({ success: false, message: "Not found" });
         const files = getFlattenedFiles(req.files);
-        const updatedData = await handleUniversityData(
-            req.body,
-            files,
-            existingUni
-        );
-
-        const saved = await University.findByIdAndUpdate(
-            req.params.id,
-            updatedData,
-            { new: true, runValidators: true }
-        );
-
+        const updatedData = await handleUniversityData(req.body, files, existingUni);
+        const saved = await University.findByIdAndUpdate(req.params.id, updatedData, { new: true });
         res.json({ success: true, data: saved });
     } catch (err) {
-        console.error("Update Error:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
@@ -418,22 +374,22 @@ export const getUniversities = async (req, res) => {
     }
 };
 
-export const getUniversityBySlug = async (req, res) => {
+// ✅ Yeh function missing tha jiski wajah se error aa rahi thi
+export const getUniversityById = async (req, res) => {
     try {
-        const uni = await University.findOne({ slug: req.params.slug });
-        if (!uni)
-            return res.status(404).json({ success: false, message: "Not found" });
+        const uni = await University.findById(req.params.id);
+        if (!uni) return res.status(404).json({ success: false, message: "University not found" });
         res.json({ success: true, data: uni });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-export const getUniversityById = async (req, res) => {
+// ✅ Yeh function bhi zaruri hai slug base fetching ke liye
+export const getUniversityBySlug = async (req, res) => {
     try {
-        const uni = await University.findById(req.params.id);
-        if (!uni)
-            return res.status(404).json({ success: false, message: "Not found" });
+        const uni = await University.findOne({ slug: req.params.slug });
+        if (!uni) return res.status(404).json({ success: false, message: "University not found" });
         res.json({ success: true, data: uni });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -448,3 +404,43 @@ export const deleteUniversity = async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
+
+// seerhch functionality for universities
+export const searchUniversities = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim() === "") {
+      const allUnis = await University.find().sort({ createdAt: -1 });
+      return res.json({ success: true, data: allUnis });
+    }
+
+    const results = await University.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+        { cardDescription: { $regex: query, $options: "i" } },
+        { shareDescription: { $regex: query, $options: "i" } },
+
+        // ✅ COURSES
+        { "courses.name": { $regex: query, $options: "i" } },
+        { "courses.fees": { $regex: query, $options: "i" } },
+        { "courses.duration": { $regex: query, $options: "i" } },
+
+        // ✅ APPROVALS (IMPORTANT FIX)
+        { "approvals.name": { $regex: query, $options: "i" } },
+      ],
+    }).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+  } catch (error) {
+    console.error("Search Error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+

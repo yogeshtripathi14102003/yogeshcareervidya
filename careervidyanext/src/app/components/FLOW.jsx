@@ -32,8 +32,17 @@ export default function AdmissionProcess() {
   const image = useScrollReveal(0.1);
   const button = useScrollReveal(0.1);
 
+  // Custom Cursor Style
+  // Note: Image size 32x32 ya 48x48 rakhein taaki cursor bada na dikhe
+  const customCursor = {
+    cursor: `url('/images/grad-icon.png'), auto`, 
+  };
+
   return (
-    <section className="w-full bg-[] py-6 md:py-10 overflow-hidden">
+    <section 
+      style={customCursor} 
+      className="w-full bg-white py-6 md:py-10 overflow-hidden"
+    >
       
       {/* 1. HEADING */}
       <h2
@@ -46,13 +55,13 @@ export default function AdmissionProcess() {
         }`}
       >
         Admission Process{" "}
-        <span className="">With Online Universities</span>
+        <span className="text-blue-600">With Online Universities</span>
       </h2>
 
-      {/* 2. IMAGE — SAME WIDTH AS CARDS */}
+      {/* 2. IMAGE */}
       <div
         ref={image.ref}
-        className={`max-w-7xl mx-auto px-4 mt-6 transition-all duration-1000 ease-out
+        className={`max-w-7xl mx-auto px-4 mt-6 transition-all duration-1000 ease-out relative group
         ${
           image.visible
             ? "opacity-100 translate-y-0 scale-100"
@@ -65,7 +74,7 @@ export default function AdmissionProcess() {
           width={1800}
           height={300}
           priority
-          className="w-full h-auto max-h-[160px] md:max-h-[350px] "
+          className="w-full h-auto max-h-[160px] md:max-h-[350px]"
         />
       </div>
 

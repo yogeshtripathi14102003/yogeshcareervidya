@@ -2,61 +2,42 @@
 
 import { useState } from "react";
 import api from "@/utlis/api.js";
-import Link from "next/link";
 import CourseApiSelector from "@/app/admin/adduniversitydata/CourseApiSelector.jsx";
 
 export default function AddUniversityPage() {
-    // --- State Variables ---
-    
-    // General State (Section 1)
+    // --- State Variables (UI same as before) ---
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [universityImage, setUniversityImage] = useState(null);
     const [youtubeLink, setYoutubeLink] = useState("");
-    
-    // SEO & Card Details
     const [shareDescription, setShareDescription] = useState("");
     const [cardDescription, setCardDescription] = useState("");
-    
-    // Section 2: University Facts
-    const [heading, setHeading] = useState(""); // Highlights Heading
-    const [points, setPoints] = useState([""]); // Highlights Points
-    const [factsHeading, setFactsHeading] = useState(""); // Facts & Statistics Heading
+    const [heading, setHeading] = useState(""); 
+    const [points, setPoints] = useState([""]); 
+    const [factsHeading, setFactsHeading] = useState(""); 
     const [factsSubHeading, setFactsSubHeading] = useState(""); 
     const [factsPoints, setFactsPoints] = useState([""]); 
-    
-    // Section 3: Approvals
     const [approvals, setApprovals] = useState([{ name: "", logo: null }]);
-
-    // Section 4: Recognition & Certificates
     const [recognitionHeading, setRecognitionHeading] = useState("");
     const [recognitionDescription, setRecognitionDescription] = useState("");
     const [recognitionPoints, setRecognitionPoints] = useState([""]);
     const [certificateImage, setCertificateImage] = useState(null);
-
-    // Section 5: Admission Process
     const [admissionHeading, setAdmissionHeading] = useState("");
     const [admissionSubHeading, setAdmissionSubHeading] = useState("");
     const [admissionDescription, setAdmissionDescription] = useState("");
     const [admissionPoints, setAdmissionPoints] = useState([""]);
-
-
-    // Background Section (ADD ONLY)
     const [backgroundImage, setBackgroundImage] = useState(null);
     const [backgroundDescription, setBackgroundDescription] = useState("");
 
     // Course State
-    // Updated initial state to include fees and details to avoid mismatch
-    const [courses, setCourses] = useState([{ name: "", logo: null, duration: "", fees: "", details: "" }]);
+    const [courses, setCourses] = useState([]); 
     const [courseApiData, setCourseApiData] = useState([]); 
     const [selectedCoursesFromApi, setSelectedCoursesFromApi] = useState({}); 
 
-    // Status State
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
-    const [errors, setErrors] = useState({});
 
-    // --- Dynamic List Management Functions (Admission Process) ---
+    // --- Dynamic List Management ---
     const addAdmissionPoint = () => setAdmissionPoints([...admissionPoints, ""]);
     const removeAdmissionPoint = (index) => setAdmissionPoints(admissionPoints.filter((_, i) => i !== index));
     const handleAdmissionPointChange = (index, value) => {
@@ -64,8 +45,6 @@ export default function AddUniversityPage() {
         updated[index] = value;
         setAdmissionPoints(updated);
     };
-
-    // --- Other Dynamic List Management Functions ---
     const addPoint = () => setPoints([...points, ""]);
     const removePoint = (index) => setPoints(points.filter((_, i) => i !== index));
     const handlePointChange = (index, value) => {
@@ -95,49 +74,19 @@ export default function AddUniversityPage() {
     const addApproval = () => setApprovals([...approvals, { name: "", logo: null }]);
     const removeApproval = (index) => setApprovals(approvals.filter((_, i) => i !== index));
     
-    // Manual Course Functions (Maintained as per your logic)
-    const addCourse = () => setCourses([...courses, { name: "", logo: null, duration: "", fees: "", details: "" }]);
+    // YAHAN BADLAV: Manual entry mein courseSlug add kiya
+    const addCourse = () => setCourses([...courses, { courseId: null, courseSlug: "", name: "", logo: null, duration: "", fees: "", details: "" }]);
     const removeCourse = (index) => setCourses(courses.filter((_, i) => i !== index));
     const handleCourseChange = (index, field, value) => {
         const updated = [...courses];
         updated[index][field] = value;
         setCourses(updated);
     };
-    
-    // --- Course API Fetching & Selection ---
-    const fetchCoursesFromApi = async () => {
-        setLoading(true);
-        setMessage("");
-        try {
-            const response = await api.get("/api/v1/course"); 
-            const fetchedData = Array.isArray(response.data) ? response.data : (response.data.courses || []);
-            setCourseApiData(fetchedData); 
-            setSelectedCoursesFromApi({}); 
-            setMessage(`✅ ${fetchedData.length} courses fetched successfully.`);
-        } catch (error) {
-            setMessage("❌ Error: " + (error.response?.data?.message || error.message));
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    const handleCourseSelection = (course, index, isChecked) => {
-        setSelectedCoursesFromApi(prev => ({ ...prev, [index]: isChecked }));
-        const newCourse = { name: course.name || "Fetched Course", logo: null, duration: course.duration || "", fees: "", details: "" };
-        if (isChecked) {
-            if (!courses.some(c => c.name === newCourse.name)) {
-                setCourses(prev => [...prev, newCourse]);
-            }
-        } else {
-            setCourses(prev => prev.filter(c => c.name !== newCourse.name));
-        }
-    };
 
-    // --- Submit Handler (FIXED to include fees & details) ---
+    // --- SUBMIT HANDLER ---
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
-        setErrors({});
         setLoading(true);
 
         try {
@@ -175,24 +124,15 @@ export default function AddUniversityPage() {
             if (certificateImage) formData.append("certificateImage", certificateImage);
             if (backgroundImage) formData.append("backgroundImage", backgroundImage);
 
-            // Approvals
-            const approvalsDataForBody = approvals.map(a => ({ name: a.name, logo: a.logo ? true : null }));
+            const approvalsDataForBody = approvals.map(a => ({ name: a.name }));
             formData.append("approvals", JSON.stringify(filterEmptyObjects(approvalsDataForBody)));
             approvals.forEach((approval, index) => {
-                if (approval.logo) {
+                if (approval.logo instanceof File) {
                     formData.append(`approvals[${index}][logo]`, approval.logo);
                 }
             });
 
-            // Courses (FIXED: Added Fees and Details)
-            const coursesDataForBody = courses.map(c => ({ 
-                name: c.name, 
-                duration: c.duration, 
-                fees: c.fees || "",      // Added
-                details: c.details || "", // Added
-                logo: c.logo ? true : null 
-            }));
-            formData.append("courses", JSON.stringify(filterEmptyObjects(coursesDataForBody)));
+            formData.append("courses", JSON.stringify(courses));
 
             courses.forEach((course, index) => {
                 if (course.logo instanceof File) {
@@ -200,10 +140,7 @@ export default function AddUniversityPage() {
                 }
             });
             
-            const response = await api.post("/api/v1/university", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-
+            await api.post("/api/v1/university", formData);
             setMessage("✅ University added successfully!");
         } catch (error) {
             console.error("Submission Error:", error);
@@ -242,22 +179,16 @@ export default function AddUniversityPage() {
                     </div>
                 </div>
 
-                {/* SEO & Card Details */}
+                {/* key and highlight */}
                 <div className="p-4 border border-yellow-300 rounded-xl bg-yellow-50 shadow-sm">
-                    <h4 className="font-bold text-lg mb-3 text-[#CC6600]">SEO & Card Details</h4>
+                    <h4 className="font-bold text-lg mb-3 text-[#CC6600]">Key And Highlight</h4>
                     <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block font-medium mb-1 text-sm">Share Description (SEO)</label>
-                            <textarea rows="2" value={shareDescription} onChange={(e) => setShareDescription(e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="A short, catchy description for sharing" />
-                        </div>
-                        <div>
-                            <label className="block font-medium mb-1 text-sm">Card Description (Listing Card)</label>
-                            <textarea rows="2" value={cardDescription} onChange={(e) => setCardDescription(e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="Very brief summary of the university" />
-                        </div>
+                        <textarea rows="2" value={shareDescription} onChange={(e) => setShareDescription(e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="Share Description" />
+                        <textarea rows="2" value={cardDescription} onChange={(e) => setCardDescription(e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder="Card Description" />
                     </div>
                 </div>
                 
-                {/* Background Section */}
+                {/* Background */}
                 <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-100 max-w-md">
                     <h3 className="text-lg font-semibold mb-4 text-gray-800">Background Section</h3>
                     <textarea placeholder="Background Description" value={backgroundDescription} onChange={(e) => setBackgroundDescription(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md mb-4 min-h-[100px]" />
@@ -266,21 +197,19 @@ export default function AddUniversityPage() {
 
                 {/* 2. University Facts */}
                 <div className="p-6 border border-green-300 rounded-xl bg-green-50 shadow-sm">
-                    <h3 className="font-bold text-xl mb-4 text-[#006400]">2. University Facts (Highlights & Statistics)</h3>
+                    <h3 className="font-bold text-xl mb-4 text-[#006400]">2. University Facts</h3>
                     <div className="mb-6 p-4 border border-green-200 rounded-lg bg-white">
-                         <h4 className="font-semibold text-lg mb-3 text-green-800">Highlights Section</h4>
                          <input type="text" value={heading} onChange={(e) => setHeading(e.target.value)} className="w-full border rounded-lg p-3 border-gray-300 mb-4" placeholder="Main Section Heading" />
                          {points.map((point, index) => (
                              <div key={`p-${index}`} className="flex gap-2 mb-2 items-center">
                                  <input type="text" value={point} onChange={(e) => handlePointChange(index, e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" placeholder={`Point ${index + 1}`} />
-                                 {points.length > 1 && (<button type="button" onClick={() => removePoint(index)} className="text-red-600">Remove</button>)}
+                                 {points.length > 1 && (<button type="button" onClick={() => removePoint(index)} className="text-red-600 text-sm">Remove</button>)}
                              </div>
                          ))}
                          <button type="button" onClick={addPoint} className="bg-[#006400] text-white px-4 py-2 rounded-lg text-sm mt-2">+ Add Highlight Point</button>
                     </div>
 
                     <div className="p-4 border border-green-200 rounded-lg bg-white">
-                        <h4 className="font-semibold text-lg mb-3 text-green-800">Facts & Statistics Section</h4>
                         <div className="grid md:grid-cols-2 gap-4 mb-4">
                             <input type="text" value={factsHeading} onChange={(e) => setFactsHeading(e.target.value)} className="w-full border rounded-lg p-3 border-gray-300" placeholder="Facts Heading" />
                             <input type="text" value={factsSubHeading} onChange={(e) => setFactsSubHeading(e.target.value)} className="w-full border rounded-lg p-3 border-gray-300" placeholder="Sub-Heading" />
@@ -288,51 +217,51 @@ export default function AddUniversityPage() {
                         {factsPoints.map((point, index) => (
                             <div key={`fp-${index}`} className="flex gap-2 mb-2 items-center">
                                 <input type="text" value={point} onChange={(e) => handleFactsPointChange(index, e.target.value)} className="w-full border rounded-lg p-2 border-gray-300" />
-                                {factsPoints.length > 1 && (<button type="button" onClick={() => removeFactsPoint(index)} className="text-red-600">Remove</button>)}
+                                {factsPoints.length > 1 && (<button type="button" onClick={() => removeFactsPoint(index)} className="text-red-600 text-sm">Remove</button>)}
                             </div>
                         ))}
                         <button type="button" onClick={addFactsPoint} className="bg-green-800 text-white px-4 py-2 rounded-lg text-sm mt-2">+ Add Fact Point</button>
                     </div>
                 </div>
 
-                {/* 3. University Approvals */}
+                {/* 3. Approvals */}
                 <div className="p-6 border border-red-300 rounded-xl bg-red-50 shadow-sm">
-                    <h3 className="font-bold text-xl mb-4 text-[#A00000]">3. University Approvals (Logos & Names)</h3>
+                    <h3 className="font-bold text-xl mb-4 text-[#A00000]">3. University Approvals</h3>
                     {approvals.map((approval, index) => (
-                        <div key={`a-${index}`} className="grid md:grid-cols-3 gap-4 items-end mb-4 p-4 border rounded-lg border-red-200 bg-white">
+                        <div key={`a-${index}`} className="grid md:grid-cols-3 gap-4 items-end mb-4 p-4 border rounded-lg border-red-200 bg-white shadow-sm">
                             <input type="text" value={approval.name} onChange={(e) => handleApprovalChange(index, "name", e.target.value)} className="w-full border rounded-lg p-2" placeholder="Approval Name" />
-                            <input type="file" onChange={(e) => handleApprovalChange(index, "logo", e.target.files[0])} className="w-full" />
-                            {approvals.length > 1 && (<button type="button" onClick={() => removeApproval(index)} className="bg-red-500 text-white px-3 py-2 rounded-lg">Remove</button>)}
+                            <input type="file" onChange={(e) => handleApprovalChange(index, "logo", e.target.files[0])} className="w-full text-xs" />
+                            {approvals.length > 1 && (<button type="button" onClick={() => removeApproval(index)} className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs">Remove</button>)}
                         </div>
                     ))}
                     <button type="button" onClick={addApproval} className="bg-[#A00000] text-white px-4 py-2 rounded-lg text-sm mt-4">+ Add Another Approval</button>
                 </div>
 
-                {/* 4. University Recognition */}
+                {/* 4. Recognition */}
                 <div className="p-6 border border-teal-400 rounded-xl bg-teal-50 shadow-sm">
-                    <h3 className="font-bold text-xl mb-4 text-[#008080]">4. University Recognition & Certificates</h3>
+                    <h3 className="font-bold text-xl mb-4 text-[#008080]">4. University Recognition</h3>
                     <input type="text" value={recognitionHeading} onChange={(e) => setRecognitionHeading(e.target.value)} className="w-full border rounded-lg p-3 mb-4" placeholder="Recognition Heading" />
-                    <textarea rows="2" value={recognitionDescription} onChange={(e) => setRecognitionDescription(e.target.value)} className="w-full border rounded-lg p-3 mb-4" placeholder="Description" />
+                    <textarea rows="2" value={recognitionDescription} onChange={(e) => setRecognitionDescription(e.target.value)} className="w-full border rounded-lg p-3 mb-4 text-sm" placeholder="Description" />
                     {recognitionPoints.map((point, index) => (
                         <div key={`rp-${index}`} className="flex gap-2 mb-2 items-center">
                             <input type="text" value={point} onChange={(e) => handleRecognitionPointChange(index, e.target.value)} className="w-full border rounded-lg p-2" />
-                            {recognitionPoints.length > 1 && (<button type="button" onClick={() => removeRecognitionPoint(index)} className="text-red-600">Remove</button>)}
+                            {recognitionPoints.length > 1 && (<button type="button" onClick={() => removeRecognitionPoint(index)} className="text-red-600 text-sm">Remove</button>)}
                         </div>
                     ))}
                     <button type="button" onClick={addRecognitionPoint} className="bg-[#008080] text-white px-4 py-2 rounded-lg text-sm mt-2">+ Add Recognition Point</button>
-                    <input type="file" onChange={(e) => setCertificateImage(e.target.files[0])} className="mt-4 block w-full" />
+                    <input type="file" onChange={(e) => setCertificateImage(e.target.files[0])} className="mt-4 block w-full text-sm" />
                 </div>
 
-                {/* 5. University Admission Process */}
+                {/* 5. Admission Process */}
                 <div className="p-6 border border-orange-400 rounded-xl bg-orange-50 shadow-sm">
                     <h3 className="font-bold text-xl mb-4 text-[#FF4500]">5. University Admission Process</h3>
                     <input type="text" value={admissionHeading} onChange={(e) => setAdmissionHeading(e.target.value)} className="w-full border rounded-lg p-3 mb-2" placeholder="Admission Heading" />
                     <input type="text" value={admissionSubHeading} onChange={(e) => setAdmissionSubHeading(e.target.value)} className="w-full border rounded-lg p-3 mb-2" placeholder="Sub-Heading" />
-                    <textarea rows="2" value={admissionDescription} onChange={(e) => setAdmissionDescription(e.target.value)} className="w-full border rounded-lg p-3 mb-4" placeholder="Description" />
+                    <textarea rows="2" value={admissionDescription} onChange={(e) => setAdmissionDescription(e.target.value)} className="w-full border rounded-lg p-3 mb-4 text-sm" placeholder="Description" />
                     {admissionPoints.map((point, index) => (
                         <div key={`ap-${index}`} className="flex gap-2 mb-2 items-center">
                             <input type="text" value={point} onChange={(e) => handleAdmissionPointChange(index, e.target.value)} className="w-full border rounded-lg p-2" placeholder={`Step ${index+1}`} />
-                            {admissionPoints.length > 1 && (<button type="button" onClick={() => removeAdmissionPoint(index)} className="text-red-600">Remove</button>)}
+                            {admissionPoints.length > 1 && (<button type="button" onClick={() => removeAdmissionPoint(index)} className="text-red-600 text-sm">Remove</button>)}
                         </div>
                     ))}
                     <button type="button" onClick={addAdmissionPoint} className="bg-[#FF4500] text-white px-4 py-2 rounded-lg text-sm mt-2">+ Add Step</button>
@@ -353,24 +282,30 @@ export default function AddUniversityPage() {
                         setMessage={setMessage}
                     />
 
+                    {/* Review Section */}
                     <div className="p-6 border border-gray-300 rounded-xl bg-gray-50 shadow-sm mt-6">
                         <h3 className="font-bold text-xl mb-4 text-[#0056B3]">Final University Courses List</h3>
                         {courses.map((course, index) => (
-                            <div key={`c-${index}`} className="grid md:grid-cols-4 gap-4 items-end mb-6 p-4 border rounded-lg border-gray-200 bg-white shadow-sm">
+                            <div key={`c-${index}`} className="grid md:grid-cols-5 gap-4 items-end mb-6 p-4 border rounded-lg border-gray-200 bg-white shadow-sm">
                                 <div className="md:col-span-1">
-                                    <label className="block text-sm font-medium mb-1">Course Name *</label>
-                                    <input type="text" value={course.name} onChange={(e) => handleCourseChange(index, "name", e.target.value)} className="w-full border rounded-lg p-2" />
+                                    <label className="block text-xs font-bold mb-1">Name</label>
+                                    <input type="text" value={course.name} onChange={(e) => handleCourseChange(index, "name", e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+                                </div>
+                                {/* NAYA FIELD: Slug input manual entries ke liye */}
+                                <div className="md:col-span-1">
+                                    <label className="block text-xs font-bold mb-1 text-blue-600">Course Slug</label>
+                                    <input type="text" value={course.courseSlug} onChange={(e) => handleCourseChange(index, "courseSlug", e.target.value)} className="w-full border rounded-lg p-2 text-sm border-blue-200" placeholder="mba-online" />
                                 </div>
                                 <div className="md:col-span-1">
-                                    <label className="block text-sm font-medium mb-1">Duration</label>
-                                    <input type="text" value={course.duration} onChange={(e) => handleCourseChange(index, "duration", e.target.value)} className="w-full border rounded-lg p-2" />
+                                    <label className="block text-xs font-bold mb-1">Duration</label>
+                                    <input type="text" value={course.duration} onChange={(e) => handleCourseChange(index, "duration", e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
                                 </div>
                                 <div className="md:col-span-1">
-                                    <label className="block text-sm font-medium mb-1">Course Logo</label>
-                                    <input type="file" onChange={(e) => handleCourseChange(index, "logo", e.target.files[0])} className="w-full text-xs" />
+                                    <label className="block text-xs font-bold mb-1">Override Logo</label>
+                                    <input type="file" onChange={(e) => handleCourseChange(index, "logo", e.target.files[0])} className="w-full text-[10px]" />
                                 </div>
                                 <div className="md:col-span-1">
-                                    {courses.length > 1 && (<button type="button" onClick={() => removeCourse(index)} className="w-full bg-red-500 text-white px-3 py-2 rounded-lg">Remove Course</button>)}
+                                    {courses.length > 0 && (<button type="button" onClick={() => removeCourse(index)} className="w-full bg-red-500 text-white px-3 py-2 rounded-lg text-xs">Remove</button>)}
                                 </div>
                             </div>
                         ))}
@@ -378,7 +313,6 @@ export default function AddUniversityPage() {
                     </div>
                 </div>
 
-                {/* Submit Button */}
                 <button type="submit" disabled={loading} className="bg-[#0056B3] text-white w-full py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 shadow-xl">
                     {loading ? "Submitting Data..." : "Add University"}
                 </button>

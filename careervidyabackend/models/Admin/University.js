@@ -93,15 +93,21 @@ const ApprovalSchema = new mongoose.Schema({
   logo: { type: String, default: null },
 });
 
-// --- Updated Course Schema ---
-const CourseSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  duration: { type: String, default: "N/A" },
-  logo: { type: String, default: null },
-  fees: { type: String, default: "" },       // Added field for course fees
-  details: { type: String, default: "" },    // Added field for course detail fees
-});
 
+
+// --- Updated Course Sub-Schema (University ke liye) ---
+const CourseSchema = new mongoose.Schema({
+  courseId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Course" 
+  }, // Base Course ki ID
+  name: { type: String, required: true },
+  courseSlug: { type: String, default: "" },    // Fetch hoke yahan save hoga
+  logo: { type: String, default: null },     // Fetch hoke yahan save hoga
+  duration: { type: String, default: "N/A" },// Fetch hoke yahan save hoga
+  fees: { type: String, default: "" },       // Aap manual enter karenge
+  details: { type: String, default: "" },    // Aap manual enter karenge
+});
 // --- Main Schema ---
 
 const UniversitySchema = new mongoose.Schema(

@@ -54,7 +54,8 @@ import {
     getUniversityById,
     getUniversityBySlug,
     updateUniversity,
-    deleteUniversity
+    deleteUniversity,
+    searchUniversities,
 } from "../controller/universityController.js";
 
 const router = express.Router();
@@ -120,4 +121,5 @@ router.put("/:id", universityUploadFields, updateUniversity);
 // DELETE
 router.delete("/:id", deleteUniversity);
 
+router.get('/search/all', searchUniversities);
 export default router;
