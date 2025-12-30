@@ -218,7 +218,7 @@ export default function Header() {
 
 
           {/* DESKTOP SEARCH */}
-        <Link href="/serarch" className="header-search-container desktop-only">
+        <Link href="/erarch" className="header-search-container desktop-only">
   <div className="main-search-bar">
     <input
       type="text"
