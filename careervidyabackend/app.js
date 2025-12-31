@@ -19,6 +19,7 @@ import applyRouter from "./router/applyRouter.js";
 import addjobRouter from "./router/addjobRouter.js";
 import reviewRouter from "./router/reviewRouter.js";
 // import chatbotRoutes from "./router/chatbotRoutes.js";
+import visitorRoutes from "./router/visitorRoutes.js";
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use("/api/v1/resume", applyRouter);
 app.use("/api/v1/addjob", addjobRouter);
 app.use("/api/v1", reviewRouter);
 // app.use("/api/v1",chatbotRoutes);
+app.use("/api/v1/", visitorRoutes);
 
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {

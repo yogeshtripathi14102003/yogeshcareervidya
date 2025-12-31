@@ -390,7 +390,7 @@ export default function EditUniversityPage({ params }) {
 
         {/* Facts & Highlights */}
         <div className="p-6 border border-green-300 rounded-xl bg-green-50 shadow-sm">
-          <h3 className="font-bold text-xl mb-4 text-[#006400]">2. University Facts (Highlights & Statistics)</h3>
+          <h3 className="font-bold text-xl mb-4 text-[#006400]">2 Career outcome and Placement</h3>
 
           <div className="mb-6 p-4 border border-green-200 rounded-lg bg-white">
             <h4 className="font-semibold text-lg mb-3 text-green-800">Highlights Section</h4>

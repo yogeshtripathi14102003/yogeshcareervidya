@@ -1,276 +1,206 @@
-// "use client";
 
-// import { useState, useEffect } from "react";
-// import { useSearchParams } from "next/navigation";
-// import Link from "next/link";
-// import api from "@/utlis/api.js";
+"use client";
 
-// const APPROVAL_LIST = ["UGC", "AICTE", "NAAC", "NBA"];
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import api from "@/utlis/api.js";
 
-// const SearchPage = () => {
-//   const searchParams = useSearchParams();
-//   const initialQuery = searchParams.get("q") || "";
+const APPROVAL_LIST = ["UGC", "AICTE", "NAAC", "NBA"];
 
-//   const [searchQuery, setSearchQuery] = useState(initialQuery);
-//   const [searchResults, setSearchResults] = useState([]);
-//   const [loading, setLoading] = useState(false);
+const SearchContent = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialQuery = searchParams.get("q") || "";
 
-//   const [filterType, setFilterType] = useState("all");
-//   const [selectedApprovals, setSelectedApprovals] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedApprovals, setSelectedApprovals] = useState([]);
 
-//   const [suggestions, setSuggestions] = useState([]);
-//   const [showSuggestions, setShowSuggestions] = useState(false);
+  // ================= PLACEHOLDER SLIDER LOGIC =================
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const placeholders = [
+    "Find University...",
+    "Find College...",
+    "Find Course...",
+    
+  ];
 
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const resultsPerPage = 5; // Show only 5 cards per page
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 1500); // Har 2.5 second mein change hoga
+    return () => clearInterval(timer);
+  }, []);
 
-//   // ================= FETCH SEARCH =================
-//   const fetchResults = async (q) => {
-//     setLoading(true);
-//     setCurrentPage(1);
-//     try {
-//       const res = await api.get(`/api/v1/university/search/all?query=${q}`);
-//       setSearchResults(res.data.data || []);
-//     } catch (err) {
-//       setSearchResults([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  // ================= 1. SMART FILTER LOGIC (Fees & Course) =================
+  const getSmartFilters = (query) => {
+    const lowerQuery = query.toLowerCase();
+    let detectedFees = null;
+    let cleanQuery = lowerQuery;
 
-//   useEffect(() => {
-//     setSearchQuery(initialQuery);
-//     fetchResults(initialQuery);
-//   }, [initialQuery]);
+    const feeMatch = lowerQuery.match(/(?:under|below|less than|upto)\s?(\d+k?)/);
+    if (feeMatch) {
+      let value = feeMatch[1];
+      if (value.includes('k')) {
+        detectedFees = parseInt(value.replace('k', '')) * 1000;
+      } else {
+        detectedFees = parseInt(value);
+      }
+      cleanQuery = lowerQuery.replace(feeMatch[0], "").trim();
+    }
 
-//   // ================= SUGGESTIONS =================
-//   useEffect(() => {
-//     if (searchQuery.length < 2) {
-//       setSuggestions([]);
-//       setShowSuggestions(false);
-//       return;
-//     }
+    return { detectedFees, cleanQuery };
+  };
 
-//     const timer = setTimeout(async () => {
-//       try {
-//         const res = await api.get(
-//           `/api/v1/university/search/all?query=${searchQuery}`
-//         );
-//         setSuggestions(res.data.data.slice(0, 6));
-//         setShowSuggestions(true);
-//       } catch {
-//         setSuggestions([]);
-//       }
-//     }, 300);
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setSearchResults([]);
+      setLoading(false);
+      return;
+    }
 
-//     return () => clearTimeout(timer);
-//   }, [searchQuery]);
+    const delayDebounceFn = setTimeout(() => {
+      const { cleanQuery } = getSmartFilters(searchQuery);
+      fetchResults(cleanQuery || searchQuery);
+    }, 300);
 
-//   // ================= FILTER =================
-//   const filteredResults = searchResults.filter((result) => {
-//     if (filterType !== "all" && result.type !== filterType) return false;
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
-//     if (selectedApprovals.length > 0) {
-//       const approvalNames = result.approvals?.map((a) => a.name) || [];
-//       return selectedApprovals.every((a) => approvalNames.includes(a));
-//     }
-//     return true;
-//   });
+  const fetchResults = async (q) => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/api/v1/university/search/all?query=${q}`);
+      setSearchResults(res.data.data || []);
+    } catch (err) {
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   const indexOfLastResult = currentPage * resultsPerPage;
-//   const currentResults = filteredResults.slice(
-//     indexOfLastResult - resultsPerPage,
-//     indexOfLastResult
-//   );
-//   const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
+  // ================= 2. ADVANCED FILTERING =================
+  const filteredResults = searchResults.filter((result) => {
+    const { detectedFees } = getSmartFilters(searchQuery);
 
-//   const clearFilters = () => {
-//     setFilterType("all");
-//     setSelectedApprovals([]);
-//     setSearchQuery("");
-//     fetchResults("");
-//   };
+    if (selectedApprovals.length > 0) {
+      const universityApprovals = result.approvals?.map((a) => a.name.toUpperCase()) || [];
+      const hasApprovals = selectedApprovals.every((val) => universityApprovals.includes(val.toUpperCase()));
+      if (!hasApprovals) return false;
+    }
 
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-//       {/* ================= HEADER ================= */}
-//       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
-//         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-center gap-4">
-//           {/* Logo commented out */}
-//           {/* <Link href="/">
-//             <img src="/CV LOGO BACKGROUND.jpg" className="h-11" />
-//           </Link> */}
+    if (detectedFees) {
+      const universityFee = result.minFees || result.fees || 0;
+      if (universityFee > detectedFees) return false;
+    }
 
-//           <div className="relative w-full md:w-1/2">
-//             <input
-//               value={searchQuery}
-//               onChange={(e) => setSearchQuery(e.target.value)}
-//               onKeyDown={(e) =>
-//                 e.key === "Enter" && fetchResults(searchQuery)
-//               }
-//               placeholder="Search universities, approvals, courses..."
-//               className="w-full rounded-full px-5 py-3 pl-12 shadow focus:ring-2 focus:ring-blue-500 outline-none"
-//             />
-//             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">
-//               🔍
-//             </span> 
+    return true;
+  });
 
-//             {/* ================= SUGGESTIONS DROPDOWN ================= */}
-//             {showSuggestions && suggestions.length > 0 && (
-//               <div className="absolute w-full mt-2 bg-white rounded-xl shadow-lg border overflow-hidden max-h-72 overflow-y-auto z-50">
-//                 {suggestions.map((item, i) => (
-//                   <div
-//                     key={i}
-//                     onClick={() => {
-//                       setSearchQuery(item.name);
-//                       fetchResults(item.name);
-//                       setShowSuggestions(false);
-//                     }}
-//                     className="flex items-start gap-3 px-4 py-3 hover:bg-blue-50 cursor-pointer"
-//                   >
-//                     <span className="text-gray-500 mt-1">🔍</span>
+  return (
+    <div className="min-h-screen bg-white">
+      <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-6 flex items-center gap-4">
+          <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
 
-//                     <div className="flex flex-col">
-//                       <span className="text-sm font-medium text-gray-900">
-//                         {item.name}
-//                       </span>
-//                       <span className="text-xs text-blue-600 capitalize">
-//                         {item.type === "university"
-//                           ? "University"
-//                           : "University Course"}
-//                       </span>
-//                     </div>
-//                   </div>
-//                 ))}
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       </header>
+          <div className="relative flex-1 flex items-center">
+            <span className="absolute left-4 text-gray-400 text-xl pointer-events-none">🔍</span>
+            <input
+              value={searchQuery}
+              autoFocus
+              onChange={(e) => setSearchQuery(e.target.value)}
+              // --- Yahan Slider Apply Kiya Hai ---
+              placeholder={placeholders[placeholderIndex]}
+              className="w-full rounded-xl px-12 py-3.5 border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-gray-800 text-lg transition-all"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute right-4 p-1 rounded-full hover:bg-gray-100 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
 
-//       {/* ================= CONTENT ================= */}
-//       <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
-//         {/* ============ SIDEBAR ============ */}
-//         <aside className="lg:w-1/4 bg-white rounded-2xl shadow p-5 h-fit">
-//           <h3 className="font-bold text-lg mb-4 text-gray-800">
-//             Filter by Approval
-//           </h3>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {searchQuery.trim() !== "" ? (
+          <div className="flex flex-col md:flex-row gap-8">
+            <aside className="w-full md:w-48 flex-shrink-0">
+              <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">Filters</h3>
+              <div className="flex flex-wrap md:flex-col gap-2">
+                {APPROVAL_LIST.map((appr) => (
+                  <button
+                    key={appr}
+                    onClick={() => setSelectedApprovals(prev => prev.includes(appr) ? prev.filter(a => a !== appr) : [...prev, appr])}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-all ${selectedApprovals.includes(appr) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-100 hover:border-blue-400"}`}
+                  >
+                    {appr}
+                  </button>
+                ))}
+              </div>
+            </aside>
 
-//           <div className="flex flex-wrap gap-2">
-//             {APPROVAL_LIST.map((appr) => (
-//               <button
-//                 key={appr}
-//                 onClick={() =>
-//                   setSelectedApprovals((prev) =>
-//                     prev.includes(appr)
-//                       ? prev.filter((a) => a !== appr)
-//                       : [...prev, appr]
-//                   )
-//                 }
-//                 className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-//                   selectedApprovals.includes(appr)
-//                     ? "bg-blue-600 text-white"
-//                     : "bg-gray-100 hover:bg-blue-50"
-//                 }`}
-//               >
-//                 {appr}
-//               </button>
-//             ))}
-//           </div>
+            <main className="flex-1">
+              {getSmartFilters(searchQuery).detectedFees && (
+                <div className="mb-4 inline-flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-100">
+                  <span>💰 Budget: Under ₹{getSmartFilters(searchQuery).detectedFees}</span>
+                </div>
+              )}
 
-//           <button
-//             onClick={clearFilters}
-//             className="mt-6 w-full py-2 rounded-lg bg-orange-100 text-orange-600 font-semibold hover:bg-orange-200"
-//           >
-//             Reset Filters
-//           </button>
-//         </aside>
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                {loading ? (
+                  <div className="p-12 text-center text-gray-400 animate-pulse font-medium text-sm">Searching...</div>
+                ) : filteredResults.length > 0 ? (
+                  <div className="divide-y divide-gray-50">
+                    {filteredResults.map((result) => (
+                      <Link href={`//${result.slug || result._id}`} key={result._id} className="flex items-start gap-4 p-5 hover:bg-blue-50/50 transition-all group">
+                        <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-600">🔍</div>
+                        <div className="flex flex-col flex-1">
+                          <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-gray-900 group-hover:text-blue-700">{result.name}</h2>
+                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">University</span>
+                          </div>
+                          <div className="text-[11px] text-gray-500 mt-1">
+                            {result.minFees ? `Starting from ₹${result.minFees}` : "Fees on request"}
+                          </div>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {result.approvals?.map((a, i) => (
+                              <span key={i} className="text-[10px] text-gray-400 font-bold uppercase">{a.name}{i !== result.approvals.length - 1 ? "," : ""}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-20 text-center text-gray-400 text-sm">No results found</div>
+                )}
+              </div>
+            </main>
+          </div>
+        ) : (
+          <div className="text-center py-24">
+            <div className="text-5xl mb-6 opacity-20">🔎</div>
+            <h2 className="text-xl font-bold text-gray-300 tracking-tight">Search for Universities</h2>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-//         {/* ============ RESULTS ============ */}
-//         <main className="lg:w-3/4">
-//           {loading ? (
-//             <div className="space-y-4">
-//               {[1, 2, 3].map((i) => (
-//                 <div
-//                   key={i}
-//                   className="h-32 bg-gray-200 rounded-xl animate-pulse"
-//                 />
-//               ))}
-//             </div>
-//           ) : currentResults.length > 0 ? (
-//             <div className="space-y-5">
-//               {currentResults.map((result) => (
-//                 <div
-//                   key={result._id}
-//                   className="bg-white rounded-2xl shadow hover:shadow-lg transition p-5 flex gap-5"
-//                 >
-//                   {/* Logo commented out */}
-//                   {/* <img
-//                     src={result.universityImage || "/fallback-logo.png"}
-//                     className="w-28 h-20 object-contain bg-gray-50 rounded-lg p-2"
-//                   /> */}
-
-//                   <div className="flex-1">
-//                     <h3 className="text-xl font-bold text-gray-900">
-//                       {result.name}
-//                     </h3>
-
-//                     <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-//                       {result.cardDescription || result.description}
-//                     </p>
-
-//                     <div className="flex flex-wrap gap-2 mt-3">
-//                       {result.approvals?.map((appr, i) => (
-//                         <span
-//                           key={i}
-//                           className="px-3 py-1 rounded-full text-xs bg-green-100 text-green-700 font-semibold"
-//                         >
-//                           {appr.name}
-//                         </span>
-//                       ))}
-//                     </div>
-
-//                     {/* <Link
-//                       href={`/university/${result.slug}`}
-//                       className="inline-block mt-4 text-blue-600 font-bold text-sm"
-//                     >
-//                       View Profile →
-//                     </Link> */}
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-//           ) : (
-//             <div className="bg-white rounded-2xl p-20 text-center shadow">
-//               <h3 className="text-xl font-bold">No Results Found</h3>
-//               <p className="text-gray-500 mt-2">
-//                 Try different keywords or filters
-//               </p>
-//             </div>
-//           )}
-
-//           {/* PAGINATION */}
-//           {totalPages > 1 && (
-//             <div className="flex justify-center gap-2 mt-10">
-//               {[...Array(totalPages)].map((_, i) => (
-//                 <button
-//                   key={i}
-//                   onClick={() => setCurrentPage(i + 1)}
-//                   className={`w-10 h-10 rounded-full font-bold ${
-//                     currentPage === i + 1
-//                       ? "bg-blue-600 text-white"
-//                       : "bg-white border hover:bg-blue-50"
-//                   }`}
-//                 >
-//                   {i + 1}
-//                 </button>
-//               ))}
-//             </div>
-//           )}
-//         </main>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default SearchPage;
+export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchContent />
+    </Suspense>
+  );
+}

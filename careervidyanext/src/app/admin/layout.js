@@ -220,6 +220,7 @@ const Layout = ({ children }) => {
 
   const menuItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/visitors", label: "Visitors", icon: Users },
     { href: "/admin/placestudent", label: "Placed Students", icon: Award },
     { href: "/admin/addteam", label: "Add Team", icon: Users },
     { href: "/admin/Getalluser", label: "All Students", icon: Users },
@@ -233,6 +234,7 @@ const Layout = ({ children }) => {
     { href: "/admin/getonelyonline", label: "OnlyL Online", icon: Tag },
     { href: "/admin/Q&A", label: "Q & A", icon: MessageSquare },
     { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+
     { href: "/admin/Security", label: "Security", icon: Lock },
   ];
 

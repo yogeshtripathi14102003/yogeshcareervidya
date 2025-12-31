@@ -1,7 +1,10 @@
 
 
+
+
 // import { Geist, Geist_Mono } from "next/font/google";
 // import "./globals.css";
+// import AutoLogout from "../app/components/AutoLogout.js" ;// ✅ ADD THIS
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -14,7 +17,7 @@
 // });
 
 // export const metadata = {
-//   metadataBase: new URL("https://www.careervidya.in"), // ✅ Fix for metadataBase
+//   metadataBase: new URL("https://www.careervidya.in"),
 //   title: "CareerVidya - Best Career Guidance Platform",
 //   description:
 //     "Explore career paths, mentors, and expert guidance to shape your future with CareerVidya.",
@@ -43,7 +46,6 @@
 //   },
 // };
 
-// // ✅ themeColor now goes here (not inside metadata)
 // export const viewport = {
 //   themeColor: "#ffffff",
 // };
@@ -52,44 +54,27 @@
 //   return (
 //     <html lang="en">
 //       <head>
-//         {/* Favicon and SEO */}
 //         <link rel="icon" href="/favicon.ico" sizes="any" />
 //         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-//         <meta name="theme-color" content="#ffffff" />
-//         <meta
-//           name="description"
-//           content="Explore career paths, mentors, and expert guidance to shape your future with CareerVidya."
-//         />
-//         <meta
-//           name="keywords"
-//           content="CareerVidya, career guidance, education, mentorship, students, future planning"
-//         />
-//         <meta
-//           property="og:title"
-//           content="CareerVidya - Best Career Guidance Platform"
-//         />
-//         <meta
-//           property="og:description"
-//           content="Explore career paths, mentors, and expert guidance to shape your future."
-//         />
-//         <meta property="og:url" content="https://www.careervidya.in" />
-//         <meta property="og:type" content="website" />
-//         <title>CareerVidya - Best Career Guidance Platform</title>
 //       </head>
 
 //       <body
 //         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 //       >
+//         <AutoLogout /> {/* ✅ AUTO LOGOUT ADDED */}
 //         {children}
 //       </body>
 //     </html>
 //   );
-// }/
+// }
+
+
 
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AutoLogout from "../app/components/AutoLogout.js" ;// ✅ ADD THIS
+import AutoLogout from "../app/components/AutoLogout.js";
+import VisitorTracker from "@/app/components/VisitorTracker.jsx"; // ✅ ADD
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -146,10 +131,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AutoLogout /> {/* ✅ AUTO LOGOUT ADDED */}
+        <VisitorTracker /> {/* ✅ VISITOR TRACKING */}
+        <AutoLogout />     {/* ✅ AUTO LOGOUT */}
         {children}
       </body>
     </html>
   );
 }
-

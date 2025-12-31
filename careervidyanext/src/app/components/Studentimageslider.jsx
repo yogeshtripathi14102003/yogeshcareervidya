@@ -42,7 +42,7 @@ export default function StudentPlacementSlider() {
         </p>
         <p className="mt-3 text-gray-300">
         
-         #VIDYAHAITOHSUCCESSHAI!
+         #VidyaHaiTohSuccessHai!
 
         </p>
       </div>

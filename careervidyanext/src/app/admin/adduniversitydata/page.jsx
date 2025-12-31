@@ -197,7 +197,7 @@ export default function AddUniversityPage() {
 
                 {/* 2. University Facts */}
                 <div className="p-6 border border-green-300 rounded-xl bg-green-50 shadow-sm">
-                    <h3 className="font-bold text-xl mb-4 text-[#006400]">2. University Facts</h3>
+                    <h3 className="font-bold text-xl mb-4 text-[#006400]">Career outcome and Placement</h3>
                     <div className="mb-6 p-4 border border-green-200 rounded-lg bg-white">
                          <input type="text" value={heading} onChange={(e) => setHeading(e.target.value)} className="w-full border rounded-lg p-3 border-gray-300 mb-4" placeholder="Main Section Heading" />
                          {points.map((point, index) => (
