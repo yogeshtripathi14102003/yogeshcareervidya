@@ -45,7 +45,7 @@ export default function ContactBanner() {
           <p className="text-2xl font-bold mt-1"> +91 12018447695</p>
 
           <Link
-            href="/contact"
+            href="/contactus"
             className="mt-6 inline-flex items-center bg-white text-[#1e3a8a] 
                        px-8 py-3 rounded-full font-semibold hover:bg-gray-100 
                        transition duration-300"

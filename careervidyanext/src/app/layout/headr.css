@@ -70,7 +70,8 @@
 /* --- FREE COUNSELLING BADGE --- */
 .counselling-badge {
     width: 85px;
-    height: auto;
+    /* height: 79; */
+     height: auto;
     object-fit: contain;
     flex-shrink: 0;
 }

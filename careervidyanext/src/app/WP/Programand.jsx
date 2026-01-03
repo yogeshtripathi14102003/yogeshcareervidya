@@ -2,11 +2,11 @@
 import Image from 'next/image';
 
 const features = [
-  "Flexible classes for working professionals",
-  "No entrance exam required",
-  "AICTE & UGC-approved regular degree",
-  "Boost your career with promotions & salary hikes",
-  "Learn by doing through hands-on, remote-access labs",
+  "	A specially structured B.Tech program for professionals who want to upgrade their qualifications while continuing their job",
+  "	Designed for diploma holders and working professionals seeking formal engineering education",
+  "	Learning is delivered through a flexible format that fits around professional schedules",
+  "	Curriculum focuses on practical knowledge aligned with current industry requirements",
+  "	Degree awarded by recognized universities as per applicable guidelines",
   "Get real-world insights from experienced professionals",
 ];
 
@@ -36,7 +36,7 @@ export default function ProgramHighlights() {
           <div className="relative w-full h-80 md:h-full flex justify-center md:justify-end">
             <div className="w-full max-w-sm rounded-lg overflow-hidden shadow-2xl">
               <Image
-                src="/images/111.jpeg" // CHANGE THIS PATH
+                src="/images/111.jpg" // CHANGE THIS PATH
                 alt="Working professional pointing to futuristic interface"
                 width={400} // Set explicit width and height for optimization
                 height={400}
@@ -49,7 +49,7 @@ export default function ProgramHighlights() {
           {/* RIGHT SIDE: Text and Features */}
           <div className="p-4">
             <h2 className="text-3xl font-extrabold text-gray-800 mb-6">
-              Program Highlights
+            Program Overview  
             </h2>
             
             <div className="space-y-4">

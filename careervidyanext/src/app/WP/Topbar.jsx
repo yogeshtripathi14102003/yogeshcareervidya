@@ -20,7 +20,7 @@ export default function Header() {
         {/* LEFT SIDE - Logo */}
         <div className="flex items-center">
           <Image
-            src="/images/LogoUpdated1.png" // <-- Replace with your logo
+          src="/images/n12.png" // <-- Replace with your logo
             alt="Logo"
             width={160}
             height={40}

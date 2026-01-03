@@ -4,55 +4,55 @@ import Image from 'next/image';
 // --- Data for "Why choose College Vidya" cards ---
 const collegeVidyaReasons = [
   {
-    iconSrc: "/icons/end.png", // Replace with actual paths
-    title: "Compare",
-    stats: "6M+ happy students",
-    description: "Compare thousands of courses",
+    iconSrc: "/icons/end.png", 
+    title: "Academic Assistance",
+    stats: "",
+    description: "Post-Admission & Academic Assistance ",
   },
   {
-    iconSrc: "/icons/gudence.png", // Replace with actual paths
+    iconSrc: "/icons/gudence.png", 
     title: "Counselling",
-    stats: "18+ years in sports",
-    description: "Expert counselling services",
+    stats: "",
+    description: " Free Counselling Before Admission",
   },
   {
-    iconSrc: "/icons/callsupport.png", // Replace with actual paths
-    title: "Community",
-    stats: "8M+ joined the tribe",
-    description: "Vibrant student community",
+    iconSrc: "/icons/callsupport.png", 
+    title: "Dedicated Support",
+    stats: "",
+    description: "Dedicated Relationship Manager Support ",
   },
   {
-    iconSrc: "/icons/all.jpg", // Replace with actual paths
-    title: "Career",
-    stats: "1M+ placed into jobs",
-    description: "Dedicated career support",
+    iconSrc: "/icons/all.jpg", 
+    title: "Transparent Process",
+    stats: "",
+    description: "Cost-Effective & Transparent Process ",
   },
 ];
 
 // --- Data for "Learners from the best organizations" ---
 const learnersData = [
   {
-    imageSrc: "/images/GyanenduSundarRana.png", // Replace with actual paths
+    imageSrc: "/images/GyanenduSundarRana.png", 
     name: "Amit Kumar",
-    companyLogoSrc: "/images/logo-samsung.png", // Replace with actual paths
+    companyLogoSrc: "/images/sum.jpeg", 
     companyAlt: "Samsung Logo",
   },
   {
-    imageSrc: "/images/Praveensingh.png", // Replace with actual paths
+    imageSrc: "/images/Praveensingh.png", 
     name: "Prabhat",
-    companyLogoSrc: "/images/logo-hcl.png", // Replace with actual paths
+    companyLogoSrc: "/images/hcl2.jpeg", 
     companyAlt: "HCL Logo",
   },
   {
-    imageSrc: "/images/GopalSharma.png", // Replace with actual paths
+    imageSrc: "/images/GopalSharma.png", 
     name: "Shankar",
-    companyLogoSrc: "/images/logo-infosys.png", // Replace with actual paths
+    companyLogoSrc: "/images/inf1.jpeg",   
     companyAlt: "Infosys Logo",
   },
   {
-    imageSrc: "/images/AtulKumar.png", // Replace with actual paths
+    imageSrc: "/images/AtulKumar.png", 
     name: "Sunil",
-    companyLogoSrc: "/images/logo-tata.png", // Replace with actual paths
+    companyLogoSrc: "/images/t1.png", 
     companyAlt: "Tata Logo",
   },
 ];
@@ -70,21 +70,26 @@ const ReasonCard = ({ iconSrc, title, stats, description }) => (
 // Reusable Card for "Learners from the best organizations" section
 const LearnerCard = ({ imageSrc, name, companyLogoSrc, companyAlt }) => (
   <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border border-gray-100 h-full text-center">
-    <Image 
-      src={imageSrc} 
-      alt={name} 
-      width={120} 
-      height={120} 
-      className="rounded-full object-cover mb-4 aspect-square" 
-    />
+    {/* Image Container: "object-top" aur "object-contain" cropping ko prevent karta hai */}
+    <div className="relative w-[120px] h-[120px] mb-4">
+      <Image 
+        src={imageSrc} 
+        alt={name} 
+        width={120} 
+        height={120} 
+        className="rounded-full object-contain object-top aspect-square border border-gray-50" 
+      />
+    </div>
     <h3 className="text-lg font-semibold text-gray-800 mb-2">{name}</h3>
-    <Image 
-      src={companyLogoSrc} 
-      alt={companyAlt} 
-      width={80} 
-      height={24} 
-      className="object-contain" 
-    />
+    <div className="h-6 flex items-center justify-center">
+      <Image 
+        src={companyLogoSrc} 
+        alt={companyAlt} 
+        width={80} 
+        height={24} 
+        className="object-contain" 
+      />
+    </div>
   </div>
 );
 
@@ -95,7 +100,7 @@ export default function CollegeVidyaAndLearners() {
 
         {/* --- Section 1: Why choose College Vidya --- */}
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-12">
-          Why choose Careervidya Vidya
+          Why Career Vidya Stands Apart
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 md:mb-32">
           {collegeVidyaReasons.map((reason, index) => (
@@ -105,10 +110,10 @@ export default function CollegeVidyaAndLearners() {
 
         {/* --- Section 2: Learners from the best organizations --- */}
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-4">
-          Learners from the best organizations
+          Professionals Who Choose to Grow
         </h2>
         <p className="text-center text-gray-600 mb-12 text-lg">
-          with diverse background and profile
+          Representing experience across domains and industries 
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
           {learnersData.map((learner, index) => (

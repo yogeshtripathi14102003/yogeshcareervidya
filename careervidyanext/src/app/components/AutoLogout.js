@@ -1,3 +1,5 @@
+
+
 // "use client";
 
 // import { useEffect } from "react";
@@ -6,12 +8,17 @@
 //   useEffect(() => {
 //     let timer;
 
+//     const logoutNow = () => {
+//       localStorage.removeItem("admintoken");
+
+//       document.cookie = "admintoken=; Max-Age=0";
+
+//       window.location.href = "/login";
+//     };
+
 //     const resetTimer = () => {
 //       clearTimeout(timer);
-//       timer = setTimeout(() => {
-//         localStorage.removeItem("accessToken");
-//         window.location.href = "/login"; // auto logout
-//       }, 15 * 60 * 1000); // ⏳ 15 minutes
+//       timer = setTimeout(logoutNow, 15 * 60 * 1000); // 15 min
 //     };
 
 //     window.addEventListener("mousemove", resetTimer);
@@ -31,25 +38,33 @@
 
 //   return null;
 // }
+
+
+
 "use client";
 
 import { useEffect } from "react";
 
-export default function AutoLogout() {
+export default function AutoLogout({ type = "user" }) {
+  // type can be "admin" or "user"
   useEffect(() => {
     let timer;
 
     const logoutNow = () => {
-      localStorage.removeItem("admintoken");
-
-      document.cookie = "admintoken=; Max-Age=0";
-
-      window.location.href = "/login";
+      if (type === "admin") {
+        localStorage.removeItem("admintoken");
+        document.cookie = "admintoken=; Max-Age=0";
+        window.location.href = "/login";
+      } else {
+        localStorage.removeItem("usertoken");
+        document.cookie = "usertoken=; Max-Age=0";
+        window.location.href = "/userdashbord/login"; // or your user login route
+      }
     };
 
     const resetTimer = () => {
       clearTimeout(timer);
-      timer = setTimeout(logoutNow, 15 * 60 * 1000); // 15 min
+      timer = setTimeout(logoutNow, 15 * 60 * 1000); // 15 minutes
     };
 
     window.addEventListener("mousemove", resetTimer);
@@ -65,7 +80,7 @@ export default function AutoLogout() {
       window.removeEventListener("click", resetTimer);
       window.removeEventListener("scroll", resetTimer);
     };
-  }, []);
+  }, [type]);
 
   return null;
 }

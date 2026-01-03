@@ -18,7 +18,7 @@ const LoginPage = () => {
     const adminToken = Cookies.get("admintoken");
     const userToken = Cookies.get("token");
     if (adminToken) router.push("/admin");
-    if (userToken) router.push("/user_dashbord");
+    if (userToken) router.push("/user");
   }, [router]);
 
   const handleSendOtp = async () => {
@@ -52,7 +52,7 @@ const LoginPage = () => {
       } else {
         localStorage.setItem("token", token);
         Cookies.set("token", token, { expires: 1 });
-        router.push("/user_dashbord");
+        router.push("/user");
       }
 
       alert("Login successful!");

@@ -14,7 +14,7 @@ export function middleware(req) {
   }
 
   // 🔥 Protect user dashboard routes (only users)
-  if (pathname.startsWith("/user_dashbord")) {
+  if (pathname.startsWith("/userdashbord")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
@@ -26,6 +26,6 @@ export function middleware(req) {
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/user_dashbord/:path*", // ✅ FIXED spelling
+    "/userdashbord/:path*", // ✅ FIXED spelling
   ],
 };

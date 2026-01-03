@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import api from "@/utlis/api"; // API import logic
 
 const SignUpFormCU = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -27,32 +28,67 @@ const SignUpFormCU = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSendOtp = (e) => {
+  /* ======================
+      🔧 LOGIC START
+  ====================== */
+  const handleSendOtp = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    try {
+      setLoading(true);
+      const payload = {
+        emailOrPhone: formData.email || formData.mobileNumber,
+        purpose: "register",
+      };
 
-    setTimeout(() => {
-      console.log("OTP sent (Simulated).");
-      setOtpSent(true);
+      const res = await api.post("/api/v1/send-otp", payload);
+
+      if (res?.status === 200) {
+        setOtpSent(true);
+      } else {
+        alert("OTP not sent");
+      }
+    } catch (error) {
+      console.error("SEND OTP ERROR:", error);
+      alert("Failed to send OTP");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
-  const handleVerifyOtp = (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!formData.otp) return alert("Please enter the OTP first.");
-    setLoading(true);
 
-    setTimeout(() => {
-      console.log("Registration successful (Simulated)!");
+    try {
+      setLoading(true);
+      const payload = {
+        ...formData,
+        emailOrPhone: formData.email || formData.mobileNumber,
+        purpose: "register",
+      };
+
+      const res = await api.post("/api/v1/verify-otp", payload);
+
+      if (res?.status === 200) {
+        alert("Registration successful!");
+      } else {
+        alert("Invalid OTP");
+      }
+    } catch (error) {
+      console.error("VERIFY OTP ERROR:", error);
+      alert("Invalid OTP");
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const handleSubmit = (e) => {
     if (!otpSent) handleSendOtp(e);
     else handleVerifyOtp(e);
   };
+  /* ======================
+      🔧 LOGIC END
+  ====================== */
 
   if (!isMounted) return null;
 
@@ -208,7 +244,7 @@ export default function OnlineMBAPannerCU({
         {/* LEFT SECTION */}
         <div className="text-[#1A4CA3] p-6">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-2 text-[#F58634]">
-            B.Tech For Working Professionals For 4x Growth
+            B.Tech Students Working Professionals For 4x Career Growth
           </h1>
 
           <h2 className="text-xl md:text-2xl font-semibold text-black mb-6">
@@ -217,18 +253,18 @@ export default function OnlineMBAPannerCU({
 
           <div className="mt-6 flex flex-wrap justify-start items-center gap-4">
             <div className="bg-white shadow-md rounded-lg p-2 hover:scale-105 transition-transform">
-              <img src="/images/n2.png" className="h-10 md:h-12" />
+              <img src="/images/n2.png" alt="N2 Logo" className="h-10 md:h-12" />
             </div>
 
             <div className="bg-white shadow-md rounded-lg p-2 hover:scale-105 transition-transform">
-              <img src="/images/n3.png" className="h-10 md:h-12" />
+              <img src="/images/WPaicte.jpeg" alt="AICTE Logo" className="h-10 md:h-12" />
             </div>
           </div>
 
           <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg inline-block mt-4">
             <p className="text-[#F58634] font-bold text-lg">
               🎓 Enroll now for Online Course —{" "}
-              <Link href="/contact" className="text-black underline">
+              <Link href="/contactus" className="text-black underline">
                 Contact us
               </Link>{" "}
               for admission details.

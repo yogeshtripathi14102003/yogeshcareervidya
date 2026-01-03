@@ -1,171 +1,303 @@
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import api from "@/utlis/api.js";
+
+// export default function UniversitiesFetchComponent({ courseId }) {
+//   const [universities, setUniversities] = useState([]);
+//   const [selected, setSelected] = useState([]);
+//   const [search, setSearch] = useState("");
+
+//   // ================= FETCH =================
+//   useEffect(() => {
+//     const fetchUniversities = async () => {
+//       const res = await api.get("/api/v1/university");
+//       setUniversities(res.data.data || []);
+//     };
+//     fetchUniversities();
+//   }, []);
+
+//   // ================= SELECT =================
+//   const toggleSelect = (uni) => {
+//     const exists = selected.some((u) => u._id === uni._id);
+//     setSelected(
+//       exists
+//         ? selected.filter((u) => u._id !== uni._id)
+//         : [...selected, uni]
+//     );
+//   };
+
+//   // ================= COURSE FIND (REAL FIX) =================
+//   const findCourse = (uni) => {
+//     if (!Array.isArray(uni.courses)) return null;
+
+//     return uni.courses.find(
+//       (c) =>
+//         c.courseId === courseId || // ⭐ BEST MATCH
+//         c.courseId?._id === courseId
+//     );
+//   };
+
+//   // ================= FILTER =================
+//   const filtered = universities.filter((u) =>
+//     u.name?.toLowerCase().includes(search.toLowerCase())
+//   );
+
+//   return (
+//     <div className="p-6 bg-white rounded-2xl shadow-lg space-y-6">
+//       <h2 className="text-2xl font-bold">Select Universities</h2>
+
+//       <input
+//         placeholder="🔍 Search university..."
+//         value={search}
+//         onChange={(e) => setSearch(e.target.value)}
+//         className="w-full p-3 border rounded-xl"
+//       />
+
+//       {/* UNIVERSITY LIST */}
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//         {filtered.map((uni) => {
+//           const checked = selected.some((u) => u._id === uni._id);
+//           return (
+//             <label
+//               key={uni._id}
+//               className={`border-2 rounded-xl p-4 cursor-pointer ${
+//                 checked ? "border-purple-600 bg-purple-50" : ""
+//               }`}
+//             >
+//               <input
+//                 type="checkbox"
+//                 checked={checked}
+//                 onChange={() => toggleSelect(uni)}
+//                 className="mr-2"
+//               />
+//               <span className="font-semibold">{uni.name}</span>
+//             </label>
+//           );
+//         })}
+//       </div>
+
+//       {/* ================= TABLE ================= */}
+//       {selected.length > 0 && (
+//         <div className="border rounded-xl overflow-x-auto">
+//           <table className="w-full text-sm">
+//             <thead className="bg-gray-100">
+//               <tr>
+//                 <th className="p-3">University</th>
+//                 <th className="p-3">Approvals</th>
+//                 <th className="p-3">Fees</th>
+//                 <th className="p-3">Detail Fees</th>
+//               </tr>
+//             </thead>
+
+//             <tbody>
+//               {selected.map((uni) => {
+//                 const course = findCourse(uni);
+
+//                 return (
+//                   <tr key={uni._id} className="border-t">
+//                     <td className="p-3 font-medium">{uni.name}</td>
+
+//                     <td className="p-3">
+//                       <div className="flex gap-1 flex-wrap">
+//                         {uni.approvals?.map((a, i) => (
+//                           <span
+//                             key={i}
+//                             className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-[10px] font-bold"
+//                           >
+//                             {a.name}
+//                           </span>
+//                         )) || "N/A"}
+//                       </div>
+//                     </td>
+
+//                     <td className="p-3 font-semibold text-purple-700">
+//                       {course?.fees || "N/A"}
+//                     </td>
+
+//                     <td className="p-3 text-xs text-gray-600">
+//                       {course?.details || "N/A"}
+//                     </td>
+//                   </tr>
+//                 );
+//               })}
+//             </tbody>
+//           </table>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
 "use client";
 
 import { useEffect, useState } from "react";
 import api from "@/utlis/api.js";
 
-export default function UniversitiesFetchComponent({ onSelect }) {
+export default function UniversitiesFetchComponent({ courseId }) {
   const [universities, setUniversities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedDetails, setSelectedDetails] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch universities from API
+  // ================= FETCH UNIVERSITIES =================
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
         const res = await api.get("/api/v1/university");
-        const data = res.data.data || res.data.universities || [];
-
-        // Format approvals consistently
-        const formatted = data.map((u) => ({
-          ...u,
-          approvals: Array.isArray(u.approvals)
-            ? u.approvals.map((a) =>
-                typeof a === "string"
-                  ? { name: a, logo: null }
-                  : { name: a.name, logo: a.logo || null }
-              )
-            : [],
-        }));
-
-        setUniversities(formatted);
+        setUniversities(res.data.data || []);
       } catch (err) {
-        setError("Failed to fetch universities");
-      } finally {
-        setLoading(false);
+        console.error(err);
       }
     };
-
     fetchUniversities();
   }, []);
 
-  // Filter universities by search term
-  const filtered = universities.filter((u) => {
-    const name = u.universityName || u.name || "";
-    return name.toLowerCase().includes(search.toLowerCase());
-  });
-
-  // Handle select/deselect
+  // ================= TOGGLE SELECT =================
   const toggleSelect = (uni) => {
-    let updated;
-    const isSelected = selectedDetails.some((item) => item._id === uni._id);
+    const exists = selected.some((u) => u._id === uni._id);
+    setSelected(
+      exists
+        ? selected.filter((u) => u._id !== uni._id)
+        : [...selected, uni]
+    );
+  };
 
-    if (isSelected) {
-      updated = selectedDetails.filter((item) => item._id !== uni._id);
-    } else {
-      updated = [...selectedDetails, uni];
-    }
+  // ================= FIND COURSE INSIDE UNIVERSITY =================
+  const findCourse = (uni) => {
+    if (!Array.isArray(uni.courses)) return null;
+    return uni.courses.find(
+      (c) => c.courseId === courseId || c.courseId?._id === courseId
+    );
+  };
 
-    setSelectedDetails(updated);
+  // ================= SAVE TO COURSE =================
+  const saveToCourse = async () => {
+    try {
+      setLoading(true);
 
-    if (onSelect) {
-      const formattedForBackend = updated.map((u) => ({
-        name: u.universityName || u.name,
-        approvals: Array.isArray(u.approvals)
-          ? u.approvals.map((a) => ({ name: a.name, logo: a.logo || null }))
-          : [],
-      }));
+      const payload = {
+        universities: selected.map((uni) => {
+          const course = findCourse(uni);
 
-      onSelect(formattedForBackend);
+          return {
+            universityId: uni._id,
+            name: uni.name,
+            universitySlug: uni.slug,
+            approvals: uni.approvals || [],
+            fees: course?.fees || "",
+            details: course?.details || "",
+          };
+        }),
+      };
+
+      await api.put(`/api/v1/course/${courseId}/universities`, payload);
+
+      alert("Universities saved successfully ✅");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ================= FILTER =================
+  const filtered = universities.filter((u) =>
+    u.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="p-6 bg-white rounded-2xl shadow-lg max-w-6xl mx-auto space-y-6 border border-gray-100">
-      <h2 className="text-2xl font-bold text-gray-800">Select Universities</h2>
+    <div className="p-6 bg-white rounded-2xl shadow-lg space-y-6">
+      <h2 className="text-2xl font-bold">Select Universities</h2>
 
       <input
-        type="text"
-        placeholder="🔍 Search university by name..."
+        placeholder="🔍 Search university..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none shadow-sm"
+        className="w-full p-3 border rounded-xl"
       />
 
-      {loading && <p className="text-center text-purple-600">Loading universities...</p>}
-      {error && <p className="text-red-500 text-center">{error}</p>}
-
-      {/* Universities Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[350px] overflow-y-auto p-2">
+      {/* ================= UNIVERSITY LIST ================= */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((uni) => {
-          const isSelected = selectedDetails.some((item) => item._id === uni._id);
+          const checked = selected.some((u) => u._id === uni._id);
           return (
             <label
               key={uni._id}
-              className={`border-2 rounded-xl p-4 flex items-center gap-4 cursor-pointer ${
-                isSelected ? "border-purple-600 bg-purple-50" : "border-gray-100 bg-gray-50"
+              className={`border-2 rounded-xl p-4 cursor-pointer ${
+                checked ? "border-purple-600 bg-purple-50" : ""
               }`}
             >
               <input
                 type="checkbox"
-                checked={isSelected}
+                checked={checked}
                 onChange={() => toggleSelect(uni)}
-                className="w-5 h-5 accent-purple-600"
+                className="mr-2"
               />
-              <div className="flex items-center gap-3">
-                {uni.logo && (
-                  <img
-                    src={uni.logo}
-                    alt="logo"
-                    className="w-10 h-10 object-contain border rounded bg-white"
-                  />
-                )}
-                <div>
-                  <p className="font-semibold text-sm">{uni.universityName || uni.name}</p>
-                  <p className="text-xs text-gray-500">{uni.location || "Location N/A"}</p>
-                </div>
-              </div>
+              <span className="font-semibold">{uni.name}</span>
             </label>
           );
         })}
       </div>
 
-      {/* Selected Universities Table */}
-      {selectedDetails.length > 0 && (
-        <div className="mt-8 border rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-100 text-sm">
-                <th className="p-3">Logo</th>
-                <th className="p-3">University</th>
-                <th className="p-3">Approvals</th>
-                <th className="p-3">Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedDetails.map((uni) => (
-                <tr key={uni._id} className="border-t">
-                  <td className="p-3">
-                    {uni.logo ? (
-                      <img src={uni.logo} alt="logo" className="w-10 h-10 object-contain" />
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="p-3 font-medium">{uni.universityName || uni.name}</td>
-                  <td className="p-3">
-                    <div className="flex flex-wrap gap-1">
-                      {Array.isArray(uni.approvals) && uni.approvals.length > 0 ? (
-                        uni.approvals.map((app, idx) => (
-                          <span
-                            key={idx}
-                            className="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-bold"
-                          >
-                            {app.name}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs text-gray-400">N/A</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-3 text-sm text-gray-600">{uni.location || "N/A"}</td>
+      {/* ================= TABLE ================= */}
+      {selected.length > 0 && (
+        <>
+          <div className="border rounded-xl overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-3">University</th>
+                  <th className="p-3">Approvals</th>
+                  <th className="p-3">Fees</th>
+                  <th className="p-3">Detail Fees</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody>
+                {selected.map((uni) => {
+                  const course = findCourse(uni);
+                  return (
+                    <tr key={uni._id} className="border-t">
+                      <td className="p-3 font-medium">{uni.name}</td>
+
+                      <td className="p-3">
+                        <div className="flex gap-1 flex-wrap">
+                          {uni.approvals?.map((a, i) => (
+                            <span
+                              key={i}
+                              className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-[10px] font-bold"
+                            >
+                              {a.name}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+
+                      <td className="p-3 font-semibold text-purple-700">
+                        {course?.fees || "N/A"}
+                      </td>
+
+                      <td className="p-3 text-xs text-gray-600">
+                        {course?.details || "N/A"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <button
+            onClick={saveToCourse}
+            disabled={loading}
+            className="bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold disabled:opacity-50"
+          >
+            {loading ? "Saving..." : "Save Selected Universities"}
+          </button>
+        </>
       )}
     </div>
   );

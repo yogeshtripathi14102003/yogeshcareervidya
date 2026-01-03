@@ -213,6 +213,16 @@ export default function Header() {
       className="counselling-badge"
       priority
     />
+
+
+      {/* <Image
+      src="/images/gold.gif"
+      alt="Free Counselling Done"
+      width={80}
+      height={45}
+      className="counselling-badge"
+      priority
+    /> */}
   </div>
 </Link>
 
@@ -240,7 +250,7 @@ export default function Header() {
             <Link href="/coming-soon">Top University</Link>
 {/* <Link href="/topunivers">Top University</Link> */}
             <div className="nav-item-more">
-              <Link href="#">View More</Link>
+              {/* <Link href="#">View More</Link> */}
 
               {/* ================= MEGA MENU (COMMENTED) ================= */}
               {/*

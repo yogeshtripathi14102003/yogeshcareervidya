@@ -4,8 +4,8 @@ import Image from "next/image";
 const universityData = [
   {
     id: 1,
-    name: "Kalinga University",
-    logoSrc: "/images/kalinga.png",
+    name: "Vikrant University",
+    logoSrc: "/images/vikrant.jpeg",
     rating: 4.9,
     specializations: [
       "Civil Engineering",
@@ -17,8 +17,8 @@ const universityData = [
   },
   {
     id: 2,
-    name: "Sanskriti University",
-    logoSrc: "/images/sanskrit.png",
+    name: "Dr Priteeglobal university",
+    logoSrc: "/images/drpatil.png",
     rating: 4.6,
     specializations: [
       "Computer Science Engineering",
@@ -31,8 +31,8 @@ const universityData = [
   },
   {
     id: 3,
-    name: "Shri Venkateshwara University",
-    logoSrc: "/images/jhb.jpg",
+    name: "Glocal University",
+    logoSrc: "/images/glocal.png",
     rating: 4.5,
     specializations: [
       "Civil Engineering",
@@ -42,20 +42,20 @@ const universityData = [
     duration: "3 Year",
     emi: "7000",
   },
-  {
-    id: 4,
-    name: "Lingaya's University",
-    logoSrc: "/images/lingag.jpg",
-    rating: 4.3,
-    specializations: [
-      "Civil Engineering",
-      "Computer Science Engineering",
-      "Electronics & Communication Engineering",
-      "Mechanical Engineering",
-    ],
-    duration: "3 Year",
-    emi: "8000",
-  },
+  // {
+  //   id: 4,
+  //   name: "Lingaya's University",
+  //   logoSrc: "/images/lingag.jpg",
+  //   rating: 4.3,
+  //   specializations: [
+  //     "Civil Engineering",
+  //     "Computer Science Engineering",
+  //     "Electronics & Communication Engineering",
+  //     "Mechanical Engineering",
+  //   ],
+  //   duration: "3 Year",
+  //   emi: "8000",
+  // },
 ];
 
 const UniversityCard = ({ data }) => {
