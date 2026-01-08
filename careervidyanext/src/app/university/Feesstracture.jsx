@@ -47,7 +47,7 @@ export default function FeesStructureStyledTable({ slug, courseTitle }) {
           <thead className="bg-[#eaf4ff]">
             <tr>
               <th className="text-left p-4 border text-lg font-semibold">
-                University Name
+                Course Name
               </th>
               <th className="text-left p-4 border text-lg font-semibold">
                 Duration

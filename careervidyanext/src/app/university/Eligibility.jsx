@@ -65,7 +65,7 @@ export default function OnlineExamPattern({ slug }) {
           HEADER
       ======================== */}
       <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-        {data.universityName} – Online Exam Pattern
+      Why  {data.universityName} 
       </h2>
 
       {/* =======================
@@ -76,9 +76,9 @@ export default function OnlineExamPattern({ slug }) {
         {/* Exam Overview */}
         {data.shareDescription && (
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            {/* <h3 className="text-xl font-semibold text-gray-900 mb-3">
               Exam Overview
-            </h3>
+            </h3> */}
 
             <div className="space-y-4">
               {data.shareDescription
@@ -94,9 +94,9 @@ export default function OnlineExamPattern({ slug }) {
         {/* Key Highlights */}
         {data.cardDescription && (
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            {/* <h3 className="text-xl font-semibold text-gray-900 mb-3">
               Key Highlights
-            </h3>
+            </h3> */}
 
             <div className="space-y-4">
               {data.cardDescription

@@ -65,7 +65,7 @@ export default function QueryPopup() {
 
         {/* Right Form */}
         <div className="w-full md:w-2/3 p-6 md:p-10 text-gray-900">
-          <h2 className="text-xl font-bold mb-6 text-[#05347f] md:block hidden">Quick Enquiry</h2>
+          <h2 className="text-xl font-bold mb-6 text-[#05347f] md:block hidden">Quick Enquiry </h2>
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input

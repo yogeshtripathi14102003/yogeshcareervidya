@@ -1,5 +1,5 @@
 "use client";
-
+import TopOfferBanner from "../components/TopOfferBanner";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -247,6 +247,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
+          <TopOfferBanner />
     </footer>
   );
 }

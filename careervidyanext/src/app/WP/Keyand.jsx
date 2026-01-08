@@ -1,11 +1,8 @@
-// KeyHighlights.jsx
-
 const highlightsData = [
   {
-    icon: '⚙️', // Using emojis as placeholder icons; replace with actual SVG/Image components if needed.
+    icon: '⚙️',
     title: 'Flexible Classes',
-    description: 'Flexible Classes', // Description is the same as the title in the image
-    // You can use a dedicated icon component here: <IconGear className="w-8 h-8 text-blue-600" />
+    description: 'Flexible Classes',
   },
   {
     icon: '⌚',
@@ -19,15 +16,44 @@ const highlightsData = [
   },
   {
     icon: '⚖️',
-    title: '100% Placement assistance',
-    description: '100% Placement assistance',
+    title: '100% Placement Assistance',
+    description: '100% Placement Assistance',
   },
   {
     icon: '🔄',
     title: '100% Easy EMI Option',
     description: '100% Easy EMI Option',
   },
+
+  // 🔽 NEW 5 HIGHLIGHTS ADDED 🔽
+
+  {
+    icon: '🎓',
+    title: 'UGC & AICTE Approved',
+    description: 'UGC & AICTE Approved',
+  },
+  {
+    icon: '🌐',
+    title: 'Online + Offline Support',
+    description: 'Online + Offline Support',
+  },
+  {
+    icon: '📚',
+    title: 'Industry-Oriented Curriculum',
+    description: 'Industry-Oriented Curriculum',
+  },
+  {
+    icon: '👨‍🏫',
+    title: 'Expert Faculty',
+    description: 'Expert Faculty',
+  },
+  {
+    icon: '📈',
+    title: 'Career Growth Opportunities',
+    description: 'Career Growth Opportunities',
+  },
 ];
+
 
 const HighlightCard = ({ icon, title }) => (
   // Card styling: White background, rounded corners, shadow, and large padding

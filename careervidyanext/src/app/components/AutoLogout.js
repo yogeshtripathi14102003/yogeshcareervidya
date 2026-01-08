@@ -58,7 +58,7 @@ export default function AutoLogout({ type = "user" }) {
       } else {
         localStorage.removeItem("usertoken");
         document.cookie = "usertoken=; Max-Age=0";
-        window.location.href = "/userdashbord/login"; // or your user login route
+        window.location.href = "/"; // or your user login route
       }
     };
 

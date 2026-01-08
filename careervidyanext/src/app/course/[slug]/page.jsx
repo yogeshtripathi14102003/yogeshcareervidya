@@ -3,12 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/utlis/api.js";
-import Detailsignup from "@/app/components/Detailsignup.jsx";
+import Detailsignup from "@/app/course/Detailsignup.jsx";
 import Header from "@/app/layout/Header.jsx";
 import Footer from "@/app/layout/Footer.jsx";
 import Getintuch from "@/app/components/getintuch.jsx";
 // import Careervidyabenifit from "@/app/course/Careervidyabenifit";
 import Offerdcourse from "@/app/course/Offerdcourse.jsx";
+import Universitycompeney from "@/app/course/universitycompeney.jsx";
 import OnlineCourseEligibility from "@/app/course/OnlineCourseEligibility.jsx";
 import FeeStructure from "@/app/course/FeeStructure.jsx";
 import CourseWorthIt from "@/app/course/CourseWorthIt.jsx";
@@ -17,6 +18,7 @@ import TopRecruiters from "@/app/course/TopRecruiters.jsx";
 import CourseKeyHighlights from "@/app/course/CourseKeyHighlights.jsx";
 import CourseOverview from "@/app/course/CourseOverview.jsx";
 import  Universityappro from "@/app/course/Universityappro.jsx";
+import DiscountPopup from "@/app/components/DiscountPopup";
 export default function CourseDetailPage() {
   const { slug } = useParams();
   const [course, setCourse] = useState(null);
@@ -113,7 +115,7 @@ export default function CourseDetailPage() {
 )}
 
 {/* TOP UNIVERSITIES - FORCED WHITE MODE */}
-{course.topUniversities?.length > 0 && (
+{/* {course.topUniversities?.length > 0 && (
   <section className="mt-10 w-full flex justify-center bg-white py-10">
     <div className="w-full max-w-[1800px] px-4 md:px-10">
       <h2 className="text-2xl md:text-3xl font-bold mb-8 text-[#002147]">
@@ -161,7 +163,9 @@ export default function CourseDetailPage() {
       </div>
     </div>
   </section>
-)}
+)} */}
+<Universitycompeney />
+
 
 {/* {Array.isArray(course.universities) &&
   course.universities.length > 0 && (
@@ -393,6 +397,7 @@ export default function CourseDetailPage() {
       {/* <Careervidyabenifit /> */}
    <Getintuch />
       <Footer />
+      <DiscountPopup />
     </>
   );
 }

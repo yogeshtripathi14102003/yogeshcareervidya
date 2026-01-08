@@ -8,11 +8,14 @@ import Image from "next/image";
 import { Star, MessageSquare, ChevronRight } from 'lucide-react';
 import Header from "@/app/layout/Header";
 import Applictionpopup from "@/app/university/Applictionpopup";
-import UniversityCertificate from "@/app/components/UniversityCertificate"; 
+import UniversityCertificate from "@/app/university/UniversityCertificate.jsx";
 import AdmissionProcess from "@/app/university/AdmissionProcess"; 
 import FactsSection from "@/app/university/FactsSection"; 
 import FeesStructureSection from "@/app/university/Feesstracture.jsx";
 import Eligibility from "@/app/university/Eligibility.jsx";
+import Approvel from "@/app/university/Approvel.jsx";
+import Footer from "@/app/layout/Footer.jsx";
+import UniversityHighlights from "@/app/university/UniversityHighlights.jsx";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -37,6 +40,8 @@ export default function UniversityDetail() {
     const factsRef = useRef(null);
     const feesRef = useRef(null);
     const Eligibilityref = useRef(null);
+    const approvelRef = useRef(null);
+    const HeighlighRef = useRef(null);
 
     useEffect(() => {
         if (slug) {
@@ -52,7 +57,7 @@ export default function UniversityDetail() {
         }
     }, [slug]);
 
-    const tabs = ["Overview", "Key Highlight", "Courses", "Eligibility", "Feesstracture", "Admission Process", "Placement", "Review", "Faq"];
+    const tabs = ["Overview", "Key Highlight", "Courses","Approvel", "Eligibility", "Feesstracture", "Admission Process", "Placement", "Review", "Faq"];
 
     const handleTabClick = (tab) => {
         const refMap = {
@@ -63,6 +68,7 @@ export default function UniversityDetail() {
             "Placement": factsRef,
             "Feesstracture": feesRef,
             "Eligibility": Eligibilityref,
+            "Approvel": approvelRef,
         };
         if (refMap[tab]?.current) {
             refMap[tab].current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -73,6 +79,7 @@ export default function UniversityDetail() {
     if (!data) return <div className="p-10 text-center bg-white text-black font-semibold">University not found.</div>;
 
     return (
+        <>
         <div className="bg-white text-black min-h-screen w-full"> 
             <Header />
             
@@ -101,7 +108,7 @@ export default function UniversityDetail() {
                         </div>
                         <div className="flex items-center gap-3 mb-6 flex-wrap">
                             {data.approvals?.slice(0, 6).map((approval, index) => (
-                                <div key={index} className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-lg p-1 relative shadow-md">
+                                <div key={index} className="w-10 h-8 md:w-15 md:h-10 bg-white rounded-lg p-1 relative shadow-md">
                                     <Image src={getImagePath(approval.logo)} alt={approval.name} fill className="object-contain" />
                                 </div>
                             ))}
@@ -135,7 +142,6 @@ export default function UniversityDetail() {
 
             {/* --- MAIN CONTENT --- */}
             <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
-
                 {/* Overview */}
                 <div ref={overviewRef}>
                     <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
@@ -179,6 +185,17 @@ export default function UniversityDetail() {
                         </div>
                     </div>
                 </div>
+              {/* approvel
+               */}
+               <div ref={approvelRef}>
+               <Approvel slug={data.slug} />
+             </div>
+
+
+
+   <div ref={HeighlighRef}>
+               <UniversityHighlights slug={data.slug} />
+             </div>
 
                 {/* Fees Structure */}
                 <div ref={feesRef}>
@@ -205,5 +222,7 @@ export default function UniversityDetail() {
                 <Applictionpopup open={popupOpen} onClose={() => setPopupOpen(false)} type={popupType} universityName={data.name} />
             )}
         </div>
+        <Footer />
+        </>
     );
 }

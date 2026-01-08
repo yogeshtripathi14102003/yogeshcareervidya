@@ -1,31 +1,65 @@
 // CollegeVidyaAndLearners.jsx
 import Image from 'next/image';
+import {
+  GraduationCap,
+  Users,
+  Headset,
+  ShieldCheck,
+  University,
+  FileText,
+  CreditCard,
+  Briefcase,
+} from "lucide-react";
 
 // --- Data for "Why choose College Vidya" cards ---
-const collegeVidyaReasons = [
+const careervidyaVidyaReasons = [
   {
-    iconSrc: "/icons/end.png", 
+    icon: GraduationCap,
     title: "Academic Assistance",
     stats: "",
-    description: "Post-Admission & Academic Assistance ",
+    description: "Post-Admission & Academic Assistance",
   },
   {
-    iconSrc: "/icons/gudence.png", 
+    icon: Users,
     title: "Counselling",
     stats: "",
-    description: " Free Counselling Before Admission",
+    description: "Free Counselling Before Admission",
   },
   {
-    iconSrc: "/icons/callsupport.png", 
+    icon: Headset,
     title: "Dedicated Support",
     stats: "",
-    description: "Dedicated Relationship Manager Support ",
+    description: "Dedicated Relationship Manager Support",
   },
   {
-    iconSrc: "/icons/all.jpg", 
+    icon: ShieldCheck,
     title: "Transparent Process",
     stats: "",
-    description: "Cost-Effective & Transparent Process ",
+    description: "Cost-Effective & Transparent Process",
+  },
+  {
+    icon: University,
+    title: "Trusted Universities",
+    stats: "",
+    description: "Partnership with Top Recognized Universities",
+  },
+  {
+    icon: FileText,
+    title: "Document Support",
+    stats: "",
+    description: "Complete Documentation & Verification Support",
+  },
+  {
+    icon: CreditCard,
+    title: "Secure Payments",
+    stats: "",
+    description: "Safe, Secure & Hassle-Free Fee Payments",
+  },
+  {
+    icon: Briefcase,
+    title: "Career Guidance",
+    stats: "",
+    description: "Career & Placement Guidance After Admission",
   },
 ];
 
@@ -93,7 +127,7 @@ const LearnerCard = ({ imageSrc, name, companyLogoSrc, companyAlt }) => (
   </div>
 );
 
-export default function CollegeVidyaAndLearners() {
+export default function CareervidyaVidyaAndLearners() {
   return (
     <section className="bg-white py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,9 +137,17 @@ export default function CollegeVidyaAndLearners() {
           Why Career Vidya Stands Apart
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 md:mb-32">
-          {collegeVidyaReasons.map((reason, index) => (
-            <ReasonCard key={index} {...reason} />
-          ))}
+        {careervidyaVidyaReasons.map((item, index) => {
+  const Icon = item.icon;
+  return (
+    <div key={index} className="p-6 bg-white rounded-xl shadow text-center">
+      <Icon className="w-10 h-10 mx-auto text-blue-600 mb-3" />
+      <h3 className="font-semibold text-lg">{item.title}</h3>
+      <p className="text-sm text-gray-600">{item.description}</p>
+    </div>
+  );
+})}
+
         </div>
 
         {/* --- Section 2: Learners from the best organizations --- */}
