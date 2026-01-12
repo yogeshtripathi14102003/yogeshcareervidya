@@ -21,7 +21,8 @@ import reviewRouter from "./router/reviewRouter.js";
 // import chatbotRoutes from "./router/chatbotRoutes.js";
 import visitorRoutes from "./router/visitorRoutes.js";
 import compareRoutes from "./router/compareRoutes.js";
-
+import blogRoutes from "./router/blogRoutes.js";
+import offerRoutes from "./router/offerRoutes.js";
 const app = express();
 
 // ✅ Middlewares
@@ -30,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://www.careervidya.in", "careervidya.in","https://careervidya.in","https://api.careervidya.in", "http://192.168.1.19:3000",],
+    origin: ["http://localhost:3000", "https://www.careervidya.in", "careervidya.in","https://careervidya.in","https://api.careervidya.in", "  http://192.168.1.29:3000",],
     credentials: true,
   })
 );
@@ -57,7 +58,8 @@ app.use("/api/v1", reviewRouter);
 // app.use("/api/v1",chatbotRoutes);
 app.use("/api/v1/", visitorRoutes);
 app.use("/api/v1/",compareRoutes)
-
+app.use("/api/v1/",blogRoutes);
+app.use("/api/v1/offer",offerRoutes);
 
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {

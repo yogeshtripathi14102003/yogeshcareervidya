@@ -155,7 +155,7 @@ const AuthModal = ({ onClose }) => {
         {/* --- USP SECTION --- */}
         <div className="bg-white border-b border-gray-100 p-3">
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 text-[10px] md:text-[13px] font-semibold text-green-700">
-                <div className="flex items-center gap-1"><span>✅</span> <span>No-Cost EMI from ₹4,999</span></div>
+                <div className="flex items-center gap-1"><span>✅</span> <span>No-Cost EMI Available</span></div>
                 <div className="h-4 w-[1px] bg-green-300 hidden md:block"></div>
                 <div className="flex items-center gap-1"><span>🎓</span> <span>Govt-Approved Universities</span></div>
                 <div className="h-4 w-[1px] bg-green-300 hidden md:block"></div>

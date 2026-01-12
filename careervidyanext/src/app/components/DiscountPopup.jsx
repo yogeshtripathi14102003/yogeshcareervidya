@@ -1,246 +1,152 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { X, Zap } from "lucide-react";
-
-const CelebrationPopup = ({ targetId = "signup-section" }) => {
-  const [showPopup, setShowPopup] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(10);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (timeLeft > 0 && showPopup) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } 
-    // समय खत्म होते ही पॉपअप बंद हो जाएगा
-    else if (timeLeft === 0) {
-      setShowPopup(false);
-    }
-  }, [timeLeft, showPopup]);
-
-  if (!showPopup) return null;
-
-  const handleGetClick = () => {
-    setShowPopup(false);
-    
-    // टारगेट सेक्शन पर स्क्रॉल करें या नेविगेट करें
-    const signupSection = document.getElementById(targetId);
-    if (signupSection) {
-      signupSection.scrollIntoView({ behavior: "smooth" });
-    } else {
-      router.push("/signup");
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden">
-      {/* Dark Overlay */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500" 
-        onClick={() => setShowPopup(false)} 
-      />
-
-      {/* Main Card */}
-      <div className="relative w-full max-w-lg aspect-[4/3] bg-[#E14D56] rounded-2xl shadow-2xl flex flex-col items-center justify-center text-center p-8 animate-in zoom-in-95 duration-300">
-        
-        {/* Confetti Animation */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-          {[...Array(30)].map((_, i) => (
-            <div
-              key={i}
-              className={`absolute w-3 h-6 opacity-80 animate-fall`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `-10%`,
-                backgroundColor: ['#4ade80', '#fbbf24', '#60a5fa', '#f472b6', '#ffffff'][i % 5],
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Close Button */}
-        <button 
-          onClick={() => setShowPopup(false)}
-          className="absolute top-4 right-4 bg-black/20 text-white rounded-full p-1.5 hover:bg-black/40 transition-colors z-20"
-        >
-          <X size={20} />
-        </button>
-
-        {/* Content */}
-        <div className="relative z-10 text-white space-y-4 px-4">
-          <h2 className="text-5xl font-serif font-bold tracking-tight italic">GetAdmission</h2>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-90 text-yellow-200">
-             Get early bird discount
-          </p>
-          
-          <div className="flex items-center justify-center gap-1 py-4">
-            <span className="text-9xl font-bold leading-none text-yellow-300 drop-shadow-xl">10</span>
-            <div className="flex flex-col items-start leading-none">
-              <span className="text-5xl font-bold text-yellow-300">%</span>
-              <span className="text-4xl font-serif italic text-white">Off</span>
-              <span className="text-xl font-serif text-white">on Admission</span>
-            </div>
-          </div>
-
-          {/* Action Button */}
-          <div className="relative w-full max-w-[240px] mx-auto mt-6">
-            <button 
-              onClick={handleGetClick}
-              className="group w-full bg-[#5D5FEF] hover:bg-[#4a4cd8] text-white py-4 rounded-full text-xl font-black italic shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              GET! <Zap size={20} fill="currentColor" />
-            </button>
-          </div>
-
-          {/* Automatic Close Timer Text */}
-          <div className="pt-6">
-            <p className="text-[10px] font-medium tracking-widest uppercase opacity-70">
-              Closing in <span className="text-yellow-300 font-bold">{timeLeft}s</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes fall {
-          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
-        }
-        .animate-fall {
-          animation: fall linear infinite;
-        }
-      `}</style>
-    </div>
-  );
-};
-
-export default CelebrationPopup;
-
-
-
 // "use client";
+
 // import { useState, useEffect } from "react";
 // import { useRouter } from "next/navigation";
 // import { X, Zap } from "lucide-react";
+// import API from "@/utlis/api.js"; // your centralized axios instance
 
 // const CelebrationPopup = ({ targetId = "signup-section" }) => {
-//   const [showPopup, setShowPopup] = useState(true);
+//   const [showPopup, setShowPopup] = useState(false);
 //   const [timeLeft, setTimeLeft] = useState(10);
+//   const [confetti, setConfetti] = useState([]);
+//   const [offer, setOffer] = useState(null); // <-- store latest offer
 //   const router = useRouter();
 
+//   // ✅ Fetch latest offer on mount
 //   useEffect(() => {
-//     if (timeLeft > 0 && showPopup) {
-//       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-//       return () => clearTimeout(timer);
-//     } else if (timeLeft === 0) {
+//     const fetchOffer = async () => {
+//       try {
+// const res = await API.get("/api/v1/offer/type/offer");
+//  // fetch all offers
+//         if (res.data.data.length > 0) {
+//           // pick the latest one
+//           const latestOffer = res.data.data.sort(
+//             (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//           )[0];
+//           setOffer(latestOffer);
+
+//           // calculate time left in seconds until offer expires
+//           const now = new Date();
+//           const validTill = new Date(latestOffer.validTill);
+//           const secondsLeft = Math.max(Math.floor((validTill - now) / 1000), 0);
+//           setTimeLeft(secondsLeft);
+//         }
+//       } catch (err) {
+//         console.error(err);
+//       }
+//     };
+
+//     fetchOffer();
+
+//     // show popup
+//     setShowPopup(true);
+
+//     // generate confetti
+//     const items = Array.from({ length: 30 }).map(() => ({
+//       left: `${Math.random() * 100}%`,
+//       delay: `${Math.random() * 3}s`,
+//       duration: `${2 + Math.random() * 3}s`,
+//       rotate: `${Math.random() * 360}deg`,
+//       color: ["#4ade80", "#fbbf24", "#60a5fa", "#f472b6", "#ffffff"][
+//         Math.floor(Math.random() * 5)
+//       ],
+//     }));
+//     setConfetti(items);
+//   }, []);
+
+//   // Countdown timer
+//   useEffect(() => {
+//     if (!showPopup || !offer) return;
+
+//     if (timeLeft <= 0) {
 //       setShowPopup(false);
+//       return;
 //     }
-//   }, [timeLeft, showPopup]);
 
-//   if (!showPopup) return null;
+//     const timer = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
+//     return () => clearTimeout(timer);
+//   }, [timeLeft, showPopup, offer]);
 
-//   // GET! बटन का फंक्शन
+//   if (!showPopup || !offer) return null;
+
+//   // Convert timeLeft seconds into hours & minutes
+//   const hours = Math.floor(timeLeft / 3600);
+//   const minutes = Math.floor((timeLeft % 3600) / 60);
+//   const seconds = timeLeft % 60;
+
 //   const handleGetClick = () => {
-//     setShowPopup(false); // पहले पॉपअप बंद करें
-
-//     // चेक करें कि क्या Signup Section इसी पेज पर है
-//     const signupSection = document.getElementById(targetId);
-//     if (signupSection) {
-//       signupSection.scrollIntoView({ behavior: "smooth" });
-//     } else {
-//       // अगर उस पेज पर नहीं है, तो सीधा Signup पेज पर भेजें
-//       router.push("/signup");
-//     }
+//     setShowPopup(false);
+//     const el = document.getElementById(targetId);
+//     if (el) el.scrollIntoView({ behavior: "smooth" });
+//     else router.push("/signup");
 //   };
 
 //   return (
-//     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden">
-//       {/* Dark Overlay */}
-//       <div 
-//         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-500" 
-//         onClick={() => setShowPopup(false)} 
+//     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+//       {/* Overlay */}
+//       <div
+//         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+//         onClick={() => setShowPopup(false)}
 //       />
 
-//       {/* Main Card */}
-//       <div className="relative w-full max-w-lg aspect-[4/3] bg-[#E14D56] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center text-center p-8 animate-in zoom-in-90 duration-300 border-4 border-white/10">
-        
-//         {/* Confetti Elements */}
+//       {/* Card */}
+//       <div className="relative w-full max-w-lg aspect-[4/3] bg-[#E14D56] rounded-2xl shadow-2xl flex flex-col items-center justify-center p-8">
+
+//         {/* Confetti */}
 //         <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-//           {[...Array(40)].map((_, i) => (
+//           {confetti.map((c, i) => (
 //             <div
 //               key={i}
-//               className={`absolute w-2 h-5 opacity-70 animate-fall`}
+//               className="absolute w-3 h-6 animate-fall"
 //               style={{
-//                 left: `${Math.random() * 100}%`,
-//                 top: `-10%`,
-//                 backgroundColor: ['#4ade80', '#fbbf24', '#60a5fa', '#f472b6', '#ffffff'][i % 5],
-//                 animationDelay: `${Math.random() * 4}s`,
-//                 animationDuration: `${2.5 + Math.random() * 2}s`,
-//                 transform: `rotate(${Math.random() * 360}deg)`,
+//                 left: c.left,
+//                 top: "-10%",
+//                 backgroundColor: c.color,
+//                 animationDelay: c.delay,
+//                 animationDuration: c.duration,
+//                 transform: `rotate(${c.rotate})`,
 //               }}
 //             />
 //           ))}
 //         </div>
 
-//         {/* Close Button */}
-//         <button 
+//         {/* Close */}
+//         <button
 //           onClick={() => setShowPopup(false)}
-//           className="absolute top-5 right-5 bg-black/20 text-white/80 hover:text-white rounded-full p-2 hover:bg-black/40 transition-all z-20"
+//           className="absolute top-4 right-4 bg-black/20 text-white rounded-full p-1.5"
 //         >
 //           <X size={20} />
 //         </button>
 
 //         {/* Content */}
-//         <div className="relative z-10 text-white space-y-4">
-//           <h2 className="text-6xl font-serif font-black tracking-tight italic drop-shadow-lg">
-//             GetAdmission
-//           </h2>
-//           <p className="text-sm font-bold uppercase tracking-[0.3em] text-yellow-200 opacity-90">
-//             Exclusive Student Discount
+//         <div className="text-white text-center space-y-4">
+//           <h2 className="text-5xl font-serif italic font-bold">GetAdmission</h2>
+//           <p className="text-xs uppercase tracking-widest text-yellow-200">
+//             Early bird discount
 //           </p>
-          
-//           <div className="flex items-center justify-center gap-2 py-2">
-//             <span className="text-[10rem] font-black leading-none text-white drop-shadow-2xl">25</span>
-//             <div className="flex flex-col items-start leading-none">
-//               <span className="text-6xl font-bold text-yellow-300">%</span>
-//               <span className="text-5xl font-serif italic text-white/90">Off</span>
-//             </div>
+
+//           <div className="flex justify-center items-center gap-2">
+//             <span className="text-9xl font-bold text-yellow-300">{offer.discountPercentage}</span>
+//             <span className="text-5xl font-bold text-yellow-300">%</span>
 //           </div>
 
-//           {/* Action Button */}
-//           <div className="relative w-full max-w-xs mx-auto mt-8">
-//             <button 
-//               onClick={handleGetClick}
-//               className="group w-full bg-[#5D5FEF] hover:bg-[#4a4cd8] text-white py-5 rounded-2xl text-2xl font-black italic shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3 overflow-hidden"
-//             >
-//               {/* Shimmer Effect */}
-//               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_0.8s_infinite] skew-x-12" />
-              
-//               GET IT NOW <Zap size={24} fill="currentColor" />
-//             </button>
-//           </div>
+//           <button
+//             onClick={handleGetClick}
+//             className="bg-[#5D5FEF] hover:bg-[#4a4cd8] text-white py-4 px-10 rounded-full text-xl font-black flex items-center gap-2 mx-auto"
+//           >
+//             GET! <Zap size={20} />
+//           </button>
 
-//           <div className="flex items-center justify-center gap-2 pt-6">
-//             <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
-//             <p className="text-xs font-medium text-white/80 tracking-wide">
-//               Hurry! Valid for {timeLeft} seconds only
-//             </p>
-//           </div>
+//           <p className="text-xs tracking-widest">
+//             Valid for {hours}h {minutes}m {seconds}s
+//           </p>
 //         </div>
 //       </div>
 
 //       <style jsx>{`
 //         @keyframes fall {
-//           0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-//           100% { transform: translateY(800px) rotate(720deg); opacity: 0; }
-//         }
-//         @keyframes shimmer {
-//           0% { transform: translateX(-150%) skewX(-12deg); }
-//           100% { transform: translateX(250%) skewX(-12deg); }
+//           from { transform: translateY(0); opacity: 1; }
+//           to { transform: translateY(600px); opacity: 0; }
 //         }
 //         .animate-fall {
 //           animation: fall linear infinite;
@@ -251,3 +157,299 @@ export default CelebrationPopup;
 // };
 
 // export default CelebrationPopup;
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { X, Zap } from "lucide-react";
+import Image from "next/image";
+import API from "@/utlis/api.js";
+
+/* ================= FLOATING INPUT ================= */
+const FloatingInput = ({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  readOnly,
+  insideText,
+}) => (
+  <div className="relative w-full mb-3">
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      readOnly={readOnly}
+      className={`w-full rounded-md border border-[#05347f] px-3 py-2 ${
+        insideText ? "pr-28" : ""
+      } text-[13px] outline-none ${
+        readOnly ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+      }`}
+    />
+
+    {insideText && (
+      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-green-700">
+        {insideText}
+      </span>
+    )}
+
+    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f]">
+      {label}
+    </label>
+  </div>
+);
+
+/* ================= FLOATING SELECT ================= */
+const FloatingSelect = ({ label, name, value, onChange }) => (
+  <div className="relative w-full mb-3">
+    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f]">
+      {label}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] outline-none cursor-pointer"
+    >
+      <option value="">Select</option>
+      <option>male</option>
+      <option>female</option>
+      <option>other</option>
+    </select>
+  </div>
+);
+
+/* ================= MAIN ================= */
+const CelebrationSignupPopup = () => {
+  const [showPopup, setShowPopup] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+  const [offer, setOffer] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [confetti, setConfetti] = useState([]);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    mobileNumber: "",
+    city: "",
+    state: "",
+    course: "",
+    gender: "",
+    addresses: "",
+    branch: "",
+    otp: "",
+    specialization: "",
+    dob: "",
+    subsidyCoupon: "",
+  });
+
+  /* ================= FETCH OFFER ================= */
+  useEffect(() => {
+    const fetchOffer = async () => {
+      const res = await API.get("/api/v1/offer/type/offer");
+      const latest = res.data.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )[0];
+      setOffer(latest);
+
+      const seconds = Math.max(
+        Math.floor((new Date(latest.validTill) - new Date()) / 1000),
+        0
+      );
+      setTimeLeft(seconds);
+    };
+
+    fetchOffer();
+    setShowPopup(true);
+
+    /* CONFETTI */
+    const items = Array.from({ length: 30 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 3}s`,
+      duration: `${2 + Math.random() * 3}s`,
+      rotate: `${Math.random() * 360}deg`,
+      color: ["#4ade80", "#fbbf24", "#60a5fa", "#f472b6", "#ffffff"][
+        Math.floor(Math.random() * 5)
+      ],
+    }));
+    setConfetti(items);
+  }, []);
+
+  /* ================= COUNTDOWN ================= */
+  useEffect(() => {
+    if (!showPopup || !offer || timeLeft <= 0) return;
+    const t = setTimeout(() => setTimeLeft((p) => p - 1), 1000);
+    return () => clearTimeout(t);
+  }, [timeLeft, showPopup, offer]);
+
+  if (!showPopup || !offer) return null;
+
+  const hours = Math.floor(timeLeft / 3600);
+  const minutes = Math.floor((timeLeft % 3600) / 60);
+  const seconds = timeLeft % 60;
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleGetClick = () => {
+    setShowSignup(true);
+    setFormData((p) => ({
+      ...p,
+      subsidyCoupon: `${offer.couponCode} - ${offer.discountPercentage}%`,
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={() => setShowPopup(false)}
+      />
+
+      <div
+        className={`relative w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden ${
+          showSignup ? "bg-white" : "bg-[#E14D56]"
+        }`}
+      >
+        {/* CONFETTI */}
+        {!showSignup && (
+          <div className="absolute inset-0 pointer-events-none">
+            {confetti.map((c, i) => (
+              <div
+                key={i}
+                className="absolute w-3 h-6 animate-fall"
+                style={{
+                  left: c.left,
+                  top: "-10%",
+                  backgroundColor: c.color,
+                  animationDelay: c.delay,
+                  animationDuration: c.duration,
+                  transform: `rotate(${c.rotate})`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* CLOSE */}
+        <button
+          onClick={() => setShowPopup(false)}
+          className={`absolute top-4 right-4 ${
+            showSignup ? "text-black" : "text-white"
+          }`}
+        >
+          <X />
+        </button>
+
+        {!showSignup ? (
+          /* ================= OFFER ================= */
+          <div className="p-6 text-white text-center space-y-4">
+            <h2 className="text-5xl font-serif italic font-bold">
+              GetAdmission
+            </h2>
+             <h6 className="text-xl  font-bold">
+              Early Bird Offer Live!
+            </h6>
+
+            <div className="flex justify-center gap-2">
+              <span className="text-9xl font-bold text-yellow-300">
+                {offer.discountPercentage}
+              </span>
+              <span className="text-5xl text-yellow-300">%</span>
+            </div>
+
+            <button
+              onClick={handleGetClick}
+              className="bg-[#5D5FEF] py-4 px-10 rounded-full text-xl font-black flex gap-2 mx-auto"
+            >
+              GET! <Zap />
+            </button>
+
+            <p className="text-xs tracking-widest">
+              Valid for {hours}h {minutes}m {seconds}s
+            </p>
+          </div>
+        ) : (
+          /* ================= SIGNUP FORM (PEHLE JAISA) ================= */
+          <div className="p-4 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center gap-3 mb-3">
+              <Image src="/images/n12.png" alt="logo" width={80} height={40} />
+              <div>
+                <p className="text-sm font-bold text-[#253b7a]">
+                  #VidyaHaiTohSuccessHai
+                </p>
+                <p className="text-xs text-gray-500">
+                  Students’ most trusted guide
+                </p>
+              </div>
+            </div>
+
+            <form className="space-y-3">
+              <FloatingInput label="Name" name="name" value={formData.name} onChange={handleChange} />
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <FloatingInput label="Email" name="email" value={formData.email} onChange={handleChange} />
+                  <p className="text-[11px] text-[#4ade80] font-bold ">We Do Dot Spam</p>
+                </div>
+                <div>
+                  <FloatingInput label="Mobile Number" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} />
+                  <p className="text-[11px] text-[#4ade80] font-bold ">We Do Not Spam</p>
+                </div>
+              </div>
+
+              <FloatingInput label="City" name="city" value={formData.city} onChange={handleChange} />
+              <FloatingInput label="State" name="state" value={formData.state} onChange={handleChange} />
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <FloatingInput label="Course" name="course" value={formData.course} onChange={handleChange} />
+                <FloatingInput label="Branch" name="branch" value={formData.branch} onChange={handleChange} />
+              </div>
+
+              <FloatingSelect label="Gender" name="gender" value={formData.gender} onChange={handleChange} />
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <FloatingInput label="Specialization" name="specialization" value={formData.specialization} onChange={handleChange} />
+                <FloatingInput label="Date of Birth" type="date" name="dob" value={formData.dob} onChange={handleChange} />
+              </div>
+
+              <FloatingInput
+                label="Subsidy Coupon"
+                name="subsidyCoupon"
+                value={formData.subsidyCoupon}
+                readOnly
+                insideText={`${offer.discountPercentage}% OFF`}
+              />
+
+              <FloatingInput label="Address" name="addresses" value={formData.addresses} onChange={handleChange} />
+
+              <button className="w-full py-3 rounded-md text-white font-bold bg-orange-500">
+                Send OTP
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
+
+      <style jsx>{`
+        @keyframes fall {
+          from {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateY(600px);
+            opacity: 0;
+          }
+        }
+        .animate-fall {
+          animation: fall linear infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default CelebrationSignupPopup;

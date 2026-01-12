@@ -233,6 +233,8 @@ const Layout = ({ children }) => {
     { href: "/admin/getresume", label: "Applications", icon: Tag },
     { href: "/admin/getonelyonline", label: "OnlyL Online", icon: Tag },
     { href: "/admin/Q&A", label: "Q & A", icon: MessageSquare },
+    {href:"/admin/add-subsid", label: "add-subsid", icon: MessageSquare},
+    {href: "/admin/addblog", label: "addblog", icon: MessageSquare },
     { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
 
     { href: "/admin/Security", label: "Security", icon: Lock },

@@ -276,7 +276,6 @@
 // }
 
 
-
 "use client";
 
 import { useState } from "react";
@@ -287,10 +286,36 @@ const inputStyle =
 
 export default function LoginModal({ onClose }) {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    setError("");
+
+    // Simple email validation
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // ✅ Replace this with your real API call
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // simulate network
+
+      alert(`Login successful for ${email}`);
+      onClose(); // close modal
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg w-[400px] p-6 relative shadow-lg">
+    <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-md p-6 relative shadow-lg">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -304,22 +329,19 @@ export default function LoginModal({ onClose }) {
           <h1 className="text-lg font-bold text-[#05347f]">
             Vidya hai to Success hai
           </h1>
-          <p className="text-[14] text-gray-500">
-           CareerVidya India's trusted education platform
+          <p className="text-[14px] text-gray-500">
+            CareerVidya India's trusted education platform
           </p>
         </div>
 
         {/* Features */}
-        <div className="flex justify-between text-[14px] text-green-700 mb-4 border-b pb-3">
-          <span>✅  No-Cost EMI from ₹4,999</span>
+        <div className="flex flex-col md:flex-row justify-between text-[14px] text-green-700 mb-4 border-b pb-3 gap-2">
+          <span>✅ No-Cost EMI from ₹4,999</span>
           <span>🎓 Govt-Approved Universities</span>
-          <span>💼 
-EMI Facility
-|
-Loan Facility</span>
+          <span>💼 EMI / Loan Facility</span>
         </div>
 
-        {/* LOGIN ONLY */}
+        {/* LOGIN FORM */}
         <div className="flex flex-col gap-3">
           <input
             type="email"
@@ -329,16 +351,22 @@ Loan Facility</span>
             className={inputStyle}
           />
 
+          {error && <span className="text-red-500 text-xs">{error}</span>}
+
           <span className="text-[11px] text-green-600 font-medium">
             ✓ We don’t spam
           </span>
 
-          <button className="w-full bg-orange-700 text-white py-2 rounded-md text-sm font-semibold hover:bg-orange-800 transition">
-            LOGIN
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full bg-orange-700 text-white py-2 rounded-md text-sm font-semibold hover:bg-orange-800 transition disabled:opacity-50"
+          >
+            {loading ? "Logging in..." : "LOGIN"}
           </button>
 
           {/* Signup Link */}
-          <p className="text-center text-[14] text-gray-600 mt-1">
+          <p className="text-center text-[14px] text-gray-600 mt-1">
             Don’t have an account?{" "}
             <button className="text-blue-600 font-semibold hover:underline">
               Create Account

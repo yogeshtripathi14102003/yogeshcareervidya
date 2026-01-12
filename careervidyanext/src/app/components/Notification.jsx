@@ -3,7 +3,7 @@ import React from "react";
 import { Megaphone } from "lucide-react";
 
 export default function AnnouncementBar() {
-  const announcementText = "Planning higher studies? Career Vidya is here to guide you from counselling to post-admission support. Enquire now";
+  const announcementText = "Early Bird Offer Live! Apply early and get exclusive discounts on Online Degree Programs. Enquire now";
 
   return (
     <div className="w-full bg-[#de5e06] h-10 md:h-12 flex items-center overflow-hidden border-b border-white/10 shadow-md">

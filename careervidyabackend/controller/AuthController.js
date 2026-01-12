@@ -68,11 +68,45 @@ export const sendOTP = async (req, res) => {
     );
 
     if (emailOrPhone.includes("@")) {
-      await sendToEmail({
-        to: emailOrPhone,
-        subject: "Your OTP Code",
-        html: `<h2>Your OTP is: <b>${otp}</b></h2>`,
-      });
+    await sendToEmail({
+  to: emailOrPhone,
+  subject: `${otp} is your verification code`,
+  html: `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 450px; margin: 0 auto; border: 1px solid #eeeeee; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      
+      <div style="background-color: #1a73e8; height: 6px;"></div>
+
+      <div style="padding: 30px 20px 10px 20px; text-align: center;">
+        <h2 style="color: #202124; margin: 0; font-size: 22px;">Verification Required</h2>
+        <p style="color: #5f6368; font-size: 15px; margin-top: 10px;"> Enter the verification code below to securely access your account  </p>
+      </div>
+
+      <div style="padding: 20px; text-align: center;">
+        <div style="background-color: #f1f3f4; border-radius: 8px; padding: 25px; display: inline-block; min-width: 200px;">
+          <span style="font-size: 40px; font-weight: 800; letter-spacing: 8px; color: #1a73e8;">${otp}</span>
+        </div>
+        <p style="color: #70757a; font-size: 13px; margin-top: 15px;">
+          This code expires in 5 minutes
+        </p>
+      </div>
+
+      <div style="margin: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
+        <p style="margin: 0; font-size: 14px; color: #3c4043; font-weight: 500;">Need Help?</p>
+        <p style="margin: 5px 0 10px 0; font-size: 13px; color: #5f6368;">If you did not request this code or face issues logging in, reach out to our support team</p>
+        <a href="mailto:info@Careervidya.in" style="color: #1a73e8; text-decoration: none; font-weight: bold; font-size: 14px; border: 1px solid #1a73e8; padding: 5px 15px; border-radius: 4px; display: inline-block;">
+          📩 support@careervidya.in
+        </a>
+      </div>
+
+      <div style="padding: 20px; text-align: center; border-top: 1px solid #eeeeee;">
+        <a href="https://careervidya.in" style="text-decoration: none; color: #5f6368; font-size: 13px; font-weight: 600;"> Visit our website Careervidya.in</a>
+        <div style="margin-top: 15px; color: #9aa0a6; font-size: 11px;">
+          &copy; ${new Date().getFullYear()} Careervidya.in. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `,
+});
     } else {
       await sendToSMS(emailOrPhone, `Your OTP is ${otp}`);
     }
@@ -102,6 +136,9 @@ export const verifyOTP = async (req, res) => {
       mobileNumber,
        branch,
   description,
+   specialization,
+  dob,
+  subsidyCoupon,
     } = req.body;
 
     if (!emailOrPhone || !otp || !purpose) {
@@ -158,6 +195,9 @@ export const verifyOTP = async (req, res) => {
         addresses,
           branch,
   description,
+   specialization,
+  dob,
+  subsidyCoupon,
       });
 
     }
@@ -244,6 +284,9 @@ export const verifyOTP = async (req, res) => {
         addresses: student.addresses,
           branch: student.branch,
   description: student.description,
+   specialization: student.specialization,
+  dob: student.dob,
+  subsidyCoupon: student.subsidyCoupon,
         role: student.role,
       },
     });
