@@ -1,28 +1,27 @@
+
+
 import api from "@/utlis/api.js";
 
-export const trackVisitor = async (page) => {
+export const trackVisitor = async () => {
   try {
     if (typeof window === "undefined") return;
 
-    // Session check: ek page pe sirf ek baar track kare
-    const key = `visited-${page}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "true");
-
-    // Check returning user
-    const isReturning = localStorage.getItem("visited") === "true";
-    localStorage.setItem("visited", "true");
+    // 🔒 Session level tracking (ONLY ONCE)
+    if (sessionStorage.getItem("visitor_tracked")) return;
+    sessionStorage.setItem("visitor_tracked", "true");
 
     const data = {
-      page,
-      browser: navigator.userAgentData?.brands?.[0]?.brand || "Unknown",
+      page: window.location.pathname, // sirf reference ke liye
+      browser:
+        navigator.userAgentData?.brands?.[0]?.brand ||
+        navigator.userAgent ||
+        "Unknown",
       device: navigator.userAgentData?.mobile ? "Mobile" : "Desktop",
-      os: navigator.platform,
+      os: navigator.platform || "Unknown",
       referrer: document.referrer || "Direct",
-      isReturning,
     };
 
-    // ✅ Use axios instance from api.js (baseURL already set)
+    // ✅ Backend handles uniqueness
     await api.post("/api/v1/track", data);
   } catch (error) {
     console.error("Visitor tracking failed:", error);

@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -65,6 +67,11 @@ const CelebrationSignupPopup = () => {
   const [offer, setOffer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
 
+  const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -81,12 +88,12 @@ const CelebrationSignupPopup = () => {
     subsidyCoupon: "",
   });
 
-  /* ================= MOUNT FIX (IMPORTANT FOR MOBILE PROD) ================= */
+  /* ================= MOUNT ================= */
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  /* ================= FETCH OFFER + 10s DELAY ================= */
+  /* ================= OFFER FETCH ================= */
   useEffect(() => {
     if (!mounted) return;
 
@@ -108,7 +115,7 @@ const CelebrationSignupPopup = () => {
       } catch (err) {
         console.error("Offer API error", err);
       }
-    }, 10000); // ✅ 10 seconds delay
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [mounted]);
@@ -120,7 +127,19 @@ const CelebrationSignupPopup = () => {
     return () => clearTimeout(t);
   }, [timeLeft, showPopup, offer]);
 
-  if (!mounted || !showPopup || !offer) return null;
+  /* ================= SUCCESS POPUP AUTO CLOSE ================= */
+  useEffect(() => {
+    if (!showSuccessPopup) return;
+
+    const timer = setTimeout(() => {
+      setShowSuccessPopup(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [showSuccessPopup]);
+
+  // ❗ FIXED: DO NOT UNMOUNT ON showPopup=false
+  if (!mounted || !offer) return null;
 
   const hours = Math.floor(timeLeft / 3600);
   const minutes = Math.floor((timeLeft % 3600) / 60);
@@ -137,101 +156,192 @@ const CelebrationSignupPopup = () => {
     }));
   };
 
+  /* ================= VALIDATION ================= */
+  const validateAllFields = () => {
+    const fields = [
+      "name",
+      "email",
+      "mobileNumber",
+      "city",
+      "state",
+      "course",
+      "gender",
+      "addresses",
+      "branch",
+      "dob",
+      "subsidyCoupon",
+    ];
+    for (let f of fields) {
+      if (!formData[f]) {
+        alert(`Please fill ${f}`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  /* ================= SEND OTP ================= */
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    if (!validateAllFields()) return;
+
+    try {
+      setLoading(true);
+      await API.post("/api/v1/send-otp", {
+        emailOrPhone: formData.email || formData.mobileNumber,
+        purpose: "register",
+      });
+      setOtpSent(true);
+      alert("OTP Sent Successfully");
+    } catch {
+      alert("OTP error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= VERIFY OTP ================= */
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!formData.otp) return alert("Enter OTP");
+
+    try {
+      setLoading(true);
+      await API.post("/api/v1/verify-otp", {
+        ...formData,
+        emailOrPhone: formData.email || formData.mobileNumber,
+        purpose: "register",
+      });
+      alert("Registration successful");
+      setShowPopup(false);
+      setShowSuccessPopup(true); // ✅ INSTANT POPUP
+    } catch {
+      alert("Invalid OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    otpSent ? handleVerifyOtp(e) : handleSendOtp(e);
+  };
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/60"
-        onClick={() => setShowPopup(false)}
-      />
+    <>
+      {/* ================= MAIN POPUP ================= */}
+      {showPopup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setShowPopup(false)}
+          />
 
-      <div className="relative w-full max-w-lg rounded-2xl shadow-xl bg-white overflow-hidden">
-        <button
-          onClick={() => setShowPopup(false)}
-          className="absolute top-4 right-4 text-black"
-        >
-          <X />
-        </button>
-
-        {!showSignup ? (
-          /* ================= OFFER ================= */
-          <div className="p-6 text-center bg-[#E14D56] text-white">
-            <h2 className="text-4xl font-bold italic">GetAdmission</h2>
-            <p className="text-lg mt-2 font-bold">Early Bird Offer Live!</p>
-
-            <div className="flex justify-center items-end gap-1 mt-4">
-              <span className="text-8xl font-bold text-yellow-300">
-                {offer.discountPercentage}
-              </span>
-              <span className="text-4xl text-yellow-300">%</span>
-            </div>
-
+          <div className="relative w-full max-w-lg rounded-2xl shadow-xl bg-white overflow-hidden">
             <button
-              onClick={handleGetClick}
-              className="bg-[#5D5FEF] py-3 px-10 rounded-full text-lg font-black flex gap-2 mx-auto mt-6"
+              onClick={() => setShowPopup(false)}
+              className="absolute top-4 right-4 text-black"
             >
-              GET <Zap />
+              <X />
             </button>
 
-            <p className="text-xs mt-4">
-              Valid for {hours}h {minutes}m {seconds}s
+            {!showSignup ? (
+              <div className="p-6 text-center bg-[#E14D56] text-white">
+                <h2 className="text-4xl font-bold italic">GetAdmission</h2>
+                <p className="text-lg mt-2 font-bold">Early Bird Offer Live!</p>
+
+                <div className="flex justify-center items-end gap-1 mt-4">
+                  <span className="text-8xl font-bold text-yellow-300">
+                    {offer.discountPercentage}
+                  </span>
+                  <span className="text-4xl text-yellow-300">%</span>
+                </div>
+
+                <button
+                  onClick={handleGetClick}
+                  className="bg-[#5D5FEF] py-3 px-10 rounded-full text-lg font-black flex gap-2 mx-auto mt-6"
+                >
+                  GET <Zap />
+                </button>
+
+                <p className="text-xs mt-4">
+                  Valid for {hours}h {minutes}m {seconds}s
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 max-h-[85vh] overflow-y-auto">
+                <div className="flex items-center gap-3 mb-3">
+                  <Image src="/images/n12.png" alt="logo" width={80} height={40} />
+                </div>
+
+                <form className="space-y-3">
+                  <FloatingInput label="Name" name="name" value={formData.name} onChange={handleChange} />
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <FloatingInput label="Email" name="email" value={formData.email} onChange={handleChange} />
+                    <FloatingInput label="Mobile Number" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} />
+                  </div>
+
+                  <FloatingInput label="City" name="city" value={formData.city} onChange={handleChange} />
+                  <FloatingInput label="State" name="state" value={formData.state} onChange={handleChange} />
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <FloatingInput label="Course" name="course" value={formData.course} onChange={handleChange} />
+                    <FloatingInput label="Branch" name="branch" value={formData.branch} onChange={handleChange} />
+                  </div>
+
+                  <FloatingSelect label="Gender" name="gender" value={formData.gender} onChange={handleChange} />
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <FloatingInput label="Specialization" name="specialization" value={formData.specialization} onChange={handleChange} />
+                    <FloatingInput type="date" label="Date of Birth" name="dob" value={formData.dob} onChange={handleChange} />
+                  </div>
+
+                  <FloatingInput
+                    label="Subsidy Coupon"
+                    name="subsidyCoupon"
+                    value={formData.subsidyCoupon}
+                    readOnly
+                    insideText={`${offer.discountPercentage}% OFF`}
+                  />
+
+                  <FloatingInput label="Address" name="addresses" value={formData.addresses} onChange={handleChange} />
+
+                  {otpSent && (
+                    <FloatingInput label="OTP" name="otp" value={formData.otp} onChange={handleChange} />
+                  )}
+
+                  <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="w-full py-3 rounded-md text-white font-bold bg-orange-500"
+                  >
+                    {loading ? "Please wait..." : otpSent ? "Verify & Register" : "Send OTP"}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ================= SUCCESS POPUP ================= */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 " />
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+            <div className="text-green-600 text-5xl mb-3">✅</div>
+            <h3 className="text-lg font-bold text-[#253b7a] mb-2">
+              Your offer applied successfully.  
+            </h3>
+            <p className="text-sm text-gray-600">
+              A Career Vidya academic advisor will connect you within 12-24 hours  
+              <br />
+             
             </p>
           </div>
-        ) : (
-          /* ================= SIGNUP FORM (ALL FIELDS SAME) ================= */
-          <div className="p-4 max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center gap-3 mb-3">
-              <Image src="/images/n12.png" alt="logo" width={80} height={40} />
-              <div>
-                <p className="text-sm font-bold text-[#253b7a]">
-                  #VidyaHaiTohSuccessHai
-                </p>
-                <p className="text-xs text-gray-500">
-                  Students’ most trusted guide
-                </p>
-              </div>
-            </div>
-
-            <form className="space-y-3">
-              <FloatingInput label="Name" name="name" value={formData.name} onChange={handleChange} />
-
-              <div className="grid sm:grid-cols-2 gap-3">
-                <FloatingInput label="Email" name="email" value={formData.email} onChange={handleChange} />
-                <FloatingInput label="Mobile Number" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} />
-              </div>
-
-              <FloatingInput label="City" name="city" value={formData.city} onChange={handleChange} />
-              <FloatingInput label="State" name="state" value={formData.state} onChange={handleChange} />
-
-              <div className="grid sm:grid-cols-2 gap-3">
-                <FloatingInput label="Course" name="course" value={formData.course} onChange={handleChange} />
-                <FloatingInput label="Branch" name="branch" value={formData.branch} onChange={handleChange} />
-              </div>
-
-              <FloatingSelect label="Gender" name="gender" value={formData.gender} onChange={handleChange} />
-
-              <div className="grid sm:grid-cols-2 gap-3">
-                <FloatingInput label="Specialization" name="specialization" value={formData.specialization} onChange={handleChange} />
-                <FloatingInput type="date" label="Date of Birth" name="dob" value={formData.dob} onChange={handleChange} />
-              </div>
-
-              <FloatingInput
-                label="Subsidy Coupon"
-                name="subsidyCoupon"
-                value={formData.subsidyCoupon}
-                readOnly
-                insideText={`${offer.discountPercentage}% OFF`}
-              />
-
-              <FloatingInput label="Address" name="addresses" value={formData.addresses} onChange={handleChange} />
-
-              <button className="w-full py-3 rounded-md text-white font-bold bg-orange-500">
-                Send OTP
-              </button>
-            </form>
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 

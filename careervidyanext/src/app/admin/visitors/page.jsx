@@ -14,21 +14,18 @@ import {
 
 export default function VisitorDashboard() {
   const [total, setTotal] = useState(0);
-  const [unique, setUnique] = useState(0);
   const [daily, setDaily] = useState([]);
 
   /* ---------- Fetch Visitors ---------- */
   const fetchVisitors = async () => {
     try {
-      const [t, u, d] = await Promise.all([
+      const [totalRes, dailyRes] = await Promise.all([
         api.get("/api/v1/total"),
-        api.get("/api/v1/unique"),
         api.get("/api/v1/daily"),
       ]);
 
-      setTotal(t.data?.totalVisitors || 0);
-      setUnique(u.data?.uniqueVisitors || 0);
-      setDaily(d.data?.dailyVisitors || []);
+      setTotal(totalRes.data?.totalVisitors || 0);
+      setDaily(dailyRes.data?.dailyVisitors || []);
     } catch (error) {
       console.error("Visitor fetch error:", error);
     }
@@ -45,24 +42,28 @@ export default function VisitorDashboard() {
       {/* ---------- Stats ---------- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Stat title="Total Visitors" value={total} />
-        <Stat title="Unique Visitors" value={unique} />
         <Stat
-          title="Today Visits"
+          title="Today Visitors"
           value={daily.length > 0 ? daily[0].count : 0}
         />
+        <Stat title="Days Tracked" value={daily.length} />
       </div>
 
       {/* ---------- Chart ---------- */}
       <div className="bg-white p-6 shadow rounded">
-        <h2 className="font-semibold mb-4">📈 Daily Visitors</h2>
+        <h2 className="font-semibold mb-4">📈 Daily Unique Visitors</h2>
 
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={daily}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
+            <XAxis dataKey="_id" /> {/* 👈 FIX */}
+            <YAxis allowDecimals={false} />
             <Tooltip />
-            <Line type="monotone" dataKey="count" strokeWidth={2} />
+            <Line
+              type="monotone"
+              dataKey="count"
+              strokeWidth={2}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
