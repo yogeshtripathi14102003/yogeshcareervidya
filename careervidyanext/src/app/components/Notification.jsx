@@ -1,9 +1,46 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Megaphone } from "lucide-react";
+import api from "@/utlis/api.js"; // ✅ Your existing api.js
 
 export default function AnnouncementBar() {
-  const announcementText = "Early Bird Offer Live! Apply early and get exclusive discounts on Online Degree Programs. Enquire now";
+  const [announcement, setAnnouncement] = useState({
+    title: "Loading announcements...",
+    description: "",
+    url: "#",
+  });
+
+  // Fetch announcement from backend
+  const fetchAnnouncement = async () => {
+    try {
+      const res = await api.get("/api/v1/notifications"); // ✅ Fetch notifications
+      if (res.data && res.data.length > 0) {
+        // Take the latest notification
+        const latest = res.data[0];
+        setAnnouncement({
+          title: latest.title,
+          description: latest.description,
+          url: latest.url || "#", // fallback
+        });
+      } else {
+        setAnnouncement({ title: "No announcements currently", description: "", url: "#" });
+      }
+    } catch (err) {
+      console.error("Failed to fetch announcements:", err);
+      setAnnouncement({ title: "Failed to load announcements", description: "", url: "#" });
+    }
+  };
+
+  useEffect(() => {
+    fetchAnnouncement();
+  }, []);
+
+  // Handle click on New badge
+  const handleNewClick = () => {
+    if (announcement.url && announcement.url !== "#") {
+      window.open(announcement.url, "_blank"); // open in new tab
+    }
+  };
 
   return (
     <div className="w-full bg-[#de5e06] h-10 md:h-12 flex items-center overflow-hidden border-b border-white/10 shadow-md">
@@ -29,7 +66,6 @@ export default function AnnouncementBar() {
       </div>
 
       <div className="flex-1 flex items-center">
-        {/* Cursor pointer aur Stop on Hover logic */}
         <marquee 
           behavior="scroll" 
           direction="left" 
@@ -38,8 +74,12 @@ export default function AnnouncementBar() {
           onMouseOver={(e) => e.currentTarget.stop()} 
           onMouseOut={(e) => e.currentTarget.start()}
         >
-          {announcementText}
-          <span className="ml-4 bg-red-600 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase animate-pulse">
+          {announcement.title} - {announcement.description}
+          <span
+            onClick={handleNewClick} // ✅ Clickable
+            className="ml-4 bg-red-600 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase animate-pulse cursor-pointer"
+            title="Click to view"
+          >
             New
           </span>
         </marquee>

@@ -23,6 +23,8 @@ import visitorRoutes from "./router/visitorRoutes.js";
 import compareRoutes from "./router/compareRoutes.js";
 import blogRoutes from "./router/blogRoutes.js";
 import offerRoutes from "./router/offerRoutes.js";
+import StateDistrictRoutes from "./router/StateDistrictRoutes.js";
+import notificationRoutes from "./router/notificationRoutes.js";
 const app = express();
 
 // ✅ Middlewares
@@ -60,7 +62,8 @@ app.use("/api/v1/", visitorRoutes);
 app.use("/api/v1/",compareRoutes)
 app.use("/api/v1/",blogRoutes);
 app.use("/api/v1/offer",offerRoutes);
-
+app.use("/api/v1/",StateDistrictRoutes);
+app.use("/api/v1/notifications",notificationRoutes);
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");

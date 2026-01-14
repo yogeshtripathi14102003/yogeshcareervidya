@@ -65,13 +65,13 @@ export default function OnlineExamPattern({ slug }) {
           HEADER
       ======================== */}
       <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-      Why  {data.universityName} With Career Vidya
+      Why  {data.universityName} With Career Vidya ?
       </h2>
 
       {/* =======================
           CONTENT (VERTICAL)
       ======================== */}
-      <div className="space-y-8 text-gray-700 leading-relaxed">
+      <div className="space-y-8 text-gray-700  text-xl leading-relaxed">
 
         {/* Exam Overview */}
         {data.shareDescription && (
