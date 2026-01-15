@@ -18,7 +18,7 @@ import TopRecruiters from "@/app/course/TopRecruiters.jsx";
 import CourseKeyHighlights from "@/app/course/CourseKeyHighlights.jsx";
 import CourseOverview from "@/app/course/CourseOverview.jsx";
 import  Universityappro from "@/app/course/Universityappro.jsx";
-// import DiscountPopup from "@/app/components/DiscountPopup";
+import DiscountPopup from "@/app/components/DiscountPopup";
 import Studentimageslider from "@/app/components/Studentimageslider.jsx";
 import LogoSlider from "@/app/components/LogoSlider.jsx";
 export default function CourseDetailPage() {
@@ -116,56 +116,7 @@ export default function CourseDetailPage() {
   </section>
 )}
 
-{/* TOP UNIVERSITIES - FORCED WHITE MODE */}
-{/* {course.topUniversities?.length > 0 && (
-  <section className="mt-10 w-full flex justify-center bg-white py-10">
-    <div className="w-full max-w-[1800px] px-4 md:px-10">
-      <h2 className="text-2xl md:text-3xl font-bold mb-8 text-[#002147]">
-        Top Affordable Universities for {course.name}
-      </h2>
 
-      <div className="overflow-x-auto shadow-xl rounded-xl border border-gray-200">
-        <table className="w-full border-collapse bg-white table-fixed">
-          <thead>
-            <tr className="bg-[#002D62]">
-              <th
-                colSpan={2}
-                className="text-white text-center py-6 text-xl font-semibold border-b border-[#002D62]"
-              >
-                Top Universities for Online {course.courseName}
-              </th>
-            </tr>
-            <tr className="bg-gray-50 border-b border-gray-300">
-              <th className="p-5 text-left font-bold text-gray-800 border-r border-gray-300 w-[25%] lg:w-[20%]">
-                Universities
-              </th>
-              <th className="p-5 text-left font-bold text-gray-800 w-[75%] lg:w-[80%]">
-                Accreditations & Details
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {course.topUniversities.map((u, i) => (
-              <tr 
-                key={i} 
-                className="border-b border-gray-200 hover:bg-blue-50/40 transition-colors"
-              >
-                <td className="p-6 border-r border-gray-200 font-semibold align-top">
-                  <a className="text-blue-700 underline decoration-blue-300 hover:decoration-blue-700 cursor-pointer block">
-                    {u.name}
-                  </a>
-                </td>
-                <td className="p-6 text-gray-700 leading-relaxed text-base">
-                  {u.description}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-)} */}
 <Universitycompeney />
 
 
@@ -260,76 +211,70 @@ export default function CourseDetailPage() {
 )}
 
 
-{/* PROGRAM HIGHLIGHTS - STRONG BRAND HOVER */}
-{course.goodThings?.length > 0 && (
-  <section className="w-full py-16 bg-white border-t border-slate-100">
-    <div className="max-w-[1800px] mx-auto px-6 md:px-12">
-
-      {/* Header */}
-      <div className="mb-10 border-b border-slate-100 pb-6">
-        <h2 className="text-3xl font-bold text-[#0B3C7A] text-center tracking-tight">
-          Key Highlights
+{/* SYLLABUS SECTION - FORCED LIGHT MODE */}
+{course.syllabus?.length > 0 && (
+  <section className="mt-10 w-full flex justify-center bg-white py-10">
+    <div className="w-full max-w-[1800px] px-4 md:px-10">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-10">
+        <h2 className="text-2xl md:text-2xl font-extrabold mb-8 text-center text-[#002D62]">
+          Course Subjects / Syllabus
         </h2>
+
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300 bg-white">
+            <thead>
+              <tr className="bg-[#002D62] text-white">
+                <th colSpan={2} className="text-center py-4 text-lg font-semibold border border-[#002D62]">
+                  Comprehensive Course Syllabus
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              {[0, 2, 4, 6].map((startIndex, rowIndex) => {
+                const sem1 = course.syllabus[startIndex];
+                const sem2 = course.syllabus[startIndex + 1];
+                if (!sem1 && !sem2) return null;
+                return (
+                  <React.Fragment key={rowIndex}>
+                    <tr className="bg-gray-50">
+                      <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
+                        {sem1?.semester || "N/A"}
+                      </th>
+                      <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
+                        {sem2?.semester || "N/A"}
+                      </th>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 p-6 align-top bg-white">
+                        {sem1 && (
+                          <ul className="list-disc ml-5 space-y-2 text-gray-700">
+                            {sem1.subjects.map((sub, j) => (
+                              <li key={j} className="text-[13px] md:text-sm font-medium leading-tight">
+                                {sub}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </td>
+                      <td className="border border-gray-300 p-6 align-top bg-white">
+                        {sem2 && (
+                          <ul className="list-disc ml-5 space-y-2 text-gray-700">
+                            {sem2.subjects.map((sub, j) => (
+                              <li key={j} className="text-[13px] md:text-sm font-medium leading-tight">
+                                {sub}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
-        {course.goodThings.map((g, i) => (
-          <div
-            key={i}
-            className="
-              group relative p-8 rounded-2xl
-              border border-slate-200 bg-white
-              transition-all duration-300
-              flex flex-col h-full
-
-              hover:bg-gradient-to-br
-              hover:from-[#E8F1FF]
-              hover:via-[#F6FAFF]
-              hover:to-[#FFF5EC]
-              hover:border-[#0B3C7A]
-              hover:shadow-[0_18px_45px_rgba(11,60,122,0.25)]
-            "
-          >
-            {/* Blue Inner Glow */}
-            <div
-              className="
-                absolute inset-0 rounded-2xl
-                opacity-0 group-hover:opacity-100
-                transition-opacity duration-300
-                ring-1 ring-[#0B3C7A]/50
-                pointer-events-none
-              "
-            />
-
-            {/* Strong Orange Accent */}
-            <div
-              className="
-                absolute top-0 left-0 h-full w-1.5
-                bg-gradient-to-b
-                from-[#F47B20]
-                to-[#ff9a4d]
-                rounded-l-2xl
-                opacity-0 group-hover:opacity-100
-                transition-opacity duration-300
-              "
-            />
-
-            <div className="relative flex flex-col gap-4">
-              {/* Feature Label */}
-              <span className="text-[14px] font-bold text-[#253b7a] uppercase tracking-wide">
-                Feature {i + 1}
-              </span>
-
-              {/* Description */}
-              <p className="text-[#0B3C7A] text-[16px] leading-relaxed">
-                {g}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
     </div>
   </section>
 )}
@@ -437,7 +382,7 @@ export default function CourseDetailPage() {
    <Getintuch />
   
       <Footer />
-      {/* <DiscountPopup /> */}
+      <DiscountPopup />
     </>
   );
 }

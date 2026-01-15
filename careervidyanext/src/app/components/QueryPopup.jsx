@@ -202,10 +202,10 @@
 //   );
 // }
 
-
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image"; // ✅ FIX: Image import added
 import { X, Send } from "lucide-react";
 import api from "@/utlis/api";
 
@@ -237,10 +237,13 @@ export default function QueryPopup() {
         const res = await api.get("/api/v1/course");
 
         const courseArray =
-          Array.isArray(res.data) ? res.data :
-          Array.isArray(res.data?.data) ? res.data.data :
-          Array.isArray(res.data?.courses) ? res.data.courses :
-          [];
+          Array.isArray(res.data)
+            ? res.data
+            : Array.isArray(res.data?.data)
+            ? res.data.data
+            : Array.isArray(res.data?.courses)
+            ? res.data.courses
+            : [];
 
         setCourses(courseArray);
       } catch (err) {
@@ -256,19 +259,19 @@ export default function QueryPopup() {
     const { name, value } = e.target;
 
     if (name === "course") {
-      const selected = courses.find(c => c.name === value);
+      const selected = courses.find((c) => c.name === value);
 
       setSpecializations(selected?.specializations || []);
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         course: value,
-        branch: ""
+        branch: "",
       }));
       return;
     }
 
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -323,12 +326,27 @@ export default function QueryPopup() {
 
         {/* Right Form */}
         <div className="w-full md:w-2/3 p-4 md:p-6 text-gray-900">
-          <h2 className="text-lg font-bold mb-4 text-[#05347f] hidden md:block">
-            Quick Enquiry
-          </h2>
+          <div className="flex items-center gap-3 mb-3">
+            <Image
+              src="/images/n12.png"
+              alt="Career Vidya"
+              width={85}
+              height={42}
+            />
+            <div>
+              <p className="text-sm font-bold text-[#253b7a]">
+                #VidyaHaiTohSuccessHai
+              </p>
+              <p className="text-[12px] text-gray-500">
+                Student's Trusted Education Guidance Platform
+              </p>
+            </div>
+          </div>
 
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-3"
+          >
             <input
               type="text"
               name="name"
@@ -359,17 +377,6 @@ export default function QueryPopup() {
               className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
 
-            <input
-              type="text"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              placeholder="City"
-              required
-              className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-
-            {/* COURSE */}
             <select
               name="course"
               value={formData.course}
@@ -378,14 +385,13 @@ export default function QueryPopup() {
               className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
             >
               <option value="">Course</option>
-              {courses.map(course => (
+              {courses.map((course) => (
                 <option key={course._id} value={course.name}>
                   {course.name}
                 </option>
               ))}
             </select>
 
-            {/* BRANCH */}
             <select
               name="branch"
               value={formData.branch}
@@ -396,9 +402,21 @@ export default function QueryPopup() {
             >
               <option value="">Branch</option>
               {specializations.map((sp, i) => (
-                <option key={i} value={sp}>{sp}</option>
+                <option key={i} value={sp}>
+                  {sp}
+                </option>
               ))}
             </select>
+
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="City"
+              required
+              className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            />
 
             <textarea
               name="message"
@@ -409,33 +427,50 @@ export default function QueryPopup() {
               rows="2"
               className="md:col-span-2 border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
-  <div className="md:col-span-2">
-            <button
+
+            <div className="md:col-span-2">
+              <button
                 type="submit"
                 className="w-full bg-[#05347f] text-white py-2.5 rounded-lg font-semibold hover:bg-blue-800 flex items-center justify-center gap-2"
               >
-               <span>Send Message</span>
-             <Send size={16} />
+                <span>Send Message</span>
+                <Send size={16} />
               </button>
- <p className="text-center text-[10px] text-gray-600 mt-2">
-              🔒 All your information is safe and secure with us.
+              <p className="text-center text-[10px] text-gray-600 mt-2">
+                🔒 All your information is safe and secure with us.
               </p>
-              </div>
+            </div>
           </form>
         </div>
       </div>
 
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
         @keyframes slideUpMobile {
-          from { opacity: 0; transform: translateY(30%); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(30%);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
-        .animate-slideUpMobile { animation: slideUpMobile 0.4s ease-out forwards; }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        .animate-slideUpMobile {
+          animation: slideUpMobile 0.4s ease-out forwards;
+        }
       `}</style>
     </div>
   );

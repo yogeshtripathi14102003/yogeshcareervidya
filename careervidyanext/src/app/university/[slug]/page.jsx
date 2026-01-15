@@ -348,10 +348,19 @@ export default function UniversityDetail() {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 mb-6 flex-wrap">
-                            {data.approvals?.slice(0, 6).map((approval, index) => (
-                                <div key={index} className="w-10 h-8 md:w-15 md:h-10 bg-white rounded-lg p-1 relative shadow-md">
-                                    <Image src={getImagePath(approval.logo)} alt={approval.name} fill className="object-contain" />
-                                </div>
+  {data.approvals?.slice(0, 6).map((approval, index) => (
+    <div
+      key={index}
+      className="relative w-11 h-8 md:w-15 md:h-10 bg-white rounded-lg p-1 shadow-md 
+                 flex items-center justify-center overflow-hidden"
+    >
+      <Image
+        src={getImagePath(approval.logo)}
+        alt={approval.name}
+        fill
+        className="object-contain"
+      />
+    </div>
                             ))}
                         </div>
 
