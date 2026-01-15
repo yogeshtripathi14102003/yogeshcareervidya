@@ -39,10 +39,7 @@ const renderTextWithLinks = (text) => {
           style={{
             color: PRIMARY_BLUE,
             textDecoration: "underline",
-            display: "block",
-            marginTop: "6px",
             wordBreak: "break-all",
-            fontWeight: 500,
           }}
         >
           {part}
@@ -100,7 +97,7 @@ export default function CareervidyaChatbot() {
         ]);
         setLoading(false);
         setSelectedTab("Conversation");
-      }, 400);
+      }, 500);
     } catch (err) {
       setLoading(false);
       setMessages((prev) => [
@@ -115,9 +112,8 @@ export default function CareervidyaChatbot() {
     }
   };
 
-  /* ================= BOT MESSAGE ================= */
   const BotMessageBubble = ({ message }) => (
-    <div style={{ display: "flex", marginBottom: 10 }}>
+    <div style={{ display: "flex", marginBottom: "10px" }}>
       <div
         style={{
           width: 32,
@@ -151,8 +147,6 @@ export default function CareervidyaChatbot() {
             borderRadius: 12,
             maxWidth: 260,
             marginTop: 4,
-            fontSize: 14,
-            lineHeight: 1.5,
           }}
         >
           {renderTextWithLinks(message.text)}
@@ -195,8 +189,8 @@ export default function CareervidyaChatbot() {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            background: "#fff",
             boxShadow: "0 10px 30px rgba(0,0,0,.2)",
+            background: "#fff",
           }}
         >
           {/* HEADER */}
@@ -210,20 +204,28 @@ export default function CareervidyaChatbot() {
               alignItems: "center",
             }}
           >
-            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-              <Image
-                src="/images/LogoUpdated1.png"
-                alt="logo"
-                width={28}
-                height={28}
-              />
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div
+                style={{
+                  background: "#fff",
+                  borderRadius: "50%",
+                  padding: 5,
+                  display: "flex",
+                }}
+              >
+                <Image
+                  src="/images/LogoUpdated1.png"
+                  alt="logo"
+                  width={25}
+                  height={25}
+                />
+              </div>
               <div>
-                <div style={{ fontWeight: 600 }}>Careervidya Bot</div>
-                <div style={{ fontSize: 11, opacity: 0.9 }}>
-                  Online | Support
-                </div>
+                <div style={{ fontWeight: 600 }}>Careervidya chatbot </div>
+                <div style={{ fontSize: 11 }}>Online | Careervidya Support</div>
               </div>
             </div>
+
             <button
               onClick={() => setOpen(false)}
               style={{
@@ -237,7 +239,7 @@ export default function CareervidyaChatbot() {
             </button>
           </div>
 
-          {/* CHAT BODY */}
+          {/* CHAT AREA */}
           <div
             style={{
               flex: 1,
@@ -246,7 +248,33 @@ export default function CareervidyaChatbot() {
               background: "#f9f9f9",
             }}
           >
-            {selectedTab === "Conversation" &&
+            {selectedTab === "Home" ? (
+              <div style={{ textAlign: "center", marginTop: 20 }}>
+                <Image
+                  src="/images/LogoUpdated1.png"
+                  alt="logo"
+                  width={60}
+                  height={60}
+                  style={{ opacity: 0.2 }}
+                />
+                <p style={{ color: "#888", fontSize: 14 }}>
+                  Welcome! Click on Chat to start.
+                </p>
+                <button
+                  onClick={() => setSelectedTab("Conversation")}
+                  style={{
+                    background: PRIMARY_BLUE,
+                    color: "#fff",
+                    border: "none",
+                    padding: "8px 20px",
+                    borderRadius: 20,
+                    cursor: "pointer",
+                  }}
+                >
+                  Start Conversation
+                </button>
+              </div>
+            ) : (
               messages.map((m, i) =>
                 m.type === "bot" ? (
                   <BotMessageBubble key={i} message={m} />
@@ -264,15 +292,13 @@ export default function CareervidyaChatbot() {
                     >
                       {m.text}
                     </div>
-                    <div
-                      style={{ fontSize: 10, color: "#999", marginTop: 4 }}
-                    >
+                    <div style={{ fontSize: 10, color: "#999" }}>
                       {formatTime(m.timestamp)}
                     </div>
                   </div>
                 )
-              )}
-
+              )
+            )}
             {loading && (
               <div style={{ fontSize: 12, color: "#888" }}>Typing...</div>
             )}
@@ -284,8 +310,8 @@ export default function CareervidyaChatbot() {
             <div
               style={{
                 display: "flex",
-                padding: 10,
                 borderTop: "1px solid #eee",
+                padding: "10px 15px",
               }}
             >
               <input
@@ -297,8 +323,7 @@ export default function CareervidyaChatbot() {
                   flex: 1,
                   padding: 10,
                   borderRadius: 8,
-                  border: "1px solid #ddd",
-                  outline: "none",
+                  border: "1px solid #eee",
                 }}
               />
               <button
@@ -306,8 +331,8 @@ export default function CareervidyaChatbot() {
                 style={{
                   marginLeft: 10,
                   background: PRIMARY_BLUE,
-                  border: "none",
                   color: "#fff",
+                  border: "none",
                   width: 40,
                   height: 40,
                   borderRadius: "50%",
@@ -318,6 +343,30 @@ export default function CareervidyaChatbot() {
               </button>
             </div>
           )}
+
+          {/* TABS */}
+          <div style={{ display: "flex", borderTop: "1px solid #eee" }}>
+            {["Home", "Conversation"].map((t) => (
+              <div
+                key={t}
+                onClick={() => setSelectedTab(t)}
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  padding: 12,
+                  cursor: "pointer",
+                  fontWeight: selectedTab === t ? 600 : 400,
+                  color: selectedTab === t ? PRIMARY_BLUE : "#777",
+                  borderTop:
+                    selectedTab === t
+                      ? `2px solid ${PRIMARY_BLUE}`
+                      : "none",
+                }}
+              >
+                {t === "Home" ? "Home" : "Messages"}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
