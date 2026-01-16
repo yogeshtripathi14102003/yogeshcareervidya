@@ -1,133 +1,103 @@
 import Visitor from "../models/Admin/Visitor.js";
 
-/* ================= CREATE (TRACK VISITOR) ================= */
-export const createVisitor = async (req, res) => {
+// Helper: Get client IP
+const getClientIP = (req) => {
+  const xForwardedFor = req.headers["x-forwarded-for"];
+  if (xForwardedFor) {
+    return xForwardedFor.split(",")[0].trim();
+  }
+  return req.connection.remoteAddress || req.socket.remoteAddress || null;
+};
+
+// TRACK VISITOR
+export const trackVisitor = async (req, res) => {
   try {
-    const { browser, device, os, referrer, page } = req.body;
-
-    const ip =
-      req.headers["x-forwarded-for"]?.split(",")[0] ||
-      req.socket.remoteAddress ||
-      "Unknown";
-
+    const { page, browser, device, os, referrer } = req.body;
+    const ip = getClientIP(req);
     const userAgent = req.headers["user-agent"];
 
-    // 🔒 One visitor per day
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    if (!ip) return res.status(400).json({ success: false, message: "IP not detected" });
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    let visitor = await Visitor.findOne({ ip });
 
-    const exists = await Visitor.findOne({
-      ip,
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
-    });
+    if (visitor) {
+      // Returning visitor
+      visitor.visits += 1;
+      visitor.isReturning = true;
+      visitor.lastVisitedAt = new Date();
 
-    if (exists) {
-      return res.status(200).json({
-        success: true,
-        message: "Visitor already counted today",
-      });
+      // Update page info
+      const pageIndex = visitor.pages.findIndex((p) => p.page === page);
+      if (pageIndex > -1) {
+        visitor.pages[pageIndex].count += 1;
+      } else {
+        visitor.pages.push({ page, count: 1 });
+      }
+
+      await visitor.save();
+      return res.status(200).json({ success: true, message: "Returning visitor tracked" });
     }
 
-    const visitor = await Visitor.create({
+    // New visitor
+    await Visitor.create({
       ip,
       userAgent,
       browser,
       device,
       os,
       referrer,
-      page,
+      visits: 1,
+      pages: [{ page, count: 1 }],
+      isReturning: false,
+      lastVisitedAt: new Date(),
     });
 
-    res.status(201).json({ success: true, visitor });
+    res.status(201).json({ success: true, message: "New visitor tracked" });
+  } catch (error) {
+    console.error("Visitor Track Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ---------- Total Visits ---------- */
+export const getTotalVisitors = async (req, res) => {
+  try {
+    const result = await Visitor.aggregate([{ $group: { _id: null, totalVisits: { $sum: "$visits" } } }]);
+    res.status(200).json({ success: true, totalVisitors: result[0]?.totalVisits || 0 });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-/* ================= READ (ALL VISITORS) ================= */
-export const getAllVisitors = async (req, res) => {
+/* ---------- Unique Visitors ---------- */
+export const getUniqueVisitors = async (req, res) => {
   try {
-    const visitors = await Visitor.find().sort({ createdAt: -1 });
+    const visitors = await Visitor.find({}).select("_id ip visits lastVisitedAt").sort({ lastVisitedAt: -1 });
     res.status(200).json({ success: true, visitors });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-/* ================= READ (TOTAL UNIQUE VISITORS) ================= */
-export const getTotalVisitors = async (req, res) => {
-  try {
-    const total = await Visitor.distinct("ip");
-    res.status(200).json({
-      success: true,
-      totalVisitors: total.length,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-/* ================= READ (DAILY UNIQUE VISITORS) ================= */
+/* ---------- Daily Visitors ---------- */
 export const getDailyVisitors = async (req, res) => {
   try {
     const dailyVisitors = await Visitor.aggregate([
-      {
-        $group: {
-          _id: {
-            date: {
-              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-            },
-            ip: "$ip",
-          },
-        },
-      },
-      {
-        $group: {
-          _id: "$_id.date",
-          count: { $sum: 1 },
-        },
-      },
+      { $group: { _id: { date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } }, count: { $sum: 1 } } },
       { $sort: { _id: -1 } },
     ]);
-
     res.status(200).json({ success: true, dailyVisitors });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-/* ================= UPDATE VISITOR ================= */
-export const updateVisitor = async (req, res) => {
+/* ---------- Get Visitor By ID ---------- */
+export const getVisitorById = async (req, res) => {
   try {
-    const visitor = await Visitor.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    if (!visitor) {
-      return res.status(404).json({ success: false, message: "Visitor not found" });
-    }
-
+    const visitor = await Visitor.findById(req.params.id);
+    if (!visitor) return res.status(404).json({ success: false, message: "Visitor not found" });
     res.status(200).json({ success: true, visitor });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-/* ================= DELETE VISITOR ================= */
-export const deleteVisitor = async (req, res) => {
-  try {
-    const visitor = await Visitor.findByIdAndDelete(req.params.id);
-
-    if (!visitor) {
-      return res.status(404).json({ success: false, message: "Visitor not found" });
-    }
-
-    res.status(200).json({ success: true, message: "Visitor deleted" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

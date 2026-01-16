@@ -220,6 +220,7 @@ const Layout = ({ children }) => {
 
   const menuItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    {href:"/admin/applyadmission", label: "applyadmission", icon: Users },
     { href: "/admin/visitors", label: "Visitors", icon: Users },
     { href: "/admin/placestudent", label: "Placed Students", icon: Award },
     { href: "/admin/addteam", label: "Add Team", icon: Users },

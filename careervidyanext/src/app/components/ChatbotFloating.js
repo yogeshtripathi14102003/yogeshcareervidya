@@ -221,7 +221,7 @@ export default function CareervidyaChatbot() {
                 />
               </div>
               <div>
-                <div style={{ fontWeight: 600 }}>Careervidya chatbot </div>
+                <div style={{ fontWeight: 600 }}>Careervidya Chatbot </div>
                 <div style={{ fontSize: 11 }}>Online | Careervidya Support</div>
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function CareervidyaChatbot() {
                   alt="logo"
                   width={60}
                   height={60}
-                  style={{ opacity: 0.2 }}
+                  style={{ opacity: 1.2 }}
                 />
                 <p style={{ color: "#888", fontSize: 14 }}>
                   Welcome! Click on Chat to start.

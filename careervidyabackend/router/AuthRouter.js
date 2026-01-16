@@ -1,7 +1,7 @@
 
-
+import authMiddleware from "../middelware/authMiddleware.js";
 import express from "express";
-import { sendOTP, verifyOTP, logout,getAllStudents,deleteStudent ,refreshAccessToken } from "../controller/AuthController.js";
+import { sendOTP, verifyOTP, logout,getAllStudents,deleteStudent , getStudentById, refreshAccessToken , getLoggedInStudent } from "../controller/AuthController.js";
 
 const router = express.Router();
 
@@ -14,6 +14,11 @@ router.post("/refresh", refreshAccessToken);
 
 // Step 3: Logout
 router.post("/logout", logout);
-router.get("/students", getAllStudents); 
+router.get("/students", getAllStudents);
+router.get("/students/me", authMiddleware, getLoggedInStudent); 
 router.delete("/students/:id", deleteStudent);
+// Example route definition
+router.get("/students/:id", getStudentById);
+
+
 export default router;
