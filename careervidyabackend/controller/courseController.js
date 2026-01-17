@@ -516,6 +516,7 @@ export const createCourse = async (req, res) => {
             const up = await cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
                 folder: "courses/syllabus",
                 resource_type: "raw",
+                  access_mode: "public",
             });
             syllabusPdf = { public_id: up.public_id, url: up.secure_url };
         }

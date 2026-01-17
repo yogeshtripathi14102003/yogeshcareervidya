@@ -41,7 +41,7 @@ const UniversityTable = ({ courseName = "Online Courses" }) => {
                   colSpan={2}
                   className="text-white text-center py-6 text-xl font-semibold border-b border-[#002D62]"
                 >
-                  Top Universities for Online {courseName}
+                  Top Universities for  {courseName}
                 </th>
               </tr>
               <tr className="bg-gray-50 border-b border-gray-300">

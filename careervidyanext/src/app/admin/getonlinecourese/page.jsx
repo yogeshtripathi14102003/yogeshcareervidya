@@ -20,6 +20,7 @@ export default function CoursesPage() {
 
   // For Universities selection
 const [universities, setUniversities] = useState([]);
+const [syllabusPdf, setSyllabusPdf] = useState(null);
 
   const [whyChooseUs, setWhyChooseUs] = useState([
     { image: null, description: "" },
@@ -89,6 +90,10 @@ const [universities, setUniversities] = useState([]);
 
   // Course Logo file change
   const handleFileChange = (e) => setCourseLogo(e.target.files[0]);
+  
+const handleSyllabusPdfChange = (e) => {
+  setSyllabusPdf(e.target.files[0]);
+};
 
   // Handle file change for onlineCourseWorthIt section
   const handleOnlineCourseWorthItImageChange = (e) => {
@@ -243,6 +248,7 @@ const [universities, setUniversities] = useState([]);
       payload.append("slug", slugify(formData.name));
 
       if (courseLogo) payload.append("courseLogo", courseLogo);
+if (syllabusPdf) payload.append("syllabusPdf", syllabusPdf);
 
       // --- FIXED DATA SUBMISSION: Use JSON.stringify for all complex arrays ---
 
@@ -561,6 +567,18 @@ payload.append("universities", JSON.stringify(universities));
         </section>
         
         {/* --- */}
+
+<div className="mb-4">
+  <label className="block text-sm font-semibold mb-1">
+    Syllabus PDF
+  </label>
+  <input
+    type="file"
+    accept="application/pdf"
+    onChange={handleSyllabusPdfChange}
+    className="border p-2 rounded w-full"
+  />
+</div>
 
         {/* WHY CHOOSE US (Existing) */}
         <section>

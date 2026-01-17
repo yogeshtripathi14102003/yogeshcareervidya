@@ -35,7 +35,7 @@ export default function TopHeader() {
             <span className="separator">|</span>
             <Link href="/contactus" className="top-link">Contact</Link>
             <span className="separator">|</span>
-            <Link href="/Blog" className="top-link">Blog</Link>
+            <Link href="/coming-soon" className="top-link">Blog</Link>
           </nav>
         </div>
 
