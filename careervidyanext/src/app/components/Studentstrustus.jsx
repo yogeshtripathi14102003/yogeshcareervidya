@@ -104,9 +104,9 @@ export default function WhyStudentsTrustUs() {
         >
           Why{" "}
           <span className="text-gray-900 font-bold ">
-            students trust
+            Students Trust
           </span>{" "}
-          us
+          Us
         </h2>
 
         {/* ===== Cards ===== */}

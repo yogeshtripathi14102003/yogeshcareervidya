@@ -124,7 +124,7 @@ export default function Signup() {
           {[
             "Globally recognized Degree • WES Approved",
             "100% Placement Assistance",
-            "AI Predictions – Data-driven college matches",
+            "College Recommendations Based on profile, goals & eligibility",
             "Counselling – Personal guidance. Real results.",
             "24/7 Student Support",
           ].map((t, i) => (

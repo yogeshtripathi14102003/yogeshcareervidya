@@ -22,7 +22,7 @@ export default function TopRecruiters({ topRecruiters, courseTitle }) {
 
                 {/* Main Heading - Updated to #002D62 */}
                 <h2 className="text-3xl font-bold mb-4 text-[#002D62]">
-                    Top Recruiters for Online {dynamicCourseTitle}
+                    Top Recruiters for  {dynamicCourseTitle}
                 </h2>
                 
                 {/* Introductory Description */}
