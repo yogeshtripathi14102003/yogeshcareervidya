@@ -17,7 +17,7 @@ export default function CourseKeyHighlights({ course }) {
           {/* Heading */}
           <div className="mb-12">
             <h2 className="text-2xl md:text-2xl font-extrabold text-[#002147] leading-tight">
-              What You’ll Learn & Gain {course.courseName} In India
+              What You’ll Learn & Gain {course.courseName} In India ?
             </h2>
             <div className="w-20 h-1.5 bg-blue-600 mt-4 rounded-full"></div>
           </div>

@@ -19,6 +19,7 @@ const PRIMARY_LIGHT = "#e7f4f9";
 
 export default function UserLayout({ children }) {
   const [userData, setUserData] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -54,16 +55,28 @@ export default function UserLayout({ children }) {
     <div className="min-h-screen flex bg-gray-100">
       {/* SIDEBAR */}
       <aside
-        className="hidden md:flex w-60 flex-col text-white"
+        className={`fixed md:static inset-y-0 left-0 z-40 w-60 flex flex-col text-white
+        transform ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        md:translate-x-0 transition-transform duration-300`}
         style={{ backgroundColor: PRIMARY }}
       >
+        {/* Mobile Close */}
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="md:hidden absolute top-3 right-3 text-white text-lg"
+        >
+          ✕
+        </button>
+
         <div className="h-16 px-5 flex items-center gap-2 border-b border-white/20">
           <GraduationCap size={18} />
-          <span className="text-sm font-semibold">CareerVidya</span>
+          
+             <SidebarLink href="/"  label="CareerVidya" />
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">
           <SidebarLink href="/user" icon={<LayoutDashboard size={16} />} label="Dashboard" />
+            <SidebarLink href="/user/UserStatus" icon={<User size={16} />} label=" Admission Status" />
           <SidebarLink href="/user/profile" icon={<User size={16} />} label="My Profile" />
           <SidebarLink href="/user/courses" icon={<BookOpen size={16} />} label="My Courses" />
         </nav>
@@ -80,18 +93,29 @@ export default function UserLayout({ children }) {
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1">
+      <main className="flex-1 md:ml-0">
         {/* HEADER */}
         <div
           className="px-6 py-4 border-b"
           style={{ backgroundColor: PRIMARY_LIGHT }}
         >
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-lg font-medium text-gray-800">
-                Welcome, <span style={{ color: PRIMARY }}>{userData.name}</span>
-              </h1>
-              <p className="text-xs text-gray-500">Student dashboard</p>
+            <div className="flex items-center gap-3">
+              {/* Mobile Menu */}
+              <button
+                onClick={() => setMobileOpen(true)}
+                className="md:hidden p-2 rounded border bg-white"
+              >
+                ☰
+              </button>
+
+              <div>
+                <h1 className="text-lg font-medium text-gray-800">
+                  Welcome,{" "}
+                  <span style={{ color: PRIMARY }}>{userData.name}</span>
+                </h1>
+                <p className="text-xs text-gray-500">Student dashboard</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 bg-white px-3 py-2 border rounded">

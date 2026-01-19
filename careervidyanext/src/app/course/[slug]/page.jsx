@@ -460,7 +460,7 @@ export default function CourseDetailPage() {
             <div className="max-w-[1800px] w-full px-6 mx-auto">
               <div className="text-center mb-8">
                 <h2 className="text-3xl md:text-2xl font-black text-[#002147] mb-3">
-                  Why {course.name}
+                  Why {course.name} ?
                 </h2>
                 <div className="w-16 h-1 bg-[#002147] mx-auto rounded-full"></div>
               </div>
@@ -657,7 +657,7 @@ export default function CourseDetailPage() {
           <section className="mt-10 w-full flex justify-center bg-white py-10">
             <div className="w-full max-w-[1600px] px-4 md:px-10">
               <h2 className="text-2xl md:text-2xl font-bold mb-8 text-[#002147]">
-                Top Specializations for Online {course.courseName}
+                Top Specializations for Online {course.name}
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">

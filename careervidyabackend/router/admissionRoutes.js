@@ -6,11 +6,13 @@ import {
   updateAdmission,
   deleteAdmission,
   verifyAdmission,
+  getStatusByEmail,
 } from "../controller/admissionController.js";
 
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary.js";
+// import { protect } from "../middleware/authMiddleware.js"; // Agar admin protection use kar rahe hain
 
 const router = express.Router();
 
@@ -18,9 +20,9 @@ const router = express.Router();
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
-    folder: "admissions",            // folder in Cloudinary
-    resource_type: "auto",           // image/pdf/other
-    public_id: `${Date.now()}-${file.originalname}`, // unique name
+    folder: "admissions",
+    resource_type: "auto",
+    public_id: `${Date.now()}-${file.originalname}`,
   }),
 });
 
@@ -28,7 +30,13 @@ const upload = multer({ storage });
 
 // ================= ROUTES =================
 
-// CREATE Admission
+/** * 1. STATUS CHECK (Public Route)
+ * Ise sabse upar rakhein taaki Express "/status" ko ":id" na samajhle.
+ */
+router.get("/status", getStatusByEmail);
+
+/** * 2. CREATE ADMISSION (Public Route)
+ */
 router.post(
   "/",
   upload.fields([
@@ -40,13 +48,14 @@ router.post(
   createAdmission
 );
 
-// GET All Admissions
-router.get("/", getAdmissions);
+/** * 3. GET ALL ADMISSIONS (Admin Route)
+ */
+router.get("/", getAdmissions); 
 
-// GET Admission by ID
+/** * 4. ID BASED ROUTES (Hamesha niche rakhein)
+ */
 router.get("/:id", getAdmissionById);
 
-// UPDATE Admission
 router.put(
   "/:id",
   upload.fields([
@@ -58,8 +67,10 @@ router.put(
   updateAdmission
 );
 
-// DELETE Admission
 router.delete("/:id", deleteAdmission);
+
+/** * 5. VERIFICATION ROUTE
+ */
 router.patch("/:id/verify", verifyAdmission);
 
 export default router;

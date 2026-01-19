@@ -12,9 +12,9 @@ export default function DashboardPage() {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatCard title="Total Queries" value="12" />
+        <StatCard title="Total Queries" value="0" />
         <StatCard title="Profile Completion" value="80%" />
-        <StatCard title="Certificates" value="2" />
+        <StatCard title="Certificates" value="0" />
       </div>
 
       <div className="bg-white border rounded p-6">

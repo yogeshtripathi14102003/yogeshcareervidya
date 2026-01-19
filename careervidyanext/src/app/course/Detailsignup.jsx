@@ -21,7 +21,7 @@ export default function Signup() {
     city: "",
     state: "",
     course: "",
-    branch: "", // Yahan branch small letter mein hai
+    branch: "", 
     gender: "",
     addresses: "",
   });
@@ -84,16 +84,18 @@ export default function Signup() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // Default form submit behavior roka
+    e.preventDefault(); 
     if (!otpSent) handleSendOtp(e);
     else handleVerifyOtp(e);
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl w-[95%] md:w-[1100px] mx-auto my-6 border border-gray-100 flex flex-col md:flex-row overflow-hidden">
+    /* md: (768px+) par horizontal (row) layout trigger hoga, jo tablet ke liye perfect hai */
+    <div className="bg-white rounded-2xl shadow-xl w-[95%] lg:w-[1100px] mx-auto my-6 border border-gray-100 flex flex-col md:flex-row overflow-hidden">
 
       {/* ================= LEFT SIDE ================= */}
-      <div className="hidden md:flex w-1/2 p-8 flex-col items-center border-r border-gray-100">
+      {/* Tablet (md) aur desktop (lg) dono par dikhega */}
+      <div className="hidden md:flex md:w-1/2 lg:w-1/2 p-4 lg:p-8 flex-col items-center border-r border-gray-100">
         <div className="w-full overflow-hidden mb-6">
           <div className="flex gap-4 animate-scroll-x">
             {[...universities, ...universities].map((uni, i) => {
@@ -104,7 +106,7 @@ export default function Signup() {
                 : "/fallback.png";
 
               return (
-                <div key={i} className="min-w-[100px] h-[50px] border border-gray-200 rounded-xl flex items-center justify-center shadow-sm">
+                <div key={i} className="min-w-[80px] lg:min-w-[100px] h-[40px] lg:h-[50px] border border-gray-200 rounded-xl flex items-center justify-center shadow-sm">
                   <div className="relative w-full h-full p-1 overflow-hidden">
                     <Image src={imageUrl} alt={uni.name || "University"} fill className="object-contain" unoptimized />
                   </div>
@@ -114,11 +116,11 @@ export default function Signup() {
           </div>
         </div>
 
-        <h2 className="text-2xl font-extrabold mb-6 text-center bg-gradient-to-r from-[#05347f] to-[#1E90FF] bg-clip-text text-transparent">
+        <h2 className="text-xl lg:text-2xl font-extrabold mb-6 text-center bg-gradient-to-r from-[#05347f] to-[#1E90FF] bg-clip-text text-transparent">
           Your Path to a Successful Career Starts with Career Vidya
         </h2>
 
-        <ul className="space-y-4 text-left font-sans">
+        <ul className="space-y-3 lg:space-y-4 text-left font-sans">
           {[
             "Globally recognized Degree • WES Approved",
             "100% Placement Assistance",
@@ -130,22 +132,22 @@ export default function Signup() {
               <div className="mt-1 flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-md bg-slate-100 group-hover:bg-black transition-colors duration-200">
                 <Check className="w-3.5 h-3.5 text-slate-700 group-hover:text-white" />
               </div>
-              <span className="text-slate-800 font-medium leading-tight">{t}</span>
+              <span className="text-slate-800 text-sm lg:text-base font-medium leading-tight">{t}</span>
             </li>
           ))}
         </ul>
       </div>
 
       {/* ================= RIGHT FORM ================= */}
-      <div className="w-full md:w-1/2 p-8 bg-white">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[#05347f]">Apply Online Course Form</h2>
+      <div className="w-full md:w-1/2 p-6 lg:p-8 bg-white">
+        <h2 className="text-xl lg:text-2xl font-bold text-center mb-6 text-[#05347f]">Apply Online Course Form</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
           <Field label="Name">
             <input name="name" placeholder="Enter your full name" value={formData.name} onChange={handleChange} className={inputStyle} />
           </Field>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Field label="Email" half>
               <input name="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} className={inputStyle} />
             </Field>
@@ -170,7 +172,7 @@ export default function Signup() {
                 <input name="city" placeholder="Enter your city" value={formData.city} onChange={handleChange} className={inputStyle} />
               </Field>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Field label="Course" half>
                   <input name="course" placeholder="Enter your course" value={formData.course} onChange={handleChange} className={inputStyle} />
                 </Field>
@@ -185,7 +187,7 @@ export default function Signup() {
                 </Field>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Field label="Gender" half>
                   <select name="gender" value={formData.gender} onChange={handleChange} className={inputStyle}>
                     <option value="">Select gender</option>
@@ -223,7 +225,8 @@ export default function Signup() {
 
 function Field({ label, children, half }) {
   return (
-    <div className={`relative ${half ? "w-1/2" : "w-full"}`}>
+    /* Yahan sm:w-1/2 kiya hai taaki mobile pe full width rahe aur tablet/desktop pe half */
+    <div className={`relative ${half ? "w-full sm:w-1/2" : "w-full"}`}>
       <label className="absolute -top-3 left-3 bg-white px-1 text-xs font-bold text-[#4A55A2] z-10">
         {label}
       </label>

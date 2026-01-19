@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "@/utlis/api";
 import { useRouter } from "next/navigation"; // Dashboard redirect ke liye
 
-const AuthModal = ({ onClose }) => {
+const AuthModal = ({ onClose, universityName }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("signup");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [dateInputType, setDateInputType] = useState("text");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -22,8 +21,13 @@ const AuthModal = ({ onClose }) => {
     gender: "",
     branch: "",
     addresses: "",
-    description: "",
+    description: universityName || "", // auto-fill university name
   });
+
+  // Update description if universityName changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, description: universityName || "" }));
+  }, [universityName]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -109,10 +113,15 @@ const AuthModal = ({ onClose }) => {
         otp: formData.otp,
         purpose: "login",
       });
+
       alert("Login successful!");
-      // localStorage.setItem("token", res.data.token); // Agar token save karna ho
-      onClose?.();
-      router.push("/user"); // Dashboard par bhejne ke liye
+
+      // ✅ Safe redirect: first push, then close modal
+      setTimeout(() => {
+        router.push("/user"); // dashboard
+        onClose?.();
+      }, 100);
+
     } catch (err) {
       alert("Invalid OTP.");
     } finally {
@@ -120,7 +129,7 @@ const AuthModal = ({ onClose }) => {
     }
   };
 
-  // Tab change hone par state reset karna zaroori hai
+  // Tab change
   const switchTab = (tab) => {
     setActiveTab(tab);
     setOtpSent(false);
@@ -140,7 +149,7 @@ const AuthModal = ({ onClose }) => {
           ✕
         </button>
 
-        {/* --- HEADER --- */}
+        {/* HEADER */}
         <div className="p-4 border-b border-gray-100 flex items-center">
           <div className="w-1/4">
              <img src="/images/n12.png" alt="Career Vidya" className="max-h-12 w-auto" />
@@ -152,7 +161,7 @@ const AuthModal = ({ onClose }) => {
           <div className="w-1/4"></div>
         </div>
 
-        {/* --- USP SECTION --- */}
+        {/* USP SECTION */}
         <div className="bg-white border-b border-gray-100 p-3">
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 text-[10px] md:text-[13px] font-semibold text-green-700">
                 <div className="flex items-center gap-1"><span>✅</span> <span>No-Cost EMI Available</span></div>
@@ -163,7 +172,7 @@ const AuthModal = ({ onClose }) => {
             </div>
         </div>
 
-        {/* Header Tabs */}
+        {/* Tabs */}
         <div className="flex border-b">
           <button
             onClick={() => switchTab("signup")}
@@ -181,8 +190,9 @@ const AuthModal = ({ onClose }) => {
           >
             LOGIN
           </button>
-        </div>  
+        </div>
 
+        {/* FORM */}
         <div className="p-6 max-h-[70vh] overflow-y-auto no-scrollbar">
           {activeTab === "signup" ? (
             <form onSubmit={handleSignup} className="space-y-4">
@@ -194,7 +204,15 @@ const AuthModal = ({ onClose }) => {
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
-                <input type="text" name="description" placeholder="Short Description" className="inputBox flex-1" onChange={handleChange} />
+
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="Short Description"
+                  className="inputBox flex-1 bg-gray-50 cursor-not-allowed"
+                  value={formData.description}
+                  readOnly
+                />
               </div>
 
               <div className="relative">
@@ -271,7 +289,7 @@ const AuthModal = ({ onClose }) => {
               </p>
             </form>
           )}
-          
+
           <p className="bg-green-50 text-center text-[10px] text-gray-400 mt-6 py-1 uppercase tracking-wider rounded">Secure SSL Encryption Enabled</p>
         </div>
       </div>
@@ -289,6 +307,8 @@ const AuthModal = ({ onClose }) => {
 };
 
 export default AuthModal;
+
+
 
 // "use client";
 
