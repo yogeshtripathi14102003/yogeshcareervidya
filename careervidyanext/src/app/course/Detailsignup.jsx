@@ -140,7 +140,7 @@ export default function Signup() {
 
       {/* ================= RIGHT FORM ================= */}
       <div className="w-full md:w-1/2 p-6 lg:p-8 bg-white">
-        <h2 className="text-xl lg:text-2xl font-bold text-center mb-6 text-[#05347f]">Apply Online Course Form</h2>
+        <h2 className="text-xl lg:text-2xl font-bold text-center mb-6 text-[#05347f]">Apply for Online Courses</h2>
 
         <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
           <Field label="Name">
