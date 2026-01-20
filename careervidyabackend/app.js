@@ -26,6 +26,7 @@ import offerRoutes from "./router/offerRoutes.js";
 import StateDistrictRoutes from "./router/StateDistrictRoutes.js";
 import notificationRoutes from "./router/notificationRoutes.js";
 import admissionRoutes from "./router/admissionRoutes.js";
+import specializationRoutes from "./router/specializationRoutes.js";
 const app = express();
 
 // ✅ Middlewares
@@ -66,6 +67,7 @@ app.use("/api/v1/offer",offerRoutes);
 app.use("/api/v1/",StateDistrictRoutes);
 app.use("/api/v1/notifications",notificationRoutes);
 app.use("/api/v1/admissions", admissionRoutes);
+app.use("/api/v1/specializations", specializationRoutes);
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");

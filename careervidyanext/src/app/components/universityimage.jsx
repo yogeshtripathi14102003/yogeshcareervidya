@@ -2,13 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-// import Link from "next/link"; // Link disabled as per requirement
 import api from "@/utlis/api.js";
+
+const INITIAL_LIMIT = 18;
+const STEP = 6;
 
 export default function UniversitiesPage() {
   const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [displayLimit, setDisplayLimit] = useState(18);
+  const [displayLimit, setDisplayLimit] = useState(INITIAL_LIMIT);
 
   const fetchUniversities = async () => {
     try {
@@ -27,21 +29,25 @@ export default function UniversitiesPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[50vh] text-gray-500 bg-white">
+      <div className="flex justify-center items-center h-[50vh] text-gray-500">
         Loading universities...
       </div>
     );
   }
 
   const handleViewMore = () => {
-    // setDisplayLimit(prev => prev + 6); // Click action commented
+    setDisplayLimit((prev) => prev + STEP);
+  };
+
+  const handleViewLess = () => {
+    setDisplayLimit(INITIAL_LIMIT);
   };
 
   return (
     <section className="py-16 bg-white font-sans overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        
-        {/* Heading - Simple & Left Aligned */}
+
+        {/* Heading */}
         <div className="mb-12 text-left">
           <h2 className="text-2xl md:text-4xl font-bold text-[#002147] leading-tight">
             Explore over 100 online universities & Compare on 30+ factors
@@ -49,8 +55,8 @@ export default function UniversitiesPage() {
           <div className="w-16 h-1 bg-[#0056B3] mt-4 rounded-full"></div>
         </div>
 
-        {/* Grid - Universities Display Only (No Links) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 justify-items-start">
+        {/* Universities Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {universities.slice(0, displayLimit).map((uni) => {
             const imageUrl = uni.universityImage
               ? uni.universityImage.startsWith("http")
@@ -59,14 +65,13 @@ export default function UniversitiesPage() {
               : "/fallback.png";
 
             return (
-              /* Card changed from Link to div to disable redirection */
               <div
                 key={uni._id}
-                className="group bg-white border border-gray-200 rounded-xl p-4 shadow-sm 
-                           flex flex-col items-center justify-center 
+                className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm
+                           flex flex-col items-center justify-center
                            w-full max-w-[160px] h-[170px] cursor-default"
               >
-                {/* University Logo */}
+                {/* Logo */}
                 <div className="relative w-full h-14 mb-3">
                   <Image
                     src={imageUrl}
@@ -76,7 +81,7 @@ export default function UniversitiesPage() {
                   />
                 </div>
 
-                {/* University Name - Simple Clean Font */}
+                {/* Name */}
                 <p className="text-gray-800 font-bold text-[13px] text-center leading-snug">
                   {uni.name}
                 </p>
@@ -85,24 +90,37 @@ export default function UniversitiesPage() {
           })}
         </div>
 
-        {/* View More Button - Left Aligned & Action Disabled */}
-        {universities.length > displayLimit && (
-          <div className="mt-12 text-left">
-            <button 
-              className="bg-[#0056B3] text-white px-8 py-3 rounded-lg font-semibold 
-                         opacity-90 hover:opacity-100 transition shadow-md"
+        {/* Buttons - Center Aligned */}
+        <div className="mt-12 flex justify-center gap-4">
+
+          {/* View More */}
+          {displayLimit < universities.length && (
+            <button
               onClick={handleViewMore}
+              className="bg-[#0056B3] text-white px-8 py-3 rounded-lg
+                         font-semibold shadow-md hover:opacity-95 transition"
             >
-              VIEW MORE UNIVERSITIES →
+              VIEW MORE →
             </button>
-          </div>
-        )}
+          )}
+
+          {/* View Less */}
+          {displayLimit > INITIAL_LIMIT && (
+            <button
+              onClick={handleViewLess}
+              className="border border-[#0056B3] text-[#0056B3]
+                         px-8 py-3 rounded-lg font-semibold
+                         hover:bg-blue-50 transition"
+            >
+              VIEW LESS ↑
+            </button>
+          )}
+
+        </div>
       </div>
     </section>
   );
 }
-
-
 
 
 // "use client";

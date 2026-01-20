@@ -417,12 +417,16 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  
   // Slugs for which Universitycompeney should NOT render
   const skipUniversityCompSlugs = [
     "mtech-master-of-technology",
     "btech-bachelors-of-technology",
   ];
-
+ const skipDetailSignupSlugs = [
+    "mtech-master-of-technology",
+    "btech-bachelors-of-technology",
+  ];
   useEffect(() => {
     if (!slug) return;
     const fetchCourse = async () => {
@@ -570,7 +574,8 @@ export default function CourseDetailPage() {
           </section>
         )}
 
-        <Detailsignup />
+      {!skipDetailSignupSlugs.includes(slug) && <Detailsignup />}
+
 
         {course?.keyHighlights?.length > 0 && (
           <CourseKeyHighlights course={course} />

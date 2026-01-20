@@ -1,16 +1,21 @@
 "use client";
 
 import Editcourse from "../components/Editcourse.jsx";
+import Addspcilazation from "@/app/admin/components/AddSpcialization.jsx"; 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import api from "@/utlis/api.js";
+import { Eye } from "lucide-react"; // ✅ Import Eye icon
 
 export default function CoursesTable() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editCourseId, setEditCourseId] = useState(null);
 
-  // ✅ Fetch Courses
+  // Modals
+  const [editCourseId, setEditCourseId] = useState(null);
+  const [specializationCourseId, setSpecializationCourseId] = useState(null);
+
+  // Fetch Courses
   const fetchCourses = async () => {
     try {
       const response = await api.get("/api/v1/course");
@@ -28,7 +33,7 @@ export default function CoursesTable() {
     fetchCourses();
   }, []);
 
-  // ✅ Delete Course
+  // Delete Course
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this course?")) return;
 
@@ -45,6 +50,9 @@ export default function CoursesTable() {
   // Close Edit Modal
   const handleCloseEdit = () => setEditCourseId(null);
 
+  // Close Specialization Modal
+  const handleCloseSpecialization = () => setSpecializationCourseId(null);
+
   if (loading) {
     return <p className="text-center mt-10">Loading courses...</p>;
   }
@@ -59,7 +67,7 @@ export default function CoursesTable() {
             <tr>
               <th className="px-4 py-2 border">Logo</th>
               <th className="px-4 py-2 border">Course Name</th>
-              <th className="px-4 py-2 border">Subjects</th>
+              <th className="px-4 py-2 border">Specializations</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
@@ -87,7 +95,7 @@ export default function CoursesTable() {
                   {/* Course Name */}
                   <td className="border px-4 py-2 font-medium">{course.name}</td>
 
-                  {/* Subjects (specializations) */}
+                  {/* Specializations */}
                   <td className="border px-4 py-2 text-sm text-gray-600">
                     {course.specializations?.length > 0
                       ? course.specializations.join(", ")
@@ -96,6 +104,7 @@ export default function CoursesTable() {
 
                   {/* Actions */}
                   <td className="border px-4 py-2 flex items-center justify-center gap-3">
+                    {/* Edit */}
                     <button
                       onClick={() => setEditCourseId(course._id)}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
@@ -103,6 +112,15 @@ export default function CoursesTable() {
                       Edit
                     </button>
 
+                    {/* View Specializations (Icon only) */}
+                    <button
+                      onClick={() => setSpecializationCourseId(course._id)}
+                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded"
+                    >
+                      <Eye size={18} /> {/* 👁️ Eye icon */}
+                    </button>
+
+                    {/* Delete */}
                     <button
                       onClick={() => handleDelete(course._id)}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
@@ -123,13 +141,26 @@ export default function CoursesTable() {
         </table>
       </div>
 
-      {/* EDIT POPUP */}
+      {/* EDIT COURSE MODAL */}
       {editCourseId && (
         <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto">
           <div className="min-h-screen flex justify-center items-center p-6">
             <Editcourse
               courseId={editCourseId}
               onClose={handleCloseEdit}
+              onUpdated={fetchCourses}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* VIEW SPECIALIZATION MODAL */}
+      {specializationCourseId && (
+        <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto">
+          <div className="min-h-screen flex justify-center items-center p-6">
+            <Addspcilazation
+              courseId={specializationCourseId}
+              onClose={handleCloseSpecialization}
               onUpdated={fetchCourses}
             />
           </div>

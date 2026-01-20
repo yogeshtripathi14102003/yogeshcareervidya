@@ -248,7 +248,7 @@ import FeesStructureSection from "@/app/university/Feesstracture.jsx";
 import Eligibility from "@/app/university/Eligibility.jsx";
 import Approvel from "@/app/university/Approvel.jsx";
 import UniversityHighlights from "@/app/university/UniversityHighlights.jsx";
-
+import DiscountPopup from "@/app/components/DiscountPopup.jsx";
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 const getImagePath = (path) => {
@@ -417,31 +417,33 @@ export default function UniversityDetail() {
                     <UniversityCertificate slug={data.slug} />
                 </div>
 
-                <div ref={coursesRef} className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
-                    <h3 className="text-xl font-bold text-white bg-[#0b3a6f] p-5 text-center uppercase tracking-wide">
-                        Explore Online Programs
-                    </h3>
-                    <div className="bg-white p-2">
-                        <div className="grid grid-cols-1 md:grid-cols-2">
-                            {data.courses?.map((course, index) => (
-                                <div 
-                                    key={index} 
-                                    className={`transition hover:bg-gray-50 border-gray-100 ${index % 2 === 0 ? 'md:border-r' : ''} border-b`}
-                                >
-                                    <div className="p-5">
-                                        <Link 
-                                            href={`/course/${course.courseSlug || course.slug}`} 
-                                            className="text-blue-600 font-bold hover:underline flex items-center justify-between"
-                                        >
-                                            <span>{course.name} Online</span>
-                                            <ChevronRight size={14} className="text-gray-400" />
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+               <div ref={coursesRef} className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+  <h3 className="text-xl font-bold text-white bg-[#0b3a6f] p-5 text-center uppercase tracking-wide">
+    Explore Online Programs
+  </h3>
+  <div className="bg-white p-2">
+    <div className="grid grid-cols-1 md:grid-cols-2">
+      {data.courses?.map((course, index) => (
+        <div 
+          key={index} 
+          className={`transition hover:bg-gray-50 border-gray-100 ${index % 2 === 0 ? 'md:border-r' : ''} border-b`}
+        >
+          <div className="p-5">
+            {/* CHANGE ONLY HERE */}
+            <button 
+              onClick={() => { setPopupType("apply"); setPopupOpen(true); }}
+              className="text-blue-600 font-bold hover:underline flex items-center justify-between w-full"
+            >
+              <span>{course.name} Online</span>
+              <ChevronRight size={14} className="text-gray-400" />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
 
                 <div ref={approvelRef}><Approvel slug={data.slug} /></div>
                 <div ref={HeighlighRef}><UniversityHighlights slug={data.slug} /></div>
@@ -471,7 +473,9 @@ export default function UniversityDetail() {
                 />
             )}
         </div>
+
         <Footer />
+              <DiscountPopup />
         </>
     );
 }
