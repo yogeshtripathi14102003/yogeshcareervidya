@@ -111,21 +111,34 @@ export default function QueryPopup() {
         <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center">
           <div className="bg-white/10 w-18 h-18 flex items-center justify-center rounded-full mb-3">
             <img
-              src="/images/may.png"
+              src="/images/q4.png"
               alt="help"
               className="w-12 h-12 object-contain"
             />
           </div>
-          <h3 className="text-base font-bold mb-1">Share your query</h3>
+          <h3 className="text-base font-bold mb-2"> Kindly Share your query</h3>
           {/* <p className="text-xs opacity-80">
             We’re here to guide you at every step.
           </p> */}
-    <ul className="flex flex-wrap gap-3 text-[11px] text-white font-bold ">
-  <li>🎯 100% Free Career Counselling</li>
-  <li>💼 100% Placement Assistance</li>
-  <li>🏦 Education Loan Facility</li>
-  <li>🎓 Scholarship (Varies) </li>
+   <ul className="flex flex-wrap gap-3 text-[12px] text-white font-bold">
+  <li className="flex items-center gap-2">
+    <span className="text-[18px]">🎯</span>
+    100% Free Career Counselling
+  </li>
+  <li className="flex items-center gap-2">
+    <span className="text-[18px]">💼</span>
+    100% Placement Assistance
+  </li>
+  <li className="flex items-center gap-2">
+    <span className="text-[18px]">🏦</span>
+    Education Loan Facility
+  </li>
+  <li className="flex items-center gap-2">
+    <span className="text-[18px]">🎓</span>
+    Scholarship (Varies)
+  </li>
 </ul>
+
 
         </div>
 

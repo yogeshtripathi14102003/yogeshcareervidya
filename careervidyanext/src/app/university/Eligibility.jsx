@@ -2,6 +2,21 @@
 
 import { useEffect, useState } from "react";
 import api from "@/utlis/api";
+import {
+  CheckCircle,
+  Star,
+  ShieldCheck,
+  GraduationCap,
+  Sparkles,
+} from "lucide-react";
+
+const icons = [
+  CheckCircle,
+  Star,
+  ShieldCheck,
+  GraduationCap,
+  Sparkles,
+];
 
 export default function OnlineExamPattern({ slug }) {
   const [data, setData] = useState({
@@ -11,104 +26,135 @@ export default function OnlineExamPattern({ slug }) {
   });
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!slug) return;
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get(`/api/v1/university/slug/${slug}`);
-
-        setData({
-          universityName: res.data?.data?.name || "",
-          shareDescription: res.data?.data?.shareDescription || "",
-          cardDescription: res.data?.data?.cardDescription || "",
-        });
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load online exam pattern");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    api.get(`/api/v1/university/slug/${slug}`).then((res) => {
+      setData({
+        universityName: res.data?.data?.name || "",
+        shareDescription: res.data?.data?.shareDescription || "",
+        cardDescription: res.data?.data?.cardDescription || "",
+      });
+      setLoading(false);
+    });
   }, [slug]);
 
-  /* =======================
-     LOADING / ERROR
-  ======================== */
-  if (loading) {
+  if (loading) return null;
+
+  const renderPoints = (text) => {
+    const lines = text.split("\n").filter((p) => p.trim() !== "");
+
+    if (lines.length === 0) return null;
+
+    const firstLine = lines[0];
+    const remainingLines = lines.slice(1);
+
     return (
-      <div className="text-center py-16 text-blue-600 font-medium">
-        Loading online exam pattern...
+      <div>
+        {/* First line as description */}
+        <p
+          style={{
+            fontSize: "18px",
+            fontWeight: 500,
+            color: "#51575eff",
+            marginBottom: "20px",
+          }}
+        >
+          {firstLine}
+        </p>
+
+        {/* Remaining points as cards */}
+        <div style={{ display: "grid", gap: "20px" }}>
+          {remainingLines.map((point, index) => {
+            const Icon = icons[index % icons.length];
+            return (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  gap: "16px",
+                  padding: "20px",
+                  borderRadius: "16px",
+                  cursor: "pointer",
+                  background: "#ffffff",
+                  transition: "all 0.35s ease",
+                  border: "1px solid #e5e7eb",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 18px 40px rgba(37,99,235,0.25)";
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #f0f6ff, #ffffff)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.background = "#ffffff";
+                }}
+              >
+                {/* Icon Badge */}
+                <div
+                  style={{
+                    minWidth: "44px",
+                    height: "44px",
+                    borderRadius: "50%",
+                    background:
+                      "linear-gradient(135deg, #2563eb, #60a5fa)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
+                  }}
+                >
+                  <Icon size={22} />
+                </div>
+
+                {/* Text */}
+                <p
+                  style={{
+                    fontSize: "18px",
+                    lineHeight: "1.65",
+                    fontWeight: 600,
+                    color: "#1f2937",
+                  }}
+                >
+                  {point}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-16 text-red-500 font-medium">
-        {error}
-      </div>
-    );
-  }
-
-  if (!data.shareDescription && !data.cardDescription) return null;
+  };
 
   return (
-    <section className="max-w-6xl mx-auto px-4 md:px-6 py-16">
+    <section
+      style={{
+        background:
+          "linear-gradient(180deg, #f8fbff 0%, #ffffff 60%)",
+        padding: "80px 16px",
+      }}
+    >
+      <div style={{ maxWidth: "1100px", margin: "auto" }}>
+        <h2
+          style={{
+            fontSize: "36px",
+            fontWeight: 700,
+            marginBottom: "48px",
+            color: "#111827",
+          }}
+        >
+          Why {data.universityName} With Career Vidya?
+        </h2>
 
-      {/* =======================
-          HEADER
-      ======================== */}
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-      Why  {data.universityName} With Career Vidya ?
-      </h2>
-
-      {/* =======================
-          CONTENT (VERTICAL)
-      ======================== */}
-      <div className="space-y-8 text-gray-700  text-xl leading-relaxed">
-
-        {/* Exam Overview */}
-        {data.shareDescription && (
-          <div>
-            {/* <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              Exam Overview
-            </h3> */}
-
-            <div className="space-y-4">
-              {data.shareDescription
-                .split("\n")
-                .filter(p => p.trim() !== "")
-                .map((para, index) => (
-                  <p key={index}>{para}</p>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* Key Highlights */}
-        {data.cardDescription && (
-          <div>
-            {/* <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              Key Highlights
-            </h3> */}
-
-            <div className="space-y-4">
-              {data.cardDescription
-                .split("\n")
-                .filter(p => p.trim() !== "")
-                .map((para, index) => (
-                  <p key={index}>{para}</p>
-                ))}
-            </div>
-          </div>
-        )}
-
+        <div style={{ display: "grid", gap: "30px" }}>
+          {data.shareDescription && renderPoints(data.shareDescription)}
+          {data.cardDescription && renderPoints(data.cardDescription)}
+        </div>
       </div>
     </section>
   );

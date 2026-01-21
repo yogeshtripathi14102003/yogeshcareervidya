@@ -227,6 +227,8 @@
 //     );
 // }
 
+
+
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -249,7 +251,9 @@ import Eligibility from "@/app/university/Eligibility.jsx";
 import Approvel from "@/app/university/Approvel.jsx";
 import UniversityHighlights from "@/app/university/UniversityHighlights.jsx";
 import DiscountPopup from "@/app/components/DiscountPopup.jsx";
+import ReviewRatingstatic from "@/app/components/ReviewRatingstatic.jsx";
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 
 const getImagePath = (path) => {
     if (!path) return "/fallback-logo.png";
@@ -347,22 +351,32 @@ export default function UniversityDetail() {
                                 <Image src={getImagePath(data.universityImage)} alt={data.name} fill className="object-contain p-2" />
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 mb-6 flex-wrap">
+<div className="flex items-center gap-4 mb-6 flex-wrap items-start"> {/* items-start zaroori hai */}
   {data.approvals?.slice(0, 6).map((approval, index) => (
     <div
       key={index}
-      className="relative w-11 h-8 md:w-15 md:h-10 bg-white rounded-lg p-1 shadow-md 
-                 flex items-center justify-center overflow-hidden"
+      className="flex flex-col items-center w-17 md:w-19" // Card ki width fix rakhi hai
     >
-      <Image
-        src={getImagePath(approval.logo)}
-        alt={approval.name}
-        fill
-        className="object-contain"
-      />
+      {/* WHITE BOX (Card) */}
+      <div className="relative w-full h-10 md:h-13 bg-white rounded-lg p-1 shadow-md 
+                      flex items-center justify-center overflow-hidden flex-shrink-0">
+        <Image
+          src={getImagePath(approval.logo)}
+          alt={approval.name}
+          fill
+          className="object-contain"
+        />
+      </div>
+
+      {/* NAME CONTAINER - Isse card disturb nahi hoga */}
+      <div className="w-full pt-1.5"> 
+        <p className="text-[10px] md:text-[11px] font-semibold text-white text-center leading-tight break-words">
+          {approval.name}
+        </p>
+      </div>
     </div>
-                            ))}
-                        </div>
+  ))}
+</div>
 
                         {/* --- BUTTONS --- */}
                         <div className="flex flex-col sm:flex-row gap-3 max-w-md">
@@ -448,9 +462,10 @@ export default function UniversityDetail() {
                 <div ref={approvelRef}><Approvel slug={data.slug} /></div>
                 <div ref={HeighlighRef}><UniversityHighlights slug={data.slug} /></div>
                 <div ref={feesRef}><FeesStructureSection slug={slug} /></div>
-                <div ref={admissionRef}><AdmissionProcess slug={data.slug} /></div>
+            
                 <div ref={Eligibilityref}><Eligibility slug={data.slug} /></div>
                 <div ref={factsRef}><FactsSection slug={data.slug} /></div>
+                 <div ref={admissionRef}><AdmissionProcess slug={data.slug} /></div>
             </div>
 
             {/* --- POPUPS --- */}
@@ -473,7 +488,7 @@ export default function UniversityDetail() {
                 />
             )}
         </div>
-
+<ReviewRatingstatic />
         <Footer />
               <DiscountPopup />
         </>

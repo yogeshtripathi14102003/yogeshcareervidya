@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
@@ -18,39 +17,25 @@ const SearchContent = () => {
   const [loading, setLoading] = useState(false);
   const [selectedApprovals, setSelectedApprovals] = useState([]);
 
-  // ================= PLACEHOLDER SLIDER LOGIC =================
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const placeholders = [
-    "Find University...",
-    "Find College...",
-    "Find Course...",
-    
-  ];
-
+  const placeholders = ["Find University...", "Find College...", "Find Course..."];
   useEffect(() => {
     const timer = setInterval(() => {
       setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
-    }, 1500); // Har 2.5 second mein change hoga
+    }, 1500);
     return () => clearInterval(timer);
   }, []);
 
-  // ================= 1. SMART FILTER LOGIC (Fees & Course) =================
   const getSmartFilters = (query) => {
     const lowerQuery = query.toLowerCase();
     let detectedFees = null;
     let cleanQuery = lowerQuery;
-
     const feeMatch = lowerQuery.match(/(?:under|below|less than|upto)\s?(\d+k?)/);
     if (feeMatch) {
       let value = feeMatch[1];
-      if (value.includes('k')) {
-        detectedFees = parseInt(value.replace('k', '')) * 1000;
-      } else {
-        detectedFees = parseInt(value);
-      }
+      detectedFees = value.includes("k") ? parseInt(value.replace("k", "")) * 1000 : parseInt(value);
       cleanQuery = lowerQuery.replace(feeMatch[0], "").trim();
     }
-
     return { detectedFees, cleanQuery };
   };
 
@@ -81,23 +66,28 @@ const SearchContent = () => {
     }
   };
 
-  // ================= 2. ADVANCED FILTERING =================
-  const filteredResults = searchResults.filter((result) => {
-    const { detectedFees } = getSmartFilters(searchQuery);
+  const filteredResults = searchResults
+    .map((result) => {
+      const { detectedFees } = getSmartFilters(searchQuery);
 
-    if (selectedApprovals.length > 0) {
-      const universityApprovals = result.approvals?.map((a) => a.name.toUpperCase()) || [];
-      const hasApprovals = selectedApprovals.every((val) => universityApprovals.includes(val.toUpperCase()));
-      if (!hasApprovals) return false;
-    }
+      const matchedCourses = result.courses?.filter((course) => {
+        const matchesCourseName = course.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFee = detectedFees ? (course.fees || course.minFees || 0) <= detectedFees : true;
+        return matchesCourseName && matchesFee;
+      }) || [];
 
-    if (detectedFees) {
-      const universityFee = result.minFees || result.fees || 0;
-      if (universityFee > detectedFees) return false;
-    }
+      if (selectedApprovals.length > 0) {
+        const universityApprovals = result.approvals?.map((a) => a.name.toUpperCase()) || [];
+        const hasApprovals = selectedApprovals.every((val) => universityApprovals.includes(val.toUpperCase()));
+        if (!hasApprovals) return null;
+      }
 
-    return true;
-  });
+      const matchesUniversityName = result.name.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesUniversityName && matchedCourses.length === 0) return null;
+
+      return { ...result, matchedCourses };
+    })
+    .filter(Boolean);
 
   return (
     <div className="min-h-screen bg-white">
@@ -115,7 +105,6 @@ const SearchContent = () => {
               value={searchQuery}
               autoFocus
               onChange={(e) => setSearchQuery(e.target.value)}
-              // --- Yahan Slider Apply Kiya Hai ---
               placeholder={placeholders[placeholderIndex]}
               className="w-full rounded-xl px-12 py-3.5 border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-gray-800 text-lg transition-all"
             />
@@ -133,6 +122,7 @@ const SearchContent = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {searchQuery.trim() !== "" ? (
           <div className="flex flex-col md:flex-row gap-8">
+            {/* Filters */}
             <aside className="w-full md:w-48 flex-shrink-0">
               <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">Filters</h3>
               <div className="flex flex-wrap md:flex-col gap-2">
@@ -148,6 +138,7 @@ const SearchContent = () => {
               </div>
             </aside>
 
+            {/* Results */}
             <main className="flex-1">
               {getSmartFilters(searchQuery).detectedFees && (
                 <div className="mb-4 inline-flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-100">
@@ -161,11 +152,11 @@ const SearchContent = () => {
                 ) : filteredResults.length > 0 ? (
                   <div className="divide-y divide-gray-50">
                     {filteredResults.map((result) => (
-                      <Link href={`//${result.slug || result._id}`} key={result._id} className="flex items-start gap-4 p-5 hover:bg-blue-50/50 transition-all group">
-                        <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-600">🔍</div>
-                        <div className="flex flex-col flex-1">
+                      <div key={result._id} className="p-5 hover:bg-blue-50/50 transition-all rounded-lg mb-2">
+                        {/* University Card Clickable */}
+                        <Link href={`/${result.slug || result._id}`} className="block">
                           <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-bold text-gray-900 group-hover:text-blue-700">{result.name}</h2>
+                            <h2 className="text-sm font-bold text-gray-900">{result.name}</h2>
                             <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">University</span>
                           </div>
                           <div className="text-[11px] text-gray-500 mt-1">
@@ -176,8 +167,25 @@ const SearchContent = () => {
                               <span key={i} className="text-[10px] text-gray-400 font-bold uppercase">{a.name}{i !== result.approvals.length - 1 ? "," : ""}</span>
                             ))}
                           </div>
-                        </div>
-                      </Link>
+                        </Link>
+
+                        {/* Courses Info (non-clickable) */}
+                        {result.matchedCourses.length > 0 && (
+                          <div className="mt-2 border-t pt-2 flex flex-col gap-1">
+                            {result.matchedCourses.map((course) => (
+                              <div
+                                key={course._id || course.name}
+                                className="text-[12px] px-2 py-1 rounded flex justify-between items-center bg-gray-50"
+                              >
+                                <span>{course.name}</span>
+                                <span className="text-blue-600 font-bold text-[10px]">
+                                  {course.fees ? `₹${course.fees}` : "Fees on request"}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -189,7 +197,7 @@ const SearchContent = () => {
         ) : (
           <div className="text-center py-24">
             <div className="text-5xl mb-6 opacity-20">🔎</div>
-            <h2 className="text-xl font-bold text-gray-300 tracking-tight">Search for Universities</h2>
+            <h2 className="text-xl font-bold text-gray-300 tracking-tight">Search for Universities or Courses</h2>
           </div>
         )}
       </div>

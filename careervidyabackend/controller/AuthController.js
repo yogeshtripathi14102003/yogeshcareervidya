@@ -65,40 +65,55 @@ export const sendOTP = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    if (emailOrPhone.includes("@")) {
-      await sendToEmail({
-        to: emailOrPhone,
-        subject: `${otp} is your verification code`,
-        html: `
-          <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 450px; margin: 0 auto; border: 1px solid #eeeeee; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-            <div style="background-color: #1a73e8; height: 6px;"></div>
-            <div style="padding: 30px 20px 10px 20px; text-align: center;">
-              <h2 style="color: #202124; margin: 0; font-size: 22px;">Verification Required</h2>
-              <p style="color: #5f6368; font-size: 15px; margin-top: 10px;">Enter the verification code below to securely access your account</p>
-            </div>
-            <div style="padding: 20px; text-align: center;">
-              <div style="background-color: #f1f3f4; border-radius: 8px; padding: 25px; display: inline-block; min-width: 200px;">
-                <span style="font-size: 40px; font-weight: 800; letter-spacing: 8px; color: #1a73e8;">${otp}</span>
-              </div>
-              <p style="color: #70757a; font-size: 13px; margin-top: 15px;">This code expires in 5 minutes</p>
-            </div>
-            <div style="margin: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
-              <p style="margin: 0; font-size: 14px; color: #3c4043; font-weight: 500;">Need Help?</p>
-              <p style="margin: 5px 0 10px 0; font-size: 13px; color: #5f6368;">If you did not request this code or face issues logging in, reach out to our support team</p>
-              <a href="mailto:info@Careervidya.in" style="color: #1a73e8; text-decoration: none; font-weight: bold; font-size: 14px; border: 1px solid #1a73e8; padding: 5px 15px; border-radius: 4px; display: inline-block;">
-                📩 support@careervidya.in
-              </a>
-            </div>
-            <div style="padding: 20px; text-align: center; border-top: 1px solid #eeeeee;">
-              <a href="https://careervidya.in" style="text-decoration: none; color: #5f6368; font-size: 13px; font-weight: 600;"> Visit our website Careervidya.in</a>
-              <div style="margin-top: 15px; color: #9aa0a6; font-size: 11px;">
-                &copy; ${new Date().getFullYear()} Careervidya.in. All rights reserved.
-              </div>
-            </div>
+  if (emailOrPhone.includes("@")) {
+  await sendToEmail({
+    to: emailOrPhone,
+    subject: `${otp} is your verification code`,
+    html: `
+      <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 450px; margin: 0 auto; border: 1px solid #eeeeee; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <div style="background-color: #1a73e8; height: 6px;"></div>
+        
+        <div style="padding: 30px 20px 10px 20px; text-align: center;">
+          <h2 style="color: #202124; margin: 0; font-size: 22px;">Verification Required</h2>
+          <p style="color: #5f6368; font-size: 15px; margin-top: 10px;">Enter the verification code below to securely access your account</p>
+        </div>
+
+        <div style="padding: 20px; text-align: center;">
+          <div style="background-color: #f1f3f4; border-radius: 8px; padding: 25px; display: inline-block; min-width: 200px;">
+            <span style="font-size: 40px; font-weight: 800; letter-spacing: 8px; color: #1a73e8;">${otp}</span>
           </div>
-        `,
-      });
-    } else {
+          
+          <div style="margin-top: 15px; padding: 8px; background-color: #fff4e5; border-radius: 4px; display: inline-block;">
+            <p style="color: #b95000; font-size: 13px; font-weight: bold; margin: 0;">
+              ⚠️ Note: This OTP expires in 5 minutes
+            </p>
+          </div>
+        </div>
+
+        <div style="padding: 0 30px; color: #3c4043; font-size: 14px;">
+          <p style="margin-bottom: 5px;">Thanks & Regards,</p>
+          <p style="margin: 0; font-weight: bold; color: #1a73e8;">Careervidya</p>
+          <p style="margin: 2px 0; font-style: italic; color: #5f6368; font-size: 12px;">#vidyahaitosuccesshai</p>
+        </div>
+
+        <div style="margin: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
+          <p style="margin: 0; font-size: 14px; color: #3c4043; font-weight: 500;">Need Help?</p>
+          <p style="margin: 5px 0 10px 0; font-size: 13px; color: #5f6368;">If you did not request this code, reach out to our support team</p>
+          <a href="mailto:support@careervidya.in" style="color: #1a73e8; text-decoration: none; font-weight: bold; font-size: 14px; border: 1px solid #1a73e8; padding: 5px 15px; border-radius: 4px; display: inline-block;">
+            📩 support@careervidya.in
+          </a>
+        </div>
+
+        <div style="padding: 20px; text-align: center; border-top: 1px solid #eeeeee;">
+          <a href="https://careervidya.in" style="text-decoration: none; color: #5f6368; font-size: 13px; font-weight: 600;">Visit our website Careervidya.in</a>
+          <div style="margin-top: 15px; color: #9aa0a6; font-size: 11px;">
+            &copy; ${new Date().getFullYear()} Careervidya.in. All rights reserved.
+          </div>
+        </div>
+      </div>
+    `,
+  });
+} else {
       await sendToSMS(emailOrPhone, `Your OTP is ${otp}`);
     }
 
@@ -192,28 +207,90 @@ export const verifyOTP = async (req, res) => {
       });
 
       // ------------------- SEND THANK YOU EMAIL -------------------
-      if (student.email) {
-        await sendToEmail({
-          to: student.email,
-          subject: "Welcome to Careervidya!",
-          html: `
-            <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 450px; margin: 0 auto; border: 1px solid #eeeeee; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-              <div style="background-color: #1a73e8; height: 6px;"></div>
-              <div style="padding: 30px 20px; text-align: center;">
-                <h2 style="color: #202124; margin: 0; font-size: 22px;">Thank You for Registering!</h2>
-                <p style="color: #5f6368; font-size: 15px; margin-top: 10px;">Hi ${student.name}, welcome to Careervidya! We're excited to have you on board.</p>
-              </div>
-              <div style="padding: 20px; text-align: center;">
-                <p style="color: #70757a; font-size: 14px;">You can now explore courses, updates, and personalized content from your account.</p>
-                <a href="https://careervidya.in" style="display: inline-block; margin-top: 15px; background-color: #1a73e8; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: bold;">Visit Website</a>
-              </div>
-              <div style="padding: 20px; text-align: center; border-top: 1px solid #eeeeee; font-size: 12px; color: #9aa0a6;">
-                &copy; ${new Date().getFullYear()} Careervidya.in. All rights reserved.
-              </div>
-            </div>
-          `,
-        });
-      }
+if (student.email) {
+  await sendToEmail({
+    to: student.email,
+    subject: "Welcome to Career Vidya!",
+    html: `
+      <div style="font-family: 'Segoe UI', Roboto, Arial, sans-serif; max-width: 550px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <div style="background-color: #1a73e8; height: 8px;"></div>
+        
+        <div style="padding: 30px 25px;">
+          <p style="color: #5f6368; font-size: 14px; margin: 0;">Hi ${student.name},</p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6; margin-top: 15px;">
+            I am <strong>Abhimanyu Chauhan</strong>, Founder & CEO of <strong>Career Vidya</strong>, and it gives me immense pleasure to personally welcome you.
+          </p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
+            For many years, I have been closely associated with the education sector, guiding students and working professionals toward the right academic paths. Throughout this journey, one thing has remained constant that students need <span style="background-color: #f4fbfaff; font-weight: bold; padding: 2px 4px;">honest guidance, verified institutions, and complete clarity</span> before making one of the most important decisions of their lives.
+          </p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
+            First of all, thank you for registering with <strong>Career Vidya</strong>. You’ve taken the first step towards a <span style="color: #1a73e8; font-weight: bold;">more informed, confident, and secure</span> educational journey.
+          </p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
+            Choosing the right university today is not easy. With so many options available, it becomes difficult to identify which universities are genuine, which online degrees are valid, and which programs truly add value to your career. Online education, when chosen wisely, is not only valid but also <span style="background-color: #e8f0fe; font-weight: bold; padding: 2px 4px;">highly effective, recognized globally</span> and designed to fit modern professional lifestyles.
+          </p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
+            <strong>Role of Career Vidya</strong> is to remove this confusion for you. You can be assured that you’ve trusted the right platform—one that stands with you at every step until you achieve exactly what you came looking for.
+          </p>
+
+          <div style="background-color: #f8f9fa; border-left: 4px solid #1a73e8; padding: 15px; margin: 20px 0;">
+            <p style="color: #1a73e8; font-size: 14px; font-weight: bold; margin: 0 0 10px 0;">
+              Why students trust Career Vidya:
+            </p>
+            <ul style="color: #3c4043; font-size: 13px; line-height: 1.8; padding-left: 18px; margin: 0;">
+              <li><strong>100% Free</strong> Expert Counselling</li>
+              <li>One-on-One Personalized Guidance</li>
+              <li>Connected with <strong>Verified & Globally Recognized</strong> Universities</li>
+              <li><strong>100% Placement</strong> / Job Assistance Support</li>
+              <li>No-Cost EMI Options Available</li>
+              <li>Education Loan & Scholarship Support</li>
+              <li>Access to a strong network of <strong>10,000+ Alumni</strong></li>
+            </ul>
+          </div>
+
+          <div style="border: 1px solid #ebe5e3ff; background-color: #fff5f2; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="color: #151718ff; font-size: 13px; margin: 0; line-height: 1.5;">
+              <strong>Important Note:</strong> Career Vidya is a completely legitimate and transparent platform. We <strong>do not charge any counselling or guidance fees</strong>, and we strictly respect your privacy. Your information is safe with us, and we do not spam or misuse your data in any manner.
+            </p>
+          </div>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
+            If you have questions, doubts, or need clarity simply reply to this email and ask as many questions as you want.
+          </p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
+            You can also directly connect with our expert advisor at <span style="font-weight: bold; color: #1a73e8;">+91-9289712634</span> or email us at <span style="font-weight: bold; color: #1a73e8;">info@careervidya.in</span> for immediate assistance.
+          </p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
+            Please remember, you are not alone in this journey. I, along with my entire team, am personally here to ensure you receive the best guidance, support, and outcomes without confusion or pressure.
+          </p>
+
+          <p style="color: #202124; font-size: 14px; line-height: 1.6; margin-top: 15px;">
+            Your future deserves the right direction and we are honored to be a part of it.
+          </p>
+
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #e0e0e0;">
+            <p style="margin: 0; font-size: 14px; color: #5f6368;">Warm regards,</p>
+            <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: #202124;">Abhimanyu Chauhan</p>
+            <p style="margin: 2px 0; font-size: 13px; color: #1a73e8; font-weight: bold;">Founder & CEO – Career Vidya</p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #9aa0a6; font-style: italic;">Your Trusted Education Partner</p>
+          </div>
+        </div>
+
+        <div style="padding: 15px; text-align: center; background-color: #f1f3f4; font-size: 11px; color: #70757a;">
+          &copy; ${new Date().getFullYear()} Career Vidya. All rights reserved. <br>
+          <a href="https://careervidya.in" style="color: #70757a; text-decoration: underline;">www.careervidya.in</a>
+        </div>
+      </div>
+    `,
+  });
+}
     }
 
     if (purpose === "login" && !student)

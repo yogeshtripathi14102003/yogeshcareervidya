@@ -40,7 +40,9 @@ export default function FeesStructureStyledTable({ slug, courseTitle }) {
         <div className="bg-[#0b3a6f] text-white text-center py-4 rounded-t-lg">
           <h2 className="text-xl md:text-2xl font-semibold">
             {universityName} Fees Structure{" "}
-            {courseTitle && <span className="font-normal">for {courseTitle}</span>}
+            {courseTitle && (
+              <span className="font-normal">for {courseTitle}</span>
+            )}
           </h2>
         </div>
 
@@ -49,16 +51,16 @@ export default function FeesStructureStyledTable({ slug, courseTitle }) {
           <table className="w-full border-collapse">
             <thead className="bg-[#eaf4ff]">
               <tr>
-                <th className="text-left p-4 border text-lg font-semibold">
+                <th className="text-center p-4 border text-lg font-semibold">
                   Course Name
                 </th>
-                <th className="text-left p-4 border text-lg font-semibold">
+                <th className="text-center p-4 border text-lg font-semibold">
                   Duration
                 </th>
-                <th className="text-left p-4 border text-lg font-semibold">
+                <th className="text-center p-4 border text-lg font-semibold">
                   Course Fees
                 </th>
-                <th className="text-left p-4 border text-lg font-semibold">
+                <th className="text-center p-4 border text-lg font-semibold">
                   Detailed Fee Structure
                 </th>
               </tr>
@@ -71,7 +73,7 @@ export default function FeesStructureStyledTable({ slug, courseTitle }) {
                   <td className="p-4 border">
                     <button
                       onClick={() => handleOpenPopup(course)}
-                      className="text-blue-600 font-medium underline"
+                      className="text-blue-600 font-medium underline text-left block"
                     >
                       {course.name}
                     </button>

@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import api from "@/utlis/api.js";
 
 const INITIAL_LIMIT = 18;
 const STEP = 6;
+const DETAIL_PAGE_LIMIT = 7; // Only first 8 universities open detail page
 
 export default function UniversitiesPage() {
   const [universities, setUniversities] = useState([]);
@@ -57,21 +59,15 @@ export default function UniversitiesPage() {
 
         {/* Universities Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {universities.slice(0, displayLimit).map((uni) => {
+          {universities.slice(0, displayLimit).map((uni, index) => {
             const imageUrl = uni.universityImage
               ? uni.universityImage.startsWith("http")
                 ? uni.universityImage
                 : `${process.env.NEXT_PUBLIC_API_URL}/${uni.universityImage.replace(/^\/+/, "")}`
               : "/fallback.png";
 
-            return (
-              <div
-                key={uni._id}
-                className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm
-                           flex flex-col items-center justify-center
-                           w-full max-w-[160px] h-[170px] cursor-default"
-              >
-                {/* Logo */}
+            const cardContent = (
+              <>
                 <div className="relative w-full h-14 mb-3">
                   <Image
                     src={imageUrl}
@@ -80,11 +76,31 @@ export default function UniversitiesPage() {
                     className="object-contain"
                   />
                 </div>
-
-                {/* Name */}
                 <p className="text-gray-800 font-bold text-[13px] text-center leading-snug">
                   {uni.name}
                 </p>
+              </>
+            );
+
+            // Only first 8 universities are clickable to detail page
+            return index < DETAIL_PAGE_LIMIT ? (
+              <Link
+                key={uni._id}
+                href={`/university/${uni.slug}`} // Detail page
+                className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm
+                           flex flex-col items-center justify-center
+                           w-full max-w-[160px] h-[170px] cursor-pointer hover:shadow-md transition"
+              >
+                {cardContent}
+              </Link>
+            ) : (
+              <div
+                key={uni._id}
+                className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm
+                           flex flex-col items-center justify-center
+                           w-full max-w-[160px] h-[170px] cursor-default"
+              >
+                {cardContent}
               </div>
             );
           })}
@@ -92,8 +108,6 @@ export default function UniversitiesPage() {
 
         {/* Buttons - Center Aligned */}
         <div className="mt-12 flex justify-center gap-4">
-
-          {/* View More */}
           {displayLimit < universities.length && (
             <button
               onClick={handleViewMore}
@@ -104,7 +118,6 @@ export default function UniversitiesPage() {
             </button>
           )}
 
-          {/* View Less */}
           {displayLimit > INITIAL_LIMIT && (
             <button
               onClick={handleViewLess}
@@ -115,12 +128,12 @@ export default function UniversitiesPage() {
               VIEW LESS ↑
             </button>
           )}
-
         </div>
       </div>
     </section>
   );
 }
+
 
 
 // "use client";
