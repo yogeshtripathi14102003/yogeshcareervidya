@@ -56,7 +56,7 @@ const universityData = [
   {
     id: 5,
     name: "Kurukshetra University (KUK) Online",
-    logoSrc: "/images/W1.webp",
+    logoSrc: "/images/w1.webp",
     emi: "Semester-wise",
     courses: [
       { name: "Online BBA", fees: "72,661", duration: "3 Year" },
