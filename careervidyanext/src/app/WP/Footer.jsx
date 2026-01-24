@@ -1,120 +1,127 @@
 // components/Footer.jsx
+import Image from "next/image";
 
 export default function Footer() {
-  const column1 = [
-"   AICTE–approved part-time B.Tech programs",
-
-"Lateral entry admission for B.Tech",
-
-"Distance learning B.Tech courses",
-
-"B.Tech through online distance mode",
-
-"Part-time B.Tech colleges list",
-
-"B.Tech lateral entry after diploma",
-
-"Open university B.Tech engineering program",
-
-"Direct 2nd-year B.Tech lateral entry",
-
-"Top colleges for B.Tech lateral entry",
-
-"Part-time B.Tech courses for diploma holders",
-
-"Part-time B.Tech after completing diploma",
-
-"Nearby evening B.Tech colleges",
-
-"Online B.Tech degree programs",
-
-"Direct admission to 2nd-year engineering",
-
-"Correspondence B.Tech for diploma holders",
-
-"Evening-mode B.Tech degree programs",
+  const universities = [
+    "Amity University Online",
+    "Chandigarh University Online",
+    "OP Jindal Global Online",
+    "DY Patil University Online",
+    "GLA University Online",
+    "Kurukshetra University Online",
   ];
 
-  const column2 = [
-   "Online B.Tech degree through distance mode",
-"B.Tech online learning programs",
-
-"Distance education B.Tech courses",
-"DSY engineering admission 2025",
-
-"Online B.Tech degree program",
-
-"B.Tech through online mode",
-
-"Part-time B.Tech course options",
-
-"B.Tech through distance education",
-"Diploma to B.Tech lateral entry",
-"B.Tech lateral entry program",
-
-"B.Tech lateral entry admission guide",
-
-
+  const courses = [
+    "Online B.Tech",
+    "B.Tech Lateral Entry",
+    "Online MBA",
+    "Online MCA",
+    "Online BCA",
+    "Online BBA",
   ];
 
-  const column3 = [
-    "distance btech after diploma",
-    "distance btech course",
-    "distance b tech aicte approved",
-    "b tech distance education universities",
-    "b tech part time colleges near me",
-    "part time btech for diploma holders",
-    "online btech in mechanical engineering",
-    "b tech evening colleges",
-    "online btech courses",
-    "b tech online admission",
-    "engineering direct second year admission",
-    "direct 2nd year engineering admission",
-    "b tech lateral entry direct admission",
-    "b tech lateral",
-    "b tech admission lateral entry",
+  const socials = [
+    {
+      name: "LinkedIn",
+      url: "https://www.linkedin.com/company/career-vidya/",
+      img: "/images/i5.png",
+    },
+    {
+      name: "X",
+      url: "https://x.com/CareerVidya",
+      img: "/images/i4.png",
+    },
+    {
+      name: "Instagram",
+      url: "https://www.instagram.com/career_vidya/",
+      img: "/images/i3.png",
+    },
+    {
+      name: "Facebook",
+      url: "https://www.facebook.com/Career-Vidya",
+      img: "/images/i2.png",
+    },
+    {
+      name: "YouTube",
+      url: "https://youtube.com/@careervidya02",
+      img: "/images/i1.png",
+    },
   ];
 
   return (
-    <footer className="bg-[#1f1f1f] text-white py-16">
+    <footer className="bg-[#1f1f1f] text-white py-14">
       <div className="max-w-7xl mx-auto px-6">
-        
-        {/* TITLE */}
-        <h2 className="text-2xl font-semibold mb-6">Top Query</h2>
 
-        {/* 3 COLUMN GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 text-gray-300 leading-relaxed">
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-gray-300 text-sm mb-10">
 
-          {/* COLUMN 1 */}
-          <ul className="space-y-1">
-            {column1.map((item, index) => (
-              <li key={index} className="list-disc ml-5">{item}</li>
-            ))}
-          </ul>
+          {/* SOCIAL ICONS */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Follow Us
+            </h3>
+            <div className="flex gap-3">
+              {socials.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="w-10 h-10 flex items-center justify-center bg-white rounded-full hover:scale-110 transition"
+                >
+                  <Image
+                    src={social.img}
+                    alt={social.name}
+                    width={24}
+                    height={24}
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
 
-          {/* COLUMN 2 */}
-          <ul className="space-y-1">
-            {column2.map((item, index) => (
-              <li key={index} className="list-disc ml-5">{item}</li>
-            ))}
-          </ul>
+          {/* UNIVERSITIES */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Universities
+            </h3>
+            <ul className="space-y-2">
+              {universities.map((uni, index) => (
+                <li
+                  key={index}
+                  className="hover:text-white transition cursor-pointer"
+                >
+                  {uni}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          {/* COLUMN 3 */}
-          <ul className="space-y-1">
-            {column3.map((item, index) => (
-              <li key={index} className="list-disc ml-5">{item}</li>
-            ))}
-          </ul>
+          {/* COURSES */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Courses
+            </h3>
+            <ul className="space-y-2">
+              {courses.map((course, index) => (
+                <li
+                  key={index}
+                  className="hover:text-white transition cursor-pointer"
+                >
+                  {course}
+                </li>
+              ))}
+            </ul>
+          </div>
 
         </div>
 
-        {/* LINE */}
-        <div className="my-10 border-t border-gray-600" />
-
         {/* COPYRIGHT */}
-        <p className="text-center text-gray-400">
-          © 2025 Careervidya, Inc. All Rights Reserved.
+        <p className="text-center text-gray-400 text-sm">
+          © 2026 Careervidya, Inc. All Rights Reserved.
         </p>
+
       </div>
     </footer>
   );

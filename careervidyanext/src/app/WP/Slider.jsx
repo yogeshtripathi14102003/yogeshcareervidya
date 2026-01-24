@@ -291,146 +291,70 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import api from "@/utlis/api";
-
-const SignUpFormCU = () => {
-  const [isMounted, setIsMounted] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    mobileNumber: "",
-    email: "",
-    otp: "",
-    city: "",
-    state: "",
-    course: "",
-    gender: "",
-    addresses: "",
-  });
-
-  useEffect(() => setIsMounted(true), []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      const payload = {
-        emailOrPhone: formData.email || formData.mobileNumber,
-        purpose: "register",
-      };
-      const res = await api.post("/api/v1/send-otp", payload);
-      if (res?.status === 200) setOtpSent(true);
-      else alert("OTP not sent");
-    } catch (error) {
-      alert("Failed to send OTP");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (!formData.otp) return alert("Please enter the OTP first.");
-    try {
-      setLoading(true);
-      const payload = {
-        ...formData,
-        emailOrPhone: formData.email || formData.mobileNumber,
-        purpose: "register",
-      };
-      const res = await api.post("/api/v1/verify-otp", payload);
-      if (res?.status === 200) alert("Registration successful!");
-      else alert("Invalid OTP");
-    } catch (error) {
-      alert("Invalid OTP");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = (e) => {
-    if (!otpSent) handleSendOtp(e);
-    else handleVerifyOtp(e);
-  };
-
-  if (!isMounted) return null;
-
-  return (
- <div className="bg-black/30 backdrop-blur-md p-8 md:p-10 rounded-[2.5rem] w-full max-w-[430px] border border-white/10 ml-auto mr-4 md:mr-12 min-h-[420px] flex flex-col justify-center">
-      <div className="text-center mb-3">
-        <h2 className="text-lg font-bold text-white uppercase tracking-wider">Apply Now</h2>
-        <div className="h-0.5 w-8 bg-[#F58634] mx-auto mt-1"></div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} className="w-full p-2 bg-white/10 border border-white/10 rounded-lg text-white text-xs outline-none" required />
-        
-        <div className="flex gap-2">
-          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="w-1/2 p-2 bg-white/10 border border-white/10 rounded-lg text-white text-xs outline-none" required />
-          <input type="tel" name="mobileNumber" placeholder="Mobile" value={formData.mobileNumber} onChange={handleChange} className="w-1/2 p-2 bg-white/10 border border-white/10 rounded-lg text-white text-xs outline-none" required />
-        </div>
-
-        <div className="flex gap-2">
-          <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="w-1/2 p-2 bg-white/10 border border-white/10 rounded-lg text-white text-xs outline-none" required />
-          <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} className="w-1/2 p-2 bg-white/10 border border-white/10 rounded-lg text-white text-xs outline-none" required />
-        </div>
-
-        <div className="flex gap-2">
-          <input type="text" name="course" placeholder="Course" value={formData.course} onChange={handleChange} className="w-1/2 p-2 bg-white/10 border border-white/10 rounded-lg text-white text-xs outline-none" required />
-          <select name="gender" value={formData.gender} onChange={handleChange} className="w-1/2 p-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs outline-none" required>
-            <option value="">Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-
-        <input type="text" name="addresses" placeholder="Address" value={formData.addresses} onChange={handleChange} className="w-full p-2 bg-white/10 border border-white/10 rounded-lg text-white text-xs outline-none" required />
-
-        {otpSent && (
-          <input type="text" name="otp" placeholder="Enter OTP" value={formData.otp} onChange={handleChange} className="w-full p-2 bg-white/20 border border-green-500 rounded-lg text-white text-center font-bold outline-none" required />
-        )}
-
-        <button type="submit" disabled={loading} className={`w-full p-2.5 rounded-lg text-white font-bold text-xs transition-all ${!otpSent ? "bg-[#F58634]" : "bg-green-600"}`}>
-          {loading ? "..." : !otpSent ? "Get OTP" : "Register"}
-        </button>
-      </form>
-    </div>
-  );
-};
+import { useState } from "react";
+import Applynow from "@/app/WP/Applynow.jsx"; 
 
 export default function CompactBannerSection() {
-  const backgroundImage = "/images/w.jpeg"; 
+  const backgroundImage = "/images/WPban.webp"; 
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative w-full h-[500px] md:h-[600px] flex items-center overflow-hidden bg-black">
-      {/* YAHAN CHANGE KIYA HAI: 
-          bg-contain use kiya hai aur background-repeat: no-repeat 
-          taki image crop na ho aur poori dikhe.
-      */}
-      <div 
-        className="absolute inset-0 bg-no-repeat bg-contain md:bg-fill"
-        style={{ 
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundPosition: 'left center',
-          backgroundSize: '100% 100%' // Isse image stretch hokar poore container mein fit ho jayegi bina crop huye
-        }}
+    <div className="relative w-full flex justify-center">
+      
+      {/* Banner Image */}
+      <img 
+        src={backgroundImage} 
+        alt="Banner" 
+        className="
+          object-contain 
+          w-auto 
+          h-auto 
+          max-w-full 
+          max-h-[450px]     
+          md:max-h-[600px]  /* 🖥 desktop SAME */
+        " 
+      />
+
+      {/* Apply Now Button */}
+      <div
+        className="
+          absolute 
+          bottom-2          /* 📱 mobile → thoda aur niche */
+          left-3
+          md:bottom-16      /* 🖥 desktop SAME */
+          md:left-5
+        "
       >
-        {/* Dark overlay for form readability */}
-        <div className="absolute inset-0 bg-black/20"></div>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="
+            cursor-pointer 
+            bg-[#FFC107] 
+            text-black 
+            font-bold 
+            py-[6px]         /* 📱 mobile smaller height */
+            px-5             /* 📱 mobile smaller width */
+            md:py-3          /* 🖥 desktop SAME */
+            md:px-10
+            rounded-lg       /* 📱 slightly compact look */
+            hover:bg-[#FFB300] 
+            transition 
+            shadow-xl 
+            text-[10px]      /* 📱 mobile smaller text */
+            md:text-sm
+            uppercase 
+            flex 
+            items-center 
+            justify-center 
+            tracking-wide
+          "
+        >
+          Apply Now <span className="ml-1 text-sm md:text-l">→</span>
+        </button>
       </div>
 
-      <div className="relative z-10 w-full flex justify-end">
-        <SignUpFormCU />
-      </div>
+      {/* Popup */}
+      {isOpen && <Applynow onClose={() => setIsOpen(false)} />}
     </div>
   );
 }

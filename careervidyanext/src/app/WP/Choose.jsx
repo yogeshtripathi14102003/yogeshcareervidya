@@ -1,165 +1,93 @@
-// CollegeVidyaAndLearners.jsx
-import Image from 'next/image';
-import {
-  GraduationCap,
-  Users,
-  Headset,
-  ShieldCheck,
-  University,
-  FileText,
-  CreditCard,
-  Briefcase,
-} from "lucide-react";
+"use client";
 
-// --- Data for "Why choose College Vidya" cards ---
+import Image from "next/image";
+
+/* ================= DATA ================= */
 const careervidyaVidyaReasons = [
-  {
-    icon: GraduationCap,
-    title: "Academic Assistance",
-    stats: "",
-    description: "Post-Admission & Academic Assistance",
+  { 
+    iconSrc: "/images/i1.jpeg", 
+    title: "Multiple Online Programmes", 
+    description: "Online MBA, BBA, BCA & MCA programmes available" 
   },
-  {
-    icon: Users,
-    title: "Counselling",
-    stats: "",
-    description: "Free Counselling Before Admission",
+  { 
+    iconSrc: "/images/i8.jpeg", 
+    title: "Top Online Universities", 
+    description: "Offered through 6 leading online universities in India" 
   },
-  {
-    icon: Headset,
-    title: "Dedicated Support",
-    stats: "",
-    description: "Dedicated Relationship Manager Support",
+  { 
+    iconSrc: "/images/i3.jpeg",
+    title: "UGC & Government Approved", 
+    description: "All programmes are UGC approved & government recognized" 
   },
-  {
-    icon: ShieldCheck,
-    title: "Transparent Process",
-    stats: "",
-    description: "Cost-Effective & Transparent Process",
+  { 
+    iconSrc: "/images/i2.jpeg", 
+    title: "Globally Recognised Degrees", 
+    description: "Online degrees are globally valid & industry accepted" 
   },
-  {
-    icon: University,
-    title: "Trusted Universities",
-    stats: "",
-    description: "Partnership with Top Recognized Universities",
+  { 
+    iconSrc: "/images/i7.jpeg", 
+    title: "Flexible Learning Model", 
+    description: "Suitable for students & working professionals" 
   },
-  {
-    icon: FileText,
-    title: "Document Support",
-    stats: "",
-    description: "Complete Documentation & Verification Support",
+  { 
+    iconSrc: "/images/i4.jpeg", 
+    title: "Digital Learning Experience", 
+    description: "Access to live classes, recorded lectures & digital study material" 
   },
-  {
-    icon: CreditCard,
-    title: "Secure Payments",
-    stats: "",
-    description: "Safe, Secure & Hassle-Free Fee Payments",
+  { 
+    iconSrc: "/images/i5.jpeg", 
+    title: "Equal Academic Value", 
+    description: "Same academic value as regular on campus degrees" 
   },
-  {
-    icon: Briefcase,
-    title: "Career Guidance",
-    stats: "",
-    description: "Career & Placement Guidance After Admission",
+  { 
+    iconSrc: "/images/i6.jpeg", 
+    title: "Updated Curriculum Structure", 
+    description: "Programmes structured as per latest education guidelines" 
   },
 ];
 
-// --- Data for "Learners from the best organizations" ---
-const learnersData = [
-  {
-    imageSrc: "/images/GyanenduSundarRana.png", 
-    name: "Amit Kumar",
-    companyLogoSrc: "/images/sum.jpeg", 
-    companyAlt: "Samsung Logo",
-  },
-  {
-    imageSrc: "/images/Praveensingh.png", 
-    name: "Prabhat",
-    companyLogoSrc: "/images/hcl2.jpeg", 
-    companyAlt: "HCL Logo",
-  },
-  {
-    imageSrc: "/images/GopalSharma.png", 
-    name: "Shankar",
-    companyLogoSrc: "/images/inf1.jpeg",   
-    companyAlt: "Infosys Logo",
-  },
-  {
-    imageSrc: "/images/AtulKumar.png", 
-    name: "Sunil",
-    companyLogoSrc: "/images/t1.png", 
-    companyAlt: "Tata Logo",
-  },
-];
+/* ================= HELPER ================= */
+const toTitleCase = (text) =>
+  text
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
-// Reusable Card for "Why choose College Vidya" section
-const ReasonCard = ({ iconSrc, title, stats, description }) => (
-  <div className="flex flex-col items-center p-6 bg-white rounded-lg shadow-sm border border-gray-100 h-full text-center">
-    <Image src={iconSrc} alt={title} width={48} height={48} className="mb-4 object-contain" />
-    <h3 className="text-xl font-bold text-gray-800 mb-1">{title}</h3>
-    <p className="text-sm text-gray-600 mb-2">{stats}</p>
-    <p className="text-sm text-gray-500">{description}</p>
-  </div>
-);
-
-// Reusable Card for "Learners from the best organizations" section
-const LearnerCard = ({ imageSrc, name, companyLogoSrc, companyAlt }) => (
-  <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border border-gray-100 h-full text-center">
-    {/* Image Container: "object-top" aur "object-contain" cropping ko prevent karta hai */}
-    <div className="relative w-[120px] h-[120px] mb-4">
-      <Image 
-        src={imageSrc} 
-        alt={name} 
-        width={120} 
-        height={120} 
-        className="rounded-full object-contain object-top aspect-square border border-gray-50" 
-      />
-    </div>
-    <h3 className="text-lg font-semibold text-gray-800 mb-2">{name}</h3>
-    <div className="h-6 flex items-center justify-center">
-      <Image 
-        src={companyLogoSrc} 
-        alt={companyAlt} 
-        width={80} 
-        height={24} 
-        className="object-contain" 
-      />
-    </div>
-  </div>
-);
-
-export default function CareervidyaVidyaAndLearners() {
+/* ================= COMPONENT ================= */
+export default function WhyCareerVidya() {
   return (
-    <section className="bg-white py-16 md:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* --- Section 1: Why choose College Vidya --- */}
-        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-12">
-          Why Career Vidya Stands Apart
+    <section className="bg-white py-16">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 text-gray-900">
+          KEY HIGHLIGHTS
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 md:mb-32">
-        {careervidyaVidyaReasons.map((item, index) => {
-  const Icon = item.icon;
-  return (
-    <div key={index} className="p-6 bg-white rounded-xl shadow text-center">
-      <Icon className="w-10 h-10 mx-auto text-blue-600 mb-3" />
-      <h3 className="font-semibold text-lg">{item.title}</h3>
-      <p className="text-sm text-gray-600">{item.description}</p>
-    </div>
-  );
-})}
 
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {careervidyaVidyaReasons.map((item, i) => (
+            <div
+              key={i}
+              className="p-6 bg-white rounded-xl shadow border border-gray-100 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-blue-50 rounded-full">
+                <Image
+                  src={item.iconSrc}
+                  alt={item.title}
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
 
-        {/* --- Section 2: Learners from the best organizations --- */}
-        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-4">
-          Professionals Who Choose to Grow
-        </h2>
-        <p className="text-center text-gray-600 mb-12 text-lg">
-          Representing experience across domains and industries 
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-          {learnersData.map((learner, index) => (
-            <LearnerCard key={index} {...learner} />
+              {/* ✅ TITLE — TEXT SAME, SIZE CHHOTA */}
+              <h3 className="font-semibold text-gray-800 text-[15px] whitespace-nowrap mb-2">
+                {item.title}
+              </h3>
+
+              {/* ✅ DESCRIPTION — EACH WORD CAPITAL */}
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {toTitleCase(item.description)}
+              </p>
+            </div>
           ))}
         </div>
       </div>

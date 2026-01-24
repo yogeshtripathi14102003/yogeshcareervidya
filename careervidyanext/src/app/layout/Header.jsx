@@ -82,6 +82,7 @@ export default function Header() {
             <Link href="/explore">Explore Programs</Link>
             <Link href="/teamexpand">Free Counselling</Link>
             <Link href="/coming-soon">Top University</Link>
+            
 
             {/* ===== USER / SIGNUP ===== */}
             {user ? (

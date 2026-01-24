@@ -11,7 +11,7 @@ import Programand from "@/app/WP/Programand";
 import Choose from "@/app/WP/Choose";
 import FAQ from "@/app/WP/FAQ";
 import Footer from "@/app/WP/Footer";
-
+import LearnersSlider from "@/app/WP/LearnersSlider";
 export default function Home() {
 
   // 👉 Smooth scrolling enabled globally (JS-based)
@@ -58,6 +58,7 @@ export default function Home() {
 
       {/* FAQ SECTION */}
       <FAQ />
+      <LearnersSlider />
 
       {/* FOOTER */}
       <Footer />

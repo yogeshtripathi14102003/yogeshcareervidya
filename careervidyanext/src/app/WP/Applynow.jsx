@@ -1,282 +1,329 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import api from "@/utlis/api"; // ✅ Make sure this points to your axios instance
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import api from "@/utlis/api";
+import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
+/* ================= FLOATING SELECT ================= */
+const FloatingSelect = ({ label, name, value, onChange, options = [] }) => (
+  <div className="relative w-full">
+    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f] z-10">
+      {label}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px]"
+    >
+      <option value="">Select</option>
+      {options.map((opt, i) => (
+        <option key={i} value={opt}>
+          {opt}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+/* ================= FLOATING INPUT ================= */
+const FloatingInput = ({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  showNoSpam = false,
+  noSpamText = "✓ We Do Not Spam",
+}) => (
+  <div className="relative w-full">
+    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f] z-10">
+      {label}
+    </label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className={`w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] ${
+        showNoSpam ? "pr-36" : ""
+      }`}
+    />
+    {showNoSpam && (
+      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white whitespace-nowrap">
+        {noSpamText}
+      </span>
+    )}
+  </div>
+);
+
+/* ================= MAIN ================= */
 const Signup = ({ onClose }) => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: "",
-    mobileNumber: "",
     email: "",
-    otp: "",
+    mobileNumber: "",
     city: "",
     state: "",
-    course: "",
     gender: "",
+    subsidyCoupon: "",
     addresses: "",
+    dob: "",
+    otp: "",
   });
 
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Handle input change
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [subsidyOptions, setSubsidyOptions] = useState([]);
+
+  const handleChange = (e) =>
+    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  /* ================= STATES ================= */
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await api.get("/api/v1/states");
+        setStates(res.data.states || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchStates();
+  }, []);
+
+  const fetchDistricts = async (state) => {
+    if (!state) return setDistricts([]);
+    try {
+      const res = await api.get(`/api/v1/districts/${state}`);
+      setDistricts(res.data.districts || []);
+    } catch {
+      setDistricts([]);
+    }
   };
 
-  // ✅ Validate before sending OTP
-  const validateAllFields = () => {
-    const requiredFields = [
+  const handleStateChange = (e) => {
+    const state = e.target.value;
+    setFormData((p) => ({ ...p, state, city: "" }));
+    fetchDistricts(state);
+  };
+
+  /* ================= SUBSIDY ================= */
+  useEffect(() => {
+    const fetchSubsidy = async () => {
+      try {
+        const res = await api.get("/api/v1/offer/type/subsidy");
+        const list = res.data?.data || res.data || [];
+        setSubsidyOptions(
+          list.map(
+            (item) => `${item.provider} ₹${item.amount} ${item.eligibility}`
+          )
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchSubsidy();
+  }, []);
+
+  /* ================= VALIDATION ================= */
+  const validateForm = () => {
+    const required = [
       "name",
-      "mobileNumber",
       "email",
-      "city",
+      "mobileNumber",
       "state",
-      "course",
+      "city",
       "gender",
+      "subsidyCoupon",
       "addresses",
+      "dob",
     ];
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        alert(`Please fill the "${field}" field before sending OTP.`);
+    for (let f of required) {
+      if (!formData[f]) {
+        alert(`Please fill ${f}`);
         return false;
       }
     }
     return true;
   };
 
-  // ✅ Send OTP
+  /* ================= OTP ================= */
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    if (!validateAllFields()) return;
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
-      const payload = {
+      await api.post("/api/v1/send-otp", {
         emailOrPhone: formData.email || formData.mobileNumber,
         purpose: "register",
-      };
-      const res = await api.post("/api/v1/send-otp", payload);
-      console.log("OTP Sent:", res.data);
-      alert("OTP sent successfully! Please check your email or phone.");
+      });
       setOtpSent(true);
-    } catch (error) {
-      console.error("Error sending OTP:", error.response?.data || error.message);
-      alert("Failed to send OTP. Please try again.");
+      alert("OTP Sent Successfully");
+    } catch {
+      alert("User already exists");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!formData.otp) {
-      alert("Please enter the OTP first.");
-      return;
-    }
+    if (!formData.otp) return alert("Enter OTP");
 
     try {
       setLoading(true);
-      const payload = {
-        emailOrPhone: formData.email || formData.mobileNumber,
-        otp: formData.otp,
-        purpose: "register",
+      await api.post("/api/v1/verify-otp", {
         ...formData,
-      };
-
-      const res = await api.post("/api/v1/verify-otp", payload);
-      console.log("OTP Verified & User Registered:", res.data);
-      alert("Registration successful!");
-      onClose?.(); // ✅ close popup after success
-    } catch (error) {
-      console.error("OTP Verification Failed:", error.response?.data || error.message);
-      alert("Invalid OTP. Please try again.");
+        emailOrPhone: formData.email || formData.mobileNumber,
+        purpose: "register",
+      });
+      alert("Registration Successful");
+      onClose?.();
+    } catch {
+      alert("Invalid OTP");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
-    if (!otpSent) handleSendOtp(e);
-    else handleVerifyOtp(e);
-  };
+  const handleSubmit = (e) =>
+    otpSent ? handleVerifyOtp(e) : handleSendOtp(e);
 
+  /* ================= UI ================= */
   return (
-    // ✅ Background overlay (click outside to close)
     <div
-      className="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] px-2"
       onClick={onClose}
     >
-      {/* Popup card */}
       <div
-        className="bg-white rounded-2xl shadow-xl w-[95%] md:w-[900px] overflow-hidden flex flex-col md:flex-row relative animate-fadeIn"
-        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+        className="bg-white w-full max-w-[800px] rounded-xl 
+                   p-4 sm:p-6 
+                   relative overflow-y-auto max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Left Side Info */}
-        <div className="w-full md:w-1/2 p-8 bg-gradient-to-r from-[#F0F8FF] to-[#E6F0FF] flex flex-col justify-center items-start text-[#333333]">
-          <h1 className="text-4xl font-bold text-[#1E90FF] mb-4">Career Vidya</h1>
-          <h2 className="text-2xl font-semibold mb-6">
-            Unlock Your Future with Career Vidya
-          </h2>
-          <ul className="list-disc list-inside mb-6 space-y-2">
-            <li>Exam Alerts Timely updates Smart decisions</li>
-            <li>Mock Tests Practice. Perform Perfect.</li>
-            <li>AI Predictions Data-driven college matches</li>
-            <li>Counselling Personal guidance.Real results.</li>
-          </ul>
-        </div>
+        <button onClick={onClose} className="absolute top-3 right-3 cursor-pointer">
+          <X />
+        </button>
 
-        {/* Right Side Form */}
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center items-center relative">
-          {/* Close Button (works ✅) */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
-          >
-            ✕
-          </button>
-
-          <div className="w-full max-w-md">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              />
-
-              <div className="flex space-x-4">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
-                />
-                <input
-                  type="tel"
-                  name="mobileNumber"
-                  placeholder="Mobile Number"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
-                />
-              </div>
-
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
-                />
-                <input
-                  type="text"
-                  name="state"
-                  placeholder="State"
-                  value={formData.state}
-                  onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
-                />
-              </div>
-
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  name="course"
-                  placeholder="Course"
-                  value={formData.course}
-                  onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
-                />
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                  required
-                >
-                  <option value="">Gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <input
-                type="text"
-                name="addresses"
-                placeholder="Address"
-                value={formData.addresses}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                required
-              />
-
-              {otpSent && (
-                <input
-                  type="text"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  value={formData.otp}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#1E90FF]"
-                />
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full p-2 rounded-md text-white transition ${
-                  !otpSent ? "bg-[#FFA500]" : "bg-[#1E90FF]"
-                } hover:opacity-90`}
-              >
-                {loading
-                  ? "Please wait..."
-                  : !otpSent
-                  ? "Send OTP"
-                  : "Verify OTP"}
-              </button>
-            </form>
-
-            <p className="mt-4 text-center text-[#1E90FF]">
-              Already have a Career Vidya account?{" "}
-              <Link href="/login">Login to continue</Link>
+        {/* HEADER */}
+        <div className="flex items-center gap-3 mb-4">
+          <Image src="/images/n12.png" alt="Career Vidya" width={85} height={42} />
+          <div>
+            <p className="text-sm font-bold text-[#253b7a]">
+              #VidyaHaiTohSuccessHai
+            </p>
+            <p className="text-[12px] text-gray-500">
+              Student's Trusted Education Guidance Platform
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Animation */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FloatingInput
+            label="Name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <FloatingInput
+              label="Email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              showNoSpam
+            />
+            <FloatingInput
+              label="Mobile Number"
+              name="mobileNumber"
+              value={formData.mobileNumber}
+              onChange={handleChange}
+              showNoSpam
+            />
+            <FloatingSelect
+              label="State"
+              name="state"
+              value={formData.state}
+              onChange={handleStateChange}
+              options={states}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <FloatingSelect
+              label="City / District"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              options={districts}
+            />
+            <FloatingSelect
+              label="Gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              options={["male", "female", "other"]}
+            />
+            <FloatingInput
+              label="Date of Birth"
+              name="dob"
+              type="date"
+              value={formData.dob}
+              onChange={handleChange}
+            />
+          </div>
+
+          <FloatingSelect
+            label="Subsidy"
+            name="subsidyCoupon"
+            value={formData.subsidyCoupon}
+            onChange={handleChange}
+            options={subsidyOptions}
+          />
+
+          <FloatingInput
+            label="Address"
+            name="addresses"
+            value={formData.addresses}
+            onChange={handleChange}
+          />
+
+          {otpSent && (
+            <FloatingInput
+              label="OTP"
+              name="otp"
+              value={formData.otp}
+              onChange={handleChange}
+            />
+          )}
+
+          <button
+            className="w-full bg-orange-500 text-white py-3 rounded font-bold text-sm sm:text-base"
+          >
+            {loading
+              ? "Please wait..."
+              : otpSent
+              ? "Verify & Register"
+              
+              : "Apply Best Universities"}
+          </button>
+        </form>
+
+        <p className="text-center text-[11px] text-gray-600 mt-3 bg-gray-100 px-2 py-1 rounded">
+          🔒 All your information is safe and secure with us.
+        </p>
+      </div>
     </div>
   );
 };

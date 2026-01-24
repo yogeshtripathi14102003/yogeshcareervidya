@@ -3,48 +3,42 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import Applynow from "@/app/WP/Applynow.jsx"; // Your popup
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [enquireOpen, setEnquireOpen] = useState(false);
 
-  // Define consistent horizontal padding for the content area
   const contentPadding = "px-4 sm:px-6 lg:px-8";
 
   return (
-    // FIX: Removed 'sticky top-0 z-50' to allow the header to scroll with the page.
     <header className="w-full shadow-sm bg-white">
-      
-      {/* Main Content Wrapper - Uses the defined padding */}
-      <div className={`max-w-7xl mx-auto flex items-center justify-between py-3 ${contentPadding}`}>
-
-        {/* LEFT SIDE - Logo */}
+      <div className={`max-w-7xl mx-auto flex items-center justify-between py-1 ${contentPadding}`}>
+        {/* Logo */}
         <div className="flex items-center">
           <Image
-          src="/images/n12.png" // <-- Replace with your logo
+            src="/images/WP.webp"
             alt="Logo"
-            width={160}
-            height={40}
+            width={140}
+            height={30}
             className="object-contain"
           />
         </div>
 
-        {/* DESKTOP MENU */}
+        {/* Desktop Menu */}
         <nav className="hidden md:flex items-center gap-10 text-gray-700 font-medium">
-          <Link href="#about" className="hover:text-blue-600 duration-200">
-            About Course
-          </Link>
-          <Link href="#university" className="hover:text-blue-600 duration-200">
-            University
-          </Link>
-          <Link href="#highlights" className="hover:text-blue-600 duration-200">
-            Highlights
-          </Link>
-          <Link href="#enquire" className="hover:text-blue-600 duration-200">
+          <Link href="#about" className="hover:text-blue-600 duration-200">About Course</Link>
+          <Link href="#university" className="hover:text-blue-600 duration-200">University</Link>
+          <Link href="#highlights" className="hover:text-blue-600 duration-200">Highlights</Link>
+          <button
+            onClick={() => setEnquireOpen(true)}
+            className="hover:text-blue-600 duration-200 font-medium cursor-pointer "
+          >
             Enquire Now
-          </Link>
+          </button>
         </nav>
 
-        {/* MOBILE MENU BUTTON */}
+        {/* Mobile Menu Button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-gray-700"
@@ -66,15 +60,30 @@ export default function Header() {
         </button>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* Mobile Menu */}
       {menuOpen && (
         <div className={`md:hidden bg-white shadow-md py-3 space-y-3 text-gray-700 ${contentPadding}`}>
-          {/* Note: Added menu text for the first link */}
-          <Link href="#about" className="block">About Course</Link> 
+          <Link href="#about" className="block">About Course</Link>
           <Link href="#university" className="block">Top Universities</Link>
           <Link href="#highlights" className="block">Highlights</Link>
-          <Link href="#enquire" className="block">Enquire Now</Link>
+          <button
+            onClick={() => {
+              setEnquireOpen(true);
+              setMenuOpen(false); // close mobile menu when popup opens
+            }}
+            className="block text-left w-full cursor-pointer "
+          >
+            Enquire Now
+          </button>
         </div>
+      )}
+
+      {/* Enquire Now Popup */}
+      {enquireOpen && (
+        <Applynow
+          isOpen={enquireOpen}
+          onClose={() => setEnquireOpen(false)}
+        />
       )}
     </header>
   );

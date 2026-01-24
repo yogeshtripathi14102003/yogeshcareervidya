@@ -109,11 +109,11 @@ export default function QueryPopup() {
 
         {/* Left Panel */}
         <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center">
-          <div className="bg-white/10 w-18 h-18 flex items-center justify-center rounded-full mb-3">
+          <div className="bg-white/10 w-25 h-25 flex items-center justify-center rounded-full mb-3">
             <img
-              src="/images/q4.png"
+              src="/images/q2.png"
               alt="help"
-              className="w-12 h-12 object-contain"
+              className="w-18 h-18 object-contain"
             />
           </div>
           <h3 className="text-base font-bold mb-2"> Kindly Share your query</h3>

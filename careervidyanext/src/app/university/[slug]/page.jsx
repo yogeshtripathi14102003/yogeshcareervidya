@@ -431,7 +431,7 @@ export default function UniversityDetail() {
                     <UniversityCertificate slug={data.slug} />
                 </div>
 
-               <div ref={coursesRef} className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+<div ref={coursesRef} className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
   <h3 className="text-xl font-bold text-white bg-[#0b3a6f] p-5 text-center uppercase tracking-wide">
     Explore Online Programs
   </h3>
@@ -442,15 +442,28 @@ export default function UniversityDetail() {
           key={index} 
           className={`transition hover:bg-gray-50 border-gray-100 ${index % 2 === 0 ? 'md:border-r' : ''} border-b`}
         >
-          <div className="p-5">
-            {/* CHANGE ONLY HERE */}
-            <button 
-              onClick={() => { setPopupType("apply"); setPopupOpen(true); }}
-              className="text-blue-600 font-bold hover:underline flex items-center justify-between w-full"
+          <div className="p-5 flex items-center justify-between gap-4">
+            
+            {/* 1. COURSE NAME: Click karne par Detail Page khulega */}
+            <Link 
+              href={`/course/${course.courseSlug || course.slug}`} 
+              className="text-blue-900 font-bold hover:text-blue-600 transition-colors flex-1"
             >
               <span>{course.name} Online</span>
-              <ChevronRight size={14} className="text-gray-400" />
+            </Link>
+
+            {/* 2. APPLY BUTTON: Click karne par Popup khulega */}
+            <button
+              onClick={() => { 
+                setPopupType("apply"); 
+                setPopupOpen(true); 
+              }}
+              className="cursor-pointer bg-yellow-400 text-black text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full hover:bg-blue-900 transition-all shadow-sm whitespace-nowrap flex items-center gap-1"
+            >
+              Apply Now
+              <ChevronRight size={12} />
             </button>
+
           </div>
         </div>
       ))}
@@ -494,3 +507,6 @@ export default function UniversityDetail() {
         </>
     );
 }
+
+               
+              
