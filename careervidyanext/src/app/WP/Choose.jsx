@@ -10,7 +10,7 @@ const careervidyaVidyaReasons = [
     description: "Online MBA, BBA, BCA & MCA programmes available" 
   },
   { 
-    iconSrc: "/images/i8.jpeg", 
+    iconSrc: "/images/I8.jpeg", 
     title: "Top Online Universities", 
     description: "Offered through 6 leading online universities in India" 
   },
