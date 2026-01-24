@@ -212,74 +212,51 @@ if (student.email) {
     to: student.email,
     subject: "Welcome to Career Vidya!",
     html: `
-      <div style="font-family: 'Segoe UI', Roboto, Arial, sans-serif; max-width: 550px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+      <div style="font-family: 'Segoe UI', Roboto, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+
         <div style="background-color: #1a73e8; height: 8px;"></div>
-        
-        <div style="padding: 30px 25px;">
-          <p style="color: #5f6368; font-size: 14px; margin: 0;">Hi ${student.name},</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6; margin-top: 15px;">
-            I am <strong>Abhimanyu Chauhan</strong>, Founder & CEO of <strong>Career Vidya</strong>, and it gives me immense pleasure to personally welcome you.
-          </p>
+        <div style="padding: 25px 20px; color: #202124; font-size: 14px; line-height: 1.6;">
+          <p>Hi ${student.name},</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
-            For many years, I have been closely associated with the education sector, guiding students and working professionals toward the right academic paths. Throughout this journey, one thing has remained constant that students need <span style="background-color: #f4fbfaff; font-weight: bold; padding: 2px 4px;">honest guidance, verified institutions, and complete clarity</span> before making one of the most important decisions of their lives.
-          </p>
+          <p>Warm greetings from the <strong>Career Vidya Edu-Tech Team</strong>, and we welcome you to a journey built on clarity, trust, and informed decision-making.</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
-            First of all, thank you for registering with <strong>Career Vidya</strong>. You’ve taken the first step towards a <span style="color: #1a73e8; font-weight: bold;">more informed, confident, and secure</span> educational journey.
-          </p>
+          <p>Thank you for registering with Career Vidya. By taking this step, you’ve chosen a platform that believes education decisions should be guided, verified, and stress-free. Whether you are a student, a working professional, or restarting your academic journey, we are here to ensure you receive complete support from start to success.</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
-            Choosing the right university today is not easy. With so many options available, it becomes difficult to identify which universities are genuine, which online degrees are valid, and which programs truly add value to your career. Online education, when chosen wisely, is not only valid but also <span style="background-color: #e8f0fe; font-weight: bold; padding: 2px 4px;">highly effective, recognized globally</span> and designed to fit modern professional lifestyles.
-          </p>
+          <p>In today’s education landscape, choosing the right university can be overwhelming. With countless options available, questions around degree validity, university credibility, and career outcomes are natural. This is where Career Vidya steps in to simplify choices, remove confusion, and guide you toward programs that genuinely add value to your future. Online education, when chosen correctly, is globally recognized, flexible, and highly effective for modern careers.</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
-            <strong>Role of Career Vidya</strong> is to remove this confusion for you. You can be assured that you’ve trusted the right platform—one that stands with you at every step until you achieve exactly what you came looking for.
-          </p>
+          <p>At Career Vidya, we stand by you at every stage—from understanding your goals to helping you enroll in verified universities and supporting you until placement and beyond.</p>
 
           <div style="background-color: #f8f9fa; border-left: 4px solid #1a73e8; padding: 15px; margin: 20px 0;">
-            <p style="color: #1a73e8; font-size: 14px; font-weight: bold; margin: 0 0 10px 0;">
-              Why students trust Career Vidya:
-            </p>
-            <ul style="color: #3c4043; font-size: 13px; line-height: 1.8; padding-left: 18px; margin: 0;">
-              <li><strong>100% Free</strong> Expert Counselling</li>
-              <li>One-on-One Personalized Guidance</li>
-              <li>Connected with <strong>Verified & Globally Recognized</strong> Universities</li>
-              <li><strong>100% Placement</strong> / Job Assistance Support</li>
-              <li>No-Cost EMI Options Available</li>
-              <li>Education Loan & Scholarship Support</li>
-              <li>Access to a strong network of <strong>10,000+ Alumni</strong></li>
+            <p style="color: #1a73e8; font-weight: bold; margin: 0 0 10px 0;">Why students trust Career Vidya:</p>
+            <ul style="margin: 0; padding-left: 18px; color: #3c4043;">
+              <li>100% Free Counselling from Experts</li>
+              <li>One-on-One Personalized Guidance Sessions</li>
+              <li>Association with Verified & Globally Recognized Universities</li>
+              <li>100% Job Assistance Support</li>
+              <li>No-Cost EMI Options</li>
+              <li>Education Loan & Scholarship Assistance</li>
+              <li>Access to a strong network of 10,000+ Alumni</li>
             </ul>
           </div>
 
-          <div style="border: 1px solid #ebe5e3ff; background-color: #fff5f2; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-            <p style="color: #151718ff; font-size: 13px; margin: 0; line-height: 1.5;">
-              <strong>Important Note:</strong> Career Vidya is a completely legitimate and transparent platform. We <strong>do not charge any counselling or guidance fees</strong>, and we strictly respect your privacy. Your information is safe with us, and we do not spam or misuse your data in any manner.
-            </p>
+          <div style="border: 1px solid #ebe5e3; background-color: #fff5f2; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="margin: 0; font-size: 13px; color: #151718;">Important Note: Career Vidya is completely transparent and legitimate. We do not charge any counselling or guidance fees, and your privacy is our priority. Your data is safe and never misused or shared.</p>
           </div>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
-            If you have questions, doubts, or need clarity simply reply to this email and ask as many questions as you want.
-          </p>
+          <p>If you have any questions, doubts, or need clarity, simply reply to this email—we’re happy to help.</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
-            You can also directly connect with our expert advisor at <span style="font-weight: bold; color: #1a73e8;">+91-9289712634</span> or email us at <span style="font-weight: bold; color: #1a73e8;">info@careervidya.in</span> for immediate assistance.
-          </p>
+          <p>You may also connect directly with our expert advisor at <strong style="color: #1a73e8;">+91-9289712364</strong> or email us at <strong style="color: #1a73e8;">info@careervidya.in</strong> for immediate assistance.</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6;">
-            Please remember, you are not alone in this journey. I, along with my entire team, am personally here to ensure you receive the best guidance, support, and outcomes without confusion or pressure.
-          </p>
+          <p>Before we conclude, we would like to share that Career Vidya is led by <strong>Mr. Abhimanyu Singh Chauhan, Founder & CEO</strong>, who has been associated with the education sector for several years. His vision has always been to provide honest guidance, verified institutions, and complete clarity to every individual.</p>
 
-          <p style="color: #202124; font-size: 14px; line-height: 1.6; margin-top: 15px;">
-            Your future deserves the right direction and we are honored to be a part of it.
-          </p>
+          <p>Your future deserves the right direction, and we are honored to walk this journey with you.</p>
 
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #e0e0e0;">
-            <p style="margin: 0; font-size: 14px; color: #5f6368;">Warm regards,</p>
-            <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: #202124;">Abhimanyu Chauhan</p>
-            <p style="margin: 2px 0; font-size: 13px; color: #1a73e8; font-weight: bold;">Founder & CEO – Career Vidya</p>
-            <p style="margin: 5px 0 0 0; font-size: 12px; color: #9aa0a6; font-style: italic;">Your Trusted Education Partner</p>
+          <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #e0e0e0;">
+            <p style="margin: 0;">Warm regards,</p>
+            <p style="margin: 5px 0 0 0; font-weight: bold;">Abhimanyu Singh Chauhan</p>
+            <p style="margin: 2px 0; color: #1a73e8; font-weight: bold;">Founder & CEO – Career Vidya</p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #9aa0a6; font-style: italic;">Your Trusted Education Guidance Platform</p>
           </div>
         </div>
 
@@ -287,10 +264,12 @@ if (student.email) {
           &copy; ${new Date().getFullYear()} Career Vidya. All rights reserved. <br>
           <a href="https://careervidya.in" style="color: #70757a; text-decoration: underline;">www.careervidya.in</a>
         </div>
+
       </div>
     `,
   });
 }
+
     }
 
     if (purpose === "login" && !student)

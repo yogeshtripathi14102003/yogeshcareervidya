@@ -2,19 +2,21 @@
 
 import Image from "next/image";
 
+// ✅ Make sure these images are in: public/images/ 
 const highlightsData = [
-  { img: "/images/b1.JPG", description: "Free Expert Counselling" },
-  { img: "/images/b2.JPG", description: " Personalized Guidance" },
-  { img: "/images/b3.JPG", description: "No-Cost EMI & Loan Support" },
-  { img: "/images/b4.JPG", description: "100% Placement Assistance" },
-  { img: "/images/b5.JPG", description: "Access To 10,000+ Alumni Network" },
-  { img: "/images/b6.JPG", description: "Globally Recognized Degrees" },
-  { img: "/images/b7.JPG", description: " Admission Documentation Support" },
-  { img: "/images/b8.JPG", description: "Post Admission Academic Help" },
-  { img: "/images/b9.JPG", description: "Transparent  University Guidance" },
-  { img: "/images/b10.JPG", description: "End To End Career Support" },
+  { img: "/images/b1.jpg", description: "Free Expert Counselling" },
+  { img: "/images/b2.jpg", description: "Personalized Guidance" },
+  { img: "/images/b3.jpg", description: "No-Cost EMI & Loan Support" },
+  { img: "/images/b4.jpg", description: "100% Placement Assistance" },
+  { img: "/images/b5.jpg", description: "Access To 10,000+ Alumni Network" },
+  { img: "/images/b6.jpg", description: "Globally Recognized Degrees" },
+  { img: "/images/b7.jpg", description: "Admission Documentation Support" },
+  { img: "/images/b8.jpg", description: "Post Admission Academic Help" },
+  { img: "/images/b9.jpg", description: "Transparent University Guidance" },
+  { img: "/images/b10.jpg", description: "End To End Career Support" },
 ];
 
+// ✅ Highlight card component
 const HighlightCard = ({ img, description }) => (
   <div className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-lg h-full transition duration-300 hover:shadow-xl transform hover:scale-[1.02]">
     
@@ -22,10 +24,11 @@ const HighlightCard = ({ img, description }) => (
     <div className="flex items-center justify-center w-16 h-16 mb-4 bg-blue-50 rounded-lg overflow-hidden">
       <Image 
         src={img} 
-        alt="Highlight Icon" 
+        alt={description} 
         width={48} 
         height={48} 
         className="object-contain"
+        priority={true} // ✅ ensures images load quickly
       />
     </div>
     
@@ -36,6 +39,7 @@ const HighlightCard = ({ img, description }) => (
   </div>
 );
 
+// ✅ Main component
 export default function KeyHighlights() {
   return (
     <section className="bg-blue-50 py-16 md:py-24">
