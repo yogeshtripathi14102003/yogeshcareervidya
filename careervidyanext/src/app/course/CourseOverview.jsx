@@ -244,7 +244,7 @@ export default function CourseOverview({ course }) {
                 <div className="flex gap-4 flex-wrap">
                   <button
                     onClick={handleSyllabusClick}
-                    className="bg-[#002147] text-white px-8 py-3 rounded-xl font-bold"
+                    className="bg-[#c15304] text-white px-8 py-3 rounded-xl font-bold"
                   >
                     Get Full Syllabus
                   </button>

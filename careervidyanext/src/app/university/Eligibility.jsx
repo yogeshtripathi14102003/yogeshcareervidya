@@ -364,8 +364,8 @@ export default function OnlineExamPattern({ slug }) {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              backgroundColor: "#ead219ff", // Dark Orange/Brown matching your AuthModal
-              color: "black",
+              backgroundColor: "#c15304", // Dark Orange/Brown matching your AuthModal
+              color: "white",
               padding: "12px 24px",
               borderRadius: "50px",
               fontSize: "15px",
@@ -375,8 +375,8 @@ export default function OnlineExamPattern({ slug }) {
               boxShadow: "0 4px 15px rgba(224, 231, 25, 0.3)",
               transition: "all 0.3s ease",
             }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#d5ea19ff"}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#ead219ff"}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#c15304"}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#c15304"}
             onClick={() => alert("Brochure Download Starting...")}
           >
             <Download size={18} />

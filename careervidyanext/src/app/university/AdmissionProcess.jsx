@@ -81,7 +81,7 @@ export default function AdmissionProcess({ slug }) {
         <div className="flex-shrink-0">
           <button
             onClick={() => setOpenPopup(true)}
-            className="cursor-pointer bg-yellow-400 hover:bg-yellow-500 text-white px-10 py-3 rounded-3xl font-bold transition-all shadow-md flex items-center gap-2 w-full md:w-auto justify-center group"
+            className="cursor-pointer bg-[#c15304] hover:bg-[#c15304] text-white px-10 py-3 rounded-3xl font-bold transition-all shadow-md flex items-center gap-2 w-full md:w-auto justify-center group"
           >
             Apply Now 
             <Send size={18} className="group-hover:translate-x-1 transition-transform" />

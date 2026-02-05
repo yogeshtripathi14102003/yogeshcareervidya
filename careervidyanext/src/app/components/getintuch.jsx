@@ -228,8 +228,8 @@ export default function ContactUsPage() {
   <button
     type="submit"
     disabled={loading}
-    className={`w-full bg-[#0056A4] text-white py-3 rounded-lg transition-all ${
-      loading ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700"
+    className={`w-full bg-[#c15304] text-white py-3 rounded-lg transition-all ${
+      loading ? "opacity-60 cursor-not-allowed" : "hover:bg-[#c15304]"
     }`}
   >
     {loading ? "Submitting..." : "Submit"}

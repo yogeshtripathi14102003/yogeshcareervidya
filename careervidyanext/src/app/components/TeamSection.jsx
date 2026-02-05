@@ -293,9 +293,10 @@ export default function TeamSlider() {
                       </div>
 
                       {/* Consult Now Button */}
-                      <button className="w-full py-3 mt-auto rounded-xl border-2 border-[#05347f] text-[#05347f] font-bold text-sm hover:bg-[#05347f] hover:text-white transition-all duration-300 flex-shrink-0">
-                        Consult Now
-                      </button>
+                     {/* Consult Now Button */}
+<button className="w-full py-3 mt-auto rounded-xl border-2 border-[#05347f] text-[#05347f] font-bold text-sm hover:bg-[#c15304] hover:border-[#c15304] hover:text-white transition-all duration-300 flex-shrink-0">
+  Consult Now
+</button>
                     </div>
                   </SwiperSlide>
                 );

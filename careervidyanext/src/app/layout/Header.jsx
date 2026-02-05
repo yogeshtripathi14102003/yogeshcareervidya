@@ -81,8 +81,8 @@ export default function Header() {
           <nav className="nav-right desktop-only">
             <Link href="/explore">Explore Programs</Link>
             <Link href="/teamexpand">Free Counselling</Link>
-            <Link href="/coming-soon">Top University</Link>
-            
+            {/* <Link href="/coming-soon">Top University</Link> */}
+            <Link href="/topunivers">Top Universities</Link>
 
             {/* ===== USER / SIGNUP ===== */}
             {user ? (

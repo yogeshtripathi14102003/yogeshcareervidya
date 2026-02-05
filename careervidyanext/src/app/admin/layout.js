@@ -238,6 +238,7 @@ const Layout = ({ children }) => {
     {href: "/admin/addblog", label: "addblog", icon: MessageSquare },
     {href: "/admin/state", label: "state", icon: MessageSquare },
     { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+    {href: "/admin/Addcounsler", label: "Addcounselor", icon: Mail },
 
     { href: "/admin/Security", label: "Security", icon: Lock },
   ];

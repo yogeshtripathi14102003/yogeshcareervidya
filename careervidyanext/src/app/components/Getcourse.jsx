@@ -33,7 +33,7 @@ const CourseCard = ({ course, isPopup = false, index }) => {
   const router = useRouter();
   const { ref, visible } = useScrollAnimation();
 
-  // Sirf pehle 5 items click honge (0, 1, 2, 3, 4)
+  // Sirf pehle 21 items clickable
   const isClickable = index < 21;
 
   const handleClick = () => {
@@ -52,9 +52,14 @@ const CourseCard = ({ course, isPopup = false, index }) => {
         w-full bg-white border-2 border-gray-200 rounded-md p-2 
         transition-all duration-500 ease-out
         flex flex-col items-center justify-between h-full
-        ${isPopup ? "opacity-100" : visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}
-        ${isClickable 
-            ? "cursor-pointer hover:border-[#0056B3] hover:scale-[1.03] active:scale-[0.98]" 
+        ${isPopup
+          ? "opacity-100"
+          : visible
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-6"}
+        ${
+          isClickable
+            ? "cursor-pointer hover:border-[#0056B3] hover:scale-[1.03] active:scale-[0.98]"
             : "cursor-default"
         }
       `}
@@ -68,7 +73,7 @@ const CourseCard = ({ course, isPopup = false, index }) => {
       </div>
 
       <div className="text-center mb-1.5 px-0.5 pointer-events-none">
-        <h3 className="font-black  text-gray-900 text-[8px] md:text-[11px] line-clamp-2 leading-tight uppercase">
+        <h3 className="font-black text-gray-900 text-[8px] md:text-[11px] line-clamp-2 leading-tight uppercase">
           {course.name}
         </h3>
       </div>
@@ -88,6 +93,10 @@ export default function CoursesListingPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(24);
+
+  // ✅ CACHE
+  const coursesCache = useRef({});
+
   const scrollRef = useRef(null);
 
   const sidebarItems = [
@@ -98,31 +107,51 @@ export default function CoursesListingPage() {
     { key: "Doctorate", title: "Doctorate" },
   ];
 
+  /* ================= SCREEN SIZE ================= */
   useEffect(() => {
     setIsMounted(true);
+
     const updateLimit = () => {
       setDisplayLimit(window.innerWidth < 768 ? 9 : 24);
     };
+
     updateLimit();
+
     window.addEventListener("resize", updateLimit);
+
     return () => window.removeEventListener("resize", updateLimit);
   }, []);
 
+  /* ================= FETCH COURSES ================= */
   useEffect(() => {
     if (!isMounted) return;
 
+    // ✅ Agar category ka data pehle se hai → use karo
+    if (coursesCache.current[selectedCategory]) {
+      setCourses(coursesCache.current[selectedCategory]);
+      setLoading(false);
+      return;
+    }
+
     const fetchCourses = async () => {
       setLoading(true);
+
       try {
         const url =
           selectedCategory === "All"
             ? "/api/v1/course"
             : `/api/v1/course?category=${selectedCategory}`;
+
         const res = await api.get(url);
-        
+
         const fetchedCourses = res.data.courses || [];
-        setCourses([...fetchedCourses].reverse());
-        
+
+        const finalData = [...fetchedCourses].reverse();
+
+        // ✅ Cache me save
+        coursesCache.current[selectedCategory] = finalData;
+
+        setCourses(finalData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -141,15 +170,20 @@ export default function CoursesListingPage() {
 
         {/* MOBILE CATEGORY */}
         <div className="block lg:hidden mb-8">
-          <div ref={scrollRef} className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar px-1">
+          <div
+            ref={scrollRef}
+            className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar px-1"
+          >
             {sidebarItems.map((item) => (
               <button
                 key={item.key}
                 onClick={() => setSelectedCategory(item.key)}
                 className={`px-5 py-2 text-[11px] font-black border-2 rounded-full whitespace-nowrap transition-all
-                  ${selectedCategory === item.key
-                    ? "bg-[#0056B3] text-white border-[#0056B3] shadow-md"
-                    : "bg-white text-black border-gray-300"}`}
+                  ${
+                    selectedCategory === item.key
+                      ? "bg-[#0056B3] text-white border-[#0056B3] shadow-md"
+                      : "bg-white text-black border-gray-300"
+                  }`}
               >
                 {item.title}
               </button>
@@ -165,7 +199,11 @@ export default function CoursesListingPage() {
 
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-6 w-full">
             {courses.slice(0, displayLimit).map((course, index) => (
-              <CourseCard key={course._id} course={course} index={index} />
+              <CourseCard
+                key={course._id}
+                course={course}
+                index={index}
+              />
             ))}
           </div>
 
@@ -186,49 +224,61 @@ export default function CoursesListingPage() {
               className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
               onClick={() => setIsPopupOpen(false)}
             />
+
             <div className="relative bg-white w-full max-w-6xl max-h-[90vh] rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+
               <div className="flex justify-between items-center p-5 border-b-2 border-gray-100">
                 <h3 className="font-black text-lg md:text-2xl uppercase text-[#0056B3]">
                   Explore {selectedCategory} Catalog
                 </h3>
-                
-                <button 
-                  onClick={() => setIsPopupOpen(false)} 
+
+                <button
+                  onClick={() => setIsPopupOpen(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer group"
-                  aria-label="Close modal"
                 >
-                  <X className="w-7 h-7 text-black font-bold group-hover:text-red-600 transition-colors" />
+                  <X className="w-7 h-7 text-black group-hover:text-red-600 transition-colors" />
                 </button>
               </div>
 
               <div className="p-4 md:p-8 overflow-y-auto bg-[#f9f9f9] flex-1">
                 <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5">
                   {courses.map((course, index) => (
-                    <CourseCard key={course._id} course={course} index={index} isPopup />
+                    <CourseCard
+                      key={course._id}
+                      course={course}
+                      index={index}
+                      isPopup
+                    />
                   ))}
                 </div>
               </div>
+
             </div>
           </div>
         )}
 
+        {/* SCROLLBAR STYLE */}
         <style jsx>{`
           .custom-scrollbar::-webkit-scrollbar {
             height: 4px;
           }
+
           .custom-scrollbar::-webkit-scrollbar-track {
             background: #e5e7eb;
             border-radius: 10px;
           }
+
           .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #0056B3;
             border-radius: 10px;
           }
+
           .custom-scrollbar {
             scrollbar-width: thin;
             scrollbar-color: #0056B3 #e5e7eb;
           }
         `}</style>
+
       </div>
     </div>
   );

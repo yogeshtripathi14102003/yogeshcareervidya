@@ -492,7 +492,7 @@ export default function ExplorePage() {
 
   /* ---------- COURSE CARD (UNCHANGED) ---------- */
   const CourseCard = ({ course, index }) => {
-    const clickable = index < 12;
+    const clickable = index < 21;
 
     const card = (
       <div

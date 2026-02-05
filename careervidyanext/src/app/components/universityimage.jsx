@@ -111,7 +111,7 @@ export default function UniversitiesPage() {
           {displayLimit < universities.length && (
             <button
               onClick={handleViewMore}
-              className="bg-[#0056B3] text-white px-8 py-3 rounded-lg
+              className="bg-[#c15304] text-white px-8 py-3 rounded-lg
                          font-semibold shadow-md hover:opacity-95 transition"
             >
               VIEW MORE →
@@ -121,9 +121,9 @@ export default function UniversitiesPage() {
           {displayLimit > INITIAL_LIMIT && (
             <button
               onClick={handleViewLess}
-              className="border border-[#0056B3] text-[#0056B3]
+              className="border border-[#c15304] bg-[#c15304] text-white
                          px-8 py-3 rounded-lg font-semibold
-                         hover:bg-blue-50 transition"
+                         hover: bg-[#c15304]transition"
             >
               VIEW LESS ↑
             </button>

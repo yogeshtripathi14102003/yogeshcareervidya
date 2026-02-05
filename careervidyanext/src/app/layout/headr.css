@@ -152,7 +152,7 @@
 .btn1-primary {
     cursor: pointer;
     background-color: transparent;
-    border: 1.5px solid #04458b;
+    border: 1.5px solid #c15304;
     border-radius: 4px;
     padding: 8px 22px;
     font-weight: 600;
@@ -162,7 +162,7 @@
 }
 
 .btn1-primary:hover {
-    background-color: #043c78;
+    background-color: #c15304;
     color: white;
 }
 
@@ -176,7 +176,7 @@
 }
 
 .mobile-signup-btn {
-    background: #2563eb;
+    background: #c15304;
     color: white;
     border: none;
     padding: 6px 14px;

@@ -89,7 +89,7 @@ export default function FAQSection() {
           <div className="text-center mt-10">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="px-8 py-2.5 bg-[#0057A0] text-white rounded-md font-semibold hover:bg-[#004a87] transition-all shadow-md"
+              className="px-8 py-2.5  bg-[#c15304] text-white rounded-md font-semibold hover: bg-[#c15304] transition-all shadow-md"
             >
               {showAll ? "View Less ↑" : "View All FAQ ↓"}
             </button>

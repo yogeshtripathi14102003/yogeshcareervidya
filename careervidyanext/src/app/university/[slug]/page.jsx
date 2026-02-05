@@ -381,7 +381,7 @@ export default function UniversityDetail() {
                         {/* --- BUTTONS --- */}
                         <div className="flex flex-col sm:flex-row gap-3 max-w-md">
                             <button 
-                                className="flex-1 bg-yellow-400 text-black font-bold py-3 rounded-xl hover:bg-yellow-500 transition shadow-lg text-sm uppercase"
+                                className=" curser-pointer   flex-1 bg-yellow-400 text-black font-bold py-3 rounded-xl hover:bg-yellow-500 transition shadow-lg text-sm uppercase"
                                 onClick={() => { setPopupType("apply"); setPopupOpen(true); }}
                             >
                                 Apply Now →
@@ -458,7 +458,7 @@ export default function UniversityDetail() {
                 setPopupType("apply"); 
                 setPopupOpen(true); 
               }}
-              className="cursor-pointer bg-yellow-400 text-black text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full hover:bg-blue-900 transition-all shadow-sm whitespace-nowrap flex items-center gap-1"
+              className="cursor-pointer bg-[#c15304] text-white text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full hover:bg-blue-900 transition-all shadow-sm whitespace-nowrap flex items-center gap-1"
             >
               Apply Now
               <ChevronRight size={12} />

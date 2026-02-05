@@ -69,7 +69,7 @@ export default function AdmissionProcess() {
           }`}
         >
           <Image
-            src="/images/an2.png"
+            src="/images/admission.webp"
             alt="Admission Process Flow"
             width={1800}
             height={300}
@@ -83,7 +83,7 @@ export default function AdmissionProcess() {
           <button
             ref={button.ref}
             onClick={() => setOpenSignup(true)}
-            className={`inline-block bg-[#0056B3] text-white font-medium px-8 py-2 rounded-md text-xs md:text-sm transition-all duration-700 delay-200 hover:bg-[#004494] shadow-sm
+            className={`inline-block bg-[#c15304] text-white font-medium px-8 py-2 rounded-md text-xs md:text-sm transition-all duration-700 delay-200 hover:bg-[#c15304] shadow-sm
             ${
               button.visible
                 ? "opacity-100 translate-y-0"

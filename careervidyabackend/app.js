@@ -18,7 +18,7 @@ import getinTouchRouter from "./router/getInTouchRouter.js";
 import applyRouter from "./router/applyRouter.js";
 import addjobRouter from "./router/addjobRouter.js";
 import reviewRouter from "./router/reviewRouter.js";
-import chatbotRoutes from "./router/chatbotRoutes.js";
+
 import visitorRoutes from "./router/visitorRoutes.js";
 import compareRoutes from "./router/compareRoutes.js";
 import blogRoutes from "./router/blogRoutes.js";
@@ -27,6 +27,8 @@ import StateDistrictRoutes from "./router/StateDistrictRoutes.js";
 import notificationRoutes from "./router/notificationRoutes.js";
 import admissionRoutes from "./router/admissionRoutes.js";
 import specializationRoutes from "./router/specializationRoutes.js";
+import counselorRoutes from "./router/counselorRoutes.js";
+import leadRoutes from "./router/leadRoutes.js";
 const app = express();
 
 // ✅ Middlewares
@@ -59,7 +61,7 @@ app.use("/api/v1/getintouch",getinTouchRouter);
 app.use("/api/v1/resume", applyRouter);
 app.use("/api/v1/addjob", addjobRouter);
 app.use("/api/v1", reviewRouter);
-app.use("/api/v1",chatbotRoutes);
+// app.use("/api/v1",chatbotRoutes);
 app.use("/api/v1/", visitorRoutes);
 app.use("/api/v1/",compareRoutes)
 app.use("/api/v1/",blogRoutes);
@@ -68,6 +70,8 @@ app.use("/api/v1/",StateDistrictRoutes);
 app.use("/api/v1/notifications",notificationRoutes);
 app.use("/api/v1/admissions", admissionRoutes);
 app.use("/api/v1/specializations", specializationRoutes);
+app.use("/api/v1/counselor", counselorRoutes);
+app.use("/api/v1",leadRoutes);
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");
