@@ -1,236 +1,225 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/utlis/api.js";
-
 import {
   Bell,
   Phone,
   CalendarClock,
   User,
+  Search,
 } from "lucide-react";
 
-const MyReminders = () => {
+/* ================= HELPERS ================= */
 
+// check reminder is today
+const isToday = (dateString) => {
+  if (!dateString) return false;
+
+  const d = new Date(dateString);
+  const today = new Date();
+
+  return (
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate()
+  );
+};
+
+// format date
+const formatDate = (date) =>
+  new Date(date).toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+
+/* ================= COMPONENT ================= */
+
+const MyReminders = () => {
   const router = useRouter();
 
   const [user, setUser] = useState(null);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [filterDate, setFilterDate] = useState("");
-
+  const [search, setSearch] = useState("");
 
   /* ================= AUTH ================= */
   useEffect(() => {
-
     const saved = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
-    if (!saved) {
+    if (!saved || !token) {
       router.push("/login");
-    } else {
-      setUser(JSON.parse(saved));
+      return;
     }
 
+    setUser(JSON.parse(saved));
   }, [router]);
 
-
-  /* ================= LOAD REMINDERS ================= */
+  /* ================= FETCH REMINDERS ================= */
   useEffect(() => {
-
-    if (user?._id) {
-      fetchMyReminders();
-    }
-
+    if (user?._id) fetchMyReminders();
   }, [user]);
 
-
   const fetchMyReminders = async () => {
-
     try {
-
-      const res = await api.get(
-        `/api/v1/leads?assignedTo=${user._id}`
-      );
+      const res = await api.get("/api/v1/leads/my");
 
       if (res.data.success) {
-
-        // Only leads with reminder
         const withReminder = res.data.data.filter(
           (l) => l.followUpDate
         );
-
         setLeads(withReminder);
       }
-
     } catch (err) {
-
       console.log("Reminder Fetch Error", err);
-
+      if (err.response?.status === 401) router.push("/login");
     } finally {
-
       setLoading(false);
     }
   };
 
+  /* ================= FILTER + SEARCH ================= */
+  const filteredLeads = useMemo(() => {
+    return leads.filter((l) => {
+      const q = search.toLowerCase();
 
-  /* ================= FILTER ================= */
-  const filteredLeads = leads.filter((l) => {
-
-    if (!filterDate) return true;
-
-    const date = new Date(l.followUpDate)
-      .toISOString()
-      .slice(0, 10);
-
-    return date === filterDate;
-  });
-
-
-  /* ================= FORMAT ================= */
-  const formatDate = (date) => {
-
-    return new Date(date).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
+      return (
+        l.name?.toLowerCase().includes(q) ||
+        l.phone?.includes(q) ||
+        l.course?.toLowerCase().includes(q)
+      );
     });
-  };
+  }, [leads, search]);
 
+  /* ================= TODAY COUNT ================= */
+  const todayCount = filteredLeads.filter((l) =>
+    isToday(l.followUpDate)
+  ).length;
 
   if (!user) return null;
-
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6">
 
-
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
       <div className="max-w-6xl mx-auto mb-6">
+        <div className="bg-white p-5 rounded-xl shadow flex items-center justify-between gap-4">
 
-        <div className="bg-white p-5 rounded-xl shadow flex items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Bell className="text-indigo-600" size={28} />
+            <div>
+              <h1 className="text-xl font-bold">My Reminders</h1>
+              <p className="text-gray-500 text-sm">
+                {user.name}'s follow-ups
+              </p>
+            </div>
+          </div>
 
-          <Bell className="text-indigo-600" size={28} />
-
-          <div>
-            <h1 className="text-xl font-bold">
-              My Reminders
-            </h1>
-
-            <p className="text-gray-500 text-sm">
-              {user.name}'s Follow-ups
-            </p>
+          {/* TODAY COUNT */}
+          <div
+            className={`px-4 py-2 rounded-xl text-sm font-bold ${
+              todayCount > 0
+                ? "bg-red-100 text-red-700 animate-pulse"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            Today: {todayCount}
           </div>
 
         </div>
-
       </div>
 
-
-      {/* FILTER */}
-      <div className="max-w-6xl mx-auto bg-white p-4 rounded-xl shadow mb-5 flex gap-4">
-
+      {/* ================= SEARCH ================= */}
+      <div className="max-w-6xl mx-auto bg-white p-4 rounded-xl shadow mb-5 flex items-center gap-3">
+        <Search size={18} className="text-gray-400" />
         <input
-          type="date"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-          className="border p-2 rounded w-full md:w-52"
+          type="text"
+          placeholder="Search by name, phone or course"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full outline-none text-sm"
         />
-
-        <button
-          onClick={() => setFilterDate("")}
-          className="text-sm text-indigo-600"
-        >
-          Clear
-        </button>
-
       </div>
 
-
-      {/* LIST */}
+      {/* ================= LIST ================= */}
       <div className="max-w-6xl mx-auto">
 
-
         {loading ? (
-
-          <p className="text-center py-10">
+          <p className="text-center py-10 text-gray-500">
             Loading reminders...
           </p>
-
         ) : filteredLeads.length === 0 ? (
-
           <p className="text-center text-gray-500 py-10">
             No reminders found
           </p>
-
         ) : (
-
           <div className="grid gap-4">
 
+            {filteredLeads.map((l) => {
+              const today = isToday(l.followUpDate);
 
-            {filteredLeads.map((l) => (
+              return (
+                <div
+                  key={l._id}
+                  className={`bg-white rounded-xl shadow p-5 border-l-4 transition ${
+                    today
+                      ? "border-red-500 bg-red-50 animate-pulse"
+                      : "border-indigo-600"
+                  }`}
+                >
+                  <div className="flex flex-col md:flex-row justify-between gap-4">
 
-              <div
-                key={l._id}
-                className="bg-white rounded-xl shadow p-5 border-l-4 border-indigo-600"
-              >
+                    {/* INFO */}
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-lg flex items-center gap-2">
+                        <User size={18} />
+                        {l.name}
+                      </h3>
 
-                <div className="flex flex-col md:flex-row justify-between gap-4">
+                      <p className="flex items-center gap-2 text-sm text-gray-600">
+                        <Phone size={16} />
+                        {l.phone}
+                      </p>
 
+                      <p className="text-sm text-gray-500">
+                        Course: {l.course || "N/A"}
+                      </p>
+                    </div>
 
-                  {/* INFO */}
-                  <div className="space-y-2">
+                    {/* REMINDER */}
+                    <div className="text-right space-y-2">
+                      <p
+                        className={`flex items-center gap-2 justify-end font-semibold ${
+                          today ? "text-red-600" : "text-indigo-600"
+                        }`}
+                      >
+                        <CalendarClock size={18} />
+                        {formatDate(l.followUpDate)}
+                      </p>
 
-                    <h3 className="font-bold text-lg flex items-center gap-2">
+                      <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                        Status: {l.status}
+                      </span>
 
-                      <User size={18} />
-                      {l.name}
-
-                    </h3>
-
-                    <p className="flex items-center gap-2 text-sm text-gray-600">
-
-                      <Phone size={16} />
-                      {l.phone}
-
-                    </p>
-
-                    <p className="text-sm text-gray-500">
-                      Course: {l.course}
-                    </p>
+                      {today && (
+                        <div className="text-xs font-bold text-red-600">
+                          🔔 Today Reminder
+                        </div>
+                      )}
+                    </div>
 
                   </div>
-
-
-                  {/* REMINDER */}
-                  <div className="text-right space-y-2">
-
-                    <p className="flex items-center gap-2 justify-end text-indigo-600 font-semibold">
-
-                      <CalendarClock size={18} />
-                      {formatDate(l.followUpDate)}
-
-                    </p>
-
-                    <span className="text-xs px-3 py-1 rounded-full bg-gray-100">
-
-                      Status: {l.status}
-
-                    </span>
-
-                  </div>
-
                 </div>
-
-              </div>
-
-            ))}
+              );
+            })}
 
           </div>
         )}
 
       </div>
-
     </div>
   );
 };

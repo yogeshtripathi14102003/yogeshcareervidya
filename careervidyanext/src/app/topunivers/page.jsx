@@ -266,7 +266,7 @@ export default function UniversitiesPage() {
   };
 
   useEffect(() => {
-    fetchUniversities();
+    fetchUniversities(); 
   }, []);
 
   const handleDetailsClick = (uni) => {
@@ -375,7 +375,7 @@ export default function UniversitiesPage() {
                     <div className="grid grid-cols-3 gap-1 mt-auto">
                       <button
                         onClick={() => handleDetailsClick(uni)}
-                        className="bg-[#05347f] text-white py-2 rounded-lg text-[8px] font-bold uppercase hover:bg-blue-800 transition"
+                        className="bg-[#c15304] text-white py-2 rounded-lg text-[8px] font-bold uppercase hover:bg-blue-800 transition"
                       >
                         Details
                       </button>
@@ -391,7 +391,7 @@ export default function UniversitiesPage() {
                             (s) => s._id === uni._id
                           )
                             ? "bg-green-600 text-white"
-                            : "bg-[#05347f] text-white hover:bg-orange-600"
+                            : "bg-[#c15304] text-white hover:bg-orange-600"
                         }`}
                       >
                         {selectedForCompare.find(

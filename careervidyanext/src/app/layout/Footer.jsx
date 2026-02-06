@@ -51,7 +51,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-gray-300 mb-10">
           {/* Office 1 */}
           <div>
-            <h3 className="text-lg font-semibold text-[#FFD700] mb-2">
+            <h3 className="text-lg font-semibold text-[#c15304] mb-2">
               Head Office (Noida)
             </h3>
             <p className="text-sm leading-relaxed">
@@ -70,7 +70,7 @@ export default function Footer() {
 
           {/* Office 2 */}
           <div>
-            <h3 className="text-lg font-semibold text-[#FFD700] mb-2">
+            <h3 className="text-lg font-semibold text-[#c15304] mb-2">
               Corporate office (Noida)
             </h3>
             <p className="text-sm leading-relaxed">
@@ -90,21 +90,21 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h3 className="text-lg font-semibold text-[#FFD700] mb-3">
+            <h3 className="text-lg font-semibold text-[#c15304] mb-3">
               Subscribe to Newsletter
             </h3>
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full bg-white text-black rounded-md text-sm p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white text-black rounded-md text-sm p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#c15304]"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
               />
               <button
                 onClick={handleSubscribe}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2 text-sm transition"
+                className="w-full sm:w-auto bg-[#c15304]  text-white rounded-md px-4 py-2 text-sm transition"
                 disabled={loading}
               >
                 {loading ? "..." : "Subscribe"}
@@ -123,22 +123,22 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-3 text-lg">About</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/Aboutus" className="hover:text-[#FFD700]">
+                <Link href="/Aboutus" className="hover:text-[#c15304]">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contactus" className="hover:text-[#FFD700]">
+                <Link href="/contactus" className="hover:text-[#c15304]">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/career" className="hover:text-[#FFD700]">
+                <Link href="/career" className="hover:text-[#c15304]">
                   Careers
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="hover:text-[#FFD700]">
+                <Link href="/blog" className="hover:text-[#c15304]">
                   Blog
                 </Link>
               </li>
@@ -159,11 +159,11 @@ export default function Footer() {
                 "Online MBA in Marketing",
                 "Online MBA in IT",
               ].map((item, i) => (
-                <li key={i} className="hover:text-[#FFD700] cursor-pointer">
+                <li key={i} className="hover:text-[#c15304] cursor-pointer">
                   {item}
                 </li>
               ))}
-              <li className="text-[#FFD700] flex items-center gap-1 cursor-pointer">
+              <li className="text-[#c15304] flex items-center gap-1 cursor-pointer">
                 View All <span className="text-white text-lg">+</span>
               </li>
             </ul>
@@ -182,7 +182,7 @@ export default function Footer() {
                 "Online BA",
                 "Online B.Sc in Data Science",
               ].map((item, i) => (
-                <li key={i} className="hover:text-[#FFD700] cursor-pointer">
+                <li key={i} className="hover:text-[#c15304] cursor-pointer">
                   {item}
                 </li>
               ))}
@@ -200,7 +200,7 @@ export default function Footer() {
                 "Certificate in Data Analytics",
                 "Certificate in UI/UX Design",
               ].map((item, i) => (
-                <li key={i} className="hover:text-[#FFD700] cursor-pointer">
+                <li key={i} className="hover:text-[#c15304] cursor-pointer">
                   {item}
                 </li>
               ))}
@@ -210,7 +210,7 @@ export default function Footer() {
 
         {/* ---------- DISCLAIMER ---------- */}
         <div className="border-t border-gray-700 mt-10 pt-6 text-gray-300 text-sm leading-relaxed text-center max-w-3xl mx-auto">
-          <h4 className="text-[#FFD700] font-semibold mb-3 text-base md:text-lg">
+          <h4 className="text-[#c15304] font-semibold mb-3 text-base md:text-lg">
             Disclaimer
           </h4>
           <p className="text-gray-300 max-w-2xl mx-auto">
