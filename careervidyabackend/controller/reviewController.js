@@ -1,111 +1,178 @@
-
-
+import mongoose from "mongoose";
 import Review from "../models/Admin/reviewModel.js";
 import Team from "../models/Admin/TeamModel.js";
 
-/**
- * 1. SUBMIT OR EDIT REVIEW (For Students - Manual Email)
- * Agar same email se pehle review diya hai, toh update hoga.
- */
+/* ============================
+   SUBMIT REVIEW (Solid Version)
+============================= */
 export const submitReview = async (req, res) => {
   try {
-    const { rating, comment, counsellorId, guestName, email } = req.body;
+    const { rating, comment, counsellorId, email, guestName } = req.body;
+    const userId = req.user?._id; 
 
-    // Basic Validation
-    if (!email || !rating || !counsellorId) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Email, Rating and Counsellor ID are required." 
+    /* ---------- 1. VALIDATION ---------- */
+    if (!rating || !counsellorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating & Counsellor ID required",
       });
     }
 
-    // Upsert Logic: Find by (Counsellor + Email), if found update, else create
-    const review = await Review.findOneAndUpdate(
-      { counsler: counsellorId, email: email.toLowerCase() },
-      { 
-        rating: Number(rating), 
-        comment, 
+    if (!mongoose.Types.ObjectId.isValid(counsellorId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Counsellor ID",
+      });
+    }
+
+    if (!userId && !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email required for guest",
+      });
+    }
+
+    /* ---------- 2. FILTER & DATA LOGIC ---------- */
+    let filter = { counsler: counsellorId };
+    
+    // Default update object
+    let updateOps = {
+      $set: {
+        rating: Number(rating),
+        comment,
         guestName: guestName || "Guest Student",
-        email: email.toLowerCase()
+        counsler: counsellorId,
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
+    };
+
+    if (userId) {
+      // Logic for Logged-in User
+      filter.user = userId;
+      updateOps.$set.user = userId;
+      updateOps.$unset = { email: "" }; // Remove email field if it exists
+    } else {
+      // Logic for Guest User
+      const guestEmail = email.toLowerCase();
+      filter.email = guestEmail;
+      updateOps.$set.email = guestEmail;
+      updateOps.$unset = { user: "" };  // 🔥 YAHI MAIN FIX HAI: user field ko puri tarah remove kar do
+    }
+
+    /* ---------- 3. SAVE / UPDATE (UPSERT) ---------- */
+    const review = await Review.findOneAndUpdate(
+      filter,
+      updateOps,
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+      }
     );
 
-    // Update Counsellor's Average Rating
+    // Update Average Rating in Team Model
     await updateCounsellorRating(counsellorId);
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Review submitted successfully!", 
-      review 
+    return res.status(200).json({
+      success: true,
+      message: "Review submitted successfully",
+      review,
     });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Submit Review Error:", error);
+    // Duplicate Key Error handling for better user message
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already submitted a review for this counsellor.",
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-/**
- * 2. GET ALL REVIEWS FOR A COUNSELLOR
- */
+/* ============================
+   GET REVIEWS
+============================= */
 export const getReviewsByCounsellor = async (req, res) => {
   try {
     const { id } = req.params;
-    const reviews = await Review.find({ counsler: id }).sort({ createdAt: -1 });
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Counsellor ID",
+      });
+    }
+
+    const reviews = await Review.find({ counsler: id })
+      .populate("user", "name email mobileNumber")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       count: reviews.length,
       reviews,
     });
+
   } catch (error) {
+    console.error("Get Review Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-/**
- * 3. ADMIN DELETE REVIEW
- * Admin kisi bhi review ki ID se use delete kar sakta hai
- */
+/* ============================
+   DELETE REVIEW (ADMIN)
+============================= */
 export const adminDeleteReview = async (req, res) => {
   try {
-    const { id } = req.params; // Review ID
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid Review ID" });
+    }
 
     const review = await Review.findById(id);
     if (!review) {
-      return res.status(404).json({ success: false, message: "Review not found." });
+      return res.status(404).json({ success: false, message: "Review not found" });
     }
 
     const counsellorId = review.counsler;
-
-    // Delete the review
     await Review.findByIdAndDelete(id);
 
-    // Recalculate Rating after deletion
+    // Recalculate Rating
     await updateCounsellorRating(counsellorId);
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Review deleted by admin successfully." 
-    });
+    res.status(200).json({ success: true, message: "Review deleted" });
+
   } catch (error) {
+    console.error("Delete Review Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-/**
- * HELPER FUNCTION: RE-CALCULATE RATING
- * Jab bhi review add, edit ya delete ho, ye function counsellor ki profile update karega
- */
-const updateCounsellorRating = async (counsellorId) => {
-  const reviews = await Review.find({ counsler: counsellorId });
-  
-  const count = reviews.length;
-  const avg = count > 0 
-    ? reviews.reduce((acc, item) => item.rating + acc, 0) / count 
-    : 0;
+/* ============================
+   HELPER: UPDATE COUNSELLOR RATING
+============================= */
+const updateCounsellorRating = async (id) => {
+  try {
+    const reviews = await Review.find({ counsler: id });
+    const count = reviews.length;
 
-  await Team.findByIdAndUpdate(counsellorId, {
-    rating: avg.toFixed(1),
-    ratingCount: count,
-  });
+    const avg =
+      count > 0
+        ? reviews.reduce((a, b) => a + b.rating, 0) / count
+        : 0;
+
+    await Team.findByIdAndUpdate(id, {
+      rating: avg.toFixed(1),
+      ratingCount: count,
+    });
+  } catch (err) {
+    console.error("Rating Update Error:", err);
+  }
 };
+

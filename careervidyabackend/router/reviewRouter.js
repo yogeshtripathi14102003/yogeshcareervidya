@@ -1,16 +1,42 @@
+// import express from "express";
+// import {
+//   submitReview,
+//   getReviewsByCounsellor,
+//   adminDeleteReview,
+// } from "../controller/reviewController.js";
+
+
+
+// const router = express.Router();
+
+// /* ✅ GUEST + LOGIN DONO */
+// router.post("/review", submitReview);
+
+// /* PUBLIC */
+// router.get("/review/:id", getReviewsByCounsellor);
+
+// /* ADMIN */
+// router.delete("/admin/review/:id",  adminDeleteReview);
+
+// export default router;
+
+
 import express from "express";
-const router = express.Router();
-import { 
-  submitReview, 
-  getReviewsByCounsellor, 
-  adminDeleteReview 
+import {
+  submitReview,
+  getReviewsByCounsellor,
+  adminDeleteReview,
 } from "../controller/reviewController.js";
 
-// Student/User routes
-router.post("/review", submitReview); // Submit or Edit
-router.get("/review/:id", getReviewsByCounsellor); // Get for frontend
+const router = express.Router();
 
-// Admin route
-router.delete("/admin/review/:id", adminDeleteReview); // Delete by Admin
+/* GUEST + LOGIN */
+router.post("/review", submitReview);
+
+/* GET BY COUNSELLOR ID */
+router.get("/review/:id", getReviewsByCounsellor);
+
+/* ADMIN DELETE */
+router.delete("/admin/review/:id", adminDeleteReview);
 
 export default router;

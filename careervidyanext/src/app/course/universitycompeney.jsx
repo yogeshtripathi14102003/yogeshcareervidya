@@ -64,7 +64,7 @@ const UniversityTable = ({ courseName = "Online Courses" }) => {
                   : rawPoints;
 
                 // LOGIC: Sirf pehli 6 (index 0-5) par click hoga
-                const isClickable = index < 6;
+                const isClickable = index < 1;
 
                 return (
                   <tr 

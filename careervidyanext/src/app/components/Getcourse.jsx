@@ -34,7 +34,7 @@ const CourseCard = ({ course, isPopup = false, index }) => {
   const { ref, visible } = useScrollAnimation();
 
   // Sirf pehle 21 items clickable
-  const isClickable = index < 21;
+  const isClickable = index < 25;
 
   const handleClick = () => {
     if (isClickable) {

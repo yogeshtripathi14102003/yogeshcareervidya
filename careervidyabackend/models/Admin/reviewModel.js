@@ -1,44 +1,54 @@
-import mongoose from "mongoose";
 
-const reviewSchema = new mongoose.Schema(
-  {
+import mongoose from "mongoose";
+const reviewSchema = new mongoose.Schema({
     counsler: {
-      type: mongoose.Schema.ObjectId,
-      ref: "Team", // Aapka Counsellor model
-      required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Team",
+        required: true,
     },
-    // User login hai toh ID jayegi, nahi toh null
     user: {
-      type: mongoose.Schema.ObjectId,
-      ref: "User",
-      required: false, 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+        // default: null HATADO agar hai toh
     },
     email: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true
+        type: String,
+        lowercase: true,
+        trim: true,
     },
     guestName: {
-      type: String,
-      default: "Guest Student"
+        type: String,
+        default: "Guest Student",
     },
     rating: {
-      type: Number,
-      min: 1,
-      max: 5,
-      required: true,
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
     },
     comment: {
-      type: String,
-      trim: true,
+        type: String,
+        trim: true,
+    },
+}, { timestamps: true });
+
+// 1. UNIQUE index sirf Registered Users ke liye (jab user field null na ho)
+reviewSchema.index(
+    { counsler: 1, user: 1 },
+    { 
+        unique: true, 
+        partialFilterExpression: { user: { $exists: true, $type: "objectId" } } 
     }
-  },
-  { timestamps: true }
 );
 
-// IMPORTANT: Ek email se ek counsellor ko ek hi review allow hoga
-reviewSchema.index({ counsler: 1, email: 1 }, { unique: true });
+// 2. UNIQUE index sirf Guest Users ke liye (jab email field null na ho)
+reviewSchema.index(
+    { counsler: 1, email: 1 },
+    { 
+        unique: true, 
+        partialFilterExpression: { email: { $exists: true, $type: "string" } } 
+    }
+);
 
-const reviewModel = mongoose.models.Review || mongoose.model("Review", reviewSchema);
-export default reviewModel;
+const Review = mongoose.models.Review || mongoose.model("Review", reviewSchema);
+export default Review;

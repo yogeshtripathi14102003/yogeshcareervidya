@@ -261,6 +261,9 @@ export const loginCounselor = async (req, res) => {
         userid: counselor.userid,
         email: counselor.email,
         status: counselor.status,
+        phone: counselor.phone,
+        doj: counselor.doj,
+        address: counselor.address,
       },
     });
 
