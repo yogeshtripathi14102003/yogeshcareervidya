@@ -1,4 +1,4 @@
-import Counselor from "../models/counsler/Counselor.js";
+import Counselor from "../models/counselor/Counselor.js";
 import bcrypt from "bcryptjs";
 
 /* ===============================

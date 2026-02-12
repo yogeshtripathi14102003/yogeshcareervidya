@@ -1,4 +1,4 @@
-import AdmissionFees from "../models/counsler/Admissionfess.js";
+import AdmissionFees from "../models/counselor/Admissionfess.js";
 
 /* ================= CREATE ================= */
 export const createAdmissionFees = async (req, res) => {

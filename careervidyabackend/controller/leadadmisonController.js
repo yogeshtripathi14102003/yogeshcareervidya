@@ -1,4 +1,4 @@
-import LeadAdmission from "../models/counsler/leadAdmission.js";
+import LeadAdmission from "../models/counselor/leadAdmission.js";
 
 // ================= CREATE ADMISSION =================
 // Isme counselor apna naam khud fill karke bhejega (req.body.counselorName)

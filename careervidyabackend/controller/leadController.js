@@ -1,7 +1,7 @@
 
 
-import Lead from "../models/counsler/Lead.js";
-import Counselor from "../models/counsler/Counselor.js";
+import Lead from "../models/counselor/Lead.js";
+import Counselor from "../models/counselor/Counselor.js";
 import XLSX from "xlsx";
 
 /* =====================================================

@@ -1,4 +1,4 @@
-import Ticket from "../models/counsler/Ticket.js";
+import Ticket from "../models/counselor/Ticket.js";
 
 // 1. CREATE
 export const createTicket = async (req, res) => {
