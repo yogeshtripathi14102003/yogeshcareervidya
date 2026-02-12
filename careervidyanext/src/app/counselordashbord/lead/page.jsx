@@ -347,7 +347,13 @@ const LeadRow = ({ lead, onSave }) => {
         <td className="p-3">
           <div className="flex flex-col">
             <span className="font-bold text-sm text-gray-800 leading-tight">{lead.name}</span>
-            <span className="text-[11px] text-blue-600 font-semibold">{lead.phone}</span>
+            <a
+  href={`tel:${lead.phone}`}
+  className="text-[11px] text-blue-600 font-semibold hover:underline cursor-pointer"
+>
+  {lead.phone}
+</a>
+
             <span className="text-[9px] text-gray-400 flex items-center gap-1 mt-0.5">
               <Mail size={8} /> {lead.email || "No Email"}
             </span>

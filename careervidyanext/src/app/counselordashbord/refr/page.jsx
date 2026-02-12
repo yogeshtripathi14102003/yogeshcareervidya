@@ -28,7 +28,7 @@ const initialState = {
   city: "",
   phone: "",
 
-  referralName: "",
+  refrelname: "",
 
   universityName: "",
   course: "",
@@ -222,7 +222,7 @@ export default function StudentAdmission({ lead, onClose }) {
     setError("");
 
     try {
-      const res = await api.post("/api/v1/admission", formData);
+      const res = await api.post("/api/v1/ad", formData);
 
       if (res?.data?.success) {
         setMessage("✅ Admission Submitted Successfully!");
@@ -271,7 +271,7 @@ export default function StudentAdmission({ lead, onClose }) {
 
           <Input icon={Phone} label="Phone" name="phone" value={formData.phone} onChange={handleChange} />
 
-          <Input icon={Users} label="Referral" name="referralName" value={formData.referralName} onChange={handleChange} />
+          <Input icon={Users} label="Referral" name="refrelname" value={formData.refrelname} onChange={handleChange} />
 
           <SelectInput icon={School} label="University" name="universityName" value={formData.universityName} onChange={handleChange} options={universities} />
 
