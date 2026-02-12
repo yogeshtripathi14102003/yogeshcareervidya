@@ -1,0 +1,405 @@
+/* ================================================= */
+/* GLOBAL HEADER STYLES */
+/* ================================================= */
+.header-container {
+    width: 100%;
+    background: white;
+    border-bottom: 1px solid #e5e5e5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 15px;
+    height: 65px;
+}
+
+@media (min-width: 1024px) {
+    .header-inner {
+        height: 80px;
+        padding: 0 20px; /*header logo ko side me thoda space dene ke liye */
+        max-width: 100%;
+    }
+}
+
+/* Visibility Helpers */
+.desktop-only { display: none !important; }
+.mobile-only { display: flex !important; }
+
+@media (min-width: 1024px) {
+    .desktop-only { display: flex !important; }
+    .mobile-only { display: none !important; }
+}
+
+/* ================================================= */
+/* LOGO AREA (SAFE FIX – NO OVERLAP) */
+/* ================================================= */
+
+.logo-wrapper {
+    flex-shrink: 0;
+    max-width: 320px;
+}
+
+.logo-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 320px;
+    overflow: hidden;
+}
+
+.logo-img {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+}
+
+@media (min-width: 1024px) {
+    .logo-img {
+        width: 140px;
+    }
+}
+
+/* --- FREE COUNSELLING BADGE --- */
+.counselling-badge {
+    width: 85px;
+    /* height: 79; */
+     height: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Mobile me hide */
+@media (max-width: 768px) {
+    .counselling-badge {
+        display: none;
+    }
+}
+
+/* ================================================= */
+/* DESKTOP SEARCH BAR */
+/* ================================================= */
+
+.header-search-container.desktop-only {
+    margin-left: auto;
+    margin-right: 30px;
+    flex-shrink: 0;
+}
+
+.main-search-bar {
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #cccccc70;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    width: 320px;
+    height: 44px;
+    padding: 4px 4px 4px 20px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+}
+
+.main-search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 13px;
+    font-family: 'Geist', sans-serif;
+}
+
+.search-icon-btn {
+    cursor: pointer;
+    background-color: #c15304;
+    border: 3px solid #be500d;
+    border-radius: 50%;
+    width: 37px;
+    height: 37px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 3px;
+}
+
+/* ================================================= */
+/* NAV & BUTTONS */
+/* ================================================= */
+
+.nav-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.nav-right a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    padding: 8px 10px;
+}
+
+.btn1-primary {
+    cursor: pointer;
+    background-color: transparent;
+    border: 1.5px solid #c15304;
+    border-radius: 4px;
+    padding: 8px 22px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #04458b;
+    transition: all 0.2s;
+}
+
+.btn1-primary:hover {
+    background-color: #c15304;
+    color: white;
+}
+
+/* ================================================= */
+/* MOBILE SIDEBAR */
+/* ================================================= */
+
+.mobile-actions {
+    align-items: center;
+    gap: 10px;
+}
+
+.mobile-signup-btn {
+    background: #c15304;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.menu-toggle-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.mobile-sidebar-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.mobile-sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 290px;
+    height: 100%;
+    background: white;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.3s ease-in-out;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+}
+
+.mobile-sidebar.open {
+    right: 0;
+}
+
+/* ================================================= */
+/* SEARCH DROPDOWN */
+/* ================================================= */
+
+.search-dropdown-overlay {
+    position: absolute;
+    top: 61px;
+    left: 65%;
+    transform: translateX(-50%) translateY(-10px);
+    width: 900px;
+    max-width: 90vw;
+    background: white;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border: 1px solid #e0e0e0;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.header-search-container:hover .search-dropdown-overlay {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+/* ================================================= */
+/* MOBILE SIDEBAR – COMPLETE & SAFE */
+/* ================================================= */
+
+/* Overlay */
+.mobile-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 9998;
+}
+
+.mobile-sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar Drawer */
+.mobile-sidebar {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    max-width: 85vw;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: -8px 0 20px rgba(0,0,0,0.15);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.35s ease;
+    z-index: 9999;
+    overflow-y: auto;
+}
+
+.mobile-sidebar.open {
+    right: 0;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #002D62;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Nav Links */
+.mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mobile-nav-links a {
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    padding: 12px 14px;
+    border-radius: 8px;
+    transition: background 0.25s, color 0.25s;
+}
+
+.mobile-nav-links a:hover {
+    background: #f5f7fa;
+    color: #04458b;
+}
+
+/* Signup Button */
+.mobile-sidebar-signup {
+    margin-top: auto;
+    background: #04458b;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Hide sidebar on desktop */
+@media (min-width: 1024px) {
+    .mobile-sidebar,
+    .mobile-sidebar-overlay {
+        display: none !important;
+    }
+}
+/* ================================================= */
+/* MOBILE SIDEBAR – FONT STYLE (SAP TYPE LOOK) */
+/* ================================================= */
+
+.mobile-sidebar,
+.mobile-sidebar * {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Sidebar Menu Items */
+.mobile-nav-links a {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    color: #2b2b2b;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+/* Remove last border */
+.mobile-nav-links a:last-child {
+    border-bottom: none;
+}
+
+/* Section spacing look */
+.mobile-nav-links {
+    margin-top: 10px;
+}
+
+/* Header title */
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Close icon alignment */
+.close-btn svg {
+    width: 26px;
+    height: 26px;
+}

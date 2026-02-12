@@ -1,0 +1,60 @@
+.topheader-container {
+  width: 100%;
+  background: #012347;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.topheader-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 40px; /* Header ki height thodi kam rakhi hai padding se */
+  background: #02264c;
+  width: 100%;
+  margin: 0px auto;
+}
+
+/* Right Side Wrapper */
+.topheader-right {
+  display: flex;
+  align-items: center;
+}
+
+/* 🛠️ ASLI FIX YAHAN HAI: Nav ke andar gap apply kiya */
+.top-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 35px; /* Yahan se aap jitna chahe space badha sakte hain */
+}
+
+/* Links Styling */
+.top-link {
+  text-decoration: none;
+  color: #ffffff !important; /* Force white color */
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  opacity: 0.9;
+}
+
+.top-link:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+/* Pipe Separator Styling */
+.separator {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  margin: 0 -5px; /* Separator ko center mein rakhne ke liye */
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .topheader-inner {
+    padding: 8px 15px;
+  }
+  .top-nav-links {
+    gap: 15px; /* Mobile par space thoda kam auto-adjust */
+  }
+}
