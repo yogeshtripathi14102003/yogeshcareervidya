@@ -31,12 +31,13 @@ const LeadsPage = () => {
       const cSemFee = parseFloat(editData.c_semesterFees) || 0;
       const cRegFee = parseFloat(editData.c_registrationFee) || 0;
       const cDiscount = parseFloat(editData.c_discount) || 0;
-
+const examFee = parseFloat(editData.examFees) || 0;
+const calculatedTotal = (semFee * semCount) + regFee + examFee*semCount;
       // Calculate Official Total
-      const calculatedTotal = (semFee * semCount) + regFee;
+    
       
       // Calculate Closing Total (Counselor's Deal)
-      const calculatedClosingTotal = (cSemFee * semCount) + cRegFee - cDiscount;
+      const calculatedClosingTotal = ((cSemFee + examFee) * semCount) + cRegFee - cDiscount;
 
       // Only update if values actually changed to avoid infinite loops
       if (editData.totalFees !== calculatedTotal || editData.c_totalFees !== calculatedClosingTotal) {
@@ -119,6 +120,7 @@ const LeadsPage = () => {
           newData.semesterFees = config.semesterFees;
           newData.semesterCount = config.semesterCount;
           newData.registrationFee = config.registrationFee;
+          newData.examFees = config.examFees;
       }
     }
 
@@ -138,7 +140,29 @@ const LeadsPage = () => {
       alert("Failed to update.");
     }
   };
+// DELETE ADMISSION (DANGER ZONE)
+const handleDelete = async () => {
+  if (!selectedStudent?._id) return;
 
+  const confirmDelete = window.confirm(
+    "⚠️ Very Danger Zone!\nThis admission will be permanently deleted.\nAre you sure?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const res = await api.delete(`/api/v1/ad/${selectedStudent._id}`);
+
+    if (res.data.success) {
+      alert("Admission Deleted Successfully!");
+      setSelectedStudent(null);
+      fetchData();
+    }
+  } catch (err) {
+    alert("Delete Failed!");
+    console.error(err);
+  }
+};
   const filteredLeads = useMemo(() => {
     return leads.filter((l) => {
       const term = searchTerm.toLowerCase();
@@ -206,6 +230,7 @@ const LeadsPage = () => {
                     >
                       <Pencil size={12} className="inline mr-1" /> Edit
                     </button>
+                    
                   </td>
                 </tr>
               ))}
@@ -249,7 +274,7 @@ const LeadsPage = () => {
                 <InputField label="Sem Count" type="number" value={editData.semesterCount} onChange={(val) => setEditData({...editData, semesterCount: val})} />
                 <InputField label="Reg Fee" type="number" value={editData.registrationFee} onChange={(val) => setEditData({...editData, registrationFee: val})} />
                 <InputField label="Total Fee (Calculated)" type="number" value={editData.totalFees} readOnly className="bg-slate-100" />
-
+<InputField label="Exam Fees" type="number" value={editData.examFees} onChange={(val) => setEditData({...editData, examFees: val})} />
                 <SectionTitle icon={<Receipt size={14}/>} title="Closing (Counselor Deal)" />
                 <InputField label="Closing Sem Fee" type="number" value={editData.c_semesterFees} onChange={(val) => setEditData({...editData, c_semesterFees: val})} />
                 <InputField label="Closing Reg Fee" type="number" value={editData.c_registrationFee} onChange={(val) => setEditData({...editData, c_registrationFee: val})} />
@@ -258,10 +283,44 @@ const LeadsPage = () => {
               </div>
 
               <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end gap-3">
-                <button type="button" onClick={() => setSelectedStudent(null)} className="px-5 py-2 text-[11px] font-bold text-slate-400">Discard</button>
-                <button type="submit" className="bg-orange-500 text-white px-8 py-2 rounded-lg text-[11px] font-bold hover:bg-orange-600 shadow-md">
-                  Update Database
-                </button>
+                
+                <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
+
+  {/* LEFT SIDE - DANGER ZONE */}
+  <div className="flex items-center gap-3">
+    <span className="text-[11px] font-bold text-red-600 uppercase">
+      ⚠️ Very Danger Zone
+    </span>
+
+    <button
+      type="button"
+      onClick={handleDelete}
+      className="bg-red-600 text-white px-4 py-1.5 rounded-md text-[11px] font-bold hover:bg-red-700 shadow"
+    >
+      Delete Admission
+    </button>
+  </div>
+
+  {/* RIGHT SIDE - NORMAL BUTTONS */}
+  <div className="flex gap-3">
+    <button
+      type="button"
+      onClick={() => setSelectedStudent(null)}
+      className="px-5 py-2 text-[11px] font-bold text-slate-400"
+    >
+      Discard
+    </button>
+
+    <button
+      type="submit"
+      className="bg-orange-500 text-white px-8 py-2 rounded-lg text-[11px] font-bold hover:bg-orange-600 shadow-md"
+    >
+      Update Database
+    </button>
+  </div>
+
+</div>
+                
               </div>
             </form>
           </div>

@@ -4,18 +4,39 @@ import LeadAdmission from "../models/counselor/LeadAdmission.js";
 // Isme counselor apna naam khud fill karke bhejega (req.body.counselorName)
 export const createLeadAdmission = async (req, res) => {
   try {
-    const admissionData = req.body;
+    const { email, phone } = req.body;
 
-    // Agar frontend se counselor ki ID nahi aa rahi, 
-    // toh hum sirf counselorName (String) ke saath record create karenge.
-    const admission = await LeadAdmission.create(admissionData);
+    // ✅ Pehle check karo
+    const existingStudent = await LeadAdmission.findOne({
+      $or: [{ email }, { phone }],
+    });
+
+    if (existingStudent) {
+      return res.status(400).json({
+        success: false,
+        message: "⚠️ This student is already registered. Please check the existing record!",
+      });
+    }
+
+    // ✅ Phir create karo
+    const admission = await LeadAdmission.create(req.body);
 
     res.status(201).json({
       success: true,
       message: "✅ Admission created successfully!",
       data: admission,
     });
+
   } catch (error) {
+
+    // Duplicate key error handle
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "⚠️ Duplicate entry! Student already exists.",
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "❌ Error creating admission: " + error.message,

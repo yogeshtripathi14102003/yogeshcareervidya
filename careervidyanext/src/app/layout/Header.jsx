@@ -154,7 +154,7 @@ export default function Header() {
               <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>
                 Free Counselling
               </Link>
-              <Link href="/coming-soon" onClick={() => setMenuOpen(false)}>
+              <Link href="/topunivers" onClick={() => setMenuOpen(false)}>
                 Top University
               </Link>
 

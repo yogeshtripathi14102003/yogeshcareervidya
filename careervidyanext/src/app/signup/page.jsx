@@ -31,6 +31,7 @@ const FloatingSelect = ({ label, name, value, onChange, options = [] }) => (
 );
 
 /* ================= FLOATING INPUT ================= */
+/* ================= FLOATING INPUT ================= */
 const FloatingInput = ({
   label,
   name,
@@ -52,21 +53,19 @@ const FloatingInput = ({
       name={name}
       value={value}
       onChange={onChange}
-      className={`w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] ${
-        showNoSpam ? "pr-36" : ""
-      }`}
+      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px]"
     />
 
-    {/* No Spam Badge */}
+    {/* No Spam Badge BELOW input, opposite side */}
     {showNoSpam && (
-      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white whitespace-nowrap">
-        {noSpamText}
-      </span>
+      <div className="flex justify-end mt-1">
+        <span className="text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white whitespace-nowrap">
+          {noSpamText}
+        </span>
+      </div>
     )}
   </div>
 );
-
-
 /* ================= MAIN COMPONENT ================= */
 const Signup = ({ onClose }) => {
   const [formData, setFormData] = useState({

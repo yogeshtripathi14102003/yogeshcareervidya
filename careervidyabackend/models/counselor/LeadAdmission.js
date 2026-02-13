@@ -4,8 +4,9 @@ const leadAdmissionSchema = new mongoose.Schema(
   {
     studentName: { type: String, required: true },
     fatherName: { type: String }, 
-    email: { type: String, required: true },
-    phone: { type: String },
+   email: { type: String, required: true, unique: true }, // ✅ UNIQUE
+    phone: { type: String, unique: true }, // ✅ UNIQUE
+
     city: { type: String },
     universityName: { type: String },
     course: { type: String },
