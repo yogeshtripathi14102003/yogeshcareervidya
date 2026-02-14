@@ -331,8 +331,8 @@ export default function UniversitiesPage() {
         const aCount = a.courses?.length || 0;
         const bCount = b.courses?.length || 0;
 
-        if (aCount >= 5 && bCount < 5) return -1;
-        if (aCount < 5 && bCount >= 5) return 1;
+        if (aCount >= 3 && bCount < 3) return -1;
+        if (aCount < 3 && bCount >= 3) return 1;
 
         return bCount - aCount;
       });
@@ -355,7 +355,7 @@ export default function UniversitiesPage() {
   const handleDetailsClick = (uni) => {
     const count = uni.courses?.length || 0;
 
-    if (count < 5) {
+    if (count < 3) {
       alert("This university details are not available yet.");
       return;
     }
@@ -449,7 +449,7 @@ export default function UniversitiesPage() {
                     .join(", ")
                 : rawPoints;
 
-              const canOpen = courseCount >= 5;
+              const canOpen = courseCount >= 3;
 
               return (
                 <div
