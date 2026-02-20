@@ -119,7 +119,7 @@ export const createLead = async (req, res) => {
 
       remark: req.body.remark,
       action: req.body.action,
-      status: req.body.status || "Follow-up",
+      // status: req.body.status || "New",
 
       followUpDate: req.body.followUpDate,
       reminderDate: req.body.reminderDate,
@@ -198,7 +198,7 @@ export const uploadLeads = async (req, res) => {
 
       remark: l.remark || "",
       action: l.action || "",
-      status: "Follow-up", // Default status from your schema enum
+      status: "New", // Default status from your schema enum
     }));
 
     const inserted = await Lead.insertMany(leads);

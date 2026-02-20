@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { PERMISSIONS } from "./constant/permission.js";
 
 export const seedDefaultAdmin = async () => {
-  const adminEmail = "yogeshcareervidya@gmail.com";
+  const adminEmail = "careervidyaedutech@gmail.com";
   const adminPassword = "yogesh@2003"; // Use env in production
 
   // Check if admin already exists

@@ -19,6 +19,9 @@ import {
 /* ================= STATUS CONSTANTS ================= */
 
 const STATUS = [
+  "New",
+  "Not Interested",
+
   "Details Shared",
   "Follow-up",
   "Hot Lead",
@@ -29,7 +32,6 @@ const STATUS = [
   "Not Picked",
   "Admission Done",
 ];
-
 const MONTHS = [
   { val: "01", label: "January" }, { val: "02", label: "February" },
   { val: "03", label: "March" }, { val: "04", label: "April" },

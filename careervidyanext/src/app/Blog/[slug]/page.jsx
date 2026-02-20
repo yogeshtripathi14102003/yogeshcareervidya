@@ -1,208 +1,4 @@
-// "use client";
 
-// import { useEffect, useState } from "react";
-// import { useParams } from "next/navigation";
-// import api from "@/utlis/api";
-// import Image from "next/image";
-
-// export default function BlogDetailPage() {
-//   const { slug } = useParams();
-
-//   const [blog, setBlog] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     if (slug) fetchBlog();
-//   }, [slug]);
-
-//   const fetchBlog = async () => {
-//     try {
-//       const res = await api.get(`/api/v1/blog/slug/${slug}`);
-//       setBlog(res.data.data);
-//     } catch (err) {
-//       console.error("Blog detail error", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="py-40 text-center text-lg">
-//         Loading blog...
-//       </div>
-//     );
-//   }
-
-//   if (!blog) {
-//     return (
-//       <div className="py-40 text-center text-red-500">
-//         Blog not found
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="max-w-5xl mx-auto px-4 py-16">
-
-//       {/* ===== Title ===== */}
-//       <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-//         {blog.title}
-//       </h1>
-
-//       {/* ===== Author ===== */}
-//       <p className="mt-3 text-sm text-slate-500">
-//         {blog.author?.name} |{" "}
-//         {new Date(blog.createdAt).toDateString()}
-//       </p>
-
-//       {/* ===== Cover Image ===== */}
-//       <div className="relative w-full h-[400px] mt-8 rounded-xl overflow-hidden">
-//         <Image
-//           src={blog.image?.url || "/placeholder.jpg"}
-//           alt={blog.title}
-//           fill
-//           className="object-cover"
-//         />
-//       </div>
-
-//       {/* ===== Overview ===== */}
-//       {blog.overview?.points?.length > 0 && (
-//         <div className="mt-10 bg-slate-50 p-6 rounded-xl">
-//           <h2 className="text-xl font-semibold mb-3">
-//             {blog.overview.heading}
-//           </h2>
-
-//           <ul className="list-disc ml-6 space-y-2 text-slate-700">
-//             {blog.overview.points.map((point, i) => (
-//               <li key={i}>{point}</li>
-//             ))}
-//           </ul>
-//         </div>
-//       )}
-
-//       {/* ===== Main Content ===== */}
-//       <div className="mt-12 space-y-6">
-
-//         {blog.content?.map((block, index) => {
-
-//           /* TEXT */
-//           if (block.block_type === "text") {
-//             return (
-//               <p
-//                 key={index}
-//                 className="text-slate-700 leading-relaxed"
-//               >
-//                 {block.value}
-//               </p>
-//             );
-//           }
-
-//           /* IMAGE */
-//           if (block.block_type === "image") {
-//             return (
-//               <div key={index} className="my-6">
-
-//                 <div className="relative w-full h-[350px] rounded-lg overflow-hidden">
-//                   <Image
-//                     src={block.media?.url}
-//                     alt={block.media?.caption || "Blog Image"}
-//                     fill
-//                     className="object-cover"
-//                   />
-//                 </div>
-
-//                 {block.media?.caption && (
-//                   <p className="text-center text-sm text-slate-500 mt-2">
-//                     {block.media.caption}
-//                   </p>
-//                 )}
-
-//               </div>
-//             );
-//           }
-
-//           /* VIDEO */
-//           if (block.block_type === "video") {
-//             return (
-//               <div key={index} className="my-6">
-//                 <video
-//                   controls
-//                   className="w-full rounded-lg"
-//                   src={block.media?.url}
-//                 />
-//               </div>
-//             );
-//           }
-
-//           /* TABLE */
-//           if (block.block_type === "table") {
-//             return (
-//               <div key={index} className="overflow-x-auto">
-
-//                 <table className="w-full border border-slate-300 text-sm">
-//                   <tbody>
-//                     {block.value?.map((row, i) => (
-//                       <tr key={i} className="border-b">
-
-//                         <td className="border px-3 py-2">
-//                           {row.column1}
-//                         </td>
-
-//                         <td className="border px-3 py-2">
-//                           {row.column2}
-//                         </td>
-
-//                         <td className="border px-3 py-2">
-//                           {row.column3}
-//                         </td>
-
-//                       </tr>
-//                     ))}
-//                   </tbody>
-//                 </table>
-
-//               </div>
-//             );
-//           }
-
-//           return null;
-//         })}
-
-//       </div>
-
-//       {/* ===== FAQ ===== */}
-//       {blog.faqs?.length > 0 && (
-//         <div className="mt-14">
-
-//           <h2 className="text-2xl font-bold mb-6">
-//             Frequently Asked Questions
-//           </h2>
-
-//           <div className="space-y-4">
-
-//             {blog.faqs.map((faq, i) => (
-//               <div
-//                 key={i}
-//                 className="border rounded-lg p-4"
-//               >
-//                 <h4 className="font-semibold">
-//                   {faq.question}
-//                 </h4>
-
-//                 <p className="text-slate-600 mt-1">
-//                   {faq.answer}
-//                 </p>
-//               </div>
-//             ))}
-
-//           </div>
-//         </div>
-//       )}
-
-//     </div>
-//   );
-// }
 
 
 "use client";
@@ -212,6 +8,7 @@ import { useParams } from "next/navigation";
 import api from "@/utlis/api";
 import Image from "next/image";
 import Head from "next/head"; // SEO ke liye
+import BlogHeader from "@/app/layout/BlogHeader.jsx"; // Blog header component
 
 export default function BlogDetailPage() {
   const { slug } = useParams();
@@ -237,6 +34,8 @@ export default function BlogDetailPage() {
   if (!blog) return <div className="py-40 text-center text-red-500">Blog not found</div>;
 
   return (
+    <>
+      <BlogHeader />
     <div className="max-w-5xl mx-auto px-4 py-16">
       {/* ===== SEO Metadata (Browser tab ke liye) ===== */}
       <title>{blog.seo?.meta_title || blog.title}</title>
@@ -389,5 +188,6 @@ export default function BlogDetailPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

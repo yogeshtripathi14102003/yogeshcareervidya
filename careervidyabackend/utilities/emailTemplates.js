@@ -1,110 +1,78 @@
-// export const otpTemplate = (otp, context = "Password Reset") => ({
-//   subject: `CareerVidya OTP Code (valid 10 minutes)`,
-//   html: `
-//     <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background: #fafafa;">
-//       <h2 style="color: #2c3e50;">${context}</h2>
-//       <p style="font-size: 15px; color: #555;">
-//         Use the OTP code below to proceed.
-//       </p>
-//       <div style="text-align: center; margin: 30px 0;">
-//         <span style="display: inline-block; background: #2ecc71; color: #fff; padding: 15px 25px; font-size: 20px; font-weight: bold; border-radius: 8px; letter-spacing: 2px;">
-//           ${otp}
-//         </span>
-//       </div>
-//       <p style="font-size: 14px; color: #888;">
-//         ⚠️ Valid for <strong>10 minutes</strong>. Do not share it with anyone.
-//       </p>
-//       <p style="font-size: 14px; color: #888;">
-//         If you didn’t request this, you can ignore this email.
-//       </p>
-//       <hr/>
-//       <p style="font-size: 12px; color: #aaa; text-align: center;">
-//         &copy; ${new Date().getFullYear()} careervidya. All rights reserved.
-//       </p>
-//     </div>
-//   `
-// });
+/**
+ * OTP Verification Email Template
+ */
+export const getOTPTemplate = (otp) => {
+  const currentYear = new Date().getFullYear();
+  return `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 450px; margin: 0 auto; border: 1px solid #eeeeee; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <div style="background-color: #1a73e8; height: 6px;"></div>
+        
+        <div style="padding: 30px 20px 10px 20px; text-align: center;">
+          <h2 style="color: #202124; margin: 0; font-size: 22px;">Verification Required</h2>
+          <p style="color: #5f6368; font-size: 15px; margin-top: 10px;">Enter the verification code below to securely access your account</p>
+        </div>
 
-// export const welcomeTemplate = (name) => ({
-//   subject: `👋 Welcome to careerVidya, ${name}!`,
-//   html: `
-//     <h2>Welcome, ${name}!</h2>
-//     <p>We’re excited to have you onboard. Start exploring careervidya today 🚀</p>
-//   `
-// });
+        <div style="padding: 20px; text-align: center;">
+          <div style="background-color: #f1f3f4; border-radius: 8px; padding: 25px; display: inline-block; min-width: 200px;">
+            <span style="font-size: 40px; font-weight: 800; letter-spacing: 8px; color: #1a73e8;">${otp}</span>
+          </div>
+          
+          <div style="margin-top: 15px; padding: 8px; background-color: #fff4e5; border-radius: 4px; display: inline-block;">
+            <p style="color: #b95000; font-size: 13px; font-weight: bold; margin: 0;">
+              ⚠️ Note: This OTP expires in 5 minutes
+            </p>
+          </div>
+        </div>
 
-// export const newsletterTemplate = (subject, body) => ({
-//   subject,
-//   html: `
-//     <h2>${subject}</h2>
-//     <div>${body}</div>
-//   `
-// });
+        <div style="padding: 0 30px; color: #3c4043; font-size: 14px;">
+          <p style="margin-bottom: 5px;">Thanks & Regards,</p>
+          <p style="margin: 0; font-weight: bold; color: #1a73e8;">Careervidya</p>
+          <p style="margin: 2px 0; font-style: italic; color: #5f6368; font-size: 12px;">#vidyahaitosuccesshai</p>
+        </div>
 
-// export const verifyEmailTemplate = (name, verifyLink) => ({
-//   subject: `Verify your CareerVidya email, ${name}`,
-//   html: `
-//     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; max-width: 680px; margin: 0 auto; padding: 28px; background: #f6f9fc; color: #0f1724;">
-//       <div style="background: linear-gradient(90deg,#6c5ce7,#00b894); padding: 24px; border-radius: 12px 12px 0 0; text-align: center; color: #fff;">
-//         <h1 style="margin:0; font-size:22px; letter-spacing: -0.4px;">Confirm your email</h1>
-//         <p style="margin:6px 0 0; opacity:0.95;">One more step to get started with CareerVidya</p>
-//       </div>
+        <div style="margin: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
+          <p style="margin: 0; font-size: 14px; color: #3c4043; font-weight: 500;">Need Help?</p>
+          <p style="margin: 5px 0 10px 0; font-size: 13px; color: #5f6368;">If you did not request this code, reach out to our support team</p>
+          <a href="mailto:support@careervidya.in" style="color: #1a73e8; text-decoration: none; font-weight: bold; font-size: 14px; border: 1px solid #1a73e8; padding: 5px 15px; border-radius: 4px; display: inline-block;">
+            📩 support@careervidya.in
+          </a>
+        </div>
 
-//       <div style="background:#ffffff; padding:24px; border-radius:0 0 12px 12px; box-shadow: 0 6px 18px rgba(16,24,40,0.06);">
-//         <p style="font-size:15px; color:#102a43; margin:0 0 16px;">Hi ${name || 'there'},</p>
-
-//         <p style="font-size:15px; color:#334e68; line-height:1.5; margin:0 0 20px;">Thanks for creating an account on <strong>CareerVidya</strong>. Please confirm your email address by clicking the button below. This helps us keep your account secure and ensures we can reach you about important updates.</p>
-
-//         <div style="text-align:center; margin: 22px 0;">
-//           <a href="${verifyLink}" target="_blank" rel="noopener" style="display:inline-block; background:linear-gradient(90deg,#6c5ce7,#00b894); color:#fff; padding:12px 22px; border-radius:10px; text-decoration:none; font-weight:600; box-shadow: 0 6px 18px rgba(108,92,231,0.18);">Verify Email</a>
-//         </div>
-
-//         <p style="font-size:13px; color:#627d98; margin:0 0 12px;">If the button doesn't work, copy and paste the following link into your browser:</p>
-//         <p style="font-size:12px; word-break:break-all; color:#0f1724; background:#f1f5f9; padding:10px; border-radius:6px;">${verifyLink}</p>
-
-//         <hr style="border:none; border-top:1px solid #eef2f6; margin:20px 0;">
-
-//         <p style="font-size:13px; color:#526a7a; margin:0;">If you didn't create an account with us, you can safely ignore this email.</p>
-
-//         <p style="font-size:13px; color:#526a7a; margin:12px 0 0;">Thanks,<br/>The CareerVidya Team</p>
-
-//         <div style="margin-top:18px; display:flex; gap:12px; align-items:center;">
-//           <img src="https://raw.githubusercontent.com/your-org/placeholder/main/logo-small.png" alt="CareerVidya" style="width:56px; height:56px; border-radius:8px; object-fit:cover;">
-//           <div style="font-size:12px; color:#98a8b9;">&copy; ${new Date().getFullYear()} CareerVidya. All rights reserved.</div>
-//         </div>
-//       </div>
-//     </div>
-//   `
-// });
-
-
-
-import nodemailer from "nodemailer";
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-export const sendThankYouEmail = async ({ name, email }) => {
-  const mailOptions = {
-    from: `"Your Company" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Thank you for registering 🎉",
-    html: `
-      <div style="font-family: Arial; line-height: 1.6">
-        <h2>Hi ${name},</h2>
-        <p>Thank you for registering with <b>Careervidya</b>.</p>
-        <p>We’re excited to have you onboard 🚀</p>
-        <p>If you have any questions, feel free to reply.</p>
-        <br/>
-        <p>Regards,<br/>Careervidya Team </p>
+        <div style="padding: 20px; text-align: center; border-top: 1px solid #eeeeee;">
+          <a href="https://careervidya.in" style="text-decoration: none; color: #5f6368; font-size: 13px; font-weight: 600;">Visit our website Careervidya.in</a>
+          <div style="margin-top: 15px; color: #9aa0a6; font-size: 11px;">
+            &copy; ${currentYear} Careervidya.in. All rights reserved.
+          </div>
+        </div>
       </div>
-    `,
-  };
+  `;
+};
 
-  await transporter.sendMail(mailOptions);
+/**
+ * Welcome / Registration Email Template
+ */
+export const getWelcomeTemplate = (studentName) => {
+  const currentYear = new Date().getFullYear();
+  return `
+    <div style="font-family: 'Segoe UI', Roboto, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+      <div style="background-color: #1a73e8; height: 8px;"></div>
+      <div style="padding: 25px 20px; color: #202124; font-size: 14px; line-height: 1.6;">
+        <p>Hi ${studentName},</p>
+        <p>Warm greetings from the <strong>Career Vidya Edu-Tech Team</strong>, and we welcome you to a journey built on clarity, trust, and informed decision-making.</p>
+        <p>Thank you for registering with Career Vidya...</p>
+        <div style="background-color: #f8f9fa; border-left: 4px solid #1a73e8; padding: 15px; margin: 20px 0;">
+          <p style="color: #1a73e8; font-weight: bold; margin: 0 0 10px 0;">Why students trust Career Vidya:</p>
+          <ul style="margin: 0; padding-left: 18px; color: #3c4043;">
+            <li>100% Free Counselling from Experts</li>
+            <li>One-on-One Personalized Guidance Sessions</li>
+            <li>100% Job Assistance Support</li>
+          </ul>
+        </div>
+        <p>Warm regards,<br><strong>Abhimanyu Singh Chauhan</strong><br>Founder & CEO – Career Vidya</p>
+      </div>
+      <div style="padding: 15px; text-align: center; background-color: #f1f3f4; font-size: 11px; color: #70757a;">
+        &copy; ${currentYear} Career Vidya. All rights reserved.
+      </div>
+    </div>
+  `;
 };

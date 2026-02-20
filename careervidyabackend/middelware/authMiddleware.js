@@ -61,12 +61,13 @@
 // export default authMiddleware;
 
 
+
+
 import jwt from "jsonwebtoken";
 import userModel from "../models/user/AuthModel.js";
 
-// Constants for readability
-const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 Minutes
-const THROTTLE_LIMIT = 60 * 1000;        // 1 Minute (to reduce DB writes)
+const INACTIVITY_LIMIT = 15 * 60 * 1000; 
+const THROTTLE_LIMIT = 60 * 1000;         
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -83,41 +84,52 @@ const authMiddleware = async (req, res, next) => {
     try {
       decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     } catch (err) {
-      return res.status(403).json({ msg: "Invalid or expired token" });
+      // Direct return for frontend interceptor to handle refresh
+      return res.status(403).json({ msg: "Token expired", code: "TOKEN_EXPIRED" });
     }
 
-    // 3. Fetch User from DB
-    const user = await userModel.findById(decoded.id).select("-otp -__v");
+    // 3. Fetch User
+    const user = await userModel.findById(decoded.id).select("-password -__v");
     if (!user) {
       return res.status(401).json({ msg: "User no longer exists" });
     }
 
     // 4. --- ADMIN INACTIVITY LOGIC ---
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === "subadmin") {
       const now = Date.now();
       const lastSeen = user.lastActivity ? new Date(user.lastActivity).getTime() : 0;
 
-      // Check if current time exceeds the 15-minute limit
       if (lastSeen && (now - lastSeen > INACTIVITY_LIMIT)) {
-        // Clear activity in DB so the session is officially dead
+        // Clear database state
         user.lastActivity = null;
         await user.save();
-        return res.status(401).json({ msg: "Admin session expired due to inactivity" });
+        
+        // IMPORTANT: Clear BOTH cookies if you are setting domain-level cookies
+        const cookieOptions = {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          domain: process.env.NODE_ENV === "production" ? ".careervidya.in" : "localhost",
+        };
+
+        res.clearCookie("refreshToken", cookieOptions);
+        res.clearCookie("userRole", { ...cookieOptions, httpOnly: false }); // userRole isn't httpOnly
+
+        // Send a specific code so frontend knows it was INACTIVITY
+        return res.status(401).json({ 
+          msg: "Session expired due to inactivity", 
+          code: "INACTIVITY_LOGOUT" 
+        });
       }
 
-      /**
-       * PERFORMANCE RESOLUTION:
-       * Only update user.lastActivity if more than 1 minute has passed 
-       * since the last update. This prevents constant DB writing.
-       */
+      // Throttled Update: Use findOneAndUpdate to avoid full document save overhead
       if (now - lastSeen > THROTTLE_LIMIT) {
-        user.lastActivity = now;
-        await user.save();
+        await userModel.updateOne({ _id: user._id }, { $set: { lastActivity: now } });
       }
     }
-    // ---------------------------------
 
-    // 5. Attach user to request and move to next controller
+    // 5. Success
     req.user = user;
     next();
 
