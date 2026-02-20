@@ -763,7 +763,17 @@ export const refreshAccessToken = async (req, res) => {
 /* -------------------- LOGOUT -------------------- */
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("refreshToken");
+    const isProd = process.env.NODE_ENV === "production";
+
+    // Cookie ko clear karte waqt vahi options dena zaruri hai jo set karte waqt diye the
+    res.clearCookie("refreshToken", {
+      path: "/",
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      ...(isProd && { domain: ".careervidya.in" }) // Yeh line sabse important hai
+    });
+
     return res.status(200).json({ msg: "Logged out successfully" });
   } catch (err) {
     console.error("Logout Error:", err);
