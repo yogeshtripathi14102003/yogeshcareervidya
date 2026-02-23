@@ -590,13 +590,32 @@ export const createCourse = async (req, res) => {
 // GET ALL COURSES (NO CHANGE)
 // ======================================================
 export const getCourses = async (req, res) => {
-    // ... (Your original getCourses logic) ...
-    try {
-        const courses = await Course.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, count: courses.length, courses });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+    try {
+        const page = parseInt(req.query.page) || 1; // Default page 1
+        const limit = parseInt(req.query.limit) || 24; // Default 24 per page
+        const category = req.query.category || null;
+
+        const filter = category && category !== "All" ? { category } : {};
+
+        const totalCourses = await Course.countDocuments(filter);
+        const totalPages = Math.ceil(totalCourses / limit);
+
+        const courses = await Course.find(filter)
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        res.status(200).json({
+            success: true,
+            totalCourses,
+            totalPages,
+            currentPage: page,
+            courses,
+        });
+    } catch (error) {
+        console.error("Get Courses Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 // ======================================================

@@ -21,6 +21,7 @@ import AdmissionListView from "@/app/admin/Addcounsler/component/AdmissionListVi
 import Addfessstracture from "@/app/admin/Addcounsler/component/Addfessstracture.jsx";
 import AdminTiket from "@/app/admin/Addcounsler/component/AdminTiket.jsx";
 import LeadDelete from "@/app/admin/Addcounsler/component/LeadDelete.jsx";
+import CounslerPerform from "@/app/admin/Addcounsler/component/CounslerPerform.jsx";
 /* ================= STATUS OPTIONS ================= */
 const STATUS_OPTIONS = ["active", "leave", "Inactive"];
 
@@ -43,8 +44,9 @@ const CounselorsListPage = () => {
   const [reportOpen, setReportOpen] = useState(false);
   const [admissionOpen, setAdmissionOpen] = useState(false);
   const [feesOpen, setFeesOpen] = useState(false);
-  const [ticketOpen, setTicketOpen] = useState(false); // ✅ ADMIN TICKET MODAL
-const [deleteOpen, setDeleteOpen] = useState(false); // ✅ LEAD DELETE MODAL
+  const [ticketOpen, setTicketOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [performanceOpen, setPerformanceOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -282,6 +284,21 @@ const [deleteOpen, setDeleteOpen] = useState(false); // ✅ LEAD DELETE MODAL
         </div>
       )}
 
+      {performanceOpen && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white w-full max-w-5xl rounded-xl relative p-6 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setPerformanceOpen(false)}
+              className="absolute right-4 top-4 text-gray-500"
+            >
+              <X />
+            </button>
+            <h2 className="text-xl font-bold mb-4">Counselor Performance</h2>
+            <CounslerPerform />
+          </div>
+        </div>
+      )}
+
       {/* ================= HEADER ================= */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between mb-6 gap-4">
@@ -329,11 +346,17 @@ const [deleteOpen, setDeleteOpen] = useState(false); // ✅ LEAD DELETE MODAL
               🎫 Tickets
             </button>
             <button
-  onClick={() => setDeleteOpen(true)}
-  className="bg-red-600 text-white px-4 py-2 rounded"
->
-  🗑️ Delete Leads
-</button>
+              onClick={() => setDeleteOpen(true)}
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              🗑️ Delete Leads
+            </button>
+            <button
+              onClick={() => setPerformanceOpen(true)}
+              className="bg-yellow-500 text-white px-4 py-2 rounded"
+            >
+              📊 Counselor Performance
+            </button>
           </div>
         </div>
 
