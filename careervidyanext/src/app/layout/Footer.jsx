@@ -441,7 +441,7 @@ export default function Footer() {
               <li><Link href="/Aboutus">About</Link></li>
               <li><Link href="/contactus">Contact</Link></li>
               <li><Link href="/career">Careers</Link></li>
-              <li><Link href="/blog">Blog</Link></li>
+              <li><Link href="/blogs">Blog</Link></li>
             </ul>
           </div>
 
