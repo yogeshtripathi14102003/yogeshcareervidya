@@ -160,7 +160,8 @@ Total Semesters: ${semCount}`,
         `1. Subtotal (before discount: Rs. ${cleanAmount(subTotal)}
 2. Final payable amount: Rs. ${cleanAmount(closingFees)}
 3. Average per semester cos: Rs. ${cleanAmount(perSemesterFee)}
-4. Keep this slip safe for future reference.`,
+4. Keep this slip safe for future reference.
+5. This is a system generated slip and does not require signature.`,
         14,
         y + 5
       );

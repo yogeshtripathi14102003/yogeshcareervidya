@@ -23,6 +23,7 @@ const SIDEBAR_LINKS = [
   { name: "Referral & Admission", icon: Settings, path: "/counselordashbord/refr" },
   { name: "Admissions", icon: BadgeCheck, path: "/counselordashbord/admission" },
   { name: "Generate Ticket", icon: Mail, path: "/counselordashbord/genrateticket" },
+
 ];
 
 export default function CounselorLayout({ children }) {

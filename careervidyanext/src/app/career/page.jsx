@@ -275,7 +275,7 @@ export default function Jobs() {
         <img
           src="/images/career1.jpeg"
           alt="Contact Banner"
-          className="w-full h-full object-cover object-center opacity-80"
+          className="w-full h-full object-cover object-center "
         />
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 text-center px-4">
   
@@ -285,9 +285,7 @@ export default function Jobs() {
 
   {/* Sub text niche */}
   <p className="mt-4 text-white text-sm md:text-lg drop-shadow-md max-w-2xl">
-    {/* Your goals, our guidance, your success story. Step forward with Careervidya and shape tomorrow. */}
-  Unlock your true potential with expert guidance and industry-focused learning.
-Turn your dreams into real success with Careervidya by your side.
+Unlock Your True Potential With Expert Guidance And Industry-focused Learning. Turn Your Dreams Into Real Success With Careervidya By Your Side
   </p>
 
 </div>

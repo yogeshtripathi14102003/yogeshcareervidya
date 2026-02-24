@@ -252,7 +252,6 @@
 //   );
 // }
 
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -263,31 +262,31 @@ import api from "@/utlis/api";
 export default function Footer() {
   const [mounted, setMounted] = useState(false);
 
-  /* ================= NEWSLETTER ================= */
+  /* Newsletter */
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* ================= COURSES ================= */
+  /* Courses */
   const [pgCourses, setPgCourses] = useState([]);
   const [ugCourses, setUgCourses] = useState([]);
   const [diplomaCourses, setDiplomaCourses] = useState([]);
 
-  /* ================= MOUNT ================= */
+  /* Mount */
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  /* ================= FETCH + FILTER ================= */
+  /* Fetch Courses */
   useEffect(() => {
     const fetchFooterCourses = async () => {
       try {
-        // ✅ Single API Call
         const res = await api.get("/api/v1/course");
 
-        const allCourses = res.data.courses || [];
-
-        /* ✅ Frontend Filtering (Safe for any backend format) */
+        // ✅ Sort: Oldest → Newest
+        const allCourses = (res.data.courses || []).sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
 
         const pg = allCourses.filter(
           (c) =>
@@ -326,7 +325,7 @@ export default function Footer() {
     fetchFooterCourses();
   }, []);
 
-  /* ================= NEWSLETTER ================= */
+  /* Newsletter */
   const handleSubscribe = async () => {
     if (!email) {
       setMessage("Please enter your email");
@@ -352,9 +351,7 @@ export default function Footer() {
       setEmail("");
 
     } catch (error) {
-      console.error(error);
       setMessage("Something went wrong. Try again.");
-
     } finally {
       setLoading(false);
     }
@@ -369,7 +366,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
 
-        {/* ================= TOP ================= */}
+        {/* TOP */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-gray-300 mb-10">
 
           {/* Head Office */}
@@ -385,7 +382,6 @@ export default function Footer() {
 
             <p className="mt-2 text-sm">📞 +91 9289712364</p>
             <p className="mt-2 text-sm">📧 Info@careervidya.in</p>
-            <p className="mt-2 text-sm">📧 Careervidya.edu@gmail.com</p>
           </div>
 
           {/* Corporate Office */}
@@ -395,32 +391,26 @@ export default function Footer() {
             </h3>
 
             <p className="text-sm leading-relaxed">
-              H-160, Sector 63, H Block,
-              <br /> BSI Building, Ground Floor, Office No. 7
-              <br /> Noida, Uttar Pradesh - 201305
+              H-160, Sector 63, Noida - 201305
             </p>
 
-            <p className="mt-2 text-sm">📞 +91 9289712364</p>
             <p className="mt-2 text-sm">📞 +91 1201847695</p>
-            <p className="mt-2 text-sm">📧 Info@careervidya.in</p>
-            <p className="mt-2 text-sm">📧 Careervidya.edu@gmail.com</p>
           </div>
 
           {/* Newsletter */}
           <div>
             <h3 className="text-lg font-semibold text-[#c15304] mb-3">
-              Subscribe to Newsletter
+              Subscribe
             </h3>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex gap-3">
 
               <input
                 type="email"
-                placeholder="Enter your email"
-                className="w-full bg-white text-black rounded-md text-sm p-2 border"
+                placeholder="Enter email"
+                className="w-full bg-white text-black rounded-md p-2 text-sm"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
               />
 
               <button
@@ -434,13 +424,13 @@ export default function Footer() {
             </div>
 
             {message && (
-              <p className="text-xs mt-2 text-gray-200">{message}</p>
+              <p className="text-xs mt-2">{message}</p>
             )}
           </div>
 
         </div>
 
-        {/* ================= MIDDLE ================= */}
+        {/* COURSES */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 border-t border-gray-700 pt-8 text-gray-300">
 
           {/* About */}
@@ -448,7 +438,7 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-3 text-lg">About</h4>
 
             <ul className="space-y-2 text-sm">
-              <li><Link href="/Aboutus">About Us</Link></li>
+              <li><Link href="/Aboutus">About</Link></li>
               <li><Link href="/contactus">Contact</Link></li>
               <li><Link href="/career">Careers</Link></li>
               <li><Link href="/blog">Blog</Link></li>
@@ -456,14 +446,14 @@ export default function Footer() {
           </div>
 
           {/* PG */}
-          <div>
+          <div className="max-h-72 overflow-y-auto">
             <h4 className="text-white font-semibold mb-3 text-lg">
               PG Programs
             </h4>
 
             <ul className="space-y-2 text-sm">
 
-              {pgCourses.slice(0, 6).map((course) => (
+              {pgCourses.map((course) => (
                 <li key={course._id}>
                   <Link
                     href={`/course/${course.slug}`}
@@ -474,24 +464,18 @@ export default function Footer() {
                 </li>
               ))}
 
-              <li className="text-[#c15304]">
-                <Link href="/courses?category=PG">
-                  View All +
-                </Link>
-              </li>
-
             </ul>
           </div>
 
           {/* UG */}
-          <div>
+          <div className="max-h-72 overflow-y-auto">
             <h4 className="text-white font-semibold mb-3 text-lg">
               UG Programs
             </h4>
 
             <ul className="space-y-2 text-sm">
 
-              {ugCourses.slice(0, 5).map((course) => (
+              {ugCourses.map((course) => (
                 <li key={course._id}>
                   <Link
                     href={`/course/${course.slug}`}
@@ -506,14 +490,14 @@ export default function Footer() {
           </div>
 
           {/* Diploma */}
-          <div>
+          <div className="max-h-72 overflow-y-auto">
             <h4 className="text-white font-semibold mb-3 text-lg">
               Diploma & Certificates
             </h4>
 
             <ul className="space-y-2 text-sm">
 
-              {diplomaCourses.slice(0, 5).map((course) => (
+              {diplomaCourses.map((course) => (
                 <li key={course._id}>
                   <Link
                     href={`/course/${course.slug}`}
@@ -528,29 +512,19 @@ export default function Footer() {
           </div>
 
         </div>
-
-        {/* ================= DISCLAIMER ================= */}
-        <div className="border-t border-gray-700 mt-10 pt-6 text-center text-sm text-gray-300 max-w-3xl mx-auto">
-
-          <h4 className="text-[#c15304] font-semibold mb-3">
-            Disclaimer
-          </h4>
-
-          <p>
-            Career Vidya Edu-Tech Pvt. Ltd. provides unbiased educational
-            guidance. Users should verify details independently.
-          </p>
-
-        </div>
-
-        {/* ================= BOTTOM ================= */}
+{/* ---------- DISCLAIMER ---------- */}
+         <div className="border-t border-gray-700 mt-10 pt-6 text-gray-300 text-sm leading-relaxed text-center max-w-3xl mx-auto">
+           <h4 className="text-[#c15304] font-semibold mb-3 text-base md:text-lg">
+             Disclaimer
+           </h4>
+           <p className="text-gray-300 max-w-2xl mx-auto">
+             Career Vidya Edu-Tech Pvt. Ltd. provides unbiased educational and career guidance for informational purposes only. 
+             We do not guarantee admissions, placements, or job outcomes. Users should verify course, fee, and institution details 
+             independently. Career Vidya is not liable for any loss or reliance on website content or third-party links.
+           </p>
+         </div>
+        {/* Bottom */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
-
-          <div className="flex justify-center gap-4 mb-2">
-            <Link href="/Terms&Conditions">Terms & Conditions</Link>
-            <span>|</span>
-            <Link href="/PrivacyPolicy">Privacy Policy</Link>
-          </div>
 
           <p>© 2025 CareerVidya.in | All Rights Reserved</p>
 

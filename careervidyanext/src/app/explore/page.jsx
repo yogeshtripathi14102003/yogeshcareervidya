@@ -121,7 +121,7 @@ export default function ExplorePage() {
 
   /* ---------- UNIVERSITY CARD (UI SAME, ONLY CLICK LOGIC) ---------- */
   const UniversityCard = ({ u, index }) => {
-    const clickable = index < 8;
+    const clickable = index < 40;
 
     const imageUrl = u.universityImage
       ? u.universityImage.startsWith("http")

@@ -11,7 +11,7 @@ import api from "@/utlis/api.js";
 
 const INITIAL_LIMIT = 18;
 const STEP = 6;
-const DETAIL_PAGE_LIMIT = 0;
+const DETAIL_PAGE_LIMIT = 36
 
 // Priority universities
 const PRIORITY_UNIS = [
