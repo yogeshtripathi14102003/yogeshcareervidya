@@ -32,6 +32,7 @@ import leadRoutes from "./router/leadRoutes.js";
 import leadAdmissionRoutes from "./router/leadAdmissionRoutes.js";
 import admissionfessRoutes from "./router/admissionfessRoutes.js";
 import ticketRouter from "./router/ticketRouter.js";
+import videoRoutes from "./router/videoRoutes.js";
 const app = express();
 
 // ✅ Middlewares
@@ -78,6 +79,7 @@ app.use("/api/v1",leadRoutes);
 app.use("/api/v1/ad",leadAdmissionRoutes);
 app.use("/api/v1/admissionfess", admissionfessRoutes);
 app.use("/api/v1/tickat", ticketRouter);
+app.use("/api/v1/videos", videoRoutes);
 // ✅ Simple Ping Route
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");

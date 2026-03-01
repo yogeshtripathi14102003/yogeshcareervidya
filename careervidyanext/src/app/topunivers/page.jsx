@@ -44,42 +44,67 @@ export default function UniversitiesPage() {
   }, []);
 
   /* ================= FETCH + SORT ================= */
+const fetchUniversities = async () => {
+  try {
+    const res = await api.get("/api/v1/university");
+    const allUnis = res.data?.data || [];
 
-  const fetchUniversities = async () => {
-    try {
-      const res = await api.get("/api/v1/university");
+    const getApprovalsArray = (uni) => {
+      const raw =
+        uni.approvals ||
+        uni.recognition?.recognitionPoints ||
+        [];
 
-      const allUnis = res.data?.data || [];
+      if (!Array.isArray(raw)) return [];
 
-      // ✅ Sort: Courses (>=3) → Approvals (High → Low)
-      const sorted = allUnis.sort((a, b) => {
-        const aCourses = a.courses?.length || 0;
-        const bCourses = b.courses?.length || 0;
+      return raw.map((item) =>
+        typeof item === "object"
+          ? (item.name || item.label || "").toUpperCase()
+          : item.toUpperCase()
+      );
+    };
 
-        const aApprovals =
-          a.approvals?.length ||
-          a.recognition?.recognitionPoints?.length ||
-          0;
+    const getNaacRank = (approvals) => {
+      if (approvals.includes("NAAC A++")) return 1;
+      if (approvals.includes("NAAC A+")) return 2;
+      if (approvals.includes("NAAC A")) return 3;
+      return 4; // Others
+    };
 
-        const bApprovals =
-          b.approvals?.length ||
-          b.recognition?.recognitionPoints?.length ||
-          0;
+    const sorted = allUnis.sort((a, b) => {
+      const aApprovals = getApprovalsArray(a);
+      const bApprovals = getApprovalsArray(b);
 
-        if (aCourses >= 3 && bCourses < 3) return -1;
-        if (aCourses < 3 && bCourses >= 3) return 1;
+      const aNaacRank = getNaacRank(aApprovals);
+      const bNaacRank = getNaacRank(bApprovals);
 
-        return bApprovals - aApprovals;
-      });
+      // 1️⃣ NAAC Rank Priority
+      if (aNaacRank !== bNaacRank) {
+        return aNaacRank - bNaacRank;
+      }
 
-      setUniversities(sorted);
-    } catch (err) {
-      console.error("Fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // 2️⃣ Same NAAC → More approvals first
+      if (bApprovals.length !== aApprovals.length) {
+        return bApprovals.length - aApprovals.length;
+      }
 
+      // 3️⃣ Same approvals → Courses ≥3 priority
+      const aCourses = a.courses?.length || 0;
+      const bCourses = b.courses?.length || 0;
+
+      if (aCourses >= 3 && bCourses < 3) return -1;
+      if (aCourses < 3 && bCourses >= 3) return 1;
+
+      return 0;
+    });
+
+    setUniversities(sorted);
+  } catch (err) {
+    console.error("Fetch error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
     fetchUniversities();
   }, []);

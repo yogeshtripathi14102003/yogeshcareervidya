@@ -19,6 +19,8 @@ import ChatbotFloating from "./components/ChatbotFloating";
 import SocialSidebar from "./components/SocialSidebar";
 // import ServiceSlider from "./components/ServiceSlider";
 import Notification from "../app/components/Notification";
+import VideoSlider from "./components/VideoSlider";
+
 
 export default function Home() {
   return (
@@ -40,10 +42,11 @@ export default function Home() {
       <Studentimageslider />
          <LogoSlider />
       <Studentstrustus />
+      
          {/* <CardSlider /> */}
       <Universityimage  />
       <FAQ />
-
+<VideoSlider />
       <Footer />
         <ChatbotFloating />
         <SocialSidebar />

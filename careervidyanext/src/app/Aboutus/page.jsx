@@ -37,19 +37,26 @@ export default function AboutUs() {
       <Header />
 
       {/* Banner Section */}
-      <div className="relative overflow-hidden w-auto md:h-[70vh] h-[30vh]">
-        <img
-          src="/images/about.png"
-          alt="About Us Banner"
-          className="w-full h-full object-cover object-center opacity-70"
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-white text-3xl md:text-5xl font-bold drop-shadow-lg">
-            This is Our Team
-          </h1>
-        </div>
-      </div>
+<div className="relative overflow-hidden w-auto md:h-[60vh] h-[40vh] bg-white">
+  {/* Background Image - Kaafi halki rakhi hai taaki dark text clear ho */}
+  <img
+    src="/images/office.webp"
+    alt="About Us Banner"
+    className="w-full h-full object-cover object-center opacity-30" 
+  />
 
+  {/* Text Overlay */}
+  <div className="absolute inset-0 flex items-center justify-center">
+    <div className="max-w-3xl px-6 text-center">
+      {/* text-slate-900 (dark navy blue style) use kiya hai */}
+      <h6 className="text-slate-900 text-xl md:text-3xl font-medium leading-relaxed tracking-tight">
+        We are a team of creative thinkers and problem solvers, driven by passion and teamwork. 
+        Together, we transform ideas into impactful digital learning solutions, 
+        delivering quality education with trust, innovation, and excellence.
+      </h6>
+    </div>
+  </div>
+</div>
       {/* Counter Section */}
       <Counter />
 

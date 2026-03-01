@@ -105,6 +105,7 @@ const Layout = ({ children }) => {
     { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
     { href: "/admin/Addcounsler", label: "Addcounselor", icon: Mail },
     { href: "/admin/Security", label: "Security", icon: Lock },
+    { href: "/admin/VideoPage", label: "Videos", icon: Lock },
   ];
 
   const filteredMenu = menuItems.filter((item) => {
