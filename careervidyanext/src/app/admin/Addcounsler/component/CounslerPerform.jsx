@@ -164,202 +164,440 @@
 // export default PerformanceReport;
 
 
+
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
 import api from "@/utlis/api.js";
-import { Users, Calendar, Search, Award, TrendingUp } from "lucide-react";
+
+import {
+  Users,
+  Calendar,
+  Search,
+  Award,
+  TrendingUp,
+  Download,
+} from "lucide-react";
+
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const FinalAdmissionReport = () => {
   const [admissions, setAdmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [searchTerm, setSearchTerm] = useState(""); // University Search
 
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // ================= FETCH DATA =================
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const res = await api.get("/api/v1/ad"); 
-      if (res.data.success) setAdmissions(res.data.data);
+      const res = await api.get("/api/v1/ad");
+
+      if (res.data.success) {
+        setAdmissions(res.data.data);
+      }
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error("API Error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const { finalReport, uniList, grandTotals, currentMonthName } = useMemo(() => {
+  // ================= REPORT =================
+  const {
+    finalReport,
+    uniList,
+    grandTotals,
+    currentMonthName,
+  } = useMemo(() => {
     const selDateObj = new Date(selectedDate);
+
     const selMonth = selDateObj.getMonth();
     const selYear = selDateObj.getFullYear();
-    const monthName = selDateObj.toLocaleString('default', { month: 'long' });
 
-    // 1. Get Unique Counselors & Universities
-    const allCounselors = [...new Set(admissions.map(item => item.counselorName).filter(Boolean))].sort();
-    const allUnis = [...new Set(admissions.map(item => item.universityName?.toUpperCase()).filter(Boolean))].sort();
+    const monthName = selDateObj.toLocaleString("default", {
+      month: "long",
+    });
 
-    // Filter Universities based on Search
-    const filteredUnis = allUnis.filter(u => u.includes(searchTerm.toUpperCase()));
+    // -------- Counselors --------
+    const allCounselors = [
+      ...new Set(admissions.map((i) => i.counselorName).filter(Boolean)),
+    ].sort();
 
+    // -------- Universities (Date Wise) --------
+    const dateWiseUnis = new Set();
+
+    admissions.forEach((item) => {
+      const itemDate = new Date(
+        item.admissionDate || item.createdAt
+      )
+        .toISOString()
+        .split("T")[0];
+
+      if (itemDate === selectedDate && item.universityName) {
+        dateWiseUnis.add(item.universityName.toUpperCase());
+      }
+    });
+
+    let allUnis = [...dateWiseUnis].sort();
+
+    // -------- Search Filter --------
+    if (searchTerm) {
+      allUnis = allUnis.filter((u) =>
+        u.includes(searchTerm.toUpperCase())
+      );
+    }
+
+    // -------- Maps --------
     const counselorMap = {};
-    allCounselors.forEach(name => {
-      counselorMap[name] = { 
-        name, 
-        dailyStats: {}, 
-        dailyRowTotal: 0, 
-        monthlyTotal: 0 
+    const counselorUniversities = {};
+
+    allCounselors.forEach((name) => {
+      counselorMap[name] = {
+        name,
+        dailyStats: {},
+        dailyRowTotal: 0,
+        monthlyTotal: 0,
       };
-      allUnis.forEach(u => counselorMap[name].dailyStats[u] = { ref: 0 });
+
+      counselorUniversities[name] = new Set();
+
+      allUnis.forEach((u) => {
+        counselorMap[name].dailyStats[u] = { ref: 0 };
+      });
     });
 
-    // 2. Process Data
-    admissions.forEach(item => {
-      const itemDate = new Date(item.admissionDate || item.createdAt);
-      const itemDateStr = itemDate.toISOString().split('T')[0];
-      const itemMonth = itemDate.getMonth();
-      const itemYear = itemDate.getFullYear();
-      const cName = item.counselorName;
-      const uName = item.universityName?.toUpperCase();
+    // -------- Process Data --------
+    admissions.forEach((item) => {
+      const dateObj = new Date(
+        item.admissionDate || item.createdAt
+      );
 
-      if (cName && counselorMap[cName]) {
-        // Monthly Calculation
-        if (itemMonth === selMonth && itemYear === selYear) {
-          counselorMap[cName].monthlyTotal += 1;
-        }
+      const itemDate = dateObj.toISOString().split("T")[0];
 
-        // Daily Calculation
-        if (itemDateStr === selectedDate && uName) {
-          counselorMap[cName].dailyStats[uName].ref += 1;
-          counselorMap[cName].dailyRowTotal += 1;
-        }
+      const itemMonth = dateObj.getMonth();
+      const itemYear = dateObj.getFullYear();
+
+      const counselor = item.counselorName;
+      const uni = item.universityName?.toUpperCase();
+
+      if (!counselor || !uni) return;
+      if (!counselorMap[counselor]) return;
+
+      // Save University
+      counselorUniversities[counselor].add(uni);
+
+      // Monthly
+      if (itemMonth === selMonth && itemYear === selYear) {
+        counselorMap[counselor].monthlyTotal++;
+      }
+
+      // Daily
+      if (
+        itemDate === selectedDate &&
+        counselorMap[counselor].dailyStats[uni]
+      ) {
+        counselorMap[counselor].dailyStats[uni].ref++;
+        counselorMap[counselor].dailyRowTotal++;
       }
     });
 
-    return { 
-      finalReport: Object.values(counselorMap), 
-      uniList: filteredUnis,
+    // -------- Final Data --------
+    const finalData = Object.values(counselorMap).map((row) => ({
+      ...row,
+      universities: counselorUniversities[row.name]
+        ? [...counselorUniversities[row.name]]
+        : [],
+    }));
+
+    // -------- Totals --------
+    const grandDaily = finalData.reduce(
+      (s, r) => s + r.dailyRowTotal,
+      0
+    );
+
+    const grandMonthly = finalData.reduce(
+      (s, r) => s + r.monthlyTotal,
+      0
+    );
+
+    return {
+      finalReport: finalData,
+      uniList: allUnis,
+
       currentMonthName: monthName,
+
       grandTotals: {
-        daily: Object.values(counselorMap).reduce((s, r) => s + r.dailyRowTotal, 0),
-        monthly: Object.values(counselorMap).reduce((s, r) => s + r.monthlyTotal, 0)
-      }
+        daily: grandDaily,
+        monthly: grandMonthly,
+      },
     };
   }, [admissions, selectedDate, searchTerm]);
 
-  if (loading) return <div className="p-20 text-center font-bold text-emerald-800 animate-pulse">Processing Report Data...</div>;
+  // ================= EXCEL =================
+  const downloadExcel = () => {
+    const data = [];
 
+    finalReport.forEach((row, index) => {
+      const rowData = {
+        Sr: index + 1,
+        Counselor: row.name,
+        Universities: row.universities.join(", "),
+      };
+
+      uniList.forEach((u) => {
+        rowData[u] = row.dailyStats[u]?.ref || 0;
+      });
+
+      rowData["Daily Total"] = row.dailyRowTotal;
+      rowData["Monthly Total"] = row.monthlyTotal;
+
+      data.push(rowData);
+    });
+
+    const totalRow = {
+      Sr: "",
+      Counselor: "TOTAL",
+      Universities: "",
+    };
+
+    uniList.forEach((u) => {
+      totalRow[u] = finalReport.reduce(
+        (s, r) => s + r.dailyStats[u].ref,
+        0
+      );
+    });
+
+    totalRow["Daily Total"] = grandTotals.daily;
+    totalRow["Monthly Total"] = grandTotals.monthly;
+
+    data.push(totalRow);
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(wb, ws, "Daily Report");
+
+    const buffer = XLSX.write(wb, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([buffer], {
+      type: "application/octet-stream",
+    });
+
+    saveAs(blob, `Admission_Report_${selectedDate}.xlsx`);
+  };
+
+  // ================= LOADING =================
+  if (loading) {
+    return (
+      <div className="p-20 text-center font-bold text-emerald-700 animate-pulse">
+        Loading Report...
+      </div>
+    );
+  }
+
+  // ================= UI =================
   return (
-    <div className="p-4 bg-gray-100 min-h-screen font-sans">
-      <div className="max-w-[100%] mx-auto bg-white shadow-2xl border border-emerald-900 overflow-hidden rounded-md">
-        
-        {/* CONTROL PANEL */}
-        <div className="bg-[#1e3a1e] p-4 flex flex-wrap justify-between items-center gap-4 border-b border-emerald-800">
-          <div className="flex items-center gap-3 text-white">
-            <Award className="text-yellow-400" size={24} />
-            <h1 className="text-lg font-bold uppercase tracking-tighter">
-              Performance Matrix: {currentMonthName}
-            </h1>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Search Box for 100+ Universities */}
+    <div className="p-4 bg-gray-100 min-h-screen">
+
+      <div className="bg-white shadow-xl rounded-md overflow-hidden">
+
+        {/* HEADER */}
+        <div className="bg-[#1e3a1e] p-4 flex flex-wrap gap-3 justify-between">
+
+          <h1 className="text-white font-bold flex items-center gap-2">
+            <Award className="text-yellow-400" size={20} />
+            Performance - {currentMonthName}
+          </h1>
+
+          <div className="flex flex-wrap gap-2 items-center">
+
+            {/* SEARCH */}
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 text-gray-400" size={14} />
-              <input 
+              <Search size={14} className="absolute left-2 top-2.5 text-gray-400" />
+
+              <input
                 type="text"
-                placeholder="Find University..."
+                placeholder="Search University"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 pr-4 py-2 text-xs rounded border-none outline-none w-44 focus:ring-2 focus:ring-yellow-400"
+                className="pl-7 pr-3 py-1.5 text-xs rounded"
               />
             </div>
 
-            <div className="bg-white/10 px-3 py-1.5 rounded flex items-center gap-2 border border-white/20">
-              <Calendar className="text-white" size={14} />
-              <input 
-                type="date" 
+            {/* DATE */}
+            <div className="flex items-center bg-white/10 px-2 py-1 rounded">
+              <Calendar size={14} className="text-white mr-1" />
+
+              <input
+                type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent text-white text-xs font-bold outline-none cursor-pointer"
+                className="bg-transparent text-white text-xs outline-none"
               />
             </div>
+
+            {/* DOWNLOAD */}
+            <button
+              onClick={downloadExcel}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1"
+            >
+              <Download size={14} />
+              Excel
+            </button>
+
           </div>
         </div>
 
-        {/* DATA TABLE WITH STICKY SCROLL */}
-        <div className="overflow-x-auto max-h-[75vh] relative">
-          <table className="w-full text-center border-collapse table-fixed min-w-max">
-            <thead className="sticky top-0 z-40">
-              <tr className="bg-[#dcfce7] text-emerald-900 text-[10px] font-black uppercase">
-                <th className="sticky left-0 z-50 bg-[#dcfce7] border border-emerald-800 p-3 w-12">Sr.</th>
-                <th className="sticky left-12 z-50 bg-[#dcfce7] border border-emerald-800 p-3 text-left w-48 shadow-[2px_0_5px_rgba(0,0,0,0.1)]">Counselor Name</th>
-                
-                {uniList.map(uni => (
-                  <th key={uni} className="border border-emerald-800 p-2 w-28">{uni}</th>
+        {/* TABLE */}
+        <div className="overflow-x-auto max-h-[75vh]">
+
+          <table className="w-full text-center border-collapse min-w-max">
+
+            <thead className="sticky top-0 bg-green-100 z-10">
+
+              <tr className="text-xs font-bold">
+
+                <th className="border p-2">Sr</th>
+
+                <th className="border p-2 text-left">Counselor</th>
+
+                <th className="border p-2 text-left bg-blue-100">
+                  Universities
+                </th>
+
+                {uniList.map((u) => (
+                  <th key={u} className="border p-2">
+                    {u}
+                  </th>
                 ))}
-                
-                <th className="sticky right-0 z-50 bg-emerald-100 border border-emerald-800 p-3 w-24">Daily</th>
-                <th className="sticky right-24 z-50 bg-orange-500 text-white border border-emerald-800 p-3 w-28 shadow-[-2px_0_5px_rgba(0,0,0,0.1)]">Month Total</th>
+
+                <th className="border p-2 bg-green-200">
+                  Daily
+                </th>
+
+                <th className="border p-2 bg-orange-200">
+                  Month
+                </th>
+
               </tr>
+
             </thead>
 
-            <tbody className="text-[12px] font-bold text-slate-700">
-              {finalReport.map((row, index) => (
-                <tr key={index} className="hover:bg-yellow-50 transition-colors border-b border-slate-200">
-                  <td className="sticky left-0 z-20 bg-gray-50 border border-emerald-800 p-2">{index + 1}</td>
-                  <td className="sticky left-12 z-20 bg-white border border-emerald-800 text-left px-4 font-bold text-emerald-900 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">
+            <tbody className="text-xs font-semibold">
+
+              {finalReport.map((row, i) => (
+                <tr key={i} className="hover:bg-yellow-50">
+
+                  <td className="border p-1">{i + 1}</td>
+
+                  <td className="border p-1 text-left font-bold text-emerald-800">
                     {row.name}
                   </td>
-                  
-                  {uniList.map(uni => (
-                    <td key={uni} className="border border-emerald-800 bg-white text-emerald-700">
-                      {row.dailyStats[uni]?.ref || "-"}
+
+                  <td className="border p-1 text-left text-[10px] text-blue-700">
+                    {row.universities.length
+                      ? row.universities.join(", ")
+                      : "-"}
+                  </td>
+
+                  {uniList.map((u) => (
+                    <td key={u} className="border p-1">
+                      {row.dailyStats[u]?.ref || "-"}
                     </td>
                   ))}
-                  
-                  <td className="sticky right-24 z-20 bg-emerald-50 border border-emerald-800 font-black text-emerald-900 text-sm">
+
+                  <td className="border p-1 bg-green-50 font-bold">
                     {row.dailyRowTotal}
                   </td>
-                  <td className="sticky right-0 z-20 bg-orange-50 border border-emerald-800 font-black text-orange-600 text-base shadow-[-2px_0_5px_rgba(0,0,0,0.05)]">
+
+                  <td className="border p-1 bg-orange-50 font-bold">
                     {row.monthlyTotal}
                   </td>
+
                 </tr>
               ))}
+
             </tbody>
 
-            {/* GRAND TOTAL FOOTER */}
-            <tfoot className="sticky bottom-0 z-40">
-              <tr className="bg-[#1e3a1e] text-white font-black text-sm">
-                <td colSpan={2} className="sticky left-0 z-50 bg-[#1e3a1e] border border-emerald-800 p-4 text-right pr-10 italic uppercase">Total Fleet Stats</td>
-                
-                {uniList.map(uni => (
-                  <td key={uni} className="border border-emerald-800 bg-emerald-900">
-                    {finalReport.reduce((s, r) => s + r.dailyStats[uni].ref, 0)}
+            <tfoot className="bg-[#1e3a1e] text-white font-bold">
+
+              <tr>
+
+                <td colSpan={3} className="border p-2 text-right">
+                  TOTAL
+                </td>
+
+                {uniList.map((u) => (
+                  <td key={u} className="border p-2">
+                    {finalReport.reduce(
+                      (s, r) => s + r.dailyStats[u].ref,
+                      0
+                    )}
                   </td>
                 ))}
-                
-                <td className="sticky right-24 z-50 bg-emerald-800 border border-emerald-800 text-xl">{grandTotals.daily}</td>
-                <td className="sticky right-0 z-50 bg-orange-600 border border-emerald-800 text-2xl">{grandTotals.monthly}</td>
+
+                <td className="border p-2 text-lg">
+                  {grandTotals.daily}
+                </td>
+
+                <td className="border p-2 text-lg">
+                  {grandTotals.monthly}
+                </td>
+
               </tr>
+
             </tfoot>
+
           </table>
+
         </div>
       </div>
-      
-      {/* QUICK STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 max-w-[98%] mx-auto">
-        <div className="bg-white p-4 border-l-4 border-emerald-600 shadow-sm rounded flex items-center justify-between">
-          <div><p className="text-[10px] font-bold text-slate-400 uppercase">Today's Total</p><h2 className="text-2xl font-black text-emerald-800">{grandTotals.daily}</h2></div>
-          <TrendingUp className="text-emerald-200" size={40} />
+
+      {/* STATS */}
+      <div className="grid md:grid-cols-2 gap-4 mt-5">
+
+        <div className="bg-white p-4 shadow rounded flex justify-between">
+
+          <div>
+            <p className="text-xs text-gray-400">Today</p>
+
+            <h2 className="text-2xl font-bold text-emerald-700">
+              {grandTotals.daily}
+            </h2>
+          </div>
+
+          <TrendingUp size={40} className="text-emerald-200" />
         </div>
-        <div className="bg-white p-4 border-l-4 border-orange-500 shadow-sm rounded flex items-center justify-between">
-          <div><p className="text-[10px] font-bold text-slate-400 uppercase">{currentMonthName} Achievement</p><h2 className="text-2xl font-black text-orange-600">{grandTotals.monthly}</h2></div>
-          <Users className="text-orange-100" size={40} />
+
+        <div className="bg-white p-4 shadow rounded flex justify-between">
+
+          <div>
+            <p className="text-xs text-gray-400">
+              {currentMonthName}
+            </p>
+
+            <h2 className="text-2xl font-bold text-orange-600">
+              {grandTotals.monthly}
+            </h2>
+          </div>
+
+          <Users size={40} className="text-orange-200" />
         </div>
+
       </div>
+
     </div>
   );
 };
