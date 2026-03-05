@@ -21,7 +21,6 @@ import SocialSidebar from "./components/SocialSidebar";
 import Notification from "../app/components/Notification";
 import VideoSlider from "./components/VideoSlider";
 
-
 export default function Home() {
   return (
     <div> 

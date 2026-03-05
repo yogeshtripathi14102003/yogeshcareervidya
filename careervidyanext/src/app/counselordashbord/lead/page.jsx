@@ -21,7 +21,6 @@ import {
 const STATUS = [
   "New",
   "Not Interested",
-
   "Details Shared",
   "Follow-up",
   "Hot Lead",
@@ -32,13 +31,20 @@ const STATUS = [
   "Not Picked",
   "Admission Done",
 ];
+
 const MONTHS = [
-  { val: "01", label: "January" }, { val: "02", label: "February" },
-  { val: "03", label: "March" }, { val: "04", label: "April" },
-  { val: "05", label: "May" }, { val: "06", label: "June" },
-  { val: "07", label: "July" }, { val: "08", label: "August" },
-  { val: "09", label: "September" }, { val: "10", label: "October" },
-  { val: "11", label: "November" }, { val: "12", label: "December" }
+  { val: "01", label: "January" },
+  { val: "02", label: "February" },
+  { val: "03", label: "March" },
+  { val: "04", label: "April" },
+  { val: "05", label: "May" },
+  { val: "06", label: "June" },
+  { val: "07", label: "July" },
+  { val: "08", label: "August" },
+  { val: "09", label: "September" },
+  { val: "10", label: "October" },
+  { val: "11", label: "November" },
+  { val: "12", label: "December" },
 ];
 
 /* ================= HELPERS ================= */
@@ -55,6 +61,7 @@ const isToday = (dateString) => {
   if (!dateString) return false;
   const d = new Date(dateString);
   const today = new Date();
+
   return (
     d.getFullYear() === today.getFullYear() &&
     d.getMonth() === today.getMonth() &&
@@ -62,7 +69,7 @@ const isToday = (dateString) => {
   );
 };
 
-/* ================= MAIN COMPONENT ================= */
+/* ================= MAIN ================= */
 
 const LeadsPage = () => {
   const [leads, setLeads] = useState([]);
@@ -70,40 +77,65 @@ const LeadsPage = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [filterMonth, setFilterMonth] = useState(""); 
-  const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
+  const [filterMonth, setFilterMonth] = useState("");
+  const [filterYear, setFilterYear] = useState(
+    new Date().getFullYear().toString()
+  );
   const [reminders, setReminders] = useState([]);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
     }
+
     fetchLeads();
   }, []);
+
+  /* ================= GET LEADS ================= */
 
   const fetchLeads = async () => {
     try {
       const res = await api.get("/api/v1/leads");
-      if (res.data.success) setLeads(res.data.data);
+
+      if (res.data.success) {
+        setLeads(res.data.data);
+      }
     } catch (err) {
-      console.error("Lead load error", err);
+      console.log("Load error", err);
     }
   };
+
+  /* ================= UPDATE (ONLY ONE LEAD) ================= */
 
   const updateLeadAPI = async (id, data) => {
     try {
       const res = await api.put(`/api/v1/leads/${id}`, data);
-      if (res.data.success) fetchLeads();
+
+      if (res.data.success) {
+        const updatedLead = res.data.data;
+
+        setLeads((prev) =>
+          prev.map((lead) =>
+            lead._id === id
+              ? { ...lead, ...updatedLead } // sirf ye update hogi
+              : lead // baaki same rahengi
+          )
+        );
+      }
     } catch (err) {
       alert("Update failed");
     }
   };
 
+  /* ================= FILTER ================= */
+
   const myLeads = leads.filter((l) => {
     if (!currentUser) return false;
+
     return (
       l.assignedTo === currentUser._id ||
       l.assignedTo?._id === currentUser._id
@@ -113,8 +145,13 @@ const LeadsPage = () => {
   const filteredLeads = myLeads.filter((l) => {
     const createdAt = new Date(l.createdAt);
     const leadDateOnly = l.createdAt?.slice(0, 10);
-    const leadMonth = (createdAt.getMonth() + 1).toString().padStart(2, '0');
+
+    const leadMonth = (createdAt.getMonth() + 1)
+      .toString()
+      .padStart(2, "0");
+
     const leadYear = createdAt.getFullYear().toString();
+
     const search = searchTerm.toLowerCase();
 
     if (filterMonth && leadMonth !== filterMonth) return false;
@@ -133,26 +170,37 @@ const LeadsPage = () => {
     );
   });
 
+  /* ================= CSV ================= */
+
   const exportToCSV = () => {
     const headers = ["Date", "Name", "Phone", "Status", "Course", "Remark"];
-    const rows = filteredLeads.map(l => [
+
+    const rows = filteredLeads.map((l) => [
       l.createdAt?.slice(0, 10),
       l.name,
       l.phone,
       l.status,
       l.course,
-      l.remark?.replace(/,/g, " ")
+      l.remark?.replace(/,/g, " "),
     ]);
-    
-    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    const csv = [headers, ...rows].map((e) => e.join(",")).join("\n");
+
+    const blob = new Blob([csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+
     const url = URL.createObjectURL(blob);
-    const link = document.body.appendChild(document.createElement('a'));
+
+    const link = document.createElement("a");
+
     link.href = url;
-    link.download = `Leads_Report_${filterMonth || 'All'}_${filterYear}.csv`;
+
+    link.download = `Leads_Report_${filterMonth || "All"}_${filterYear}.csv`;
+
     link.click();
-    document.body.removeChild(link);
   };
+
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">

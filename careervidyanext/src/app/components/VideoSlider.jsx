@@ -51,6 +51,7 @@ export default function VideoSlider() {
     return `https://www.youtube.com/embed/${id}`;
   };
 
+  
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
 
