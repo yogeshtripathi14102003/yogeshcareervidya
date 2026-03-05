@@ -10,6 +10,7 @@ const CounselorAdmissions = () => {
   const [admissions, setAdmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
   const [counselorName, setCounselorName] = useState("");
   const [pdfLoading, setPdfLoading] = useState(false);
 
@@ -177,12 +178,20 @@ Total Semesters: ${semCount}`,
   };
 
   /* ================= SEARCH ================= */
-  const filtered = admissions.filter(
-    (ad) =>
-      ad.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ad.course?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filtered = admissions.filter((ad) => {
 
+  const matchSearch =
+    ad.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ad.course?.toLowerCase().includes(searchTerm.toLowerCase());
+
+  if (!monthFilter) return matchSearch;
+
+  const adMonth = new Date(ad.admissionDate).getMonth() + 1;
+
+  const matchMonth = adMonth === Number(monthFilter);
+
+  return matchSearch && matchMonth;
+});
   /* ================= LOADER ================= */
   if (loading) {
     return (
@@ -232,9 +241,28 @@ Total Semesters: ${semCount}`,
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <select
+  value={monthFilter}
+  onChange={(e) => setMonthFilter(e.target.value)}
+  className="px-3 py-2 text-xs border rounded-full outline-none focus:ring-2 focus:ring-orange-500/20"
+>
+  <option value="">All Months</option>
+  <option value="1">January</option>
+  <option value="2">February</option>
+  <option value="3">March</option>
+  <option value="4">April</option>
+  <option value="5">May</option>
+  <option value="6">June</option>
+  <option value="7">July</option>
+  <option value="8">August</option>
+  <option value="9">September</option>
+  <option value="10">October</option>
+  <option value="11">November</option>
+  <option value="12">December</option>
+</select>
 
           <div className="bg-slate-100 px-3 py-1 rounded-full text-[10px] font-bold">
-            {filtered.length} Records
+            {filtered.length} Admission
           </div>
 
         </div>

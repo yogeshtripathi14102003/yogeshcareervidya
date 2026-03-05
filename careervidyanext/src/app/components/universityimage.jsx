@@ -11,7 +11,7 @@ import api from "@/utlis/api.js";
 
 const INITIAL_LIMIT = 18;
 const STEP = 6;
-const DETAIL_PAGE_LIMIT = 36
+const DETAIL_PAGE_LIMIT = 60
 
 // Priority universities
 const PRIORITY_UNIS = [
@@ -28,10 +28,16 @@ const PRIORITY_UNIS = [
 "srm-university",
 "sikkim-manipal-university",
 "amrita-vishwa-vidyapeetham",
-"galgotias-university",
+"lovely-professional-university",
+"sharda-university",
+"chitkara-university",
+"jain-university",
+"dr-a-p-j-abdul-kalam-university",
+
 "gauhati-university",
 "g-l-bajaj-institute-of-technology-and-management",
-"integral-university"
+"integral-university",
+"galgotias-university"
 ];
 
 export default function UniversitiesPage() {

@@ -204,6 +204,7 @@ const handleDelete = async () => {
                 <th className="px-4 py-3">University & Course</th>
                 <th className="px-4 py-3">Fees Status</th>
                 <th className="px-4 py-3">Counselor</th>
+                <th className="px-4 py-3">Referral</th>
                 <th className="px-4 py-3 text-right">Action</th>
               </tr>
             </thead>
@@ -223,6 +224,9 @@ const handleDelete = async () => {
                     <div className="text-green-600 font-bold text-[10px]">Closing: ₹{student.c_totalFees || 0}</div>
                   </td>
                   <td className="px-4 py-2.5 font-semibold text-slate-600 italic">{student.counselorName}</td>
+                  <td className="px-4 py-2.5 font-semibold text-blue-600">
+  {student.refrelname || "-"}
+</td>
                   <td className="px-4 py-2.5 text-right">
                     <button
                       onClick={() => handleEditClick(student)}
@@ -267,6 +271,11 @@ const handleDelete = async () => {
                 <SelectField label="Course" value={editData.course} options={courses} disabled={!courses.length} onChange={(val) => handleDropdownChange("course", val)} />
                 <SelectField label="Branch" value={editData.branch} options={branches} disabled={!branches.length} onChange={(val) => setEditData({...editData, branch: val})} />
                 <InputField label="Counselor" value={editData.counselorName} onChange={(val) => setEditData({...editData, counselorName: val})} />
+                <InputField
+  label="Referral Name"
+  value={editData.refrelname}
+  onChange={(val) => setEditData({ ...editData, refrelname: val })}
+/>
                 <InputField label="Admission Date" type="date" value={editData.admissionDate?.split('T')[0]} onChange={(val) => setEditData({...editData, admissionDate: val})} />
 
                 <SectionTitle icon={<Landmark size={14}/>} title="Official Fee Structure" />
