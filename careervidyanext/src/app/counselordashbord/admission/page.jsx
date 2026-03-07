@@ -98,6 +98,7 @@ const CounselorAdmissions = () => {
           [
             `Name: ${data.studentName}
 Father: ${data.fatherName || "N/A"}
+Mother: ${data.motherName || "N/A"}
 Phone: ${data.phone}
 Email: ${data.email}`,
 

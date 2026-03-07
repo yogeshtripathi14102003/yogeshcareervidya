@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import api from "@/utlis/api.js";
+import { FaWhatsapp } from "react-icons/fa";
 import StudentAdmission from "@/app/counselordashbord/components/StudentAdmission.jsx";
 import {
   Search,
@@ -397,13 +398,24 @@ const LeadRow = ({ lead, onSave }) => {
         <td className="p-3">
           <div className="flex flex-col">
             <span className="font-bold text-sm text-gray-800 leading-tight">{lead.name}</span>
-            <a
-  href={`tel:${lead.phone}`}
-  className="text-[11px] text-blue-600 font-semibold hover:underline cursor-pointer"
->
-  {lead.phone}
-</a>
+<div className="flex items-center gap-2">
+  <a
+    href={`tel:${lead.phone}`}
+    className="text-[11px] text-blue-600 font-semibold hover:underline cursor-pointer"
+  >
+    {lead.phone}
+  </a>
 
+  <a
+    href={`https://wa.me/${lead.phone}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-green-500 hover:scale-110 transition"
+    title="Chat on WhatsApp"
+  >
+    <FaWhatsapp size={14} />
+  </a>
+</div>
             <span className="text-[9px] text-gray-400 flex items-center gap-1 mt-0.5">
               <Mail size={8} /> {lead.email || "No Email"}
             </span>

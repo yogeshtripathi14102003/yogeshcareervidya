@@ -24,6 +24,7 @@ import {
 const initialState = {
   studentName: "",
   fatherName: "",
+  motherName:"",
   email: "",
   city: "",
   phone: "",
@@ -266,6 +267,8 @@ export default function StudentAdmission({ lead, onClose }) {
           <Input icon={User} label="Student" name="studentName" value={formData.studentName} onChange={handleChange} />
 
           <Input icon={Users} label="Father" name="fatherName" value={formData.fatherName} onChange={handleChange} />
+
+          <Input icon={Users} label="Mother" name="motherName" value={formData.motherName} onChange={handleChange} />
 
           <Input icon={Mail} label="Email" name="email" value={formData.email} onChange={handleChange} />
 

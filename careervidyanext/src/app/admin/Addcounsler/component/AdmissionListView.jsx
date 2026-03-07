@@ -263,6 +263,11 @@ const handleDelete = async () => {
                 <SectionTitle icon={<User size={14}/>} title="Personal Information" />
                 <InputField label="Student Name" value={editData.studentName} onChange={(val) => setEditData({...editData, studentName: val})} />
                 <InputField label="Father's Name" value={editData.fatherName} onChange={(val) => setEditData({...editData, fatherName: val})} />
+                <InputField 
+  label="Mother's Name" 
+  value={editData.motherName} 
+  onChange={(val) => setEditData({...editData, motherName: val})} 
+/>
                 <InputField label="Email Address" value={editData.email} onChange={(val) => setEditData({...editData, email: val})} />
                 <InputField label="Phone Number" value={editData.phone} onChange={(val) => setEditData({...editData, phone: val})} />
 

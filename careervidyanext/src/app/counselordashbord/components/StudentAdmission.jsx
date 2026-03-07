@@ -14,6 +14,7 @@ import {
 const initialState = {
   studentName: "",
   fatherName: "", // Added Father Name
+  motherName:"",
   email: "",
   city: "",
   phone: "",
@@ -217,6 +218,7 @@ const StudentAdmission = ({ lead, onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Input icon={User} label="Student Name" name="studentName" value={formData.studentName} onChange={handleChange} required />
             <Input icon={Users} label="Father's Name" name="fatherName" value={formData.fatherName} onChange={handleChange} required />
+              <Input icon={Users} label="Mother's Name" name="motherName" value={formData.motherName} onChange={handleChange} required />
             <Input icon={Mail} label="Email" name="email" type="email" value={formData.email} onChange={handleChange} required />
             <Input icon={Phone} label="Phone" name="phone" value={formData.phone} onChange={handleChange} required />
             <Input icon={MapPin} label="City" name="city" value={formData.city} onChange={handleChange} />
