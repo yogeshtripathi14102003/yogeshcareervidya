@@ -106,6 +106,7 @@ const Layout = ({ children }) => {
     { href: "/admin/Addcounsler", label: "Addcounselor", icon: Mail },
     { href: "/admin/Security", label: "Security", icon: Lock },
     { href: "/admin/VideoPage", label: "Videos", icon: Lock },
+    {href: "/admin/CounselorsReprt", label: "Counselor Report", icon: Lock},
   ];
 
   const filteredMenu = menuItems.filter((item) => {

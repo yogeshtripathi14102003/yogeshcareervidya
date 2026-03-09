@@ -1,401 +1,262 @@
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import api from "@/utlis/api.js";
-// import { Pencil, Trash2 } from "lucide-react";
-// import Link from "next/link";
-
-// export default function BlogList() {
-//   const [blogs, setBlogs] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   /* ================= FETCH BLOGS ================= */
-//   const fetchBlogs = async () => {
-//     try {
-//       const { data } = await api.get("/api/v1/blog");
-
-//       console.log("API Response:", data);
-
-//       // Backend response -> { success: true, data: blogs }
-//       const blogsArray = data?.data || [];
-
-//       setBlogs(blogsArray);
-//     } catch (error) {
-//       console.error("Failed to fetch blogs:", error);
-//       setBlogs([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   /* ================= DELETE BLOG ================= */
-//   const deleteBlog = async (id) => {
-//     const confirmDelete = confirm(
-//       "Are you sure you want to delete this blog?"
-//     );
-
-//     if (!confirmDelete) return;
-
-//     try {
-//       await api.delete(`/api/v1/blog/${id}`);
-
-//       // remove blog from UI instantly
-//       setBlogs((prev) => prev.filter((blog) => blog._id !== id));
-
-//       alert("Blog deleted successfully");
-//     } catch (error) {
-//       console.error("Delete error:", error);
-//       alert("Failed to delete blog");
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchBlogs();
-//   }, []);
-
-//   return (
-//     <div className="min-h-screen p-6 bg-slate-50">
-//       <h1 className="text-3xl font-bold mb-6">Admin Blog List</h1>
-
-//       {/* ================= LOADING ================= */}
-//       {loading ? (
-//         <p className="text-center mt-10 text-gray-500">
-//           Loading blogs...
-//         </p>
-//       ) : blogs.length === 0 ? (
-//         <p className="text-center mt-10 text-gray-500">
-//           No blogs found.
-//         </p>
-//       ) : (
-//         <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
-//           <table className="w-full text-left border-collapse">
-//             <thead>
-//               <tr className="bg-slate-100">
-//                 <th className="px-4 py-2 border">Title</th>
-//                 <th className="px-4 py-2 border">Category</th>
-//                 <th className="px-4 py-2 border">Author</th>
-//                 <th className="px-4 py-2 border">Actions</th>
-//               </tr>
-//             </thead>
-
-//             <tbody>
-//               {blogs.map((blog) => (
-//                 <tr
-//                   key={blog._id}
-//                   className="border-b hover:bg-slate-50"
-//                 >
-//                   <td className="px-4 py-2">{blog.title}</td>
-
-//                   <td className="px-4 py-2">
-//                     {blog.category || "N/A"}
-//                   </td>
-
-//                   <td className="px-4 py-2">
-//                     {blog.author?.name || "N/A"}
-//                   </td>
-
-//                   <td className="px-4 py-2 flex gap-3">
-//                     <Link href={`/admin/blogs/edit/${blog._id}`}>
-//                       <button className="text-blue-600 hover:text-blue-800 flex items-center gap-1">
-//                         <Pencil size={16} />
-//                         Edit
-//                       </button>
-//                     </Link>
-
-//                     <button
-//                       onClick={() => deleteBlog(blog._id)}
-//                       className="text-red-600 hover:text-red-800 flex items-center gap-1"
-//                     >
-//                       <Trash2 size={16} />
-//                       Delete
-//                     </button>
-//                   </td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
 
 "use client";
 
 import React, { useEffect, useState } from "react";
 import api from "@/utlis/api";
-import { Pencil, Trash2, Search, X } from "lucide-react";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { Pencil, Trash2, Search, X, Plus, Minus, Upload, Loader2, Save } from "lucide-react";
 
 export default function BlogList() {
   const [blogs, setBlogs] = useState([]);
   const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Edit State
+  // Edit States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
-
-  /* PAGINATION */
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [activeTab, setActiveTab] = useState("basic");
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const fetchBlogs = async () => {
     try {
       const { data } = await api.get("/api/v1/blog");
-      const blogList = data?.data || [];
-      setBlogs(blogList);
-      setFilteredBlogs(blogList);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+      setBlogs(data?.data || []);
+      setFilteredBlogs(data?.data || []);
+    } catch (error) { console.error(error); } finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
+  useEffect(() => { fetchBlogs(); }, []);
 
-  /* SEARCH & FILTER */
-  useEffect(() => {
-    let filtered = blogs;
-    if (search) {
-      filtered = filtered.filter((b) =>
-        b.title.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    if (category) {
-      filtered = filtered.filter((b) => b.category === category);
-    }
-    setFilteredBlogs(filtered);
-    setPage(1); // Reset to first page on filter
-  }, [search, category, blogs]);
-
-  const deleteBlog = async (id) => {
-    if (!confirm("Delete this blog?")) return;
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure?")) return;
     try {
       await api.delete(`/api/v1/blog/${id}`);
-      setBlogs((prev) => prev.filter((b) => b._id !== id));
-    } catch (err) {
-      alert("Failed to delete blog");
-    }
+      setBlogs(prev => prev.filter(b => b._id !== id));
+    } catch (err) { alert("Delete failed"); }
   };
 
-  /* EDIT HANDLERS */
-  const handleEditClick = (blog) => {
-    setEditingBlog({ ...blog });
-    setIsEditModalOpen(true);
-  };
-
-  const handleUpdateBlog = async (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
-      const { data } = await api.put(`/api/v1/blog/${editingBlog._id}`, editingBlog);
-      // Update local state
-      setBlogs((prev) =>
-        prev.map((b) => (b._id === editingBlog._id ? editingBlog : b))
-      );
+      const formData = new FormData();
+      if (selectedFile) formData.append("image", selectedFile);
+      
+      // Send the entire object as a string - Backend should JSON.parse(req.body.data)
+      formData.append("data", JSON.stringify(editingBlog));
+
+      await api.put(`/api/v1/blog/${editingBlog._id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      fetchBlogs();
       setIsEditModalOpen(false);
-      alert("Blog updated successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Error updating blog");
+      alert("Updated Successfully!");
+    } catch (error) { alert("Update failed"); } finally { setIsSubmitting(false); }
+  };
+
+  // Helper to update deeply nested fields
+  const updateNested = (path, value) => {
+    const keys = path.split('.');
+    const newState = { ...editingBlog };
+    let temp = newState;
+    for (let i = 0; i < keys.length - 1; i++) {
+      temp[keys[i]] = { ...temp[keys[i]] };
+      temp = temp[keys[i]];
     }
+    temp[keys[keys.length - 1]] = value;
+    setEditingBlog(newState);
   };
-
-  const exportExcel = () => {
-    const data = filteredBlogs.map((b) => ({
-      Title: b.title,
-      Category: b.category,
-      Author: b.author?.name,
-      Status: b.is_verified ? "Published" : "Draft",
-      Views: b.reads || 0,
-    }));
-    const sheet = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, sheet, "Blogs");
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const file = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(file, "blogs.xlsx");
-  };
-
-  const start = (page - 1) * limit;
-  const paginated = filteredBlogs.slice(start, start + limit);
-  const totalPages = Math.ceil(filteredBlogs.length / limit);
-  const categories = [...new Set(blogs.map((b) => b.category))];
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen relative">
-      <h1 className="text-3xl font-bold mb-6 text-slate-800">Blog Management</h1>
+    <div className="p-6 bg-slate-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">Master Blog Editor</h1>
 
-      {/* FILTER BAR */}
-      <div className="flex gap-4 mb-6 flex-wrap items-center">
-        <div className="flex items-center bg-white border px-3 py-2 rounded shadow-sm focus-within:ring-2 ring-blue-500">
-          <Search size={18} className="text-gray-400" />
-          <input
-            placeholder="Search blogs..."
-            className="ml-2 outline-none bg-transparent"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <select
-          className="border px-3 py-2 rounded bg-white shadow-sm outline-none"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-
-        <button
-          onClick={exportExcel}
-          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded transition-colors"
-        >
-          Export Excel
-        </button>
-      </div>
-
-      {/* TABLE */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden border border-slate-200">
-        <table className="w-full text-left">
-          <thead className="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase text-sm">
+      {/* Table (Simplified for brevity) */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-slate-800 text-white">
             <tr>
-              <th className="p-4">Image</th>
-              <th className="p-4">Title</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Views</th>
-              <th className="p-4 text-center">Actions</th>
+              <th className="p-3 text-left">Title</th>
+              <th className="p-3">Category</th>
+              <th className="p-3 text-center">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              <tr><td colSpan="6" className="text-center p-12 text-slate-400">Loading data...</td></tr>
-            ) : paginated.length === 0 ? (
-              <tr><td colSpan="6" className="text-center p-12 text-slate-400">No blogs found.</td></tr>
-            ) : (
-              paginated.map((blog) => (
-                <tr key={blog._id} className="hover:bg-slate-50 transition-colors">
-                  <td className="p-4">
-                    <img
-                      src={blog.image?.url || "https://via.placeholder.com/150"}
-                      className="w-12 h-12 object-cover rounded-md shadow-sm border"
-                      alt={blog.title}
-                    />
-                  </td>
-                  <td className="p-4 font-medium text-slate-700">{blog.title}</td>
-                  <td className="p-4 text-slate-500">{blog.category}</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                      blog.is_verified ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
-                    }`}>
-                      {blog.is_verified ? "Published" : "Draft"}
-                    </span>
-                  </td>
-                  <td className="p-4 text-slate-500 font-mono">{blog.reads || 0}</td>
-                  <td className="p-4">
-                    <div className="flex justify-center gap-4">
-                      <button onClick={() => handleEditClick(blog)}>
-                        <Pencil size={18} className="text-blue-600 hover:text-blue-800" />
-                      </button>
-                      <button onClick={() => deleteBlog(blog._id)}>
-                        <Trash2 size={18} className="text-red-600 hover:text-red-800" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
+          <tbody>
+            {filteredBlogs.map(blog => (
+              <tr key={blog._id} className="border-b hover:bg-slate-50">
+                <td className="p-3 font-medium">{blog.title}</td>
+                <td className="p-3 text-center">{blog.category}</td>
+                <td className="p-3 flex justify-center gap-2">
+                  <button onClick={() => { setEditingBlog(JSON.parse(JSON.stringify(blog))); setIsEditModalOpen(true); }} className="text-blue-600 p-2 border rounded hover:bg-blue-50"><Pencil size={16}/></button>
+                  <button onClick={() => handleDelete(blog._id)} className="text-red-600 p-2 border rounded hover:bg-red-50"><Trash2 size={16}/></button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      {/* PAGINATION */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i + 1)}
-              className={`px-4 py-2 border rounded-md transition-colors ${
-                page === i + 1 ? "bg-blue-600 text-white border-blue-600" : "bg-white hover:bg-gray-100"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* EDIT MODAL */}
+      {/* --- GIANT EDIT MODAL --- */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative animate-in fade-in zoom-in duration-200">
-            <button 
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                onClick={() => setIsEditModalOpen(false)}
-            >
-              <X size={24} />
-            </button>
-            <h2 className="text-xl font-bold mb-4 border-b pb-2">Edit Blog Details</h2>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-5xl h-[95vh] rounded-xl flex flex-col shadow-2xl overflow-hidden">
             
-            <form onSubmit={handleUpdateBlog} className="space-y-4">
+            {/* Header */}
+            <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
               <div>
-                <label className="block text-sm font-semibold mb-1 text-slate-600">Blog Title</label>
-                <input
-                  className="w-full border rounded p-2 outline-none focus:ring-2 ring-blue-500"
-                  value={editingBlog.title}
-                  onChange={(e) => setEditingBlog({...editingBlog, title: e.target.value})}
-                  required
-                />
+                <h2 className="text-lg font-bold">Editing: {editingBlog.title}</h2>
+                <p className="text-xs text-slate-400">ID: {editingBlog.custom_id}</p>
               </div>
+              <button onClick={() => setIsEditModalOpen(false)} className="hover:bg-slate-700 p-1 rounded"><X/></button>
+            </div>
+
+            {/* Tabs Bar */}
+            <div className="flex bg-slate-200 gap-1 p-1">
+              {['basic', 'author', 'sections', 'faqs', 'seo'].map(t => (
+                <button key={t} onClick={() => setActiveTab(t)} className={`flex-1 py-2 text-xs font-bold uppercase rounded ${activeTab === t ? 'bg-white shadow' : 'hover:bg-slate-300'}`}>{t}</button>
+              ))}
+            </div>
+
+            {/* Scrollable Form Content */}
+            <form onSubmit={handleUpdate} className="flex-1 overflow-y-auto p-6 space-y-8 bg-white">
               
-              <div>
-                <label className="block text-sm font-semibold mb-1 text-slate-600">Category</label>
-                <input
-                  className="w-full border rounded p-2 outline-none focus:ring-2 ring-blue-500"
-                  value={editingBlog.category}
-                  onChange={(e) => setEditingBlog({...editingBlog, category: e.target.value})}
-                  required
-                />
-              </div>
+              {/* 1. BASIC & IMAGE */}
+              {activeTab === 'basic' && (
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="col-span-2 p-4 bg-slate-50 border rounded-lg flex gap-4 items-center">
+                    <img src={selectedFile ? URL.createObjectURL(selectedFile) : editingBlog.image?.url} className="w-24 h-24 object-cover rounded border-2 border-white shadow" />
+                    <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} className="text-sm border p-2 rounded bg-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1 uppercase">Blog Title</label>
+                    <input className="w-full border p-2 rounded" value={editingBlog.title} onChange={e => setEditingBlog({...editingBlog, title: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1 uppercase">Category</label>
+                    <input className="w-full border p-2 rounded" value={editingBlog.category} onChange={e => setEditingBlog({...editingBlog, category: e.target.value})} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" checked={editingBlog.is_verified} onChange={e => setEditingBlog({...editingBlog, is_verified: e.target.checked})} />
+                    <span className="text-sm font-bold">Published Status</span>
+                  </div>
+                </div>
+              )}
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="status"
-                  checked={editingBlog.is_verified}
-                  onChange={(e) => setEditingBlog({...editingBlog, is_verified: e.target.checked})}
-                />
-                <label htmlFor="status" className="text-sm font-semibold text-slate-600 cursor-pointer">
-                  Verified / Published
-                </label>
-              </div>
+              {/* 2. AUTHOR DETAILS */}
+              {activeTab === 'author' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold mb-1 uppercase">Author Name</label>
+                    <input className="w-full border p-2 rounded" value={editingBlog.author?.name} onChange={e => updateNested('author.name', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1 uppercase">Designation</label>
+                    <input className="w-full border p-2 rounded" value={editingBlog.author?.designation} onChange={e => updateNested('author.designation', e.target.value)} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold mb-1 uppercase">Author Bio</label>
+                    <textarea rows="3" className="w-full border p-2 rounded text-sm" value={editingBlog.author?.description} onChange={e => updateNested('author.description', e.target.value)} />
+                  </div>
+                </div>
+              )}
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="flex-1 px-4 py-2 border rounded hover:bg-gray-50 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"
-                >
-                  Save Changes
-                </button>
-              </div>
+              {/* 3. SECTIONS (OVERVIEW & SECOND) */}
+              {activeTab === 'sections' && (
+                <div className="space-y-6">
+                  {/* Overview Points */}
+                  <div className="border p-4 rounded-lg bg-slate-50">
+                    <h3 className="font-bold text-sm mb-3">Quick Overview Points</h3>
+                    {editingBlog.overview?.points.map((p, i) => (
+                      <div key={i} className="flex gap-2 mb-2">
+                        <input className="flex-1 border p-2 rounded text-sm" value={p} onChange={e => {
+                          const pts = [...editingBlog.overview.points]; pts[i] = e.target.value;
+                          updateNested('overview.points', pts);
+                        }} />
+                        <button type="button" onClick={() => {
+                           const pts = editingBlog.overview.points.filter((_, idx) => idx !== i);
+                           updateNested('overview.points', pts);
+                        }} className="text-red-500"><Minus/></button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => updateNested('overview.points', [...editingBlog.overview.points, ""])} className="text-xs font-bold text-blue-600">+ Add Point</button>
+                  </div>
+
+                  {/* Second Section Table */}
+                  <div className="border p-4 rounded-lg bg-blue-50">
+                    <h3 className="font-bold text-sm mb-3">Second Section Table</h3>
+                    {editingBlog.second_section?.table?.map((row, i) => (
+                      <div key={i} className="flex gap-2 mb-2">
+                        <input className="flex-1 border p-2 rounded text-xs" placeholder="Col 1" value={row.column1} onChange={e => {
+                          const tbl = [...editingBlog.second_section.table]; tbl[i].column1 = e.target.value;
+                          updateNested('second_section.table', tbl);
+                        }} />
+                        <input className="flex-1 border p-2 rounded text-xs" placeholder="Col 2" value={row.column2} onChange={e => {
+                          const tbl = [...editingBlog.second_section.table]; tbl[i].column2 = e.target.value;
+                          updateNested('second_section.table', tbl);
+                        }} />
+                        <button type="button" onClick={() => {
+                          const tbl = editingBlog.second_section.table.filter((_, idx) => idx !== i);
+                          updateNested('second_section.table', tbl);
+                        }} className="text-red-500"><X/></button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => updateNested('second_section.table', [...editingBlog.second_section.table, {column1:"", column2:"", column3:""}])} className="text-xs font-bold text-blue-600">+ Add Table Row</button>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. FAQs */}
+              {activeTab === 'faqs' && (
+                <div className="space-y-4">
+                  {editingBlog.faqs?.map((f, i) => (
+                    <div key={i} className="border p-4 rounded-lg bg-slate-50 relative group">
+                      <button type="button" onClick={() => {
+                        const fqs = editingBlog.faqs.filter((_, idx) => idx !== i);
+                        setEditingBlog({...editingBlog, faqs: fqs});
+                      }} className="absolute top-2 right-2 text-red-400 opacity-0 group-hover:opacity-100"><Trash2 size={16}/></button>
+                      <input className="w-full border p-2 rounded mb-2 font-bold text-sm" placeholder="Question" value={f.question} onChange={e => {
+                        const fqs = [...editingBlog.faqs]; fqs[i].question = e.target.value;
+                        setEditingBlog({...editingBlog, faqs: fqs});
+                      }} />
+                      <textarea className="w-full border p-2 rounded text-sm" placeholder="Answer" value={f.answer} onChange={e => {
+                        const fqs = [...editingBlog.faqs]; fqs[i].answer = e.target.value;
+                        setEditingBlog({...editingBlog, faqs: fqs});
+                      }} />
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => setEditingBlog({...editingBlog, faqs: [...editingBlog.faqs, {question:"", answer:""}]})} className="bg-slate-200 w-full py-2 rounded font-bold text-sm hover:bg-slate-300">Add New FAQ</button>
+                </div>
+              )}
+
+              {/* 5. SEO */}
+              {activeTab === 'seo' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold mb-1">Meta Title</label>
+                    <input className="w-full border p-2 rounded" value={editingBlog.seo?.meta_title} onChange={e => updateNested('seo.meta_title', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold mb-1">Meta Description</label>
+                    <textarea className="w-full border p-2 rounded text-sm" value={editingBlog.seo?.meta_desc} onChange={e => updateNested('seo.meta_desc', e.target.value)} />
+                  </div>
+                </div>
+              )}
+
             </form>
+
+            {/* Footer Actions */}
+            <div className="p-4 bg-slate-100 border-t flex gap-4">
+              <button onClick={() => setIsEditModalOpen(false)} className="px-6 py-2 border rounded font-bold bg-white">Cancel</button>
+              <button 
+                onClick={handleUpdate} 
+                disabled={isSubmitting} 
+                className="flex-1 bg-green-600 text-white font-bold rounded flex justify-center items-center gap-2 hover:bg-green-700"
+              >
+                {isSubmitting ? <Loader2 className="animate-spin"/> : <><Save size={18}/> Update Full Blog</>}
+              </button>
+            </div>
+
           </div>
         </div>
       )}

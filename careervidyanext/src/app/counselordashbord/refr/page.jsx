@@ -25,6 +25,8 @@ const initialState = {
   studentName: "",
   fatherName: "",
   motherName:"",
+  adhraNumber: "",
+  dob: "",
   email: "",
   city: "",
   phone: "",
@@ -269,7 +271,8 @@ export default function StudentAdmission({ lead, onClose }) {
           <Input icon={Users} label="Father" name="fatherName" value={formData.fatherName} onChange={handleChange} />
 
           <Input icon={Users} label="Mother" name="motherName" value={formData.motherName} onChange={handleChange} />
-
+          <Input icon={Users} label="Aadhar Number" name="adhraNumber" value={formData.adhraNumber} onChange={handleChange} />
+          <Input icon={Users} label="Date of Birth" name="dob" type="date" value={formData.dob} onChange={handleChange} />
           <Input icon={Mail} label="Email" name="email" value={formData.email} onChange={handleChange} />
 
           <Input icon={Phone} label="Phone" name="phone" value={formData.phone} onChange={handleChange} />

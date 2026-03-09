@@ -268,6 +268,8 @@ const handleDelete = async () => {
   value={editData.motherName} 
   onChange={(val) => setEditData({...editData, motherName: val})} 
 />
+                <InputField label="Aadhar Number" value={editData.adhraNumber} onChange={(val) => setEditData({...editData, adhraNumber: val})} />
+                <InputField label="Date of Birth" type="date" value={editData.dob} onChange={(val) => setEditData({...editData, dob: val})} />
                 <InputField label="Email Address" value={editData.email} onChange={(val) => setEditData({...editData, email: val})} />
                 <InputField label="Phone Number" value={editData.phone} onChange={(val) => setEditData({...editData, phone: val})} />
 

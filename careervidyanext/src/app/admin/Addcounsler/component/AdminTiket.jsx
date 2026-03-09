@@ -1,15 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import api from "@/utlis/api.js"; // fixed spelling
-import { Send, CheckCircle, Clock, User } from "lucide-react";
+import api from "@/utlis/api.js";
+import { Send, CheckCircle, Clock, User, Trash2 } from "lucide-react";
 
 export default function AdminTiket() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeNote, setActiveNote] = useState({ id: "", text: "" });
-  const [notifyAllText, setNotifyAllText] = useState(""); // State for Notify All
+  const [notifyAllText, setNotifyAllText] = useState("");
 
-  // Fetch all tickets
+  // Fetch Tickets
   const fetchTickets = async () => {
     try {
       setLoading(true);
@@ -26,7 +26,7 @@ export default function AdminTiket() {
     fetchTickets();
   }, []);
 
-  // Notify single counselor
+  // Notify Single
   const handleNotify = async (ticketId) => {
     if (!activeNote.text.trim()) return alert("Please type a message");
 
@@ -45,17 +45,17 @@ export default function AdminTiket() {
     }
   };
 
-  // Notify all counselors
+  // Notify All
   const handleNotifyAll = async () => {
     if (!notifyAllText.trim()) return alert("Please type a message");
 
     try {
-      // Loop through all tickets and send message to each counselor
       const sendAll = tickets.map((ticket) =>
         api.patch(`/api/v1/tickat/${ticket._id}/notify`, {
           message: notifyAllText,
         })
       );
+
       await Promise.all(sendAll);
 
       alert("Message sent to all counselors!");
@@ -86,6 +86,23 @@ export default function AdminTiket() {
     }
   };
 
+  // DELETE Ticket
+  const handleDelete = async (ticketId) => {
+    const confirmDelete = confirm("Are you sure you want to delete this ticket?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await api.delete(`/api/v1/tickat/${ticketId}`);
+
+      if (res.data.success) {
+        alert("Ticket deleted successfully");
+        fetchTickets();
+      }
+    } catch (err) {
+      alert("Error deleting ticket");
+    }
+  };
+
   if (loading)
     return (
       <div className="p-20 text-center text-gray-500 animate-pulse">
@@ -105,13 +122,13 @@ export default function AdminTiket() {
         </button>
       </div>
 
-      {/* Notify All Counselors */}
+      {/* Notify All */}
       <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
         <p className="text-[10px] font-bold text-blue-800 mb-2 uppercase">
           Notify All Counselors
         </p>
         <textarea
-          className="w-full border p-2 text-sm rounded bg-white outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-full border p-2 text-sm rounded bg-white"
           placeholder="Send message to all counselors..."
           rows="3"
           value={notifyAllText}
@@ -119,7 +136,7 @@ export default function AdminTiket() {
         />
         <button
           onClick={handleNotifyAll}
-          className="mt-2 w-full bg-blue-600 text-white py-2 rounded text-xs font-bold hover:bg-blue-700 transition"
+          className="mt-2 w-full bg-blue-600 text-white py-2 rounded text-xs font-bold hover:bg-blue-700"
         >
           Send to All
         </button>
@@ -137,7 +154,7 @@ export default function AdminTiket() {
               className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm"
             >
               {/* Header */}
-              <div className="p-4 bg-gray-50/50 border-b flex justify-between items-center">
+              <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   {ticket.status === "Resolved" ? (
                     <CheckCircle className="text-green-500" size={20} />
@@ -146,44 +163,37 @@ export default function AdminTiket() {
                   )}
                   <h3 className="font-bold text-gray-800">{ticket.subject}</h3>
                 </div>
-                <span
-                  className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                    ticket.description?.urgency === "Urgent"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-blue-100 text-blue-600"
-                  }`}
+
+                {/* DELETE BUTTON */}
+                <button
+                  onClick={() => handleDelete(ticket._id)}
+                  className="flex items-center gap-1 text-red-600 hover:text-red-800 text-xs font-bold"
                 >
-                  {ticket.description?.urgency || "Medium"}
-                </span>
+                  <Trash2 size={14} />
+                  Delete
+                </button>
               </div>
 
               {/* Body */}
               <div className="p-4 grid md:grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm text-gray-500 font-semibold mb-1 uppercase text-[10px]">
-                    Description
-                  </p>
                   <p className="text-sm text-gray-700 leading-relaxed">
                     {ticket.description?.issue}
                   </p>
+
                   <div className="mt-4 flex items-center gap-4">
                     <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                       <User size={14} />
-                      <span>
-                        Counselor:{" "}
-                        <strong>{ticket.counselorId?.name || "N/A"}</strong>
-                      </span>
+                      Counselor:{" "}
+                      <strong>{ticket.counselorId?.name || "N/A"}</strong>
                     </div>
                   </div>
                 </div>
 
-                {/* Notify Single */}
-                <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
-                  <p className="text-[10px] font-bold text-blue-800 mb-2 uppercase">
-                    Admin Instructions
-                  </p>
+                {/* Notify */}
+                <div className="bg-blue-50 p-3 rounded-lg border">
                   <textarea
-                    className="w-full border p-2 text-sm rounded bg-white outline-none focus:ring-1 focus:ring-blue-400"
+                    className="w-full border p-2 text-sm rounded"
                     placeholder="Send message to counselor..."
                     rows="2"
                     value={activeNote.id === ticket._id ? activeNote.text : ""}
@@ -191,10 +201,11 @@ export default function AdminTiket() {
                       setActiveNote({ id: ticket._id, text: e.target.value })
                     }
                   />
+
                   <button
                     disabled={ticket.status === "Resolved"}
                     onClick={() => handleNotify(ticket._id)}
-                    className="mt-2 w-full bg-blue-600 text-white py-1.5 rounded text-xs font-bold hover:bg-blue-700 disabled:bg-gray-300 transition"
+                    className="mt-2 w-full bg-blue-600 text-white py-1.5 rounded text-xs font-bold"
                   >
                     Send Ping
                   </button>
@@ -210,26 +221,16 @@ export default function AdminTiket() {
                 {ticket.status !== "Resolved" ? (
                   <button
                     onClick={() => handleResolve(ticket._id)}
-                    className="bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold hover:bg-green-700"
+                    className="bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold"
                   >
                     Resolve Ticket
                   </button>
                 ) : (
-                  <div className="text-green-600 font-bold text-xs">✓ Resolved</div>
+                  <div className="text-green-600 font-bold text-xs">
+                    ✓ Resolved
+                  </div>
                 )}
               </div>
-
-              {/* Last Admin Ping */}
-              {ticket.adminMessages?.length > 0 && (
-                <div className="p-3 bg-white border-t">
-                  <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">
-                    Last Admin Ping:
-                  </p>
-                  <div className="text-[11px] italic text-gray-600 border-l-2 border-blue-200 pl-2">
-                    "{ticket.adminMessages[ticket.adminMessages.length - 1].message}"
-                  </div>
-                </div>
-              )}
             </div>
           ))
         )}

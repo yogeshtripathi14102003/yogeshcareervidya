@@ -15,6 +15,8 @@ const initialState = {
   studentName: "",
   fatherName: "", // Added Father Name
   motherName:"",
+adhraNumber: "",
+dob: "",
   email: "",
   city: "",
   phone: "",
@@ -219,6 +221,8 @@ const StudentAdmission = ({ lead, onClose }) => {
             <Input icon={User} label="Student Name" name="studentName" value={formData.studentName} onChange={handleChange} required />
             <Input icon={Users} label="Father's Name" name="fatherName" value={formData.fatherName} onChange={handleChange} required />
               <Input icon={Users} label="Mother's Name" name="motherName" value={formData.motherName} onChange={handleChange} required />
+              <Input icon={Users} label="Adhra Number" name="adhraNumber" value={formData.adhraNumber} onChange={handleChange} required />
+              <Input icon={Users} label="Date of Birth" name="dob" type="date" value={formData.dob} onChange={handleChange} required />
             <Input icon={Mail} label="Email" name="email" type="email" value={formData.email} onChange={handleChange} required />
             <Input icon={Phone} label="Phone" name="phone" value={formData.phone} onChange={handleChange} required />
             <Input icon={MapPin} label="City" name="city" value={formData.city} onChange={handleChange} />

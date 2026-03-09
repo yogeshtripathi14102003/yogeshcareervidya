@@ -11,5 +11,8 @@ export const PERMISSIONS = {
   MANAGE_JOBS: "manage_jobs",
   MANAGE_REVIEWS: "manage_reviews",
   MANAGE_BLOGS: "manage_blogs",
+  MANAGE_COUNSELORREPRT: "manage_CounselorsReprt",
+  MANAGE_VIDEOPage: "manage_VideoPage",
+
 };
 

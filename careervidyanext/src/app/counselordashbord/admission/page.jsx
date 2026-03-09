@@ -99,6 +99,8 @@ const CounselorAdmissions = () => {
             `Name: ${data.studentName}
 Father: ${data.fatherName || "N/A"}
 Mother: ${data.motherName || "N/A"}
+Aadhar Number: ${data.adhraNumber || "N/A"}
+Date of Birth: ${data.dob ? new Date(data.dob).toLocaleDateString() : "N/A"}
 Phone: ${data.phone}
 Email: ${data.email}`,
 

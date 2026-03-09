@@ -28,6 +28,8 @@ const PERMISSIONS_LIST = [
   { id: "Newsletter", label: "Newsletter" },
   { id: "Addcounselor", label: "Add Counselor" },
   { id: "Security", label: "Security Settings" },
+  { id: "VideoPage", label: "Video Management" },
+  { id: "CounselorReprt", label: "Counselor Report" },
 ];
 
 export default function GiveAccessPage() {

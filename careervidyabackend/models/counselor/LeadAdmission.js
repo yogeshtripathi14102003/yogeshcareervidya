@@ -5,6 +5,8 @@ const leadAdmissionSchema = new mongoose.Schema(
     studentName: { type: String, required: true },
     fatherName: { type: String }, 
     motherName: { type: String },
+    adhraNumber: { type: String, unique: true }, // ✅ UNIQUE
+    dob: { type: Date },
    email: { type: String, required: true, unique: true }, // ✅ UNIQUE
     phone: { type: String, unique: true }, // ✅ UNIQUE
 
