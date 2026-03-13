@@ -449,7 +449,7 @@ export default function UniversityDetail() {
               href={`/course/${course.courseSlug || course.slug}`} 
               className="text-blue-900 font-bold hover:text-blue-600 transition-colors flex-1"
             >
-              <span>{course.name} Online</span>
+              <span>{course.name} </span>
             </Link>
 
             {/* 2. APPLY BUTTON: Click karne par Popup khulega */}
