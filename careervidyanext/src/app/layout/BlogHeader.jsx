@@ -27,16 +27,16 @@ export default function Header() {
         {/* DESKTOP NAV */}
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-700">
           <Link href="/" className="hover:text-blue-600">Home</Link>
-          <Link href="/about" className="hover:text-blue-600">About</Link>
-          <Link href="/services" className="hover:text-blue-600">Services</Link>
+          <Link href="/Aboutus" className="hover:text-blue-600">About</Link>
+      
           <Link href="/blog" className="hover:text-blue-600">Blog</Link>
-          <Link href="/contact" className="hover:text-blue-600">Contact</Link>
+          <Link href="/contactus" className="hover:text-blue-600">Contact</Link>
         </nav>
 
         {/* CTA */}
         <div className="hidden md:block">
           <Link
-            href="/contact"
+            href="/contactus"
             className="bg-[#04458b] text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"
           >
             Get Started
