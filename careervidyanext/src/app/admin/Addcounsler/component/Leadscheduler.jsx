@@ -35,17 +35,18 @@ const LeadScheduler = () => {
     }
   };
 
-  const fetchCounselors = async () => {
+const fetchCounselors = async () => {
     try {
       const res = await api.get("/api/v1/counselor");
       if (res.data.success) {
-        setCounselors(res.data.data);
+        // Sirf active counselors ko filter karke set karein
+        const activeCounselors = res.data.data.filter((c) => c.status === "active" || c.isActive === true);
+        setCounselors(activeCounselors);
       }
     } catch (err) {
       alert("Failed to fetch counselors");
     }
   };
-
   /* ================= FILE UPLOAD ================= */
   const handleFile = (e) => setFile(e.target.files[0]);
 
@@ -81,34 +82,45 @@ const LeadScheduler = () => {
   };
 
   /* ================= AUTO DISTRIBUTE ================= */
-  const autoDistribute = () => {
-    if (!selectedLeads.length) return alert("Select leads first");
-    if (!counselors.length) return alert("No counselors");
+/* ================= AUTO DISTRIBUTE ================= */
+const autoDistribute = () => {
+  if (!selectedLeads.length) return alert("Select leads first");
+  if (!counselors.length) return alert("No counselors");
 
-    const total = selectedLeads.length;
-    let index = 0;
-    const newAssign = {};
-    const hasCustom = Object.values(autoCounts).some((v) => v && Number(v) > 0);
+  const total = selectedLeads.length;
+  let index = 0;
+  const newAssign = {};
 
-    if (hasCustom) {
-      counselors.forEach((c) => {
-        const count = Number(autoCounts[c._id] || 0);
-        for (let i = 0; i < count; i++) {
-          if (index >= total) break;
-          newAssign[selectedLeads[index]] = c._id;
-          index++;
-        }
-      });
-    }
+  // 1. Pehle un counselors ko filter karein jinhe leads deni hai (Count > 0)
+  // Agar kisi ne count fill nahi kiya (empty string), toh hum assume karenge wo disabled hai
+  const activeCounselors = counselors.filter(c => {
+    const count = autoCounts[c._id];
+    return count !== undefined && count !== "" && Number(count) > 0;
+  });
 
-    while (index < total) {
-      const c = counselors[index % counselors.length];
+  if (activeCounselors.length === 0) {
+    return alert("Please enter a count greater than 0 for at least one counselor.");
+  }
+
+  // 2. Custom Counts ke basis par assignment
+  activeCounselors.forEach((c) => {
+    const count = Number(autoCounts[c._id] || 0);
+    for (let i = 0; i < count; i++) {
+      if (index >= total) break;
       newAssign[selectedLeads[index]] = c._id;
       index++;
     }
-    setLeadAssignments(newAssign);
-  };
+  });
 
+  // 3. Agar abhi bhi leads bachi hain (Round Robin sirf active walo mein)
+  while (index < total) {
+    const c = activeCounselors[index % activeCounselors.length];
+    newAssign[selectedLeads[index]] = c._id;
+    index++;
+  }
+
+  setLeadAssignments(newAssign);
+};
   /* ================= ASSIGN BY COUNT ================= */
   const assignByCount = () => {
     if (!Object.keys(autoCounts).length) return alert("Enter counts first");
@@ -206,12 +218,13 @@ const LeadScheduler = () => {
                 <div key={c._id} className="flex justify-between border p-2 rounded">
                   <span>{c.name}</span>
                   <input
-                    type="number"
-                    min="0"
-                    value={autoCounts[c._id] || ""}
-                    onChange={(e) => setAutoCounts((p) => ({ ...p, [c._id]: e.target.value }))}
-                    className="w-20 border rounded px-2"
-                  />
+  type="number"
+  min="0"
+  placeholder="0 to skip" // Placeholder add kar sakte hain
+  value={autoCounts[c._id] || ""}
+  onChange={(e) => setAutoCounts((p) => ({ ...p, [c._id]: e.target.value }))}
+  className="w-20 border rounded px-2"
+/>
                 </div>
               ))}
             </div>

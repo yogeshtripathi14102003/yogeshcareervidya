@@ -43,11 +43,19 @@ const LeadsPage = () => {
     } catch (err) { console.log(err); }
   };
 
-  const fetchCounselors = async () => {
+const fetchCounselors = async () => {
     try {
       const res = await api.get("/api/v1/counselor");
-      if (res.data.success) setCounselors(res.data.data);
-    } catch (err) { console.log(err); }
+      if (res.data.success) {
+        // Sirf wahi counselors dikhenge jo active hain
+        const activeOnly = res.data.data.filter(
+          (c) => c.status === "active" || c.isActive === true
+        );
+        setCounselors(activeOnly);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const todayStr = new Date().toISOString().slice(0, 10);
