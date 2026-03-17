@@ -47,7 +47,7 @@ const fetchCounselors = async () => {
       alert("Failed to fetch counselors");
     }
   };
-  /* ================= FILE UPLOAD ================= */
+  /* ================= FILE UPLOAD ================= */ 
   const handleFile = (e) => setFile(e.target.files[0]);
 
   const uploadExcel = async () => {
@@ -91,32 +91,37 @@ const autoDistribute = () => {
   let index = 0;
   const newAssign = {};
 
-  // 1. Pehle un counselors ko filter karein jinhe leads deni hai (Count > 0)
-  // Agar kisi ne count fill nahi kiya (empty string), toh hum assume karenge wo disabled hai
-  const activeCounselors = counselors.filter(c => {
+  // 1️⃣ Custom Count wale
+  const customCounselors = counselors.filter(c => {
     const count = autoCounts[c._id];
-    return count !== undefined && count !== "" && Number(count) > 0;
+    return count !== "" && count !== undefined && Number(count) > 0;
   });
 
-  if (activeCounselors.length === 0) {
-    return alert("Please enter a count greater than 0 for at least one counselor.");
-  }
+  // 2️⃣ Auto wale (empty field)
+  const autoCounselors = counselors.filter(c => {
+    const count = autoCounts[c._id];
+    return count === "" || count === undefined;
+  });
 
-  // 2. Custom Counts ke basis par assignment
-  activeCounselors.forEach((c) => {
-    const count = Number(autoCounts[c._id] || 0);
-    for (let i = 0; i < count; i++) {
-      if (index >= total) break;
+  // 3️⃣ Custom Count assign
+  customCounselors.forEach(c => {
+    const count = Number(autoCounts[c._id]);
+
+    for (let i = 0; i < count && index < total; i++) {
       newAssign[selectedLeads[index]] = c._id;
       index++;
     }
   });
 
-  // 3. Agar abhi bhi leads bachi hain (Round Robin sirf active walo mein)
-  while (index < total) {
-    const c = activeCounselors[index % activeCounselors.length];
-    newAssign[selectedLeads[index]] = c._id;
+  // 4️⃣ Remaining leads auto assign (round robin)
+  const activeAuto = autoCounselors;
+
+  let rrIndex = 0;
+  while (index < total && activeAuto.length) {
+    const counselor = activeAuto[rrIndex % activeAuto.length];
+    newAssign[selectedLeads[index]] = counselor._id;
     index++;
+    rrIndex++;
   }
 
   setLeadAssignments(newAssign);

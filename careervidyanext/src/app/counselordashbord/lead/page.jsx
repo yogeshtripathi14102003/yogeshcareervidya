@@ -52,24 +52,29 @@ const MONTHS = [
 
 const formatForInput = (dateString) => {
   if (!dateString) return "";
+
   const date = new Date(dateString);
-  const offset = date.getTimezoneOffset() * 60000;
-  const local = new Date(date.getTime() - offset);
-  return local.toISOString().slice(0, 16);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
 const isToday = (dateString) => {
   if (!dateString) return false;
+
   const d = new Date(dateString);
   const today = new Date();
 
   return (
-    d.getFullYear() === today.getFullYear() &&
-    d.getMonth() === today.getMonth() &&
-    d.getDate() === today.getDate()
+    d.toDateString() === today.toDateString()
   );
 };
-
 /* ================= MAIN ================= */
 
 const LeadsPage = () => {
@@ -468,13 +473,16 @@ const LeadRow = ({ lead, onSave }) => {
             <button
               disabled={!hasChange}
               onClick={() => {
-                onSave(lead._id, {
-                  status: localStatus,
-                  remark: localRemark,
-                  followUpDate: localDate,
-                });
-                setLocalRemark("");
-              }}
+  const utcDate = localDate ? new Date(localDate).toISOString() : null;
+
+  onSave(lead._id, {
+    status: localStatus,
+    remark: localRemark,
+    followUpDate: utcDate,
+  });
+
+  setLocalRemark("");
+}}
               className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded text-[10px] font-bold transition-all disabled:opacity-20 disabled:cursor-not-allowed shadow-sm"
             >
               <Save size={12} /> Update

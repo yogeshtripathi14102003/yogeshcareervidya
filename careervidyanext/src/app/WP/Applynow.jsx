@@ -70,6 +70,8 @@ const Signup = ({ onClose }) => {
     city: "",
     state: "",
     gender: "",
+      course: "",   
+  branch: "", 
     subsidyCoupon: "",
     addresses: "",
     dob: "",
@@ -142,6 +144,8 @@ const Signup = ({ onClose }) => {
       "state",
       "city",
       "gender",
+        "course",   // NEW
+  "branch", 
       "subsidyCoupon",
       "addresses",
       "dob",
@@ -291,6 +295,21 @@ const Signup = ({ onClose }) => {
             onChange={handleChange}
             options={subsidyOptions}
           />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  <FloatingInput
+    label="Course"
+    name="course"
+    value={formData.course}
+    onChange={handleChange}
+  />
+
+  <FloatingInput
+    label="Branch "
+    name="branch"
+    value={formData.branch}
+    onChange={handleChange}
+  />
+</div>
 
           <FloatingInput
             label="Address"
