@@ -211,19 +211,7 @@ export default function BlogDetailPage() {
                     <Blogget />
                </div>
                
-               {/* SEO KEYWORDS */}
-               {/* {blog?.seo?.keywords?.length > 0 && (
-                <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
-                  <h3 className="font-bold mb-4 text-slate-800 text-sm uppercase">Keywords</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {blog.seo.keywords.map((k, i) => (
-                      <span key={i} className="bg-slate-50 border border-slate-100 text-slate-500 text-xs px-3 py-1.5 rounded-full">
-                        {k}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-               )} */}
+            
             </div>
           </aside>
 

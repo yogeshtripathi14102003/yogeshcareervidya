@@ -213,12 +213,10 @@ export const deleteCounselor = async (req, res) => {
 };
 
 
-/* ===============================
-   LOGIN
-================================ */
-/* ===============================
+
+/* 
    LOGIN Counselor (userid + password)
-================================ */
+ */
 export const loginCounselor = async (req, res) => {
   try {
     const { userid, password } = req.body;

@@ -179,7 +179,7 @@ const LeadsPage = () => {
   /* ================= CSV ================= */
 
   const exportToCSV = () => {
-    const headers = ["Date", "Name", "Phone", "Status", "Course", "Remark"];
+    const headers = ["Date", "Name", "Phone", "Status", "Course", "Remark","city","email"];
 
     const rows = filteredLeads.map((l) => [
       l.createdAt?.slice(0, 10),
@@ -187,7 +187,11 @@ const LeadsPage = () => {
       l.phone,
       l.status,
       l.course,
+      
       l.remark?.replace(/,/g, " "),
+       l.city,
+      l.email,
+     
     ]);
 
     const csv = [headers, ...rows].map((e) => e.join(",")).join("\n");
