@@ -212,7 +212,7 @@ export default function BlogDetailPage() {
                </div>
                
                {/* SEO KEYWORDS */}
-               {blog?.seo?.keywords?.length > 0 && (
+               {/* {blog?.seo?.keywords?.length > 0 && (
                 <div className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
                   <h3 className="font-bold mb-4 text-slate-800 text-sm uppercase">Keywords</h3>
                   <div className="flex flex-wrap gap-2">
@@ -223,7 +223,7 @@ export default function BlogDetailPage() {
                     ))}
                   </div>
                 </div>
-               )}
+               )} */}
             </div>
           </aside>
 

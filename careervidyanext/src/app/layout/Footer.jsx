@@ -367,22 +367,22 @@ export default function Footer() {
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-bold mb-4 border-b border-gray-600 pb-2 inline-block w-full">Head Office (Noida)</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <p className="text-gray-300 text-sm leading-relaxed">
                 SF-27, 2nd Floor, Gaur City Center<br /> Greater Noida, UP 201318
               </p>
-              <p className="text-gray-400 text-sm mt-2">📞 +91 9289712364</p>
+              <p className="text-gray-300 text-sm mt-2">📞 +91 9289712364</p>
             </div>
             <div>
               <h3 className="text-lg font-bold mb-4 border-b border-gray-600 pb-2 inline-block w-full">Corporate Office</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">H-160, Sector 63, Noida - 201305</p>
-              <p className="text-gray-400 text-sm mt-2">📧 Info@careervidya.in</p>
+              <p className="text-gray-300 text-sm leading-relaxed">H-160, Sector 63, Noida - 201305</p>
+              <p className="text-gray-300 text-sm mt-2">📧 Info@careervidya.in</p>
             </div>
           </div>
 
           {/* Quick Links / About */}
           <div>
-            <h3 className="text-lg font-bold mb-4 border-b border-gray-600 pb-2 inline-block w-full">Quick Links</h3>
-            <ul className="space-y-3 mt-4 text-gray-400 text-sm">
+            <h3 className="text-lg font-bold mb-4 border-b border-gray-200 pb-2 inline-block w-full">Quick Links</h3>
+            <ul className="space-y-3 mt-4 text-gray-300 text-sm">
               <li><Link href="/Aboutus" className="hover:text-white transition">About Us</Link></li>
               <li><Link href="/contactus" className="hover:text-white transition">Contact Us</Link></li>
               <li><Link href="/career" className="hover:text-white transition">Careers</Link></li>
@@ -393,7 +393,7 @@ export default function Footer() {
           {/* Newsletter Section */}
           <div>
             <h3 className="text-lg font-bold mb-4 border-b border-gray-600 pb-2 inline-block w-full">Newsletter</h3>
-            <p className="text-gray-400 text-sm mt-4 mb-6">Subscribe to our newsletter for updates</p>
+            <p className="text-gray-300 text-sm mt-4 mb-6">Subscribe to our newsletter for updates</p>
             <div className="flex flex-col gap-4">
               <input
                 type="email"
@@ -419,7 +419,7 @@ export default function Footer() {
           {/* PG Column */}
           <div>
             <h4 className="text-white font-bold mb-4 text-md">PG Programs</h4>
-            <ul className="space-y-2 text-sm text-gray-400 max-h-52 overflow-y-auto custom-scrollbar">
+            <ul className="space-y-2 text-sm text-gray-300 max-h-52 overflow-y-auto custom-scrollbar">
               {pgCourses.map((c) => (
                 <li key={c._id}><Link href={`/course/${c.slug}`} className="hover:text-white">{c.name}</Link></li>
               ))}
@@ -428,7 +428,7 @@ export default function Footer() {
           {/* UG Column */}
           <div>
             <h4 className="text-white font-bold mb-4 text-md">UG Programs</h4>
-            <ul className="space-y-2 text-sm text-gray-400 max-h-52 overflow-y-auto custom-scrollbar">
+            <ul className="space-y-2 text-sm text-gray-300 max-h-52 overflow-y-auto custom-scrollbar">
               {ugCourses.map((c) => (
                 <li key={c._id}><Link href={`/course/${c.slug}`} className="hover:text-white">{c.name}</Link></li>
               ))}
@@ -437,7 +437,7 @@ export default function Footer() {
           {/* Diploma Column */}
           <div>
             <h4 className="text-white font-bold mb-4 text-md">Diploma & Certificates</h4>
-            <ul className="space-y-2 text-sm text-gray-400 max-h-52 overflow-y-auto custom-scrollbar">
+            <ul className="space-y-2 text-sm text-gray-300 max-h-52 overflow-y-auto custom-scrollbar">
               {diplomaCourses.map((c) => (
                 <li key={c._id}><Link href={`/course/${c.slug}`} className="hover:text-white">{c.name}</Link></li>
               ))}
@@ -448,7 +448,7 @@ export default function Footer() {
         {/* BOTTOM SECTION: Disclaimer */}
         <div className="border-t border-gray-800 pt-10 text-center">
           <h4 className="text-[#c15304] font-bold mb-3 text-base">Disclaimer</h4>
-          <p className="text-xs text-gray-500 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xs text-gray-200 max-w-3xl mx-auto leading-relaxed">
            
            Career Vidya Edu-Tech Pvt. Ltd. provides unbiased educational and career guidance for informational purposes only. 
               We do not guarantee admissions, placements, or job outcomes. Users should verify course, fee, and institution details 
@@ -456,9 +456,9 @@ export default function Footer() {
            
            
           </p>
-          <p className="mt-8 text-gray-600 text-[10px] tracking-widest uppercase">
-            © 2025 CAREERVIDYA.IN | ALL RIGHTS RESERVED
-          </p>
+         <p className="mt-8 text-gray-200 text-[10px] tracking-widest uppercase">
+  © {new Date().getFullYear()} CAREERVIDYA.IN | ALL RIGHTS RESERVED
+</p>
         </div>
       </div>
       <TopOfferBanner />

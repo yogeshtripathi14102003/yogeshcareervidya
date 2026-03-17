@@ -1,11 +1,16 @@
+
+
 // "use client";
 
 // import { useState, useEffect } from "react";
 // import Image from "next/image";
 // import Link from "next/link";
+// import { useRouter } from "next/navigation";
 // import { Menu, X, Search, User } from "lucide-react";
+
 // import Signup from "../signup/page.jsx";
 // import Subheader from "@/app/components/Subheader.jsx";
+
 // import "./headr.css";
 
 // export default function Header() {
@@ -13,24 +18,43 @@
 //   const [showSignup, setShowSignup] = useState(false);
 //   const [user, setUser] = useState(null);
 
-//   // ✅ Get user dynamically from localStorage
+//   const router = useRouter();
+
+//   // ================= LOAD USER SAFELY =================
 //   useEffect(() => {
 //     const loadUser = () => {
 //       const storedUser = localStorage.getItem("user");
-//       setUser(storedUser ? JSON.parse(storedUser) : null);
+
+//       // If empty / undefined
+//       if (!storedUser || storedUser === "undefined") {
+//         setUser(null);
+//         return;
+//       }
+
+//       try {
+//         const parsedUser = JSON.parse(storedUser);
+//         setUser(parsedUser);
+//       } catch (err) {
+//         console.error("Invalid user data:", err);
+
+//         // Remove bad data
+//         localStorage.removeItem("user");
+//         setUser(null);
+//       }
 //     };
 
 //     loadUser();
+
 //     window.addEventListener("storage", loadUser);
 
 //     return () => window.removeEventListener("storage", loadUser);
 //   }, []);
 
-//   // ✅ Logout
+//   // ================= LOGOUT =================
 //   const handleLogout = () => {
 //     localStorage.removeItem("user");
 //     setUser(null);
-//     window.location.reload();
+//     router.push("/");
 //   };
 
 //   return (
@@ -51,6 +75,7 @@
 //                 className="logo-img"
 //                 priority
 //               />
+
 //               <Image
 //                 src="/images/Lak.png"
 //                 alt="Free Counselling Done"
@@ -62,8 +87,11 @@
 //             </div>
 //           </Link>
 
-//           {/* ================= DESKTOP SEARCH ================= */}
-//           <Link href="/serarch" className="header-search-container desktop-only">
+//           {/* ================= SEARCH (DESKTOP) ================= */}
+//           <Link
+//             href="/serarch"
+//             className="header-search-container desktop-only"
+//           >
 //             <div className="main-search-bar">
 //               <input
 //                 type="text"
@@ -71,31 +99,38 @@
 //                 className="main-search-input"
 //                 readOnly
 //               />
+
 //               <div className="search-icon-btn">
 //                 <Search size={22} color="white" />
 //               </div>
 //             </div>
 //           </Link>
 
-//           {/* ================= DESKTOP NAV ================= */}
+//           {/* ================= NAV (DESKTOP) ================= */}
 //           <nav className="nav-right desktop-only">
+
 //             <Link href="/explore">Explore Programs</Link>
+
 //             <Link href="/teamexpand">Free Counselling</Link>
-//             {/* <Link href="/coming-soon">Top University</Link> */}
+
 //             <Link href="/topunivers">Top Universities</Link>
 
-//             {/* ===== USER / SIGNUP ===== */}
+//             {/* ================= USER ================= */}
 //             {user ? (
 //               <div className="user-dropdown">
+
 //                 <User size={18} />
+
 //                 <span className="username-text">
-//                   Hi, {user.name}
+//                   Hi, {user?.name || "User"}
 //                 </span>
 
 //                 <div className="user-dropdown-menu">
-//                   {/* <Link href="/admin/bannar">My Profile</Link> */}
-//                   <button onClick={handleLogout}>Logout</button>
+//                   <button onClick={handleLogout}>
+//                     Logout
+//                   </button>
 //                 </div>
+
 //               </div>
 //             ) : (
 //               <button
@@ -109,9 +144,10 @@
 
 //           {/* ================= MOBILE ACTIONS ================= */}
 //           <div className="mobile-actions mobile-only">
+
 //             {user ? (
 //               <span className="mobile-user-name">
-//                 Hi, {user.name}
+//                 Hi, {user?.name || "User"}
 //               </span>
 //             ) : (
 //               <button
@@ -128,33 +164,56 @@
 //             >
 //               <Menu size={28} />
 //             </button>
+
 //           </div>
 //         </div>
 
 //         {/* ================= MOBILE SIDEBAR ================= */}
 //         <div
-//           className={`mobile-sidebar-overlay ${menuOpen ? "active" : ""}`}
+//           className={`mobile-sidebar-overlay ${
+//             menuOpen ? "active" : ""
+//           }`}
 //           onClick={() => setMenuOpen(false)}
 //         >
 //           <div
-//             className={`mobile-sidebar ${menuOpen ? "open" : ""}`}
+//             className={`mobile-sidebar ${
+//               menuOpen ? "open" : ""
+//             }`}
 //             onClick={(e) => e.stopPropagation()}
 //           >
+
 //             <div className="sidebar-header">
-//               <span className="sidebar-title">Menu</span>
+
+//               <span className="sidebar-title">
+//                 Menu
+//               </span>
+
 //               <button onClick={() => setMenuOpen(false)}>
 //                 <X size={30} />
 //               </button>
+
 //             </div>
 
 //             <nav className="mobile-nav-links">
-//               <Link href="/explore" onClick={() => setMenuOpen(false)}>
+
+//               <Link
+//                 href="/explore"
+//                 onClick={() => setMenuOpen(false)}
+//               >
 //                 Explore Programs
 //               </Link>
-//               <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>
+
+//               <Link
+//                 href="/teamexpand"
+//                 onClick={() => setMenuOpen(false)}
+//               >
 //                 Free Counselling
 //               </Link>
-//               <Link href="/topunivers" onClick={() => setMenuOpen(false)}>
+
+//               <Link
+//                 href="/topunivers"
+//                 onClick={() => setMenuOpen(false)}
+//               >
 //                 Top University
 //               </Link>
 
@@ -176,16 +235,21 @@
 //                   Signup
 //                 </button>
 //               )}
+
 //             </nav>
 //           </div>
 //         </div>
 //       </header>
 
 //       {/* ================= SIGNUP MODAL ================= */}
-//       {showSignup && <Signup onClose={() => setShowSignup(false)} />}
+//       {showSignup && (
+//         <Signup onClose={() => setShowSignup(false)} />
+//       )}
 //     </>
 //   );
 // }
+
+
 
 "use client";
 
@@ -193,7 +257,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Menu, X, Search, User } from "lucide-react";
+import { Menu, X, Search, User, ChevronDown } from "lucide-react";
 
 import Signup from "../signup/page.jsx";
 import Subheader from "@/app/components/Subheader.jsx";
@@ -204,6 +268,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [user, setUser] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // Dropdown toggle state
 
   const router = useRouter();
 
@@ -212,7 +277,6 @@ export default function Header() {
     const loadUser = () => {
       const storedUser = localStorage.getItem("user");
 
-      // If empty / undefined
       if (!storedUser || storedUser === "undefined") {
         setUser(null);
         return;
@@ -223,17 +287,13 @@ export default function Header() {
         setUser(parsedUser);
       } catch (err) {
         console.error("Invalid user data:", err);
-
-        // Remove bad data
         localStorage.removeItem("user");
         setUser(null);
       }
     };
 
     loadUser();
-
     window.addEventListener("storage", loadUser);
-
     return () => window.removeEventListener("storage", loadUser);
   }, []);
 
@@ -241,6 +301,7 @@ export default function Header() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
+    setDropdownOpen(false);
     router.push("/");
   };
 
@@ -262,7 +323,6 @@ export default function Header() {
                 className="logo-img"
                 priority
               />
-
               <Image
                 src="/images/Lak.png"
                 alt="Free Counselling Done"
@@ -286,7 +346,6 @@ export default function Header() {
                 className="main-search-input"
                 readOnly
               />
-
               <div className="search-icon-btn">
                 <Search size={22} color="white" />
               </div>
@@ -295,29 +354,39 @@ export default function Header() {
 
           {/* ================= NAV (DESKTOP) ================= */}
           <nav className="nav-right desktop-only">
-
             <Link href="/explore">Explore Programs</Link>
-
             <Link href="/teamexpand">Free Counselling</Link>
-
             <Link href="/topunivers">Top Universities</Link>
 
-            {/* ================= USER ================= */}
+            {/* ================= USER DROPDOWN ================= */}
             {user ? (
-              <div className="user-dropdown">
+              <div className="user-dropdown-container" style={{ position: 'relative' }}>
+                <button 
+                  className="user-dropdown-trigger"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}
+                >
+                  <User size={18} />
+                  <span className="username-text">
+                    Hi, {user?.name || "User"}
+                  </span>
+                  <ChevronDown size={14} style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
+                </button>
 
-                <User size={18} />
-
-                <span className="username-text">
-                  Hi, {user?.name || "User"}
-                </span>
-
-                <div className="user-dropdown-menu">
-                  <button onClick={handleLogout}>
-                    Logout
-                  </button>
-                </div>
-
+                {dropdownOpen && (
+                  <div className="user-dropdown-menu">
+                    {/* Admin Dashboard - Only for Admins */}
+                    {user.role === 'admin' && (
+                      <Link href="/admin" onClick={() => setDropdownOpen(false)} className="dropdown-item">
+                        Admin Dashboard
+                      </Link>
+                    )}
+                    
+                    <button onClick={handleLogout} className="logout-btn-dropdown">
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <button
@@ -331,7 +400,6 @@ export default function Header() {
 
           {/* ================= MOBILE ACTIONS ================= */}
           <div className="mobile-actions mobile-only">
-
             {user ? (
               <span className="mobile-user-name">
                 Hi, {user?.name || "User"}
@@ -351,64 +419,36 @@ export default function Header() {
             >
               <Menu size={28} />
             </button>
-
           </div>
         </div>
 
         {/* ================= MOBILE SIDEBAR ================= */}
         <div
-          className={`mobile-sidebar-overlay ${
-            menuOpen ? "active" : ""
-          }`}
+          className={`mobile-sidebar-overlay ${menuOpen ? "active" : ""}`}
           onClick={() => setMenuOpen(false)}
         >
           <div
-            className={`mobile-sidebar ${
-              menuOpen ? "open" : ""
-            }`}
+            className={`mobile-sidebar ${menuOpen ? "open" : ""}`}
             onClick={(e) => e.stopPropagation()}
           >
-
             <div className="sidebar-header">
-
-              <span className="sidebar-title">
-                Menu
-              </span>
-
+              <span className="sidebar-title">Menu</span>
               <button onClick={() => setMenuOpen(false)}>
                 <X size={30} />
               </button>
-
             </div>
 
             <nav className="mobile-nav-links">
+              <Link href="/explore" onClick={() => setMenuOpen(false)}>Explore Programs</Link>
+              <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>Free Counselling</Link>
+              <Link href="/topunivers" onClick={() => setMenuOpen(false)}>Top University</Link>
 
-              <Link
-                href="/explore"
-                onClick={() => setMenuOpen(false)}
-              >
-                Explore Programs
-              </Link>
-
-              <Link
-                href="/teamexpand"
-                onClick={() => setMenuOpen(false)}
-              >
-                Free Counselling
-              </Link>
-
-              <Link
-                href="/topunivers"
-                onClick={() => setMenuOpen(false)}
-              >
-                Top University
-              </Link>
+              {user?.role === 'admin' && (
+                 <Link href="/admin" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
+              )}
 
               {user ? (
-                <button
-                  onClick={handleLogout}
-                  className="mobile-logout-btn"
-                >
+                <button onClick={handleLogout} className="mobile-logout-btn">
                   Logout
                 </button>
               ) : (
@@ -422,13 +462,11 @@ export default function Header() {
                   Signup
                 </button>
               )}
-
             </nav>
           </div>
         </div>
       </header>
 
-      {/* ================= SIGNUP MODAL ================= */}
       {showSignup && (
         <Signup onClose={() => setShowSignup(false)} />
       )}
