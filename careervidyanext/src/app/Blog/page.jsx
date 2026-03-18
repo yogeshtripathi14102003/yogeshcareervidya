@@ -75,7 +75,7 @@ export default function BlogPage() {
 
             {/* LATEST BLOG */}
             {latestBlog && (
-              <div className="lg:col-span-2 bg-white rounded-2xl shadow overflow-hidden flex h-[300px] hover:shadow-xl transition">
+              <div className="lg:col-span-2 bg-white rounded-2xl shadow overflow-hidden flex h-[380px] hover:shadow-xl transition">
 
                 {/* IMAGE */}
                 <div className="relative w-[55%] h-full">

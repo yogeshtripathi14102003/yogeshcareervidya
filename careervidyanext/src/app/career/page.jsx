@@ -388,7 +388,7 @@ Unlock Your True Potential With Expert Guidance And Industry-focused Learning. T
                           <span className="text-gray-500 text-[10px] font-semibold uppercase tracking-tighter mb-1">Full Time</span>
                           <button
                             onClick={() => openDetail(job)}
-                            className="bg-[#0A4FA3] text-white px-4 py-1.5 rounded text-xs font-semibold hover:bg-[#083d7e] transition-colors"
+                            className="bg-[#0A4FA3]  cursor-pointer text-white px-4 py-1.5 rounded text-xs font-semibold hover:bg-[#083d7e] transition-colors"
                           >
                             Apply Now
                           </button>

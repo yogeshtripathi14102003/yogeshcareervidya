@@ -44,8 +44,9 @@ export default function Home() {
       
          {/* <CardSlider /> */}
       <Universityimage  />
+      <VideoSlider />
       <FAQ />
-<VideoSlider />
+
       <Footer />
         <ChatbotFloating />
         <SocialSidebar />
