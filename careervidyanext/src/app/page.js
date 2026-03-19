@@ -28,7 +28,7 @@ export default function Home() {
       <Header />
       <Notification />
       <Slider />
-      <Counter />
+      <Counter /> 
       <Getcourse  />
       {/* <ServiceSlider /> */}
       
