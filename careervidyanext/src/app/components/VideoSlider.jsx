@@ -18,6 +18,7 @@ export default function VideoSlider() {
       const res = await api.get("/api/v1/videos");
       if (res.data.success) {
         setVideos(res.data.videos);
+        
       }
     } catch (err) {
       console.log("Slider Error:", err);
@@ -233,3 +234,4 @@ export default function VideoSlider() {
 //     </div>
 //   );
 // }
+

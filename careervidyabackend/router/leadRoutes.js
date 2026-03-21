@@ -16,7 +16,7 @@ router.get("/counselor/:id", ctrl.getCounselor);
 router.post("/counselor", ctrl.createCounselor);
 router.put("/counselor/:id", ctrl.updateCounselor);
 router.delete("/counselor/:id", ctrl.deleteCounselor);
-
+router.delete("/leads/bulk-delete", ctrl.bulkDeleteLeads);
 /* ================== LEADS ================== */
 
 router.get("/leads", ctrl.getLeads);

@@ -97,9 +97,7 @@ export const getLead = async (req, res) => {
   }
 };
 
-/* =====================================================
-   CREATE LEAD (Updated with new fields)
-===================================================== */
+
 
 export const createLead = async (req, res) => {
   try {
@@ -137,9 +135,6 @@ export const createLead = async (req, res) => {
   }
 };
 
-/* =====================================================
-   UPDATE LEAD
-===================================================== */
 
 export const updateLead = async (req, res) => {
   try {
@@ -156,9 +151,6 @@ export const updateLead = async (req, res) => {
   }
 };
 
-/* =====================================================
-   DELETE LEAD
-===================================================== */
 
 export const deleteLead = async (req, res) => {
   try {
@@ -169,6 +161,32 @@ export const deleteLead = async (req, res) => {
   }
 };
 
+export const bulkDeleteLeads = async (req, res) => {
+  try {
+    // Frontend se hum Query Params bhej rahe hain
+    const { status, counselorId } = req.query;
+
+    if (!status || !counselorId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Status and Counselor ID are required" 
+      });
+    }
+
+    // deleteMany use karein multiple leads delete karne ke liye
+    const result = await Lead.deleteMany({ 
+      status: status, 
+      assignedTo: counselorId 
+    });
+
+    res.json({ 
+      success: true, 
+      message: `${result.deletedCount} leads deleted successfully` 
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 /* =====================================================
    UPLOAD EXCEL (Updated with new fields)
 ===================================================== */

@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import api from "@/utlis/api.js";
 import { FaWhatsapp } from "react-icons/fa";
-import { Search, Download, Filter, Calendar, User } from "lucide-react";
+import { Search, Download, Filter, Calendar, User, TrendingUp } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 const STATUS_COLORS = {
@@ -43,61 +43,56 @@ const LeadsPage = () => {
     } catch (err) { console.log(err); }
   };
 
-const fetchCounselors = async () => {
+  const fetchCounselors = async () => {
     try {
       const res = await api.get("/api/v1/counselor");
       if (res.data.success) {
-        // Sirf wahi counselors dikhenge jo active hain
-        const activeOnly = res.data.data.filter(
-          (c) => c.status === "active" || c.isActive === true
-        );
+        const activeOnly = res.data.data.filter(c => c.status === "active" || c.isActive === true);
         setCounselors(activeOnly);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) { console.log(err); }
   };
 
   const todayStr = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
-  /* ================= COUNSELOR FILTER LOGIC ================= */
-  
-  // Step 1: Pehle Counselor wise leads ko alag karein (Ye base filter hai)
+  // Base Counselor Filter
   const baseCounselorLeads = useMemo(() => {
     return leads.filter((l) => {
       if (!selectedCounselor) return true;
-      // assignedTo object ho ya string ID, dono handle karega
       return l.assignedTo === selectedCounselor || l.assignedTo?._id === selectedCounselor;
     });
   }, [leads, selectedCounselor]);
 
-  // Step 2: Counselor ke basis par AJ KA DATA (Today's Stats now sync with counselor)
-  const todayLeads = useMemo(() => {
-    return baseCounselorLeads.filter(l => l.createdAt?.slice(0, 10) === todayStr);
-  }, [baseCounselorLeads, todayStr]);
+  // Assignment Stats (Date Wise Logic)
+  const assignmentStats = useMemo(() => {
+    const todayCount = baseCounselorLeads.filter(l => l.createdAt?.slice(0, 10) === todayStr).length;
+    const yesterdayCount = baseCounselorLeads.filter(l => l.createdAt?.slice(0, 10) === yesterdayStr).length;
+    
+    // Last 7 Days Logic
+    const last7Days = new Date();
+    last7Days.setDate(last7Days.getDate() - 7);
+    const last7DaysCount = baseCounselorLeads.filter(l => new Date(l.createdAt) >= last7Days).length;
 
-  // Step 3: Global filters (Search + Date Range) on Counselor Data
+    return { todayCount, yesterdayCount, last7DaysCount };
+  }, [baseCounselorLeads, todayStr, yesterdayStr]);
+
   const filteredLeads = useMemo(() => {
     return baseCounselorLeads.filter((l) => {
       const leadDate = l.createdAt?.slice(0, 10);
       const search = searchTerm.toLowerCase();
-
       if (fromDate && leadDate < fromDate) return false;
       if (toDate && leadDate > toDate) return false;
-
-      return !searchTerm || 
-        l.name?.toLowerCase().includes(search) || 
-        l.phone?.includes(search) || 
-        l.city?.toLowerCase().includes(search);
+      return !searchTerm || l.name?.toLowerCase().includes(search) || l.phone?.includes(search) || l.city?.toLowerCase().includes(search);
     });
   }, [baseCounselorLeads, fromDate, toDate, searchTerm]);
 
-  // Step 4: Final table list with Status filter
   const finalTableLeads = useMemo(() => {
     return filteredLeads.filter(l => !filterStatus || l.status === filterStatus);
   }, [filteredLeads, filterStatus]);
 
-  // Step 5: Chart data base on counselor + filters
   const chartData = useMemo(() => {
     return STATUS_LIST.map(status => ({
       name: status,
@@ -109,7 +104,7 @@ const fetchCounselors = async () => {
   return (
     <div className="p-4 bg-[#f8fafc] min-h-screen font-sans">
       
-      {/* COUNSELOR SELECTION & EXPORT */}
+      {/* FILTER BAR */}
       <div className="bg-white border border-slate-200 p-3 rounded-lg mb-4 flex flex-wrap gap-3 items-center shadow-sm">
         <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100">
           <User size={16} className="text-blue-600" />
@@ -122,50 +117,53 @@ const fetchCounselors = async () => {
             {counselors.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
           </select>
         </div>
-
         <div className="flex items-center gap-1 border rounded px-2 bg-slate-50">
           <span className="text-[10px] text-slate-400 font-bold uppercase">From</span>
           <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="p-1.5 bg-transparent text-xs outline-none" />
         </div>
-
         <div className="flex items-center gap-1 border rounded px-2 bg-slate-50">
           <span className="text-[10px] text-slate-400 font-bold uppercase">To</span>
           <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="p-1.5 bg-transparent text-xs outline-none" />
         </div>
-
         <div className="flex-1 min-w-[150px] relative">
           <Search size={14} className="absolute left-2 top-2.5 text-slate-400" />
-          <input 
-            type="text" 
-            placeholder="Search leads..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="pl-8 pr-2 py-1.5 border rounded text-xs w-full outline-none focus:border-blue-400" 
-          />
+          <input type="text" placeholder="Search leads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-8 pr-2 py-1.5 border rounded text-xs w-full outline-none focus:border-blue-400" />
         </div>
       </div>
 
-      {/* SECTION 1: TODAY'S SUMMARY (Syncs with Counselor) */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar size={18} className="text-slate-500" />
-          <h2 className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
-            {selectedCounselor ? "Counselor's Today Activity" : "Team's Today Activity"}
-          </h2>
+      {/* NEW SECTION: DATE WISE ASSIGNMENT SUMMARY */}
+      <div className="mb-6 bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={18} className="text-blue-600" />
+          <h2 className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Assignment Insights</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          <TodayStat title="Today's Leads" value={todayLeads.length} color="#3b82f6" />
-          <TodayStat title="Follow-ups" value={todayLeads.filter(l => l.status === "Follow-up").length} color="#f59e0b" />
-          <TodayStat title="Hot Leads" value={todayLeads.filter(l => l.status === "Hot Lead").length} color="#f43f5e" />
-          <TodayStat title="Not Interested" value={todayLeads.filter(l => l.status === "Not Interested").length} color="#ef4444" />
-          <TodayStat title="Admission Done" value={todayLeads.filter(l => l.status === "Admission Done").length} color="#22c55e" />
-          <TodayStat title="Not Picked" value={todayLeads.filter(l => l.status === "Not Picked").length} color="#78350f" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex items-center justify-between p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+            <div>
+              <p className="text-[10px] font-bold text-blue-400 uppercase">Yesterday Assigned</p>
+              <p className="text-2xl font-black text-blue-700">{assignmentStats.yesterdayCount}</p>
+            </div>
+            <div className="text-[10px] bg-blue-100 px-2 py-1 rounded font-bold text-blue-600">PREV DAY</div>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-emerald-50/50 rounded-lg border border-emerald-100">
+            <div>
+              <p className="text-[10px] font-bold text-emerald-400 uppercase">Today Assigned</p>
+              <p className="text-2xl font-black text-emerald-700">{assignmentStats.todayCount}</p>
+            </div>
+            <div className="text-[10px] bg-emerald-100 px-2 py-1 rounded font-bold text-emerald-600">REAL TIME</div>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-lg border border-slate-200">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase">Last 7 Days Total</p>
+              <p className="text-2xl font-black text-slate-700">{assignmentStats.last7DaysCount}</p>
+            </div>
+            <div className="text-[10px] bg-slate-200 px-2 py-1 rounded font-bold text-slate-500">WEEKLY</div>
+          </div>
         </div>
       </div>
 
       {/* DASHBOARD AREA: CHART + STATS */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-        {/* CHART (Syncs with Counselor + Dates) */}
         <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm h-[280px]">
           <p className="text-[10px] font-bold text-slate-400 uppercase mb-2 text-center">Status Distribution</p>
           <ResponsiveContainer width="100%" height="90%">
@@ -179,18 +177,10 @@ const fetchCounselors = async () => {
           </ResponsiveContainer>
         </div>
 
-        {/* COMPACT STAT CARDS (Sync with Counselor + Dates) */}
         <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2 h-fit">
-          <Stat title="Overall Result" value={filteredLeads.length} onClick={() => setFilterStatus("")} active={filterStatus === ""} color="#64748b" />
+          <Stat title="Total Result" value={filteredLeads.length} onClick={() => setFilterStatus("")} active={filterStatus === ""} color="#64748b" />
           {STATUS_LIST.map((status) => (
-            <Stat
-              key={status}
-              title={status}
-              value={filteredLeads.filter(l => l.status === status).length}
-              onClick={() => setFilterStatus(status)}
-              active={filterStatus === status}
-              color={STATUS_COLORS[status]}
-            />
+            <Stat key={status} title={status} value={filteredLeads.filter(l => l.status === status).length} onClick={() => setFilterStatus(status)} active={filterStatus === status} color={STATUS_COLORS[status]} />
           ))}
         </div>
       </div>
@@ -214,19 +204,16 @@ const fetchCounselors = async () => {
                   <td className="p-3 text-slate-500">{l.createdAt?.slice(0, 10)}</td>
                   <td className="p-3 font-semibold text-slate-700">{l.name}</td>
                   <td className="p-3 flex items-center gap-2">
-                    {l.phone}
-                    <a href={`https://wa.me/${l.phone}`} target="_blank" className="text-emerald-500 hover:scale-110 transition-transform"><FaWhatsapp size={14}/></a>
+                    {l.phone} <a href={`https://wa.me/${l.phone}`} target="_blank" className="text-emerald-500 hover:scale-110 transition-transform"><FaWhatsapp size={14}/></a>
                   </td>
                   <td className="p-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: `${STATUS_COLORS[l.status]}15`, color: STATUS_COLORS[l.status] }}>
-                      {l.status}
-                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: `${STATUS_COLORS[l.status]}15`, color: STATUS_COLORS[l.status] }}>{l.status}</span>
                   </td>
                   <td className="p-3 text-slate-500">{l.city}</td>
                 </tr>
               ))
             ) : (
-              <tr><td colSpan="5" className="p-10 text-center text-slate-400">No leads found for this counselor/filter.</td></tr>
+              <tr><td colSpan="5" className="p-10 text-center text-slate-400">No leads found.</td></tr>
             )}
           </tbody>
         </table>
@@ -235,21 +222,8 @@ const fetchCounselors = async () => {
   );
 };
 
-/* ================= COMPACT UI COMPONENTS ================= */
-
-const TodayStat = ({ title, value, color }) => (
-  <div className="bg-white border border-slate-100 p-2 rounded shadow-sm flex flex-col items-center justify-center min-w-[90px] border-b-2" style={{ borderBottomColor: color }}>
-    <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">{title}</p>
-    <p className="text-xl font-bold text-slate-800 tracking-tight">{value}</p>
-  </div>
-);
-
 const Stat = ({ title, value, onClick, active, color }) => (
-  <div
-    onClick={onClick}
-    className={`p-2.5 rounded border transition-all cursor-pointer ${active ? 'bg-white shadow-md ring-1 ring-slate-200' : 'bg-white shadow-sm border-slate-100'}`}
-    style={active ? { borderLeft: `4px solid ${color}` } : { borderLeft: `3px solid ${color}` }}
-  >
+  <div onClick={onClick} className={`p-2.5 rounded border transition-all cursor-pointer ${active ? 'bg-white shadow-md ring-1 ring-slate-200' : 'bg-white shadow-sm border-slate-100'}`} style={active ? { borderLeft: `4px solid ${color}` } : { borderLeft: `3px solid ${color}` }}>
     <p className="text-[9px] font-bold text-slate-400 uppercase truncate mb-0.5">{title}</p>
     <p className="text-lg font-bold text-slate-800 leading-tight">{value}</p>
   </div>
