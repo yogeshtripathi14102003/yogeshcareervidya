@@ -12,6 +12,10 @@ export default function BlogPage() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const blogsPerPage = 4;
+
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -35,9 +39,18 @@ export default function BlogPage() {
     );
   }
 
-  const latestBlog = blogs[0];
-  const sideBlog = blogs[1];
-  const bottomBlogs = blogs.slice(2, 5);
+  // Pagination logic
+  const indexOfLastBlog = currentPage * blogsPerPage;
+  const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
+  const currentBlogs = blogs.slice(indexOfFirstBlog, indexOfLastBlog);
+
+  const totalPages = Math.ceil(blogs.length / blogsPerPage);
+
+  const handlePageChange = (page) => {
+    if(page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top on page change
+  };
 
   return (
     <>
@@ -67,103 +80,34 @@ export default function BlogPage() {
           </div>
         </section>
 
-        {/* BLOG CONTENT */}
-        <section className="max-w-7xl mx-auto px-4 py-16 space-y-12">
+        {/* BLOG GRID */}
+        <section className="max-w-7xl mx-auto px-4 py-16">
 
-          {/* FIRST ROW */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            {/* LATEST BLOG */}
-            {latestBlog && (
-              <div className="lg:col-span-2 bg-white rounded-2xl shadow overflow-hidden flex h-[380px] hover:shadow-xl transition">
-
-                {/* IMAGE */}
-                <div className="relative w-[55%] h-full">
-                  <Image
-                    src={latestBlog.image?.url || "/placeholder.jpg"}
-                    alt={latestBlog.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* TEXT */}
-                <div className="w-[45%] p-6 flex flex-col justify-center">
-
-                  <p className="text-xs font-semibold text-slate-500 uppercase">
-                    Latest Post
-                  </p>
-
-                  <Link href={`/Blog/${latestBlog.slug}`}>
-                    <h2 className="text-xl font-bold text-[#04458b] mt-1 hover:underline">
-                      {latestBlog.title}
-                    </h2>
-                  </Link>
-
-                  <p className="text-sm text-slate-600 mt-3 line-clamp-3">
-                    {latestBlog.overview?.points?.[0]}
-                  </p>
-
-                  <p className="mt-4 text-xs text-slate-500">
-                    {latestBlog.author?.name} |{" "}
-                    {new Date(latestBlog.createdAt).toDateString()}
-                  </p>
-
-                </div>
-              </div>
-            )}
-
-            {/* SIDE BLOG */}
-            {sideBlog && (
-              <div className="bg-white rounded-xl shadow overflow-hidden hover:shadow-xl transition">
-
-                <div className="relative h-[200px]">
-                  <Image
-                    src={sideBlog.image?.url || "/placeholder.jpg"}
-                    alt={sideBlog.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                <div className="p-5">
-
-                  <Link href={`/Blog/${sideBlog.slug}`}>
-                    <h3 className="font-bold text-lg hover:text-blue-600 line-clamp-2">
-                      {sideBlog.title}
-                    </h3>
-                  </Link>
-
-                  <p className="text-sm text-slate-500 mt-2">
-                    {sideBlog.author?.name} |{" "}
-                    {new Date(sideBlog.createdAt).toDateString()}
-                  </p>
-
-                </div>
-              </div>
-            )}
-          </div>
-
-
-          {/* SECOND ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            {bottomBlogs.map((blog) => (
+            {currentBlogs.map((blog, index) => (
               <div
                 key={blog._id}
-                className="bg-white rounded-xl shadow overflow-hidden hover:shadow-xl transition"
+                className={`bg-white rounded-xl shadow overflow-hidden hover:shadow-xl transition ${
+                  index === 0 && currentPage === 1 ? "border-2 border-blue-500" : ""
+                }`}
               >
-
                 <div className="relative h-[200px]">
                   <Image
                     src={blog.image?.url || "/placeholder.jpg"}
                     alt={blog.title}
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
+                    priority={index === 0 && currentPage === 1}
                   />
                 </div>
 
                 <div className="p-5">
+                  {index === 0 && currentPage === 1 && (
+                    <p className="text-xs text-blue-600 font-semibold mb-1">
+                      Latest Post
+                    </p>
+                  )}
 
                   <Link href={`/Blog/${blog.slug}`}>
                     <h3 className="font-bold text-lg hover:text-blue-600 line-clamp-2">
@@ -171,16 +115,52 @@ export default function BlogPage() {
                     </h3>
                   </Link>
 
-                  <p className="text-sm text-slate-500 mt-2">
+                  <p className="text-sm text-slate-600 mt-2 line-clamp-2">
+                    {blog.overview?.points?.[0]}
+                  </p>
+
+                  <p className="text-sm text-slate-500 mt-3">
                     {blog.author?.name} |{" "}
                     {new Date(blog.createdAt).toDateString()}
                   </p>
-
                 </div>
               </div>
             ))}
 
           </div>
+
+          {/* PAGINATION */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-10 space-x-3">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-4 py-2 rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Next
+              </button>
+            </div>
+          )}
 
         </section>
       </div>

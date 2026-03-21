@@ -372,3 +372,187 @@ export default function CareervidyaChatbot() {
     </div>
   );
 }
+
+
+
+// "use client";
+
+// import { useState, useRef } from "react";
+// import { X } from "lucide-react";
+
+// export default function FounderVideoWidget() {
+//   const [open, setOpen] = useState(false);
+//   const videoRef = useRef(null);
+
+//   const handleOpen = () => {
+//     setOpen(true);
+
+//     setTimeout(() => {
+//       if (videoRef.current) {
+//         videoRef.current.muted = false;
+//         videoRef.current.play().catch(() => {});
+//       }
+//     }, 100);
+//   };
+
+//   const handleClose = () => {
+//     setOpen(false);
+//     if (videoRef.current) {
+//       videoRef.current.pause();
+//     }
+//   };
+
+//   return (
+//     <>
+//       {/* FLOATING BUTTON */}
+//       {!open && (
+//         <div
+//           onClick={handleOpen}
+//           style={{
+//             position: "fixed",
+//             bottom: 20,
+//             right: 20,
+//             zIndex: 9999,
+//             width: 85,
+//             textAlign: "center",
+//             cursor: "pointer",
+//           }}
+//         >
+//           {/* IMAGE */}
+//           <div
+//             style={{
+//               width: 85,
+//               height: 85,
+//               borderRadius: "50%",
+//               border: "3px solid #fff",
+//               overflow: "hidden",
+//               boxShadow: "0 6px 18px rgba(0,0,0,0.3)",
+//               position: "relative",
+//             }}
+//           >
+//             <img
+//               src="/images/yogesh.jpeg"
+//               alt="Founder"
+//               style={{
+//                 width: "100%",
+//                 height: "100%",
+//                 objectFit: "cover",
+//               }}
+//             />
+
+//             {/* ONLINE DOT */}
+//             <span
+//               style={{
+//                 position: "absolute",
+//                 bottom: 6,
+//                 right: 6,
+//                 width: 12,
+//                 height: 12,
+//                 background: "#2ecc71",
+//                 borderRadius: "50%",
+//                 border: "2px solid #fff",
+//               }}
+//             ></span>
+//           </div>
+
+//           {/* TAGLINE */}
+//           <div
+//             style={{
+//               marginTop: 6,
+//               fontSize: 11,
+//               fontWeight: 600,
+//               color: "#fff",
+//               textShadow: "0 2px 6px rgba(0,0,0,0.6)",
+//             }}
+//           >
+//             Vidya hai to Success hai
+//           </div>
+//         </div>
+//       )}
+
+//       {/* VIDEO MODAL */}
+//       {open && (
+//         <div
+//           style={{
+//             position: "fixed",
+//             top: 0,
+//             left: 0,
+//             width: "100vw",
+//             height: "100vh",
+//             background: "rgba(0,0,0,0.85)",
+//             display: "flex",
+//             flexDirection: "column",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             zIndex: 99999,
+//           }}
+//         >
+//           {/* CLOSE BUTTON */}
+//           <button
+//             onClick={handleClose}
+//             style={{
+//               position: "absolute",
+//               top: 20,
+//               right: 20,
+//               background: "rgba(0,0,0,0.6)",
+//               border: "none",
+//               color: "#fff",
+//               padding: 8,
+//               borderRadius: "50%",
+//               cursor: "pointer",
+//             }}
+//           >
+//             <X size={24} />
+//           </button>
+
+//           {/* VIDEO WRAPPER */}
+//           <div
+//             style={{
+//               width: "90%",
+//               maxWidth: "900px",
+//               aspectRatio: "16 / 9",
+//               background: "#000",
+//               borderRadius: "12px",
+//               overflow: "hidden",
+//               display: "flex",
+//               justifyContent: "center",
+//               alignItems: "center",
+//             }}
+//           >
+//             <video
+//               ref={videoRef}
+//               autoPlay
+//               playsInline
+//               muted
+//               style={{
+//                 width: "100%",
+//                 height: "100%",
+//                 objectFit: "contain", // ✅ NO CROP
+//               }}
+//             >
+//               <source src="/images/vd.mp4" type="video/mp4" />
+//             </video>
+//           </div>
+
+//           {/* CTA BUTTON */}
+//           <a
+//             href="https://careervidya.in/topunivers/"
+//             target="_blank" 
+//             style={{
+//               marginTop: 20,
+//               padding: "10px 18px",
+//               background: "#3498db",
+//               color: "#fff",
+//               borderRadius: "8px",
+//               textDecoration: "none",
+//               fontWeight: "600",
+//               boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+//             }}
+//           >
+//             Explore Top Universities
+//           </a>
+//         </div>
+//       )}
+//     </>
+//   );
+// }
