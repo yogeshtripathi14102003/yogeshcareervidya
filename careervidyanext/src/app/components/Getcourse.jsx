@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import api from "@/utlis/api.js";
 import { X } from "lucide-react";
 
+/* ================= GLOBAL CACHE ================= */
+const globalCoursesCache = {};
+
 /* ================= SCROLL ANIMATION HOOK ================= */
 function useScrollAnimation() {
   const ref = useRef(null);
@@ -33,7 +36,6 @@ const CourseCard = ({ course, isPopup = false, index }) => {
   const router = useRouter();
   const { ref, visible } = useScrollAnimation();
 
-  // Sirf pehle 21 items clickable
   const isClickable = index < 25;
 
   const handleClick = () => {
@@ -52,11 +54,13 @@ const CourseCard = ({ course, isPopup = false, index }) => {
         w-full bg-white border-2 border-gray-200 rounded-md p-2 
         transition-all duration-500 ease-out
         flex flex-col items-center justify-between h-full
-        ${isPopup
-          ? "opacity-100"
-          : visible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-6"}
+        ${
+          isPopup
+            ? "opacity-100"
+            : visible
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-6"
+        }
         ${
           isClickable
             ? "cursor-pointer hover:border-[#0056B3] hover:scale-[1.03] active:scale-[0.98]"
@@ -94,9 +98,6 @@ export default function CoursesListingPage() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(24);
 
-  // ✅ CACHE
-  const coursesCache = useRef({});
-
   const scrollRef = useRef(null);
 
   const sidebarItems = [
@@ -116,7 +117,6 @@ export default function CoursesListingPage() {
     };
 
     updateLimit();
-
     window.addEventListener("resize", updateLimit);
 
     return () => window.removeEventListener("resize", updateLimit);
@@ -126,9 +126,9 @@ export default function CoursesListingPage() {
   useEffect(() => {
     if (!isMounted) return;
 
-    // ✅ Agar category ka data pehle se hai → use karo
-    if (coursesCache.current[selectedCategory]) {
-      setCourses(coursesCache.current[selectedCategory]);
+    // ✅ Cache check
+    if (globalCoursesCache[selectedCategory]) {
+      setCourses(globalCoursesCache[selectedCategory]);
       setLoading(false);
       return;
     }
@@ -145,11 +145,10 @@ export default function CoursesListingPage() {
         const res = await api.get(url);
 
         const fetchedCourses = res.data.courses || [];
-
         const finalData = [...fetchedCourses].reverse();
 
-        // ✅ Cache me save
-        coursesCache.current[selectedCategory] = finalData;
+        // ✅ Save in global cache
+        globalCoursesCache[selectedCategory] = finalData;
 
         setCourses(finalData);
       } catch (err) {
@@ -191,7 +190,7 @@ export default function CoursesListingPage() {
           </div>
         </div>
 
-        {/* MAIN CONTENT */}
+        {/* MAIN */}
         <main className="flex flex-col items-center">
           <h2 className="text-2xl md:text-4xl font-black mb-10 text-[#0056B3] uppercase text-center tracking-tight">
             {loading ? "Loading..." : `${selectedCategory} Programs`}
@@ -217,7 +216,7 @@ export default function CoursesListingPage() {
           )}
         </main>
 
-        {/* POPUP MODAL */}
+        {/* POPUP */}
         {isPopupOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-3">
             <div
@@ -236,7 +235,7 @@ export default function CoursesListingPage() {
                   onClick={() => setIsPopupOpen(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer group"
                 >
-                  <X className="w-7 h-7 text-black group-hover:text-red-600 transition-colors" />
+                  <X className="w-7 h-7 text-black group-hover:text-red-600" />
                 </button>
               </div>
 
@@ -252,30 +251,20 @@ export default function CoursesListingPage() {
                   ))}
                 </div>
               </div>
-
             </div>
           </div>
         )}
 
-        {/* SCROLLBAR STYLE */}
+        {/* SCROLLBAR */}
         <style jsx>{`
           .custom-scrollbar::-webkit-scrollbar {
             height: 4px;
           }
-
           .custom-scrollbar::-webkit-scrollbar-track {
             background: #e5e7eb;
-            border-radius: 10px;
           }
-
           .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #0056B3;
-            border-radius: 10px;
-          }
-
-          .custom-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #0056B3 #e5e7eb;
+            background: #0056b3;
           }
         `}</style>
 

@@ -337,7 +337,7 @@ export default function Header() {
           {/* ================= SEARCH (DESKTOP) ================= */}
           <Link
             href="/serarch"
-            className="header-search-container desktop-only"
+            className="header-search-container text-[#333] desktop-only"
           >
             <div className="main-search-bar">
               <input
@@ -367,7 +367,7 @@ export default function Header() {
                   style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}
                 >
                   <User size={18} />
-                  <span className="username-text">
+                  <span className="username-text text-[#333]">
                     Hi, {user?.name || "User"}
                   </span>
                   <ChevronDown size={14} style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
@@ -382,7 +382,7 @@ export default function Header() {
                       </Link>
                     )}
                     
-                    <button onClick={handleLogout} className="logout-btn-dropdown">
+                    <button onClick={handleLogout} className="logout-btn-dropdown text-[#333]">
                       Logout
                     </button>
                   </div>

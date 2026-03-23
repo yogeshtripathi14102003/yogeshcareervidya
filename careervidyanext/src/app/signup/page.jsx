@@ -383,7 +383,7 @@ const Signup = ({ onClose }) => {
           </button>
         </form>
 
-        <p className="text-center text-xs mt-3">
+        <p className="text-center text-xs mt-3 text-[#000]">
           Already have an account?{" "}
           <Link href="/login" className="text-blue-600 font-bold">
             Login

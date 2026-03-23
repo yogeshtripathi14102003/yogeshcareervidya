@@ -6,7 +6,12 @@ import Header from "../layout/Header";
 import api from "@/utlis/api.js";
 import Link from "next/link";
 import Footer from "../layout/Footer";
+
 const BLUE = "#0056B3";
+
+/* ================= GLOBAL CACHE ================= */
+let globalCoursesCache = null;
+let globalUniversitiesCache = null;
 
 export default function ExplorePage() {
   const [courses, setCourses] = useState([]);
@@ -16,6 +21,7 @@ export default function ExplorePage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [mounted, setMounted] = useState(false);
+
   const categories = [
     { key: "All", title: "All Courses" },
     { key: "PG", title: "PG Courses" },
@@ -26,37 +32,61 @@ export default function ExplorePage() {
 
   useEffect(() => setMounted(true), []);
 
-  /* Fetch Courses */
+  /* ================= FETCH COURSES ================= */
   useEffect(() => {
     if (!mounted) return;
+
+    // ✅ Cache check
+    if (globalCoursesCache) {
+      setCourses(globalCoursesCache);
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
 
     api
       .get("/api/v1/course")
       .then((res) => {
-        setCourses(res.data?.courses || []);
+        const data = res.data?.courses || [];
+
+        // ✅ Save cache
+        globalCoursesCache = data;
+
+        setCourses(data);
       })
       .catch(() => setCourses([]))
       .finally(() => setLoading(false));
   }, [mounted]);
 
-  /* Fetch Universities */
+  /* ================= FETCH UNIVERSITIES ================= */
   useEffect(() => {
     if (!mounted) return;
+
+    // ✅ Cache check
+    if (globalUniversitiesCache) {
+      setUniversities(globalUniversitiesCache);
+      setLoadingUni(false);
+      return;
+    }
 
     setLoadingUni(true);
 
     api
       .get("/api/v1/university")
       .then((res) => {
-        setUniversities(res.data?.data || []);
+        const data = res.data?.data || [];
+
+        // ✅ Save cache
+        globalUniversitiesCache = data;
+
+        setUniversities(data);
       })
       .catch(() => setUniversities([]))
       .finally(() => setLoadingUni(false));
   }, [mounted]);
 
-  /* Filters */
+  /* ================= FILTERS ================= */
   const filteredCourses = useMemo(() => {
     return courses.filter((c) => {
       return (
@@ -73,7 +103,7 @@ export default function ExplorePage() {
     );
   }, [universities, search]);
 
-  /* Course Card */
+  /* ================= CARDS ================= */
   const CourseCard = ({ course }) => (
     <Link href={`/course/${course.slug || course._id}`}>
       <div className="bg-white border rounded-lg h-[130px] flex flex-col justify-between shadow-sm hover:shadow-lg transition cursor-pointer">
@@ -99,7 +129,6 @@ export default function ExplorePage() {
     </Link>
   );
 
-  /* University Card */
   const UniversityCard = ({ u }) => {
     const imageUrl = u.universityImage
       ? u.universityImage.startsWith("http")
@@ -115,7 +144,6 @@ export default function ExplorePage() {
             className="w-16 h-16 object-contain mb-2"
             alt={u.name}
           />
-
           <p className="text-sm font-semibold text-center px-2 line-clamp-2">
             {u.name}
           </p>
@@ -128,114 +156,99 @@ export default function ExplorePage() {
 
   return (
     <>
-    <main className="min-h-screen bg-gray-50">
-      <Header />
+      <main className="min-h-screen bg-gray-50">
+        <Header />
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-        {/* ========== SIDEBAR FILTER ========== */}
-        <aside className="bg-white border rounded-lg p-4 shadow-sm h-fit sticky top-24">
+          {/* SIDEBAR */}
+          <aside className="text-[#000] border rounded-lg p-4 shadow-sm h-fit sticky top-24">
+            <h3 className="font-bold text-lg mb-4" style={{ color: BLUE }}>
+              Filters
+            </h3>
 
-          <h3 className="font-bold text-lg mb-4" style={{ color: BLUE }}>
-            Filters
-          </h3>
-
-          {/* Search */}
-          <div className="relative mb-5">
-            <Search className="absolute left-3 top-3 text-gray-400" />
-
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
-              className="w-full pl-10 pr-3 py-2 border rounded-lg"
-            />
-
-            {search && (
-              <X
-                className="absolute right-3 top-3 cursor-pointer"
-                onClick={() => setSearch("")}
+            {/* Search */}
+            <div className="relative mb-5">
+              <Search className="absolute left-3 top-3 text-gray-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+                className="w-full pl-10 pr-3 py-2 border rounded-lg"
               />
-            )}
-          </div>
-
-          {/* Categories */}
-          <div>
-            <p className="font-semibold mb-2">Course Type</p>
-
-            <div className="flex flex-col gap-2">
-              {categories.map((c) => (
-                <button
-                  key={c.key}
-                  onClick={() => setCategory(c.key)}
-                  className={`px-3 py-2 rounded text-sm text-left transition
-                  ${
-                    category === c.key
-                      ? "text-white"
-                      : "bg-gray-100 hover:bg-gray-200"
-                  }`}
-                  style={
-                    category === c.key
-                      ? { background: BLUE }
-                      : {}
-                  }
-                >
-                  {c.title}
-                </button>
-              ))}
+              {search && (
+                <X
+                  className="absolute right-3 top-3 cursor-pointer"
+                  onClick={() => setSearch("")}
+                />
+              )}
             </div>
-          </div>
-        </aside>
 
-        {/* ========== MAIN CONTENT ========== */}
-        <section className="lg:col-span-3">
+            {/* Categories */}
+            <div>
+              <p className="font-semibold mb-2">Course Type</p>
+              <div className="flex flex-col gap-2">
+                {categories.map((c) => (
+                  <button
+                    key={c.key}
+                    onClick={() => setCategory(c.key)}
+                    className={`px-3 py-2 rounded text-sm text-left transition
+                      ${
+                        category === c.key
+                          ? "text-white"
+                          : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                    style={category === c.key ? { background: BLUE } : {}}
+                  >
+                    {c.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </aside>
 
-          {/* Courses */}
-          <h2 className="text-2xl font-bold mb-4" style={{ color: BLUE }}>
-            Courses 
-          </h2>
+          {/* MAIN */}
+          <section className="lg:col-span-3">
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-            {loading ? (
-              [...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-[130px] bg-gray-200 rounded-lg animate-pulse"
-                />
-              ))
-            ) : (
-              filteredCourses.map((c) => (
-                <CourseCard key={c._id} course={c} />
-              ))
-            )}
-          </div>
+            {/* Courses */}
+            <h2 className="text-2xl font-bold mb-4 text-[#000]" style={{ color: BLUE }}>
+              Courses
+            </h2>
 
-          {/* Universities */}
-          <h2
-            className="text-2xl font-bold mt-12 mb-4"
-            style={{ color: BLUE }}
-          >
-            Universities ({filteredUniversities.length})
-          </h2>
+            <div className=" text-[#000] grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+              {loading ? (
+                [...Array(8)].map((_, i) => (
+                  <div key={i} className="h-[130px] bg-gray-200 rounded-lg animate-pulse" />
+                ))
+              ) : (
+                filteredCourses.map((c) => (
+                  <CourseCard key={c._id} course={c} />
+                ))
+              )}
+            </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-            {loadingUni ? (
-              [...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-[130px] bg-gray-200 rounded-lg animate-pulse"
-                />
-              ))
-            ) : (
-              filteredUniversities.map((u) => (
-                <UniversityCard key={u._id} u={u} />
-              ))
-            )}
-          </div>
-        </section>
-      </div>
-    </main>
-    <Footer />
+            {/* Universities */}
+            <h2 className=" text-[#000] text-2xl font-bold mt-12 mb-4" style={{ color: BLUE }}>
+              Universities ({filteredUniversities.length})
+            </h2>
+
+            <div className=" text-[#000] grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+              {loadingUni ? (
+                [...Array(8)].map((_, i) => (
+                  <div key={i} className="h-[130px] bg-gray-200 rounded-lg animate-pulse" />
+                ))
+              ) : (
+                filteredUniversities.map((u) => (
+                  <UniversityCard key={u._id} u={u} />
+                ))
+              )}
+            </div>
+
+          </section>
+        </div>
+      </main>
+
+      <Footer />
     </>
   );
 }

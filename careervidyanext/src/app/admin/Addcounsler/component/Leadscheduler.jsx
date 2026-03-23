@@ -341,53 +341,7 @@ const autoDistribute = () => {
           </div>
         )}
 
-        {/* Counselor Summary Section (Same as before) */}
-        {assignedLeads.length > 0 && (
-          <div className="bg-white p-4 rounded shadow">
-            <h3 className="font-semibold mb-3">Counselor Summary</h3>
-            <div className="space-y-2">
-              {Object.entries(grouped).map(([cid, d]) => (
-                <div key={cid} className="flex justify-between items-center border p-3 rounded bg-gray-50">
-                  <div>
-                    <p className="font-medium">{d.name}</p>
-                    <p className="text-sm text-gray-600">Total: {d.leads.length}</p>
-                  </div>
-                  <button
-                    onClick={() => { setViewCounselor(cid); setFilterDates({ from: "", to: "" }); }}
-                    className="bg-indigo-600 text-white px-3 py-1 rounded text-sm"
-                  >View</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* View Modal (Same as before) */}
-        {viewCounselor && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white w-full max-w-xl rounded p-5 max-h-[90vh] overflow-hidden flex flex-col shadow-xl">
-              <div className="flex justify-between mb-3 border-b pb-2">
-                <h3 className="font-bold text-lg text-indigo-700">{grouped[viewCounselor]?.name}'s Leads</h3>
-                <button onClick={() => setViewCounselor(null)} className="text-gray-500 hover:text-red-500 font-bold">✕</button>
-              </div>
-              <div className="flex gap-2 mb-3 items-center">
-                <label className="text-xs font-bold uppercase text-gray-500">From:</label>
-                <input type="date" value={filterDates.from} onChange={(e) => setFilterDates(p => ({ ...p, from: e.target.value }))} className="border px-2 py-1 rounded text-sm" />
-                <label className="text-xs font-bold uppercase text-gray-500 ml-2">To:</label>
-                <input type="date" value={filterDates.to} onChange={(e) => setFilterDates(p => ({ ...p, to: e.target.value }))} className="border px-2 py-1 rounded text-sm" />
-              </div>
-              <div className="flex-1 overflow-y-auto border rounded p-2 bg-gray-50">
-                {filteredLeads.map((l, idx) => (
-                  <div key={l._id} className="border-b p-2 bg-white mb-1 rounded">
-                    <p className="font-medium text-sm">{idx + 1}. {l.name}</p>
-                    <p className="text-[11px] text-gray-500">{l.phone} | {l.course} | {new Date(l.createdAt).toLocaleDateString()}</p>
-                  </div>
-                ))}
-                {filteredLeads.length === 0 && <p className="text-center py-10 text-gray-400">No leads found in this date range.</p>}
-              </div>
-            </div>
-          </div>
-        )}
+       
       </div>
     </div>
   );

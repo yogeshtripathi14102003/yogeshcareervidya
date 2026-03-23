@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import api from "@/utlis/api.js"; // Ensure typo 'utlis' is correct in your folder structure
-import Link from "next/link";
+import api from "@/utlis/api.js";
 import "../ui/hero.css";
+
+/* ================= GLOBAL CACHE ================= */
+let globalBannerCache = null;
 
 export default function HeroSlider() {
   const [slides, setSlides] = useState([]);
@@ -16,6 +18,7 @@ export default function HeroSlider() {
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") || "";
 
+  /* ================= MOBILE CHECK ================= */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -23,9 +26,18 @@ export default function HeroSlider() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  /* ================= FETCH BANNERS ================= */
   const fetchBanners = async () => {
+    // ✅ Cache check
+    if (globalBannerCache) {
+      setSlides(globalBannerCache);
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await api.get("/api/v1/banner");
+
       const heroBanners = res.data?.filter(
         (b) => b.position?.trim()?.toUpperCase() === "HERO"
       );
@@ -42,6 +54,10 @@ export default function HeroSlider() {
             mobile: { url: b.mobileImage?.url || b.image?.mobile?.url },
           },
         }));
+
+        // ✅ Save in cache
+        globalBannerCache = mappedBanners;
+
         setSlides(mappedBanners);
       }
     } catch (err) {
@@ -55,6 +71,7 @@ export default function HeroSlider() {
     fetchBanners();
   }, []);
 
+  /* ================= LOOP FIX ================= */
   useEffect(() => {
     if (slides.length === 0) return;
 
@@ -64,6 +81,7 @@ export default function HeroSlider() {
         setCurrentSlide(1);
       }, 500);
     }
+
     if (currentSlide === 0) {
       setTimeout(() => {
         setTransitionEnabled(false);
@@ -78,6 +96,7 @@ export default function HeroSlider() {
     }
   }, [transitionEnabled]);
 
+  /* ================= CONTROLS ================= */
   const handleNext = () => {
     if (isTransitioning.current || !slides.length) return;
     isTransitioning.current = true;
@@ -92,17 +111,22 @@ export default function HeroSlider() {
     setTimeout(() => (isTransitioning.current = false), 500);
   };
 
+  /* ================= IMAGE ================= */
   const getImageSrc = (slide) => {
     if (!slide?.image) return "/images/default-banner.jpg";
+
     const img = isMobile
       ? slide.image?.mobile?.url || slide.image?.desktop?.url
       : slide.image?.desktop?.url || slide.image?.mobile?.url;
+
     if (!img) return "/images/default-banner.jpg";
     if (img.startsWith("http")) return img;
+
     return `${BASE_URL}/${img.replace(/^\/+/, "")}`;
   };
 
-  if (loading || !slides.length) return <div className="slider-loading">Loading...</div>;
+  if (loading || !slides.length)
+    return <div className="slider-loading">Loading...</div>;
 
   return (
     <div className="slider-container relative overflow-hidden w-full">
@@ -110,21 +134,21 @@ export default function HeroSlider() {
         className="slider-wrapper flex"
         style={{
           transform: `translateX(-${currentSlide * 100}%)`,
-          transition: transitionEnabled ? "transform 0.5s ease-in-out" : "none",
+          transition: transitionEnabled
+            ? "transform 0.5s ease-in-out"
+            : "none",
         }}
       >
         {slides.map((slide, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="slide min-w-full relative h-[180px] sm:h-[250px] md:h-[400px] lg:h-[500px]"
           >
             <Image
               src={getImageSrc(slide)}
               alt={slide.title || "Banner"}
               fill
-              // "object-fill" image ko stretch karke poora dikhayega bina crop kiye
-              // "md:object-cover" desktop par perfection ke liye
-              className="object-fill md:object-cover" 
+              className="object-fill md:object-cover"
               unoptimized
               priority={index === 1}
             />
@@ -132,15 +156,21 @@ export default function HeroSlider() {
         ))}
       </div>
 
-      <button className="slider-btn left" onClick={handlePrev}>←</button>
-      <button className="slider-btn right" onClick={handleNext}>→</button>
+      <button className="slider-btn left" onClick={handlePrev}>
+        ←
+      </button>
+      <button className="slider-btn right" onClick={handleNext}>
+        →
+      </button>
 
       <div className="slider-dots">
         {slides.slice(1, -1).map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index + 1)}
-            className={`dot ${currentSlide === index + 1 ? "active-dot" : ""}`}
+            className={`dot ${
+              currentSlide === index + 1 ? "active-dot" : ""
+            }`}
           ></button>
         ))}
       </div>
