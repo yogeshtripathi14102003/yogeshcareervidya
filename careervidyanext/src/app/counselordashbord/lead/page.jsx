@@ -236,7 +236,7 @@ const LeadsPage = () => {
   );
 };
 
-/* ================= SUB-COMPONENTS ================= */
+
 
 const Stat = ({ title, value, color, onClick, isActive }) => (
   <div onClick={onClick} className={`bg-white border-l-[3px] p-2.5 rounded shadow-sm cursor-pointer transition-all ${isActive ? "ring-2 ring-blue-500" : ""}`} style={{ borderLeftColor: color }}>
