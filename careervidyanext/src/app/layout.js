@@ -1,6 +1,4 @@
 
-
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AutoLogout from "../app/components/AutoLogout.js";
@@ -10,19 +8,17 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
 export const metadata = {
   metadataBase: new URL("https://www.careervidya.in"),
   title: "CareerVidya - Best Career Guidance Platform",
   description:
     "Explore career paths, mentors, and expert guidance to shape your future with CareerVidya.",
   keywords:
-    "CareerVidya, career guidance, education platform, learning, mentorship, students, jobs, future planning",
+    "CareerVidya, career guidance, education platform, learning, mentorship, students, jobs, future planning ,https://careervidya.in/course/online-mba-1",
   openGraph: {
     title: "CareerVidya - Best Career Guidance Platform",
     description:
@@ -45,7 +41,6 @@ export const metadata = {
     apple: "/apple-touch-icon.png",
   },
 };
-
 export const viewport = {
   themeColor: "#ffffff",
 };
@@ -57,7 +52,6 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

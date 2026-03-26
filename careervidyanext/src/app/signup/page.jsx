@@ -30,7 +30,7 @@ const FloatingSelect = ({ label, name, value, onChange, options = [] }) => (
   </div>
 );
 
-/* ================= FLOATING INPUT ================= */
+
 /* ================= FLOATING INPUT ================= */
 const FloatingInput = ({
   label,
@@ -42,7 +42,7 @@ const FloatingInput = ({
   noSpamText = "✓ We Do Not Spam",
 }) => (
   <div className="relative w-full">
-    {/* Floating Label */}
+    {/* Floating Label (Isse mat chhedna, ye original hai) */}
     <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f] z-10">
       {label}
     </label>
@@ -53,13 +53,13 @@ const FloatingInput = ({
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px]"
+      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] outline-none"
     />
 
-    {/* No Spam Badge BELOW input, opposite side */}
+    {/* No Spam Badge - Space removed (mt-1 removed) */}
     {showNoSpam && (
-      <div className="flex justify-end mt-1">
-        <span className="text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white whitespace-nowrap">
+      <div className="flex justify-end -mt-0.5 ">
+        <span className="text-[9px] text-green-600 font-medium px-1 leading-none bg-white whitespace-nowrap uppercase tracking-tighter">
           {noSpamText}
         </span>
       </div>
@@ -263,14 +263,14 @@ const Signup = ({ onClose }) => {
   /* ================= RENDER ================= */
   return (
     <div
-      className="fixed inset-0 bg-black/90 flex justify-center items-center z-[100]"
+      className="cursor-pointer fixed inset-0 bg-black/50 flex justify-center items-center z-[100] "
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-lg rounded-xl p-6 relative"
+        className=" cursor-pointer bg-white w-full max-w-lg rounded-xl p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-3 right-3">
+        <button onClick={onClose} className=" cursor-pointer absolute top-3 right-3">
           <X />
         </button>
 
@@ -279,48 +279,45 @@ const Signup = ({ onClose }) => {
           <p className="font-bold text-[#253b7a]">#VidyaHaiTohSuccessHai</p>
           
         </div> */}
-  <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-3">
           <Image src="/images/n12.png" alt="Career Vidya" width={85} height={42} />
           <div>
             <p className="text-sm font-bold text-[#253b7a]">#VidyaHaiTohSuccessHai</p>
             <p className="text-[12px] text-gray-500">
-               Student's Trusted Education Guidance Platform
-           </p>
+              Student's Trusted Education Guidance Platform
+            </p>
           </div>
-         </div>
-          <div className="mb-4 overflow-x-auto">
+        </div>
+        <div className="mb-4 overflow-x-auto">
           <div className="flex min-w-max gap-2 text-[11px] font-bold text-green-700">
             <span>✅ No-Cost EMI Available</span>|
             <span>🎓 Govt-Approved Universities</span>|
             <span>💼 100% Placement Assistance</span>|
             <span>📞 Free Expert Counselling</span>
           </div>
-         </div>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <FloatingInput label="Name" name="name" value={formData.name} onChange={handleChange} />
 
-        <div className="grid grid-cols-2 gap-4">
-  <FloatingInput
-    label="Email"
-    name="email"
-    value={formData.email}
-    onChange={handleChange}
-    showNoSpam
-    noSpamText="✓ We Do Not Spam"
-  />
 
-  <FloatingInput
-    label="Mobile Number"
-    name="mobileNumber"
-    value={formData.mobileNumber}
-    onChange={handleChange}
-    showNoSpam
-    noSpamText="✓ We Do Not Spam"
-  />
-</div>
-
-          {/* ================= STATE & CITY (Dropdown) ================= */}
           <div className="grid grid-cols-2 gap-4">
+            <FloatingInput label="Name" name="name" value={formData.name} onChange={handleChange} />
+            <FloatingInput
+              label="Email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              showNoSpam
+              noSpamText="✓ We Do Not Spam"
+            />
+
+            <FloatingInput
+              label="Mobile Number"
+              name="mobileNumber"
+              value={formData.mobileNumber}
+              onChange={handleChange}
+              showNoSpam
+              noSpamText="✓ We Do Not Spam"
+            />
             <FloatingSelect
               label="State"
               name="state"
@@ -328,6 +325,11 @@ const Signup = ({ onClose }) => {
               onChange={handleStateChange}
               options={states}
             />
+          </div>
+
+          {/* ================= STATE & CITY (Dropdown) ================= */}
+          <div className="grid grid-cols-2 gap-4">
+
 
             <FloatingSelect
               label="City / District"
@@ -336,10 +338,6 @@ const Signup = ({ onClose }) => {
               onChange={handleChange}
               options={districts} // districts dropdown
             />
-          </div>
-
-          {/* ================= COURSE & SPECIALIZATION ================= */}
-          <div className="grid grid-cols-2 gap-4">
             <FloatingSelect
               label="Course"
               name="course"
@@ -347,6 +345,10 @@ const Signup = ({ onClose }) => {
               onChange={handleCourseChange}
               options={courses.map((c) => c.name)}
             />
+          </div>
+
+          {/* ================= COURSE & SPECIALIZATION ================= */}
+          <div className="grid grid-cols-2 gap-4">
             <FloatingSelect
               label="Specialization"
               name="branch"
@@ -354,47 +356,49 @@ const Signup = ({ onClose }) => {
               onChange={handleChange}
               options={specializations}
             />
+            <FloatingSelect
+              label="Gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              options={["male", "female", "other"]}
+            />
           </div>
 
-          <FloatingSelect
-            label="Gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            options={["male", "female", "other"]}
-          />
+          <div className="grid grid-cols-2 gap-4">
 
-          <FloatingInput label="Date of Birth" name="dob" type="date" value={formData.dob} onChange={handleChange} />
+            <FloatingInput label="Date of Birth" name="dob" type="date" value={formData.dob} onChange={handleChange} />
 
-          <FloatingSelect
-            label="Subsidy"
-            name="subsidyCoupon"
-            value={formData.subsidyCoupon}
-            onChange={handleChange}
-            options={subsidyOptions}
-          />
-
+            <FloatingSelect
+              label="Subsidy"
+              name="subsidyCoupon"
+              value={formData.subsidyCoupon}
+              onChange={handleChange}
+              options={subsidyOptions}
+            />
+          </div>
           <FloatingInput label="Address" name="addresses" value={formData.addresses} onChange={handleChange} />
 
           {otpSent && <FloatingInput label="OTP" name="otp" value={formData.otp} onChange={handleChange} />}
 
-          <button className="w-full bg-orange-500 text-white py-2 rounded font-bold">
-            {loading ? "Please wait..." : otpSent ? "Verify & Register" : "Send OTP"}
+          <button className="cursor-pointer w-full bg-orange-500 text-white py-2 rounded font-bold ">
+            {loading ? "Please wait..." : otpSent ? "Verify & Register" : "Submit"}
           </button>
         </form>
 
-        <p className="text-center text-xs mt-3 text-[#000]">
+        <p className="text-center text-xs mt-3 text-[#000] font-bold">
           Already have an account?{" "}
           <Link href="/login" className="text-blue-600 font-bold">
             Login
           </Link>
         </p>
-         <p className="text-center text-[11px] text-gray-600 mt-[2px] bg-gray-100 px-2 py-1 rounded">
-    🔒 All your information is safe and secure with us.
-  </p>
+        <p className="text-center text-[12px] text-gray-600 mt-[2px] bg-gray-100 px-2 py-1 rounded">
+          🔒 All your information is safe and secure with us.
+        </p>
       </div>
     </div>
   );
 };
 
 export default Signup;
+
