@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Siginup from "@/app/signup/Siginup.jsx"; // 👈 path apne project ke hisaab se check kar lo
+import Siginup from "@/app/signup/Siginup.jsx";
 
 /* ========= SCROLL ANIMATION HOOK ========= */
 function useScrollReveal(threshold = 0.1) {
@@ -34,31 +34,23 @@ export default function AdmissionProcess() {
 
   const [openSignup, setOpenSignup] = useState(false);
 
-  const customCursor = {
-    cursor: `url('/images/grad-icon.png'), auto`,
-  };
-
   return (
     <>
-      <section
-        style={customCursor}
-        className="w-full bg-white py-6 md:py-10 overflow-hidden"
-      >
-        {/* HEADING */}
+      <section className="w-full bg-white py-6 md:py-10 overflow-hidden">
+        {/* HEADING - Ensure proper hierarchy */}
         <h2
           ref={heading.ref}
-          className={`text-lg md:text-2xl font-bold text-gray-900 text-center transition-all duration-700
+          className={`text-lg md:text-3xl font-black text-gray-900 text-center uppercase tracking-tight transition-all duration-700
           ${
             heading.visible
               ? "opacity-100 translate-y-0"
               : "opacity-0 -translate-y-4"
           }`}
         >
-          Admission Process{" "}
-          <span className="text-black-600">With   Universities</span>
+           <span className="text-[#0056B3]"> Admission Process With Universities</span>
         </h2>
 
-        {/* IMAGE */}
+        {/* IMAGE - Optimized for SEO & Performance */}
         <div
           ref={image.ref}
           className={`max-w-7xl mx-auto px-4 mt-6 transition-all duration-1000
@@ -70,11 +62,11 @@ export default function AdmissionProcess() {
         >
           <Image
             src="/images/admission.webp"
-            alt="Admission Process Flow"
+            alt="Step by step University Admission Process Flow - CareerVidya" // SEO Keyword optimization
             width={1800}
-            height={300}
+            height={400} // Proper height to avoid layout shift
             priority
-            className="w-full h-auto max-h-[160px] md:max-h-[350px]"
+            className="w-full h-auto max-h-[200px] md:max-h-[450px] object-contain"
           />
         </div>
 
@@ -83,7 +75,7 @@ export default function AdmissionProcess() {
           <button
             ref={button.ref}
             onClick={() => setOpenSignup(true)}
-            className={`inline-block bg-[#0056B3] text-white font-medium px-8 py-2 rounded-md text-xs md:text-sm transition-all duration-700 delay-200 hover:bg-black shadow-sm
+            className={`inline-block bg-[#0056B3] cursor-pointer text-white font-black px-10 py-3 rounded-full text-xs md:text-sm uppercase tracking-widest transition-all duration-700 delay-200 hover:bg-[#004494] shadow-md active:scale-95
             ${
               button.visible
                 ? "opacity-100 translate-y-0"
@@ -95,7 +87,6 @@ export default function AdmissionProcess() {
         </div>
       </section>
 
-      {/* ✅ SIGNUP POPUP */}
       {openSignup && <Siginup onClose={() => setOpenSignup(false)} />}
     </>
   );

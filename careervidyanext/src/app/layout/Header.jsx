@@ -307,6 +307,9 @@ export default function Header() {
 
   return (
     <>
+    <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
+      Career Guidance and Education Counseling Platform
+    </h1>
       <Subheader />
 
       <header className="header-container">

@@ -132,7 +132,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useRef } from "react";
@@ -146,93 +145,88 @@ export default function VideoSlider() {
   const swiperRef = useRef(null);
 
   const videos = [
-      { _id: "3",  videoUrl: "/video/him.mp4",  },
-    { _id: "1", videoUrl: "/video/vd1.mp4", },
-     { _id: "5", videoUrl: "/video/mansi.mp4", },
-    { _id: "2",  videoUrl: "/video/v2.mp4",  },
-  
-   
-    { _id: "4",  videoUrl: "/video/divya.mp4",  },
+    { _id: "3", videoUrl: "/video/him.mp4" },
+    { _id: "1", videoUrl: "/video/vd1.mp4" },
+    { _id: "5", videoUrl: "/video/mansi.mp4" },
+    { _id: "2", videoUrl: "/video/v2.mp4" },
+    { _id: "4", videoUrl: "/video/divya.mp4" },
   ];
 
   const stopSlider = () => swiperRef.current?.autoplay.stop();
   const startSlider = () => swiperRef.current?.autoplay.start();
 
   return (
-    // Section Background: Halka grey/blue tint gradient
     <div className="bg-gradient-to-b from-gray-50 to-white py-16">
-      <div className="max-w-7xl mx-auto px-4">
-        
-        {/* Custom Navigation Styles */}
+      <div className="max-w-7xl mx-auto px-3">
+
+        {/* Navigation Styling */}
         <style jsx global>{`
           .swiper-button-next, .swiper-button-prev {
             background: white;
-            width: 45px !important;
-            height: 45px !important;
+            width: 40px !important;
+            height: 40px !important;
             border-radius: 50%;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            color: #121416 !important; /* Blue color arrow */
-            border: 1px solid #f3f4f6;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.08);
+            color: #05347f !important;
+            border: 1px solid #eee;
           }
-          .swiper-button-next:after, .swiper-button-prev:after { font-size: 16px !important; font-weight: 800; }
-          .swiper-button-disabled { opacity: 0 !important; transition: 0.3s; }
+          .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 14px !important;
+            font-weight: bold;
+          }
+          .swiper-button-disabled {
+            opacity: 0 !important;
+          }
         `}</style>
 
-        {/* Enhanced Heading Section */}
-        <div className="mb-8 text-center">
-          {/* <span className="bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-            Testimonials
-          </span> */}
+        {/* Heading */}
+        <div className="mb-10 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-3 text-[#05347f]">
             What Our Students Say
           </h2>
-          <p className="mt-4 text-gray-500 max-w-2xl mx-auto text-lg">
-            Hear directly from our community about their journey and how this program helped them achieve their goals.
+          <p className="mt-3 text-gray-500 max-w-2xl mx-auto text-lg">
+            Hear directly from our students about their journey and success.
           </p>
-          <div className="w-20 h-1.5 bg-blue-600 mx-auto mt-6 rounded-full"></div>
+          <div className="w-16 h-1 bg-blue-600 mx-auto mt-4 rounded-full"></div>
         </div>
 
+        {/* Swiper */}
         <Swiper
           modules={[Navigation, Autoplay]}
-          spaceBetween={15} 
+          spaceBetween={10}
           navigation
-          autoplay={{ delay: 3500, disableOnInteraction: false }}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
           breakpoints={{
-            320: { slidesPerView: 1.2, spaceBetween: 15 },
-            768: { slidesPerView: 2.3, spaceBetween: 20 },
-            1024: { slidesPerView: 3.2, spaceBetween: 20 },
-            1440: { slidesPerView: 4, spaceBetween: 25 },
+            320: { slidesPerView: 1.1, spaceBetween: 10 },
+            640: { slidesPerView: 1.5, spaceBetween: 12 },
+            768: { slidesPerView: 2.2, spaceBetween: 12 },
+            1024: { slidesPerView: 3, spaceBetween: 15 },
+            1440: { slidesPerView: 3.5, spaceBetween: 15 },
           }}
-          className="pb-12" // Extra padding for shadow visibility
+          className="pb-10"
         >
           {videos.map((video) => (
             <SwiperSlide key={video._id}>
-              <div className="group bg-white shadow-md hover:shadow-2xl rounded-2xl p-3 border border-gray-100 transition-all duration-500 transform hover:-translate-y-2">
-                
-                {/* Fixed Video Container */}
-                <div className="relative w-full h-[400px] bg-black rounded-xl overflow-hidden shadow-inner">
+              <div className="group bg-white shadow-sm hover:shadow-xl rounded-xl p-2 border border-gray-100 transition-all duration-500 hover:-translate-y-1">
+
+                {/* Video */}
+                <div className="relative w-full h-[380px] md:h-[420px] bg-black rounded-lg overflow-hidden">
                   <video
                     src={video.videoUrl}
                     controls
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                     onPlay={stopSlider}
                     onPause={startSlider}
                   />
                 </div>
 
-                {/* Category Label */}
-                <div className="pt-5 pb-2">
-                  <p className="text-sm font-bold text-blue-600 text-center uppercase tracking-widest">
-                    {video.category}
-                  </p>
-                </div>
               </div>
             </SwiperSlide>
           ))}
         </Swiper>
+
       </div>
     </div>
   );
 }
-

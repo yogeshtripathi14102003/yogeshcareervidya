@@ -162,7 +162,7 @@ export default function ExplorePage() {
         <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
 
           {/* SIDEBAR */}
-          <aside className="text-[#000] border rounded-lg p-4 shadow-sm h-fit sticky top-24">
+         <aside className="hidden lg:block text-[#000] border rounded-lg p-4 shadow-sm h-fit sticky top-24">
             <h3 className="font-bold text-lg mb-4" style={{ color: BLUE }}>
               Filters
             </h3>

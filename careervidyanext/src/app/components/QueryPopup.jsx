@@ -102,7 +102,7 @@ export default function QueryPopup() {
         {/* Close Button */}
         <button
           onClick={() => setShowPopup(false)}
-          className="absolute top-3 right-3 z-[110] bg-white/90 md:bg-gray-100 w-9 h-9 flex items-center justify-center rounded-full shadow-md text-gray-500 hover:text-blue-600"
+          className="  cursor-pointer  absolute top-3 right-3 z-[110] bg-white/90 md:bg-gray-100 w-9 h-9 flex items-center justify-center rounded-full shadow-md text-gray-500 hover:text-blue-600"
         >
           <X size={20} />
         </button>
