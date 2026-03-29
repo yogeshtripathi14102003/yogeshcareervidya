@@ -42,18 +42,18 @@ export default function AboutUs() {
   <img
     src="/images/office.webp"
     alt="About Us Banner"
-    className="w-full h-full object-cover object-center opacity-30" 
+    className="w-full h-full object-cover object-center opacity-50" 
   />
 
   {/* Text Overlay */}
   <div className="absolute inset-0 flex items-center justify-center">
     <div className="max-w-3xl px-6 text-center">
       {/* text-slate-900 (dark navy blue style) use kiya hai */}
-      <h6 className="text-slate-900 text-xl md:text-3xl font-medium leading-relaxed tracking-tight">
+      <h1 className="text-xl md:text-xl font-black text-[#0056B3] uppercase ">
         We are a team of creative thinkers and problem solvers, driven by passion and teamwork. 
         Together, we transform ideas into impactful digital learning solutions, 
         delivering quality education with trust, innovation, and excellence.
-      </h6>
+      </h1>
     </div>
   </div>
 </div>

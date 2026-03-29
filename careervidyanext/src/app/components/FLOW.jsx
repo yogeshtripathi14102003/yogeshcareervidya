@@ -75,7 +75,7 @@ export default function AdmissionProcess() {
           <button
             ref={button.ref}
             onClick={() => setOpenSignup(true)}
-            className={`inline-block bg-[#0056B3] cursor-pointer text-white font-black px-10 py-3 rounded-full text-xs md:text-sm uppercase tracking-widest transition-all duration-700 delay-200 hover:bg-[#004494] shadow-md active:scale-95
+            className={`inline-block bg-[#c15304] cursor-pointer text-white font-black px-10 py-3  rounded text-xs md:text-sm uppercase tracking-widest transition-all duration-700 delay-200 bg-[#c15304] shadow-md active:scale-95
             ${
               button.visible
                 ? "opacity-100 translate-y-0"

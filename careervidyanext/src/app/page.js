@@ -17,7 +17,7 @@ import LogoSlider from "./components/LogoSlider";
 import  Universityimage  from "../app/components/universityimage";
 import ChatbotFloating from "./components/ChatbotFloating";
 import SocialSidebar from "./components/SocialSidebar";
-// import ServiceSlider from "./components/ServiceSlider";
+import ServiceSlider from "./components/ServiceSlider";
 import Notification from "../app/components/Notification";
 import VideoSlider from "./components/VideoSlider";
 
@@ -30,7 +30,7 @@ export default function Home() {
       <Slider />
       <Counter /> 
       <Getcourse  />
-      {/* <ServiceSlider /> */}
+      <ServiceSlider />
       
       <FLOW />
       <TeamSection />
