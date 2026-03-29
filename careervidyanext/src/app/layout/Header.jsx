@@ -353,10 +353,10 @@ export default function Header() {
     {/* Column 1 */}
     <div>
       <h4 className="text-[15px] font-bold mb-2 text-[#002D62]">Links</h4>
-      <Link href="/career" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">career</Link>
+      <Link href="/career" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">Career</Link>
       <Link href="/Blog" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">Blog</Link>
-      <Link href="/contactus" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">contactus</Link>
-      <Link href="/Aboutus" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">Aboutus</Link>
+      <Link href="/contactus" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">Contact Us</Link>
+      <Link href="/Aboutus" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">About Us</Link>
     </div> 
 
     {/* Column 2 */}
