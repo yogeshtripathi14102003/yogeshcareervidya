@@ -362,7 +362,7 @@ export default function Header() {
     {/* Column 2 */}
     <div>
       <h4 className="text-[15px] font-bold mb-2 text-[#002D62]">Most Popular Online Courses</h4>
-      <Link href="/course/1-year-online-mba" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all"> One Year online MBA </Link>
+      <Link href="/course/1-year-online-mba" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all"> One Year Online MBA </Link>
       <Link href="/course/online-mba-1"   className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">Online-MBA</Link>
       <Link href="/course/online-mca" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">Online-MCA</Link>
       <Link href="/course/bba-bachelor-of-business-administration" className="block text-sm text-gray-600 mb-1 hover:text-[#04458b] hover:pl-1 transition-all">Online BBA</Link>
