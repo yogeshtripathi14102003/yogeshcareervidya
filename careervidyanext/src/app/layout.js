@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AutoLogout from "../app/components/AutoLogout.js";
 import VisitorTracker from "@/app/components/VisitorTracker.jsx"; // ✅ ADD
+import CopyProtection from "./components/CopyProtection";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,6 +56,8 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+
+        <CopyProtection />
         <VisitorTracker /> {/* ✅ VISITOR TRACKING */}
         <AutoLogout />     {/* ✅ AUTO LOGOUT */}
         {children}

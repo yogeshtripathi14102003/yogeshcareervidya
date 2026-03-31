@@ -94,21 +94,12 @@ export default function UniversityDetail() {
       (data._id
         ? 500 + (parseInt(data._id.slice(-3), 16) % 300)
         : 650);
-
         
 
     return (
         <>
         
-     <div
-  className="bg-white text-black min-h-screen w-full"
-  onContextMenu={(e) => e.preventDefault()}
-  onCopy={(e) => e.preventDefault()}
-  onCut={(e) => e.preventDefault()}
-  onMouseDown={(e) => {
-    if (e.detail > 1) e.preventDefault();
-  }}
->
+        <div className="bg-white text-black min-h-screen w-full"> 
             <Header />
             
             {/* --- HERO SECTION --- */}
