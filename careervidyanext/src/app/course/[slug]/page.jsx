@@ -405,6 +405,13 @@ export default function CourseDetailPage() {
   return (
     <>
       <Header />
+      <style jsx global>{`
+  * {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+  }
+`}</style>
 
       <main className="min-h-screen bg-white">
         {/* OVERVIEW SECTION */}
@@ -627,6 +634,7 @@ export default function CourseDetailPage() {
       <Getintuch />
       <Footer />
       <DiscountPopup />
+      
     </>
   );
 }
