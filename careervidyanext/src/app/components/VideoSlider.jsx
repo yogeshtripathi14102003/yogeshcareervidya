@@ -12,6 +12,7 @@ import "swiper/css/free-mode"; // 👈 CSS import karein
 export default function VideoSlider() { 
   const swiperRef = useRef(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  
 
   const videos = [
     { _id: "3", videoUrl: "/video/him.mp4", title: "Success Story 1"},
