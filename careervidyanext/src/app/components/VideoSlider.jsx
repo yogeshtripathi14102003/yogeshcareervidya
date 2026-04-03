@@ -9,7 +9,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/free-mode"; // 👈 CSS import karein
 
-export default function VideoSlider() {
+export default function VideoSlider() { 
   const swiperRef = useRef(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
