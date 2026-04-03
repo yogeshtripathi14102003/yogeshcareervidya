@@ -1,38 +1,29 @@
+
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function CopyProtection() {
+  const pathname = usePathname();
+
   useEffect(() => {
-    // ❌ Copy block
-    const handleCopy = (e) => {
-      e.preventDefault();
-    };
+    // ✅ Dashboard aur uske sab child routes allow
+    const isDashboard = pathname.startsWith("/counselordashbord");
 
-    // ❌ Cut block
-    const handleCut = (e) => {
-      e.preventDefault();
-    };
+    if (isDashboard) return;
 
-    // ❌ Keyboard shortcuts block (Ctrl+C, Ctrl+A)
+    const handleCopy = (e) => e.preventDefault();
+    const handleCut = (e) => e.preventDefault();
+
     const handleKeyDown = (e) => {
-      if (
-        e.ctrlKey &&
-        ["c", "a", "x"].includes(e.key.toLowerCase())
-      ) {
+      if (e.ctrlKey && ["c", "a", "x"].includes(e.key.toLowerCase())) {
         e.preventDefault();
       }
     };
 
-    // ❌ Text selection block
-    const handleSelect = (e) => {
-      e.preventDefault();
-    };
-
-    // ❌ Drag block (images/text)
-    const handleDrag = (e) => {
-      e.preventDefault();
-    };
+    const handleSelect = (e) => e.preventDefault();
+    const handleDrag = (e) => e.preventDefault();
 
     document.addEventListener("copy", handleCopy);
     document.addEventListener("cut", handleCut);
@@ -47,7 +38,7 @@ export default function CopyProtection() {
       document.removeEventListener("selectstart", handleSelect);
       document.removeEventListener("dragstart", handleDrag);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }
