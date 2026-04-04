@@ -102,9 +102,9 @@ export default function VideoSlider() {
                 </div>
 
                 <div className="p-4 text-center">
-                  <p className="text-sm font-bold text-[#05347f] uppercase">
+                  {/* <p className="text-sm font-bold text-[#05347f] uppercase">
                     Watch Story
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </SwiperSlide>
