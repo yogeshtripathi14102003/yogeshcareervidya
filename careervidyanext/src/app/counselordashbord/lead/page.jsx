@@ -16,10 +16,11 @@ import {
   Download,
   Filter,
   Users,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 /* ================= CONSTANTS ================= */
-
 const STATUS = [
   "New", "Not Interested", "Details Shared", "Follow-up", "Hot Lead",
   "University Issue", "Fee Issue", "Distance Issue", "Language Issue",
@@ -36,7 +37,6 @@ const MONTHS = [
 ];
 
 /* ================= HELPERS ================= */
-
 const formatForInput = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -54,7 +54,6 @@ const isToday = (dateString) => {
 };
 
 /* ================= MAIN COMPONENT ================= */
-
 const LeadsPage = () => {
   const [leads, setLeads] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,6 +65,10 @@ const LeadsPage = () => {
   const [reminders, setReminders] = useState([]);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+
+  // --- PAGINATION STATE ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 30;
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -94,7 +97,6 @@ const LeadsPage = () => {
     }
   };
 
-  // 1. Get leads assigned ONLY to the current counselor
   const myLeads = leads.filter((l) => {
     if (!currentUser) return false;
     return l.assignedTo === currentUser._id || l.assignedTo?._id === currentUser._id;
@@ -123,10 +125,25 @@ const LeadsPage = () => {
     );
   });
 
+  // --- PAGINATION LOGIC ---
+  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentLeads = filteredLeads.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Filters change hone par page reset
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterMonth, filterYear, fromDate, toDate]);
+
   const exportToCSV = () => {
     const headers = ["Date", "Name", "Phone", "Duplicates", "Status", "Course", "Remark", "City", "Email"];
     const rows = filteredLeads.map((l) => {
-      // CSV Duplicate check also within myLeads
       const dCount = myLeads.filter(item => 
         item.phone === l.phone && 
         item.name?.toLowerCase().trim() === l.name?.toLowerCase().trim() && 
@@ -173,7 +190,7 @@ const LeadsPage = () => {
         ))}
       </div>
 
-      {/* SEARCH BAR (DO NOT REMOVE) */}
+      {/* SEARCH BAR */}
       <div className="bg-white p-3 rounded shadow-sm mb-4 flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
@@ -211,7 +228,7 @@ const LeadsPage = () => {
             <tr>
               <th className="p-3 text-left">Student Info</th>
               <th className="text-left">Details</th>
-              <th className="text-left">Duplicate</th>
+              {/* <th className="text-left">Duplicate</th> */}
               <th className="text-left">Status</th>
               <th className="text-left">Remark History</th>
               <th className="text-left">Follow-Up</th>
@@ -219,24 +236,75 @@ const LeadsPage = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredLeads.map((l) => (
-              <LeadRow 
-                key={l._id} 
-                lead={l} 
-                onSave={updateLeadAPI} 
-                myLeads={myLeads} // PASSING MY LEADS ONLY
-              />
-            ))}
+            {currentLeads.length > 0 ? (
+              currentLeads.map((l) => (
+                <LeadRow 
+                  key={l._id} 
+                  lead={l} 
+                  onSave={updateLeadAPI} 
+                  myLeads={myLeads}
+                />
+              ))
+            ) : (
+              <tr><td colSpan="7" className="p-10 text-center text-gray-400">No leads found.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* --- PAGINATION CONTROLS --- */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between bg-white px-4 py-3 mt-4 border rounded shadow-sm">
+          <div className="text-xs text-gray-500 font-medium">
+            Showing <span className="text-blue-600 font-bold">{indexOfFirstItem + 1}</span> to <span className="text-blue-600 font-bold">{Math.min(indexOfLastItem, filteredLeads.length)}</span> of <span className="font-bold">{filteredLeads.length}</span> entries
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-1.5 border rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            
+            <div className="flex gap-1">
+               {[...Array(totalPages)].map((_, index) => {
+                const pg = index + 1;
+                if (pg === 1 || pg === totalPages || (pg >= currentPage - 1 && pg <= currentPage + 1)) {
+                  return (
+                    <button
+                      key={pg}
+                      onClick={() => handlePageChange(pg)}
+                      className={`min-w-[32px] px-2 py-1 text-xs font-bold rounded border transition-all ${
+                        currentPage === pg ? "bg-blue-600 text-white border-blue-600 shadow-md" : "text-gray-600 hover:bg-blue-50 border-gray-200"
+                      }`}
+                    >
+                      {pg}
+                    </button>
+                  );
+                }
+                if (pg === currentPage - 2 || pg === currentPage + 2) return <span key={pg} className="px-1 text-gray-400">...</span>;
+                return null;
+              })}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="p-1.5 border rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {showReminderModal && <ReminderModal reminders={reminders} close={() => setShowReminderModal(false)} />}
     </div>
   );
 };
 
-
+/* ================= SUB-COMPONENTS ================= */
 
 const Stat = ({ title, value, color, onClick, isActive }) => (
   <div onClick={onClick} className={`bg-white border-l-[3px] p-2.5 rounded shadow-sm cursor-pointer transition-all ${isActive ? "ring-2 ring-blue-500" : ""}`} style={{ borderLeftColor: color }}>
@@ -251,7 +319,6 @@ const LeadRow = ({ lead, onSave, myLeads }) => {
   const [localDate, setLocalDate] = useState(formatForInput(lead.followUpDate));
   const [showAdmission, setShowAdmission] = useState(false);
 
-  // UPDATED LOGIC: Name + Phone Duplicate Check ONLY within Counselor's leads
   const dCount = myLeads.filter(item => 
     item.phone === lead.phone && 
     item.name?.toLowerCase().trim() === lead.name?.toLowerCase().trim() && 

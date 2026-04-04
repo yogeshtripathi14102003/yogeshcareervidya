@@ -3,8 +3,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import api from "@/utlis/api.js";
 import { FaWhatsapp } from "react-icons/fa";
-import { Search, Download, Filter, Calendar, User, TrendingUp } from "lucide-react";
+import { Search, Download, Filter, Calendar, User, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import * as XLSX from "xlsx"; // Added for Excel Export
 
 const STATUS_COLORS = {
   "New": "#3b82f6",
@@ -21,6 +22,7 @@ const STATUS_COLORS = {
 };
 
 const STATUS_LIST = Object.keys(STATUS_COLORS);
+const ITEMS_PER_PAGE = 40;
 
 const LeadsPage = () => {
   const [leads, setLeads] = useState([]);
@@ -30,11 +32,16 @@ const LeadsPage = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchLeads();
     fetchCounselors();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, selectedCounselor, fromDate, toDate]);
 
   const fetchLeads = async () => {
     try {
@@ -53,12 +60,29 @@ const LeadsPage = () => {
     } catch (err) { console.log(err); }
   };
 
+  // EXPORT TO EXCEL LOGIC
+  const downloadExcel = () => {
+    const dataToExport = finalTableLeads.map(l => ({
+      "Name": l.name || "N/A",
+      "Email": l.email || "N/A",
+      "Phone": l.phone || "N/A",
+      "City": l.city || "N/A",
+      "Course": l.course || "N/A",
+      "Status": l.status || "N/A",
+      "Date": l.createdAt?.slice(0, 10) || "N/A"
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+    XLSX.writeFile(workbook, `Leads_Export_${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
   const todayStr = new Date().toISOString().slice(0, 10);
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
-  // Base Counselor Filter
   const baseCounselorLeads = useMemo(() => {
     return leads.filter((l) => {
       if (!selectedCounselor) return true;
@@ -66,16 +90,12 @@ const LeadsPage = () => {
     });
   }, [leads, selectedCounselor]);
 
-  // Assignment Stats (Date Wise Logic)
   const assignmentStats = useMemo(() => {
     const todayCount = baseCounselorLeads.filter(l => l.createdAt?.slice(0, 10) === todayStr).length;
     const yesterdayCount = baseCounselorLeads.filter(l => l.createdAt?.slice(0, 10) === yesterdayStr).length;
-    
-    // Last 7 Days Logic
     const last7Days = new Date();
     last7Days.setDate(last7Days.getDate() - 7);
     const last7DaysCount = baseCounselorLeads.filter(l => new Date(l.createdAt) >= last7Days).length;
-
     return { todayCount, yesterdayCount, last7DaysCount };
   }, [baseCounselorLeads, todayStr, yesterdayStr]);
 
@@ -92,6 +112,13 @@ const LeadsPage = () => {
   const finalTableLeads = useMemo(() => {
     return filteredLeads.filter(l => !filterStatus || l.status === filterStatus);
   }, [filteredLeads, filterStatus]);
+
+  const paginatedLeads = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return finalTableLeads.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [finalTableLeads, currentPage]);
+
+  const totalPages = Math.ceil(finalTableLeads.length / ITEMS_PER_PAGE);
 
   const chartData = useMemo(() => {
     return STATUS_LIST.map(status => ({
@@ -129,9 +156,17 @@ const LeadsPage = () => {
           <Search size={14} className="absolute left-2 top-2.5 text-slate-400" />
           <input type="text" placeholder="Search leads..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-8 pr-2 py-1.5 border rounded text-xs w-full outline-none focus:border-blue-400" />
         </div>
+        
+        {/* DOWNLOAD BUTTON */}
+        <button 
+          onClick={downloadExcel}
+          className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-slate-900 transition-colors"
+        >
+          <Download size={14} /> EXCEL
+        </button>
       </div>
 
-      {/* NEW SECTION: DATE WISE ASSIGNMENT SUMMARY */}
+      {/* ASSIGNMENT INSIGHTS */}
       <div className="mb-6 bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp size={18} className="text-blue-600" />
@@ -162,7 +197,7 @@ const LeadsPage = () => {
         </div>
       </div>
 
-      {/* DASHBOARD AREA: CHART + STATS */}
+      {/* DASHBOARD AREA */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
         <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm h-[280px]">
           <p className="text-[10px] font-bold text-slate-400 uppercase mb-2 text-center">Status Distribution</p>
@@ -198,8 +233,8 @@ const LeadsPage = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {finalTableLeads.length > 0 ? (
-              finalTableLeads.map((l) => (
+            {paginatedLeads.length > 0 ? (
+              paginatedLeads.map((l) => (
                 <tr key={l._id} className="hover:bg-blue-50/30 transition-colors">
                   <td className="p-3 text-slate-500">{l.createdAt?.slice(0, 10)}</td>
                   <td className="p-3 font-semibold text-slate-700">{l.name}</td>
@@ -217,6 +252,36 @@ const LeadsPage = () => {
             )}
           </tbody>
         </table>
+
+        {/* PAGINATION CONTROLS */}
+        {totalPages > 1 && (
+          <div className="p-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <p className="text-[10px] text-slate-500 font-medium">
+              Showing <span className="font-bold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> to <span className="font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, finalTableLeads.length)}</span> of <span className="font-bold">{finalTableLeads.length}</span> leads
+            </p>
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                className="p-1.5 rounded border bg-white disabled:opacity-50 hover:bg-slate-50 transition-colors"
+              >
+                <ChevronLeft size={16} className="text-slate-600" />
+              </button>
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-1 bg-blue-600 text-white rounded">{currentPage}</span>
+                <span className="text-[10px] text-slate-400 mx-1">of</span>
+                <span className="text-[10px] font-bold px-2 py-1 bg-white border rounded text-slate-600">{totalPages}</span>
+              </div>
+              <button 
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                className="p-1.5 rounded border bg-white disabled:opacity-50 hover:bg-slate-50 transition-colors"
+              >
+                <ChevronRight size={16} className="text-slate-600" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
