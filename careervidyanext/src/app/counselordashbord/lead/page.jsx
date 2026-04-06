@@ -144,11 +144,11 @@ const LeadsPage = () => {
   const exportToCSV = () => {
     const headers = ["Date", "Name", "Phone", "Duplicates", "Status", "Course", "Remark", "City", "Email"];
     const rows = filteredLeads.map((l) => {
-      const dCount = myLeads.filter(item => 
-        item.phone === l.phone && 
-        item.name?.toLowerCase().trim() === l.name?.toLowerCase().trim() && 
-        l.phone
-      ).length;
+      // const dCount = myLeads.filter(item => 
+      //   item.phone === l.phone && 
+      //   item.name?.toLowerCase().trim() === l.name?.toLowerCase().trim() && 
+      //   l.phone
+      // ).length;
       return [
         l.createdAt?.slice(0, 10), l.name, l.phone, dCount, l.status, l.course,
         l.remark?.replace(/,/g, " "), l.city, l.email,
@@ -319,11 +319,11 @@ const LeadRow = ({ lead, onSave, myLeads }) => {
   const [localDate, setLocalDate] = useState(formatForInput(lead.followUpDate));
   const [showAdmission, setShowAdmission] = useState(false);
 
-  const dCount = myLeads.filter(item => 
-    item.phone === lead.phone && 
-    item.name?.toLowerCase().trim() === lead.name?.toLowerCase().trim() && 
-    lead.phone !== ""
-  ).length;
+  // const dCount = myLeads.filter(item => 
+  //   item.phone === lead.phone && 
+  //   item.name?.toLowerCase().trim() === lead.name?.toLowerCase().trim() && 
+  //   lead.phone !== ""
+  // ).length;
 
   const isTodayReminder = isToday(lead.followUpDate);
   const hasChange = localStatus !== lead.status || localRemark !== "" || localDate !== formatForInput(lead.followUpDate);
@@ -345,13 +345,13 @@ const LeadRow = ({ lead, onSave, myLeads }) => {
           <span className="text-[10px] text-indigo-500 font-bold uppercase">{lead.course}</span>
         </div>
       </td>
-      <td className="py-2">
+      {/* <td className="py-2">
         {dCount > 1 ? (
           <div className="flex items-center gap-1 bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full w-fit border border-amber-200">
             <Users size={10} /><span className="text-[10px] font-black">{dCount} Duplicates</span>
           </div>
         ) : <span className="text-gray-300 text-[10px]">Unique</span>}
-      </td>
+      </td> */}
       <td className="py-2">
         <select value={localStatus} onChange={(e) => setLocalStatus(e.target.value)} className="border rounded px-1.5 py-1 text-[10px] outline-none">
           {STATUS.map(s => <option key={s} value={s}>{s}</option>)}

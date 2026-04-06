@@ -1,110 +1,111 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, FreeMode } from "swiper/modules";
 import { X, Play } from "lucide-react";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/free-mode";
 
 export default function VideoSlider() {
   const swiperRef = useRef(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
+  // Jab modal close ho, slider ko wapas start karne ke liye
+  useEffect(() => {
+    if (!selectedVideo && swiperRef.current) {
+      swiperRef.current.autoplay.start();
+    }
+  }, [selectedVideo]);
+
   const videos = [
-    { _id: "3", videoUrl: "/video/him.mp4", title: "Success Story 1" },
-    { _id: "1", videoUrl: "/video/vd1.mp4", title: "Success Story 2" },
-    { _id: "5", videoUrl: "/video/mansi.mp4", title: "Success Story 3" },
-    { _id: "2", videoUrl: "/video/v2.mp4", title: "Success Story 4" },
-    { _id: "4", videoUrl: "/video/divya.mp4", title: "Success Story 5" },
-    { _id: "6", videoUrl: "/video/v5.mp4", title: "Success Story 6" },
-    { _id: "7", videoUrl: "/video/v6.mp4", title: "Success Story 7" },
-    { _id: "8", videoUrl: "/video/v7.mp4", title: "Success Story 8" },
-    { _id: "9", videoUrl: "/video/v8.mp4", title: "Success Story 9" },
+    { _id: "1", videoUrl: "/video/vd1.mp4" },
+    { _id: "2", videoUrl: "/video/v2.mp4" },
+    { _id: "3", videoUrl: "/video/him.mp4" },
+    { _id: "4", videoUrl: "/video/divya.mp4" },
+    { _id: "5", videoUrl: "/video/mansi.mp4" },
+    { _id: "6", videoUrl: "/video/v5.mp4" },
+    { _id: "7", videoUrl: "/video/v6.mp4" },
+    { _id: "8", videoUrl: "/video/v7.mp4" },
+    
+   
+    { _id: "9", videoUrl: "/video/v8.mp4" },
+    { _id: "10", videoUrl: "/video/v9.mp4" },
   ];
 
   return (
-    <div className="bg-gray-50 py-16 relative">
-      <div className="max-w-7xl mx-auto px-6">
-
+    <div className="bg-gray-50 py-16 overflow-hidden">
+      <div className="max-w-[1400px] mx-auto px-6">
+        
         <style jsx global>{`
-          .swiper-wrapper {
-            transition-timing-function: ease-out !important;
+          /* Constant smooth motion ke liye linear easing */
+          .video-swiper .swiper-wrapper {
+            transition-timing-function: linear !important;
           }
-          .swiper-button-next,
-          .swiper-button-prev {
+          /* Navigation buttons ko chhota aur clean dikhane ke liye */
+          .swiper-button-next, .swiper-button-prev {
             background: white;
-            width: 45px !important;
-            height: 45px !important;
+            width: 35px !important;
+            height: 35px !important;
             border-radius: 50%;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             color: #05347f !important;
-            border: 1px solid #eee;
           }
-          .swiper-slide {
-            padding: 20px 0;
+          .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 14px !important;
+            font-weight: bold;
           }
         `}</style>
 
-        {/* Heading */}
-        <div className="mb-12 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-[#05347f]">
-            Successful Career Transitions
-          </h1>
-          <div className="w-20 h-1.5 bg-blue-600 mx-auto rounded-full"></div>
+        <div className="mb-10 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#05347f]">Success Stories</h2>
+          <div className="w-12 h-1 bg-blue-600 mx-auto mt-2 rounded-full"></div>
         </div>
 
-        {/* Slider */}
         <Swiper
           modules={[Navigation, Autoplay, FreeMode]}
-          spaceBetween={25}
-          navigation
-          grabCursor
-          freeMode={{ enabled: true, sticky: true }}
-          autoplay={{
-            delay: 3500,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          }}
-          speed={800}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
-          breakpoints={{
-            320: { slidesPerView: 1.3 },
-            640: { slidesPerView: 2.3 },
-            1024: { slidesPerView: 3.5 },
-            1280: { slidesPerView: 4.2 },
+          spaceBetween={15}
+          slidesPerView={1.8}
+          loop={true}
+          speed={6000} // Speed constant rakhi hai smoothness ke liye
+          freeMode={true}
+          navigation={true}
+          autoplay={{
+            delay: 0,
+            disableOnInteraction: false, // Click ke baad bhi nahi rukega
+            pauseOnMouseEnter: true,    // Hover par stop hoga taaki user dekh sake
           }}
+          breakpoints={{
+            640: { slidesPerView: 3.2 },
+            1024: { slidesPerView: 4.8 },
+            1280: { slidesPerView: 5.8 }, // Cards chhote dikhenge
+          }}
+          className="video-swiper"
         >
           {videos.map((video) => (
             <SwiperSlide key={video._id}>
               <div
-                onClick={() => setSelectedVideo(video)}
-                className="group cursor-pointer bg-white rounded-3xl overflow-hidden border shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-3"
+                onClick={() => {
+                  setSelectedVideo(video);
+                  swiperRef.current.autoplay.stop(); // Click karne par peeche ka slider rok do
+                }}
+                className="group relative cursor-pointer bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 active:scale-95"
               >
-                <div className="relative aspect-[9/16] w-full bg-black flex items-center justify-center">
-                  
-                  {/* ✅ No Crop Preview */}
+                <div className="relative aspect-[9/16] bg-[#0a0a0a]">
                   <video
                     src={video.videoUrl}
-                    className="max-h-full max-w-full object-contain"
+                    className="w-full h-full object-contain opacity-90 group-hover:opacity-100"
                     muted
                     loop
                     playsInline
                   />
-
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-white/20 backdrop-blur-xl p-4 rounded-full">
-                      <Play className="text-white fill-current" size={26} />
+                    <div className="bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20">
+                      <Play className="text-white fill-current" size={18} />
                     </div>
                   </div>
-                </div>
-
-                <div className="p-4 text-center">
-                  {/* <p className="text-sm font-bold text-[#05347f] uppercase">
-                    Watch Story
-                  </p> */}
                 </div>
               </div>
             </SwiperSlide>
@@ -112,31 +113,26 @@ export default function VideoSlider() {
         </Swiper>
       </div>
 
-      {/* ✅ DESKTOP OPTIMIZED MODAL */}
+      {/* Video Modal */}
       {selectedVideo && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 p-6">
-
-          <div className="relative w-full max-w-[1000px]">
-
-            {/* Close Button */}
-            <button
+        <div 
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4"
+          onClick={() => setSelectedVideo(null)}
+        >
+          <div className="relative w-full max-w-[360px]" onClick={e => e.stopPropagation()}>
+            <button 
+              className="absolute -top-12 right-0 text-white p-2 hover:bg-white/10 rounded-full" 
               onClick={() => setSelectedVideo(null)}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300"
             >
-              <X size={32} />
+              <X size={28} />
             </button>
-
-            {/* Video Container */}
-            <div className="w-full h-[80vh] bg-black flex items-center justify-center rounded-2xl overflow-hidden">
-
-              {/* ✅ MAIN FIX: NO CROP + CENTER */}
-              <video
-                src={selectedVideo.videoUrl}
-                controls
-                autoPlay
-                className="max-h-full max-w-full object-contain"
+            <div className="rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/10">
+              <video 
+                src={selectedVideo.videoUrl} 
+                controls 
+                autoPlay 
+                className="w-full h-full object-contain" 
               />
-
             </div>
           </div>
         </div>
