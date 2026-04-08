@@ -66,7 +66,7 @@ const LeadsPage = () => {
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  // --- Pagination ---
+  // --- PAGINATION STATE ---
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 30;
 
@@ -125,7 +125,7 @@ const LeadsPage = () => {
     );
   });
 
-  // --- Pagination Logic ---
+  // --- PAGINATION LOGIC ---
   const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -143,10 +143,8 @@ const LeadsPage = () => {
   const exportToCSV = () => {
     const headers = ["Date", "Name", "Phone", "Status", "Course", "Remark", "City", "Email"];
     const rows = filteredLeads.map((l) => {
-      // Excel mein "Not Picked" ko "Dead Lead" dikhane ke liye
-      const statusForExcel = l.status === "Not Picked" ? "Dead Lead" : l.status;
       return [
-        l.createdAt?.slice(0, 10), l.name, l.phone, statusForExcel, l.course,
+        l.createdAt?.slice(0, 10), l.name, l.phone, l.status, l.course,
         l.remark?.replace(/,/g, " "), l.city, l.email,
       ];
     });
@@ -161,7 +159,7 @@ const LeadsPage = () => {
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
-      {/* Filters Header */}
+      {/* Report Filter Bar */}
       <div className="bg-white border p-3 rounded-lg shadow-sm mb-4 flex flex-wrap gap-3 items-center">
         <div className="flex items-center gap-2 text-blue-600 font-bold">
           <Filter size={16} /> <span className="text-xs uppercase">Reports:</span>
@@ -178,7 +176,7 @@ const LeadsPage = () => {
         </button>
       </div>
 
-      {/* Stat Cards */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 xl:grid-cols-11 gap-2 mb-4">
         <Stat title="Total" value={myLeads.length} color="#2563eb" isActive={filterStatus === ""} onClick={() => setFilterStatus("")} />
         {STATUS.map((s, i) => (
@@ -186,14 +184,14 @@ const LeadsPage = () => {
             key={s} 
             title={s === "Not Picked" ? "Dead Lead" : s} 
             value={myLeads.filter(l => l.status === s).length} 
-            color={["#22c55e", "#f97316", "#ef4444", "#a855f7", "#06b6d4", "#ec4899", "#8b5cf6", "#facc15", "#14b8a6", "#ef4444", "#2563eb"][i % 11]} 
+            color={["#22c55e", "#f97316", "#ef4444", "#a855f7", "#06b6d4"][i % 5]} 
             isActive={filterStatus === s} 
             onClick={() => setFilterStatus(s)} 
           />
         ))}
       </div>
 
-      {/* Search Bar */}
+      {/* SEARCH BAR */}
       <div className="bg-white p-3 rounded shadow-sm mb-4 flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
@@ -224,7 +222,7 @@ const LeadsPage = () => {
         </button>
       </div>
 
-      {/* Table */}
+      {/* Table Section */}
       <div className="bg-white rounded shadow-sm overflow-x-auto border border-gray-100">
         <table className="w-full min-w-[1100px] border-collapse">
           <thead className="bg-gray-50 text-[11px] font-bold text-gray-500 border-b uppercase">
@@ -240,7 +238,12 @@ const LeadsPage = () => {
           <tbody className="divide-y divide-gray-100">
             {currentLeads.length > 0 ? (
               currentLeads.map((l) => (
-                <LeadRow key={l._id} lead={l} onSave={updateLeadAPI} />
+                <LeadRow 
+                  key={l._id} 
+                  lead={l} 
+                  onSave={updateLeadAPI} 
+                  myLeads={myLeads}
+                />
               ))
             ) : (
               <tr><td colSpan="6" className="p-10 text-center text-gray-400">No leads found.</td></tr>
@@ -249,22 +252,33 @@ const LeadsPage = () => {
         </table>
       </div>
 
-      {/* Pagination Controls */}
+      {/* --- PAGINATION CONTROLS --- */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between bg-white px-4 py-3 mt-4 border rounded shadow-sm">
           <div className="text-xs text-gray-500 font-medium">
             Showing <span className="text-blue-600 font-bold">{indexOfFirstItem + 1}</span> to <span className="text-blue-600 font-bold">{Math.min(indexOfLastItem, filteredLeads.length)}</span> of <span className="font-bold">{filteredLeads.length}</span> entries
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="p-1.5 border rounded hover:bg-gray-50 disabled:opacity-30">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-1.5 border rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
               <ChevronLeft size={16} />
             </button>
+            
             <div className="flex gap-1">
                 {[...Array(totalPages)].map((_, index) => {
                 const pg = index + 1;
                 if (pg === 1 || pg === totalPages || (pg >= currentPage - 1 && pg <= currentPage + 1)) {
                   return (
-                    <button key={pg} onClick={() => handlePageChange(pg)} className={`min-w-[32px] px-2 py-1 text-xs font-bold rounded border ${currentPage === pg ? "bg-blue-600 text-white shadow-md border-blue-600" : "text-gray-600 hover:bg-blue-50"}`}>
+                    <button
+                      key={pg}
+                      onClick={() => handlePageChange(pg)}
+                      className={`min-w-[32px] px-2 py-1 text-xs font-bold rounded border transition-all ${
+                        currentPage === pg ? "bg-blue-600 text-white border-blue-600 shadow-md" : "text-gray-600 hover:bg-blue-50 border-gray-200"
+                      }`}
+                    >
                       {pg}
                     </button>
                   );
@@ -273,7 +287,12 @@ const LeadsPage = () => {
                 return null;
               })}
             </div>
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="p-1.5 border rounded hover:bg-gray-50">
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="p-1.5 border rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
               <ChevronRight size={16} />
             </button>
           </div>
@@ -294,7 +313,7 @@ const Stat = ({ title, value, color, onClick, isActive }) => (
   </div>
 );
 
-const LeadRow = ({ lead, onSave }) => {
+const LeadRow = ({ lead, onSave, myLeads }) => {
   const [localStatus, setLocalStatus] = useState(lead.status);
   const [localRemark, setLocalRemark] = useState("");
   const [localDate, setLocalDate] = useState(formatForInput(lead.followUpDate));
@@ -304,20 +323,21 @@ const LeadRow = ({ lead, onSave }) => {
   const hasChange = localStatus !== lead.status || localRemark !== "" || localDate !== formatForInput(lead.followUpDate);
 
   const handleUpdate = () => {
+    // 10 Din ki calculation
     const daysPassed = Math.floor((new Date() - new Date(lead.createdAt)) / (1000 * 60 * 60 * 24));
 
-    // UI par humne "Not Picked" ko "Dead Lead" dikhaya hai, value wahi hai
+    // Backend status check (Not Picked means Dead Lead in UI)
     if (localStatus === "Not Picked" && daysPassed < 10) {
-      alert(`Access Denied: "Dead Lead" status ko set karne ke liye lead kam se kam 10 din purani honi chahiye. (Abhi: ${daysPassed} din)`);
+      alert(`Error: "Dead Lead" (Not Picked) status ko sirf 10 din baad hi update kiya ja sakta hai. Abhi sirf ${daysPassed} din huye hain.`);
       return;
     }
 
     onSave(lead._id, { 
-        status: localStatus, 
-        remark: localRemark, 
-        followUpDate: localDate ? new Date(localDate).toISOString() : null 
+      status: localStatus, 
+      remark: localRemark, 
+      followUpDate: localDate ? new Date(localDate).toISOString() : null 
     }); 
-    setLocalRemark("");
+    setLocalRemark(""); 
   };
 
   return [
@@ -338,9 +358,15 @@ const LeadRow = ({ lead, onSave }) => {
         </div>
       </td>
       <td className="py-2">
-        <select value={localStatus} onChange={(e) => setLocalStatus(e.target.value)} className="border rounded px-1.5 py-1 text-[10px] outline-none">
+        <select 
+          value={localStatus} 
+          onChange={(e) => setLocalStatus(e.target.value)} 
+          className="border rounded px-1.5 py-1 text-[10px] outline-none"
+        >
           {STATUS.map(s => (
-            <option key={s} value={s}>{s === "Not Picked" ? "Dead Lead" : s}</option>
+            <option key={s} value={s}>
+              {s === "Not Picked" ? "Dead Lead" : s}
+            </option>
           ))}
         </select>
       </td>
@@ -349,14 +375,18 @@ const LeadRow = ({ lead, onSave }) => {
         <input type="text" value={localRemark} onChange={(e) => setLocalRemark(e.target.value)} placeholder="Quick remark..." className="border rounded w-full p-1 text-[10px] outline-none" />
       </td>
       <td className="py-2">
-        <input type="datetime-local" value={localDate} onChange={(e) => setLocalDate(e.target.value)} className={`border rounded p-1 text-[10px] outline-none`} />
+        <input type="datetime-local" value={localDate} onChange={(e) => setLocalDate(e.target.value)} className={`border rounded p-1 text-[10px] outline-none ${isTodayReminder ? "border-red-300 bg-red-50" : ""}`} />
       </td>
       <td className="p-3 text-center">
         <div className="flex items-center justify-center gap-1.5">
-          <button disabled={!hasChange} onClick={handleUpdate} className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-[10px] font-bold disabled:opacity-20 flex items-center gap-1 shadow-sm">
+          <button 
+            disabled={!hasChange} 
+            onClick={handleUpdate} 
+            className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-[10px] font-bold disabled:opacity-20 flex items-center gap-1"
+          >
             <Save size={12} /> Update
           </button>
-          <button onClick={() => setShowAdmission(true)} className="bg-orange-500 text-white px-2.5 py-1.5 rounded text-[10px] font-bold shadow-sm">View</button>
+          <button onClick={() => setShowAdmission(true)} className="bg-orange-500 text-white px-2.5 py-1.5 rounded text-[10px] font-bold">View</button>
         </div>
       </td>
     </tr>,

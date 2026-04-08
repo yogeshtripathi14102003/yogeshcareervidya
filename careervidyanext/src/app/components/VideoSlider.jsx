@@ -28,6 +28,8 @@ export default function VideoSlider() {
     { _id: "6", videoUrl: "/video/v5.mp4" },
     { _id: "7", videoUrl: "/video/v6.mp4" },
     { _id: "8", videoUrl: "/video/v7.mp4" },
+    { _id: "9", videoUrl: "/video/v10.mp4" },
+    {_id: "10", videoUrl: "/video/v11.mp4" },
     
    
     { _id: "9", videoUrl: "/video/v8.mp4" },
