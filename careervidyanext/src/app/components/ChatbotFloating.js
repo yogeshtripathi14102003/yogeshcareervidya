@@ -1,371 +1,183 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import api from "@/utlis/api.js";
-import { MessageSquare, X, Send } from "lucide-react";
+import { X, Phone, ChevronDown, Send } from "lucide-react";
+import api from "@/utlis/api"; // Aapka api utility
 
-const PRIMARY_BLUE = "#3498db";
-const BOT_MESSAGE_BUBBLE_COLOR = "#f1f1f1";
+export default function CareervidyaFormModal() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showCallTooltip, setShowCallTooltip] = useState(false);
+  const [animate, setAnimate] = useState(false);
 
-/* ================= TIME FORMAT ================= */
-const formatTime = (timestamp) => {
-  if (!timestamp) return "Now";
-  const now = new Date();
-  const past = new Date(timestamp);
-  const diff = Math.floor((now - past) / 60000);
-  if (diff < 1) return "Just now";
-  if (diff < 60) return `${diff} mins ago`;
-  return past.toLocaleDateString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "numeric",
-    month: "short",
+  // API State
+  const [courses, setCourses] = useState([]);
+  const [specializations, setSpecializations] = useState([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    mobile: "",
+    course: "",
+    branch: "",
+    email: "not-provided@cv.com", // Default value as per your previous logic
+    city: "Website Query",
+    message: "Interested in course details",
   });
-};
 
-/* ================= AUTO LINK RENDER ================= */
-const renderTextWithLinks = (text) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-  return text.split(urlRegex).map((part, index) => {
-    if (part.match(urlRegex)) {
-      return (
-        <a
-          key={index}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: PRIMARY_BLUE,
-            textDecoration: "underline",
-            wordBreak: "break-all",
-          }}
-        >
-          {part}
-        </a>
-      );
-    }
-    return <span key={index}>{part}</span>;
-  });
-};
-
-export default function CareervidyaChatbot() {
-  const [open, setOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("Home");
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const [messages, setMessages] = useState([
-    {
-      type: "bot",
-      text: "Hello! Welcome to Careervidya. How can I assist you today?",
-      timestamp: Date.now(),
-      name: "Careervidya",
-    },
-  ]);
-
-  const messagesEndRef = useRef(null);
-
+  // Smooth animation trigger
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (isModalOpen) {
+      setTimeout(() => setAnimate(true), 10);
+    } else {
+      setAnimate(false);
+    }
+  }, [isModalOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  // Fetch Courses from API
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await api.get("/api/v1/course");
+        const courseArray = Array.isArray(res.data) 
+          ? res.data 
+          : res.data?.data || res.data?.courses || [];
+        setCourses(courseArray);
+      } catch (err) {
+        console.error("Course fetch error", err);
+      }
+    };
+    fetchCourses();
+  }, []);
 
-    const userText = input;
-    setInput("");
-    setMessages((prev) => [
-      ...prev,
-      { type: "user", text: userText, timestamp: Date.now() },
-    ]);
-    setLoading(true);
-
-    try {
-      const res = await api.post("/api/v1/chatbot", { message: userText });
-
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            type: "bot",
-            text: res?.data?.reply || "How can I help you?",
-            timestamp: Date.now(),
-            name: "Careervidya",
-          },
-        ]);
-        setLoading(false);
-        setSelectedTab("Conversation");
-      }, 500);
-    } catch (err) {
-      setLoading(false);
-      setMessages((prev) => [
-        ...prev,
-        {
-          type: "bot",
-          text: "Something went wrong. Please try again.",
-          timestamp: Date.now(),
-          name: "Careervidya",
-        },
-      ]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "course") {
+      const selected = courses.find((c) => c.name === value);
+      setSpecializations(selected?.specializations || []);
+      setFormData((prev) => ({ ...prev, course: value, branch: "" }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const BotMessageBubble = ({ message }) => (
-    <div style={{ display: "flex", marginBottom: "10px" }}>
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: "50%",
-          background: PRIMARY_BLUE,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginRight: 8,
-        }}
-      >
-        <Image
-          src="/images/LogoUpdated1.png"
-          alt="logo"
-          width={18}
-          height={18}
-          style={{ filter: "invert(1)" }}
-        />
-      </div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/api/v1/getintouch", formData);
+      alert("✅ Enquiry submitted successfully!");
+      setFormData({ name: "", mobile: "", course: "", branch: "", email: "not-provided@cv.com", city: "Website Query", message: "Interested" });
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Submission failed!");
+    }
+  };
 
-      <div>
-        <div style={{ fontSize: 12, fontWeight: "bold" }}>
-          Careervidya · {formatTime(message.timestamp)}
-        </div>
-
-        <div
-          style={{
-            background: BOT_MESSAGE_BUBBLE_COLOR,
-            padding: "8px 12px",
-            borderRadius: 12,
-            maxWidth: 260,
-            marginTop: 4,
-          }}
-        >
-          {renderTextWithLinks(message.text)}
-        </div>
-      </div>
-    </div>
-  );
+  const closeModal = () => {
+    setAnimate(false);
+    setTimeout(() => setIsModalOpen(false), 300);
+  };
 
   return (
-    <div style={{ position: "fixed", bottom: 30, right: 20, zIndex: 9999 }}>
-      {/* CHAT ICON */}
-      {!open && (
+    <div style={{ position: "fixed", bottom: 50, right: 25, zIndex: 9999 }}>
+      
+      {/* --- SIDE ICONS --- */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => setIsModalOpen(true)}
           style={{
-            width: 60,
-            height: 60,
-            borderRadius: "50%",
-            border: "none",
-            cursor: "pointer",
-            background: PRIMARY_BLUE,
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+            width: 60, height: 60, borderRadius: "50%", border: "none", cursor: "pointer",
+            background: "#c4c3c3de", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 8px 16px rgba(0,0,0,0.3)", overflow: "hidden"
           }}
         >
-          <MessageSquare size={30} />
+          <Image src="/images/sss.webp" alt="Support" width={35} height={35} style={{ objectFit: "contain" }} />
         </button>
-      )}
 
-      {/* CHAT WINDOW */}
-      {open && (
-        <div
-          style={{
-            width: 380,
-            height: 500,
-            borderRadius: 16,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "0 10px 30px rgba(0,0,0,.2)",
-            background: "#fff",
-          }}
-        >
-          {/* HEADER */}
-          <div
-            style={{
-              background: PRIMARY_BLUE,
-              color: "#fff",
-              padding: "16px 20px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: "50%",
-                  padding: 5,
-                  display: "flex",
-                }}
-              >
-                <Image
-                  src="/images/LogoUpdated1.png"
-                  alt="logo"
-                  width={25}
-                  height={25}
-                />
-              </div>
-              <div>
-                <div style={{ fontWeight: 600 }}>Careervidya Chatbot </div>
-                <div style={{ fontSize: 11 }}>Online | Careervidya Support</div>
-              </div>
-            </div>
+        {/* Call Icon */}
+        <div style={{ position: "relative" }}>
+          {showCallTooltip && <div style={tooltipStyle}>Unlock Scholarships & Fee Details - Call Now!  📞<div style={arrowStyle}></div></div>}
+          <a href="tel:++919319998717" onMouseEnter={() => setShowCallTooltip(true)} onMouseLeave={() => setShowCallTooltip(false)} style={sideButtonStyle("#2196F3")}>
+            <Phone size={22} fill="white" />
+          </a>
+        </div>
 
-            <button
-              onClick={() => setOpen(false)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              <X size={20} />
+        {/* WhatsApp Icon */}
+        <div style={{ position: "relative" }}>
+          {showTooltip && <div style={tooltipStyle}>Job ke sath MBA karna chahte ho? 🤔 Upgrade your career with flexible online MBA <div style={arrowStyle}></div></div>}
+          <a href="https://wa.me/+919319998717" target="_blank" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)} style={sideButtonStyle("#25D366")}>
+            <Image src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA" width={28} height={28} />
+          </a>
+        </div>
+      </div>
+
+      {/* --- MODAL OVERLAY --- */}
+      {isModalOpen && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+          backgroundColor: animate ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0)", 
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000,
+          transition: "background-color 0.3s ease", backdropFilter: animate ? "blur(4px)" : "blur(0px)"
+        }}>
+          <div style={{
+            width: "90%", maxWidth: "750px", background: "#fff", borderRadius: "5px",
+            display: "flex", overflow: "hidden", position: "relative",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.4)",
+            transform: animate ? "scale(1) translateY(0)" : "scale(0.9) translateY(20px)",
+            opacity: animate ? 1 : 0, transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+          }}>
+            
+            <button onClick={closeModal} style={{ position: "absolute", top: 15, right: 15, background: "#f0f0f0", border: "none", borderRadius: "50%", padding: "5px", cursor: "pointer", zIndex: 10 }}>
+              <X size={18} color="#333" />
             </button>
-          </div>
-
-          {/* CHAT AREA */}
-          <div
-            style={{
-              flex: 1,
-              padding: 15,
-              overflowY: "auto",
-              background: "#f9f9f9",
-            }}
-          >
-            {selectedTab === "Home" ? (
-              <div style={{ textAlign: "center", marginTop: 20 }}>
-                <Image
-                  src="/images/LogoUpdated1.png"
-                  alt="logo"
-                  width={60}
-                  height={60}
-                  style={{ opacity: 1.2 }}
-                />
-                <p style={{ color: "#888", fontSize: 14 }}>
-                  Welcome! Click on Chat to start.
-                </p>
-                <button
-                  onClick={() => setSelectedTab("Conversation")}
-                  style={{
-                    background: PRIMARY_BLUE,
-                    color: "#fff",
-                    border: "none",
-                    padding: "8px 20px",
-                    borderRadius: 20,
-                    cursor: "pointer",
-                  }}
-                >
-                  Start Conversation
-                </button>
+            
+            {/* LEFT SIDE: Image */}
+            <div style={{ width: "40%", padding: "15px", display: "flex", alignItems: "center" }}>
+              <div style={{ width: "100%", height: "100%", borderRadius: "10px", overflow: "hidden" }}>
+                <img src="/images/book1.jpg" alt="Books" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
-            ) : (
-              messages.map((m, i) =>
-                m.type === "bot" ? (
-                  <BotMessageBubble key={i} message={m} />
-                ) : (
-                  <div key={i} style={{ textAlign: "right", marginBottom: 10 }}>
-                    <div
-                      style={{
-                        display: "inline-block",
-                        background: PRIMARY_BLUE,
-                        color: "#fff",
-                        padding: "10px 14px",
-                        borderRadius: "15px 15px 0 15px",
-                        maxWidth: "80%",
-                      }}
-                    >
-                      {m.text}
-                    </div>
-                    <div style={{ fontSize: 10, color: "#999" }}>
-                      {formatTime(m.timestamp)}
-                    </div>
-                  </div>
-                )
-              )
-            )}
-            {loading && (
-              <div style={{ fontSize: 12, color: "#888" }}>Typing...</div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* INPUT */}
-          {selectedTab === "Conversation" && (
-            <div
-              style={{
-                display: "flex",
-                borderTop: "1px solid #eee",
-                padding: "10px 15px",
-              }}
-            >
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Type your question..."
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  borderRadius: 8,
-                  border: "1px solid #eee",
-                }}
-              />
-              <button
-                onClick={handleSend}
-                style={{
-                  marginLeft: 10,
-                  background: PRIMARY_BLUE,
-                  color: "#fff",
-                  border: "none",
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  cursor: "pointer",
-                }}
-              >
-                <Send size={18} />
-              </button>
             </div>
-          )}
 
-          {/* TABS */}
-          <div style={{ display: "flex", borderTop: "1px solid #eee" }}>
-            {["Home", "Conversation"].map((t) => (
-              <div
-                key={t}
-                onClick={() => setSelectedTab(t)}
-                style={{
-                  flex: 1,
-                  textAlign: "center",
-                  padding: 12,
-                  cursor: "pointer",
-                  fontWeight: selectedTab === t ? 600 : 400,
-                  color: selectedTab === t ? PRIMARY_BLUE : "#777",
-                  borderTop:
-                    selectedTab === t
-                      ? `2px solid ${PRIMARY_BLUE}`
-                      : "none",
-                }}
-              >
-                {t === "Home" ? "Home" : "Messages"}
+            {/* RIGHT SIDE: Integrated Form */}
+            <div style={{ width: "60%", padding: "30px 40px", textAlign: 'center' }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+                <Image src="/images/n12.png" alt="Logo" width={130} height={40} />
               </div>
-            ))}
+              <h3 style={{ marginBottom: "15px", fontSize: "16px", fontWeight: "700", color: "#111" }}>
+                Get Course Details Instantly!
+              </h3>
+              
+              <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
+                <label style={labelStyle}>Full Name *</label>
+                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Name" required style={inputStyle} />
+                
+                <label style={labelStyle}>Phone Number *</label>
+                <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile Number" required style={inputStyle} />
+                
+                <label style={labelStyle}>Course *</label>
+                <div style={{ position: 'relative' }}>
+                  <select name="course" value={formData.course} onChange={handleChange} required style={inputStyle}>
+                    <option value="">Select Course</option>
+                    {courses.map((c) => <option key={c._id} value={c.name}>{c.name}</option>)}
+                  </select>
+                  <ChevronDown size={14} style={selectArrowStyle} />
+                </div>
+
+                <label style={labelStyle}>Branch *</label>
+                <div style={{ position: 'relative' }}>
+                  <select name="branch" value={formData.branch} onChange={handleChange} required disabled={!specializations.length} style={inputStyle}>
+                    <option value="">Select Branch</option>
+                    {specializations.map((sp, i) => <option key={i} value={sp}>{sp}</option>)}
+                  </select>
+                  <ChevronDown size={14} style={selectArrowStyle} />
+                </div>
+                
+                <button type="submit" style={submitButtonStyle}>
+                  <span>SUBMIT</span>
+                  <Send size={14} />
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -373,186 +185,32 @@ export default function CareervidyaChatbot() {
   );
 }
 
+// Reusable Styles (UI Unchanged)
+const sideButtonStyle = (bg) => ({
+  width: 50, height: 50, borderRadius: "50%", background: bg, color: "#fff",
+  display: "flex", alignItems: "center", justifyContent: "center",
+  boxShadow: "0 6px 12px rgba(0,0,0,0.2)", transition: "transform 0.2s ease"
+});
 
+const selectArrowStyle = { position: 'absolute', right: 12, top: 12, color: '#666', pointerEvents: 'none' };
 
-// "use client";
+const submitButtonStyle = {
+  width: "50%",  marginTop: "20px", padding: "12px", background: "#05347f", color: "#fff",
+  border: "none", borderRadius: "2px", fontWeight: "bold", cursor: "pointer", 
+  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+  boxShadow: "0 4px 12px rgba(5,52,127,0.3)"
+};
 
-// import { useState, useRef } from "react";
-// import { X } from "lucide-react";
+const tooltipStyle = {
+  position: "absolute", right: "65px", top: "50%", transform: "translateY(-50%)",
+  background: "#333", color: "#fff", padding: "6px 12px", borderRadius: "6px",
+  fontSize: "11px", width: "200px", textAlign: "center", zIndex: 10001
+};
 
-// export default function FounderVideoWidget() {
-//   const [open, setOpen] = useState(false);
-//   const videoRef = useRef(null);
+const arrowStyle = {
+  position: "absolute", right: "-5px", top: "50%", transform: "translateY(-50%)",
+  borderTop: "5px solid transparent", borderBottom: "5px solid transparent", borderLeft: "5px solid #333"
+};
 
-//   const handleOpen = () => {
-//     setOpen(true);
-
-//     setTimeout(() => {
-//       if (videoRef.current) {
-//         videoRef.current.muted = false;
-//         videoRef.current.play().catch(() => {});
-//       }
-//     }, 100);
-//   };
-
-//   const handleClose = () => {
-//     setOpen(false);
-//     if (videoRef.current) {
-//       videoRef.current.pause();
-//     }
-//   };
-
-//   return (
-//     <>
-//       {/* FLOATING BUTTON */}
-//       {!open && (
-//         <div
-//           onClick={handleOpen}
-//           style={{
-//             position: "fixed",
-//             bottom: 20,
-//             right: 20,
-//             zIndex: 9999,
-//             width: 85,
-//             textAlign: "center",
-//             cursor: "pointer",
-//           }}
-//         >
-//           {/* IMAGE */}
-//           <div
-//             style={{
-//               width: 85,
-//               height: 85,
-//               borderRadius: "50%",
-//               border: "3px solid #fff",
-//               overflow: "hidden",
-//               boxShadow: "0 6px 18px rgba(0,0,0,0.3)",
-//               position: "relative",
-//             }}
-//           >
-//             <img
-//               src="/images/yogesh.jpeg"
-//               alt="Founder"
-//               style={{
-//                 width: "100%",
-//                 height: "100%",
-//                 objectFit: "cover",
-//               }}
-//             />
-
-//             {/* ONLINE DOT */}
-//             <span
-//               style={{
-//                 position: "absolute",
-//                 bottom: 6,
-//                 right: 6,
-//                 width: 12,
-//                 height: 12,
-//                 background: "#2ecc71",
-//                 borderRadius: "50%",
-//                 border: "2px solid #fff",
-//               }}
-//             ></span>
-//           </div>
-
-//           {/* TAGLINE */}
-//           <div
-//             style={{
-//               marginTop: 6,
-//               fontSize: 11,
-//               fontWeight: 600,
-//               color: "#fff",
-//               textShadow: "0 2px 6px rgba(0,0,0,0.6)",
-//             }}
-//           >
-//             Vidya hai to Success hai
-//           </div>
-//         </div>
-//       )}
-
-//       {/* VIDEO MODAL */}
-//       {open && (
-//         <div
-//           style={{
-//             position: "fixed",
-//             top: 0,
-//             left: 0,
-//             width: "100vw",
-//             height: "100vh",
-//             background: "rgba(0,0,0,0.85)",
-//             display: "flex",
-//             flexDirection: "column",
-//             justifyContent: "center",
-//             alignItems: "center",
-//             zIndex: 99999,
-//           }}
-//         >
-//           {/* CLOSE BUTTON */}
-//           <button
-//             onClick={handleClose}
-//             style={{
-//               position: "absolute",
-//               top: 20,
-//               right: 20,
-//               background: "rgba(0,0,0,0.6)",
-//               border: "none",
-//               color: "#fff",
-//               padding: 8,
-//               borderRadius: "50%",
-//               cursor: "pointer",
-//             }}
-//           >
-//             <X size={24} />
-//           </button>
-
-//           {/* VIDEO WRAPPER */}
-//           <div
-//             style={{
-//               width: "90%",
-//               maxWidth: "900px",
-//               aspectRatio: "16 / 9",
-//               background: "#000",
-//               borderRadius: "12px",
-//               overflow: "hidden",
-//               display: "flex",
-//               justifyContent: "center",
-//               alignItems: "center",
-//             }}
-//           >
-//             <video
-//               ref={videoRef}
-//               autoPlay
-//               playsInline
-//               muted
-//               style={{
-//                 width: "100%",
-//                 height: "100%",
-//                 objectFit: "contain", // ✅ NO CROP
-//               }}
-//             >
-//               <source src="/images/vd.mp4" type="video/mp4" />
-//             </video>
-//           </div>
-
-//           {/* CTA BUTTON */}
-//           <a
-//             href="https://careervidya.in/topunivers/"
-//             target="_blank" 
-//             style={{
-//               marginTop: 20,
-//               padding: "10px 18px",
-//               background: "#3498db",
-//               color: "#fff",
-//               borderRadius: "8px",
-//               textDecoration: "none",
-//               fontWeight: "600",
-//               boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-//             }}
-//           >
-//             Explore Top Universities
-//           </a>
-//         </div>
-//       )}
-//     </>
-//   );
-// }
+const labelStyle = { display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "4px", marginTop: "10px", color: "#121111" };
+const inputStyle = { width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #eee", background: "#f9f9f9", fontSize: "13px", outline: "none", appearance: "none" };

@@ -5,6 +5,7 @@ import AutoLogout from "../app/components/AutoLogout.js";
 import VisitorTracker from "@/app/components/VisitorTracker.jsx"; // ✅ ADD
 import CopyProtection from "./components/CopyProtection";
 import MobileNavigation from "./components/MobileNavigation";
+import ChatbotFloating from "./components/ChatbotFloating";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +63,7 @@ export default function RootLayout({ children }) {
         <MobileNavigation />
         <VisitorTracker /> {/* ✅ VISITOR TRACKING */}
         <AutoLogout />     {/* ✅ AUTO LOGOUT */}
+        <ChatbotFloating />
         {children}
       </body>
     </html>
