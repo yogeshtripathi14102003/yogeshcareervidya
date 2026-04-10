@@ -1,32 +1,30 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import api from "@/utlis/api.js";
 import { X } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
-/* ================= GLOBAL CACHE ================= */
 const globalCoursesCache = {};
 
-/* ================= COURSE CARD ================= */
 const CourseCard = ({ course, index }) => {
-  const router = useRouter();
   const isClickable = index < 25;
 
   return (
-    <div
-      onClick={() => isClickable && router.push(`/course/${course.slug}`)}
-      role="button"
+    <Link
+      href={`/course/${course.slug}`}
       className={`w-full bg-white border-[1px] md:border-2 border-gray-200 rounded-md p-1.5 md:p-2 
-        flex flex-col items-center justify-between h-full transition-all duration-200
-        ${isClickable ? "cursor-pointer hover:border-[#0056B3] hover:shadow-md" : "cursor-default"}`}
+      flex flex-col items-center justify-between h-full transition-all duration-200
+      ${isClickable ? "cursor-pointer hover:border-[#0056B3] hover:shadow-md" : "pointer-events-none opacity-70"}`}
     >
       <div className="flex justify-center mb-1">
-        <img
+        <Image
           src={course.courseLogo?.url || "/placeholder.png"}
           alt={course.name}
-          loading="lazy"
-          className="w-8 h-8 md:w-12 md:h-12 object-contain"
+          width={50}
+          height={50}
+          className="object-contain"
         />
       </div>
 
@@ -39,19 +37,17 @@ const CourseCard = ({ course, index }) => {
       <div className="bg-[#0056B3] text-white text-[7px] md:text-[10px] py-1 md:py-1.5 w-full rounded-sm text-center uppercase mt-auto">
         Know More
       </div>
-    </div>
+    </Link>
   );
 };
 
-/* ================= MAIN COMPONENT ================= */
 export default function CoursesClient({ initialCourses = [] }) {
   const [courses, setCourses] = useState(initialCourses);
   const [allCourses, setAllCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [isMounted, setIsMounted] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [displayLimit, setDisplayLimit] = useState(12);
+  const [displayLimit, setDisplayLimit] = useState(24);
 
   const sidebarItems = [
     { key: "All", title: "All Courses" },
@@ -61,45 +57,26 @@ export default function CoursesClient({ initialCourses = [] }) {
     { key: "Doctorate", title: "Doctorate" },
   ];
 
-  /* ================= HYDRATION ================= */
   useEffect(() => {
-    setIsMounted(true);
-
-    const updateLimit = () => {
-      setDisplayLimit(window.innerWidth < 768 ? 12 : 24);
-    };
-
+    const updateLimit = () => setDisplayLimit(window.innerWidth < 768 ? 12 : 24);
     updateLimit();
     window.addEventListener("resize", updateLimit);
-
     return () => window.removeEventListener("resize", updateLimit);
   }, []);
 
-  /* ================= SEO FIX (IMPORTANT) ================= */
+  // ✅ FETCH COURSES
   useEffect(() => {
-    if (initialCourses.length > 0) {
-      setCourses(initialCourses);
-    }
-  }, [initialCourses]);
-
-  /* ================= FETCH COURSES ================= */
-  useEffect(() => {
-    if (!isMounted) return;
-
     const fetchCourses = async () => {
       const page = 1;
       const limit = displayLimit;
-
       const cacheKey = `${selectedCategory}_${page}_${limit}`;
 
       if (globalCoursesCache[cacheKey]) {
         setCourses(globalCoursesCache[cacheKey]);
-        setLoading(false);
         return;
       }
 
       setLoading(true);
-
       try {
         const url =
           selectedCategory === "All"
@@ -119,9 +96,9 @@ export default function CoursesClient({ initialCourses = [] }) {
     };
 
     fetchCourses();
-  }, [isMounted, selectedCategory, displayLimit]);
+  }, [selectedCategory, displayLimit]);
 
-  /* ================= POPUP ================= */
+  // ✅ FULL DATA FOR POPUP
   const fetchAllCourses = async () => {
     try {
       const url =
@@ -137,16 +114,18 @@ export default function CoursesClient({ initialCourses = [] }) {
   };
 
   const visibleCourses = useMemo(() => {
-    return courses.slice(0, displayLimit);
+    return [...courses].reverse().slice(0, displayLimit);
   }, [courses, displayLimit]);
 
-  if (!isMounted) return null;
+  const sortedPopupCourses = useMemo(() => {
+    return [...allCourses].reverse();
+  }, [allCourses]);
 
   return (
     <div className="w-full bg-white">
       <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 md:py-10">
-
-        {/* HEADER */}
+        
+        {/* ✅ SEO HEADING */}
         <header className="mb-6 md:mb-10 text-center">
           <h1 className="text-xl md:text-4xl font-black text-[#0056B3] uppercase">
             Job-Oriented Professional Courses
@@ -158,17 +137,17 @@ export default function CoursesClient({ initialCourses = [] }) {
 
         {/* CATEGORY */}
         <div className="block lg:hidden mb-6">
-          <div className="flex gap-2 overflow-x-auto pb-3">
+          <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
             {sidebarItems.map((item) => (
               <button
                 key={item.key}
                 onClick={() => setSelectedCategory(item.key)}
-                className={`px-4 py-1.5 text-[10px] font-black border-2 rounded-full
-                  ${
-                    selectedCategory === item.key
-                      ? "bg-[#0056B3] text-white"
-                      : "bg-white text-black border-gray-300"
-                  }`}
+                className={`px-4 py-1.5 text-[10px] font-black border-2 rounded-full whitespace-nowrap
+                ${
+                  selectedCategory === item.key
+                    ? "bg-[#0056B3] text-white"
+                    : "bg-white text-black border-gray-300"
+                }`}
               >
                 {item.title}
               </button>
@@ -176,22 +155,15 @@ export default function CoursesClient({ initialCourses = [] }) {
           </div>
         </div>
 
-        {/* GRID */}
         <main className="flex flex-col items-center">
+          <div className={`grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-6 w-full ${loading ? "opacity-50" : ""}`}>
+            {visibleCourses.map((course, index) => (
+              <CourseCard key={course._id || index} course={course} index={index} />
+            ))}
+          </div>
 
-          {loading ? (
-            <div className="py-24 text-[#0056B3] font-black">
-              LOADING COURSES...
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-6 w-full">
-              {visibleCourses.map((course, index) => (
-                <CourseCard key={course._id} course={course} index={index} />
-              ))}
-            </div>
-          )}
+          {loading && <div className="mt-4 text-[#0056B3] font-bold">Updating...</div>}
 
-          {/* BUTTON */}
           {!loading && courses.length >= displayLimit && (
             <button
               onClick={() => {
@@ -203,7 +175,6 @@ export default function CoursesClient({ initialCourses = [] }) {
               Explore Full Catalog
             </button>
           )}
-
         </main>
 
         {/* POPUP */}
@@ -213,21 +184,20 @@ export default function CoursesClient({ initialCourses = [] }) {
               className="absolute inset-0 bg-black/70"
               onClick={() => setIsPopupOpen(false)}
             />
-
-            <div className="relative bg-white w-full max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
-
+            <div className="relative bg-white w-full max-w-6xl max-h-[85vh] overflow-hidden flex flex-col rounded-lg">
+              
               <div className="flex justify-between p-4 border-b">
-                <h3 className="font-black text-[#0056B3]">
+                <h3 className="font-black text-[#0056B3] uppercase">
                   {selectedCategory} Programs
                 </h3>
                 <button onClick={() => setIsPopupOpen(false)}>
-                  <X />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="p-4 overflow-y-auto flex-1 bg-gray-50">
                 <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                  {allCourses.map((course, index) => (
+                  {sortedPopupCourses.map((course, index) => (
                     <CourseCard key={course._id} course={course} index={index} />
                   ))}
                 </div>
@@ -236,7 +206,6 @@ export default function CoursesClient({ initialCourses = [] }) {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

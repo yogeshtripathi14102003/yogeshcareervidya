@@ -11,13 +11,13 @@ import authMiddleware from "../middelware/authMiddleware.js";
 const router = express.Router();
 
 
-router.post("/", authMiddleware, createLeadAdmission);
+router.post("/", createLeadAdmission);
 
 
 router.get("/", authMiddleware, getAllLeadAdmissions);
 
 
-router.get("/:id", authMiddleware, getLeadAdmissionById);
+router.get("/:id", getLeadAdmissionById);
 
 
 router.put("/:id", authMiddleware, updateLeadAdmission);
