@@ -3,12 +3,13 @@
 import express from "express";
 import createUploader from "../multer.js";
 import {
-  createCourse,
-  getCourses,
-  getCourseBySlug,
-  getCourseById,      // ⬅️ 1. Import the new function
-  updateCourse,
-  deleteCourse,
+ createCourse,
+ getCourses,
+getCourseBySlug,
+ getCourseById,      // ⬅️ 1. Import the new function
+updateCourse,
+ deleteCourse,
+ getCoursesShort,
 } from "../controller/courseController.js"; // ⬅️ Ensure path is correct
 
 const router = express.Router();
@@ -47,6 +48,7 @@ router.route("/course/:id")
 
 // The GET by slug route (placed second to prevent collision with ID)
 router.get("/course/slug/:slug", getCourseBySlug);
+router.get("/short", getCoursesShort);
 
 
 export default router;

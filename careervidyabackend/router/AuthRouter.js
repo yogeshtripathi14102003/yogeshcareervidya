@@ -2,7 +2,7 @@
 import authMiddleware from "../middelware/authMiddleware.js";
 import express from "express";
 import { sendOTP,assignAccess ,getAdminProfile,getAllSubAdmins,revokeAccess, verifyOTP, logout,getAllStudents,deleteStudent , getStudentById, refreshAccessToken , getLoggedInStudent } from "../controller/AuthController.js";
-
+import auth from "../middelware/authMiddleware.js";
 const router = express.Router();
 
 // Step 1: Send OTP for register or login
@@ -25,11 +25,11 @@ router.post("/refresh", refreshAccessToken);
 
 // Step 3: Logout
 router.post("/logout", logout);
-router.get("/students", getAllStudents);
+router.get("/students", authMiddleware, getAllStudents);
 router.get("/students/me", authMiddleware, getLoggedInStudent); 
-router.delete("/students/:id", deleteStudent);
+router.delete("/students/:id", authMiddleware, deleteStudent);
 // Example route definition
-router.get("/students/:id", getStudentById);
+router.get("/students/:id", authMiddleware, getStudentById);
 
 
 export default router;
