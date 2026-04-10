@@ -6,7 +6,6 @@ import {
   updateLeadAdmission,
   deleteLeadAdmission,
 } from "../controller/leadadmisonController.js";
-import authMiddleware from "../middelware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -14,15 +13,15 @@ const router = express.Router();
 router.post("/", createLeadAdmission);
 
 
-router.get("/", authMiddleware, getAllLeadAdmissions);
+router.get("/", getAllLeadAdmissions);
 
 
 router.get("/:id", getLeadAdmissionById);
 
 
-router.put("/:id", authMiddleware, updateLeadAdmission);
+router.put("/:id", updateLeadAdmission);
 
 
-router.delete("/:id", authMiddleware, deleteLeadAdmission);
+router.delete("/:id", deleteLeadAdmission);
 
 export default router;

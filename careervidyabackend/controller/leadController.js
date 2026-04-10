@@ -3,6 +3,7 @@
 import Lead from "../models/counselor/Lead.js";
 import Counselor from "../models/counselor/Counselor.js";
 import XLSX from "xlsx";
+import mongoose from "mongoose";
 
 /* =====================================================
    COUNSELOR CRUD
@@ -67,33 +68,99 @@ export const deleteCounselor = async (req, res) => {
    LEADS
 ===================================================== */
 
-/* ===== GET ALL LEADS (ADMIN) ===== */
 export const getLeads = async (req, res) => {
   try {
-    const leads = await Lead.find()
-      .populate("assignedTo", "name email phone")
-      .sort({ createdAt: -1 });
+    const { page = 1, limit = 40, searchTerm, status, fromDate, toDate, counselorId } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Dynamic Filter Object
+    let query = {};
+    if (status) query.status = status;
+    if (counselorId) query.assignedTo = counselorId;
+    if (searchTerm) {
+      query.$or = [
+        { name: { $regex: searchTerm, $options: "i" } },
+        { phone: { $regex: searchTerm, $options: "i" } },
+        { city: { $regex: searchTerm, $options: "i" } }
+      ];
+    }
+    if (fromDate || toDate) {
+      query.createdAt = {};
+      if (fromDate) query.createdAt.$gte = new Date(fromDate);
+      if (toDate) query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+    }
+
+    // Parallel execution for stats and data
+    const [leads, total, statusStats] = await Promise.all([
+      Lead.find(query)
+        .populate("assignedTo", "name email phone")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(),
+      Lead.countDocuments(query),
+      // Stats for your Admin Cards
+      Lead.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ])
+    ]);
 
     res.json({
       success: true,
-      total: leads.length,
+      total,
       data: leads,
+      stats: statusStats, // Frontend cards ke liye
+      totalPages: Math.ceil(total / limit)
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-/* ===== GET SINGLE LEAD ===== */
 export const getLead = async (req, res) => {
   try {
-    const lead = await Lead.findById(req.params.id).populate("assignedTo", "name email phone");
-    if (!lead) {
-      return res.status(404).json({ success: false, message: "Lead not found" });
+    // 1. Check if user exists (Auth check)
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
     }
-    res.json({ success: true, data: lead });
+
+    const counselorId = req.user._id;
+    const { page = 1, limit = 30, searchTerm, status } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // 2. Query Build karein
+    let query = { assignedTo: counselorId };
+
+    if (status) query.status = status;
+    
+    if (searchTerm) {
+      query.$or = [
+        { name: { $regex: searchTerm, $options: "i" } },
+        { phone: { $regex: searchTerm, $options: "i" } }
+      ];
+    }
+
+    // 3. Data fetch karein
+    const [leads, total] = await Promise.all([
+      Lead.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(),
+      Lead.countDocuments(query)
+    ]);
+
+    res.json({
+      success: true,
+      total,
+      data: leads,
+      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page)
+    });
+
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error("Error in getMyLeads:", err); // Server console mein error check karein
+    res.status(500).json({ success: false, message: "Server Error: " + err.message });
   }
 };
 
@@ -272,28 +339,50 @@ export const assignSelectedLeads = async (req, res) => {
   }
 };
 
-/* =====================================================
-   MY LEADS (COUNSELOR)
-===================================================== */
-
-export const getMyLeads = async (req, res) => {
+export const getLeadsByCounselorId = async (req, res) => {
   try {
-    const counselorId = req.user._id;
+    const { id, page = 1, limit = 30, searchTerm, status, fromDate, toDate } = req.query;
 
-    if (!counselorId) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+    if (!id) return res.status(400).json({ success: false, message: "Counselor ID is required" });
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    let query = { assignedTo: id };
+
+    if (status) query.status = status;
+    if (searchTerm) {
+      query.$or = [
+        { name: { $regex: searchTerm, $options: "i" } },
+        { phone: { $regex: searchTerm, $options: "i" } },
+        { city: { $regex: searchTerm, $options: "i" } }
+      ];
     }
 
-    const leads = await Lead.find({ assignedTo: counselorId })
-      .populate("assignedTo", "name email phone")
-      .sort({ createdAt: -1 });
+    if (fromDate || toDate) {
+      query.createdAt = {};
+      if (fromDate) query.createdAt.$gte = new Date(fromDate);
+      if (toDate) query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+    }
+
+    const [leads, total, statusStats] = await Promise.all([
+      Lead.find(query).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).lean(),
+      Lead.countDocuments(query),
+      Lead.aggregate([
+        { $match: { assignedTo: new mongoose.Types.ObjectId(id) } }, 
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ])
+    ]);
 
     res.json({
       success: true,
-      total: leads.length,
+      total,
       data: leads,
+      stats: statusStats, 
+      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page)
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error("Error in getLeadsByCounselorId:", err);
+    res.status(500).json({ success: false, message: "Backend Error: " + err.message });
   }
 };
+
