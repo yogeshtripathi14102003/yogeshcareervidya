@@ -35,6 +35,7 @@ export default function Home() {
      
    <QueryPopup />  
       <Studentimageslider />
+      
          <LogoSlider />
           <TestimonialsSlider />
          {/* <CardSlider /> */}
