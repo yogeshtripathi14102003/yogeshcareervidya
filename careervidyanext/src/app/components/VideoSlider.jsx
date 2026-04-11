@@ -1,9 +1,12 @@
+
+
+
 "use client";
 
 import { useRef, useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay, FreeMode } from "swiper/modules";
-import { X, Play } from "lucide-react";
+import { Navigation, Autoplay } from "swiper/modules";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -12,7 +15,6 @@ export default function VideoSlider() {
   const swiperRef = useRef(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
-  // Jab modal close ho, slider ko wapas start karne ke liye
   useEffect(() => {
     if (!selectedVideo && swiperRef.current) {
       swiperRef.current.autoplay.start();
@@ -30,115 +32,124 @@ export default function VideoSlider() {
     { _id: "8", videoUrl: "/video/v7.mp4" },
     { _id: "11", videoUrl: "/video/v10.mp4" },
     {_id: "12", videoUrl: "/video/v11.mp4" },
-    
-   
-    { _id: "9", videoUrl: "/video/v8.mp4" },
-    { _id: "10", videoUrl: "/video/v9.mp4" },
+    {_id: "13", videoUrl: "/video/v12.mp4" },
+    {_id: "14", videoUrl: "/video/v13.mp4" },
+    {_id: "15", videoUrl: "/video/v14.mp4" },
   ];
 
   return (
-    <div className="bg-gray-50 py-16 overflow-hidden">
-      <div className="max-w-[1400px] mx-auto px-6">
-        
-        <style jsx global>{`
-          /* Constant smooth motion ke liye linear easing */
-          .video-swiper .swiper-wrapper {
-            transition-timing-function: linear !important;
-          }
-          /* Navigation buttons ko chhota aur clean dikhane ke liye */
-          .swiper-button-next, .swiper-button-prev {
-            background: white;
-            width: 35px !important;
-            height: 35px !important;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            color: #05347f !important;
-          }
-          .swiper-button-next:after, .swiper-button-prev:after {
-            font-size: 14px !important;
-            font-weight: bold;
-          }
-        `}</style>
+    <section className="bg-[#041533] py-16 md:py-24">
+      
+      {/* HEADER */}
+      <h2 className="text-center text-2xl md:text-5xl font-bold text-white mb-12 uppercase tracking-wide">
+        Success Stories
+      </h2>
 
-        <div className="mb-10 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#05347f]">Success Stories</h2>
-          <div className="w-12 h-1 bg-blue-600 mx-auto mt-2 rounded-full"></div>
-        </div>
+      <div className="max-w-[95%] xl:max-w-[1400px] mx-auto px-4 md:px-8">
 
-        <Swiper
-          modules={[Navigation, Autoplay, FreeMode]}
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
-          spaceBetween={15}
-          slidesPerView={1.8}
-          loop={true}
-          speed={6000} // Speed constant rakhi hai smoothness ke liye
-          freeMode={true}
-          navigation={true}
-          autoplay={{
-            delay: 0,
-            disableOnInteraction: false, // Click ke baad bhi nahi rukega
-            pauseOnMouseEnter: true,    // Hover par stop hoga taaki user dekh sake
-          }}
-          breakpoints={{
-            640: { slidesPerView: 3.2 },
-            1024: { slidesPerView: 4.8 },
-            1280: { slidesPerView: 5.8 }, // Cards chhote dikhenge
-          }}
-          className="video-swiper"
-        >
-          {videos.map((video) => (
-            <SwiperSlide key={video._id}>
-              <div
-                onClick={() => {
-                  setSelectedVideo(video);
-                  swiperRef.current.autoplay.stop(); // Click karne par peeche ka slider rok do
-                }}
-                className="group relative cursor-pointer bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 active:scale-95"
-              >
-                <div className="relative aspect-[9/16] bg-[#0a0a0a]">
-                  <video
-                    src={video.videoUrl}
-                    className="w-full h-full object-contain opacity-90 group-hover:opacity-100"
-                    muted
-                    loop
-                    playsInline
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20">
-                      <Play className="text-white fill-current" size={18} />
+        <div className="flex items-center gap-3">
+
+          {/* LEFT BUTTON */}
+          <button className="swiper-prev hidden md:flex bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white hover:text-[#041533] transition border border-white/20">
+            <ChevronLeft size={24} />
+          </button>
+
+          {/* SLIDER */}
+          <div className="flex-1 overflow-hidden">
+            <Swiper
+              modules={[Navigation, Autoplay]}
+              onSwiper={(swiper) => (swiperRef.current = swiper)}
+              navigation={{
+                nextEl: ".swiper-next",
+                prevEl: ".swiper-prev",
+              }}
+              spaceBetween={12}   // 🔥 tight spacing
+              slidesPerView={1}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+              }}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+                1280: { slidesPerView: 4 },
+              }}
+              className="pb-10"
+            >
+              {videos.map((video) => (
+                <SwiperSlide key={video._id} className="flex">
+
+                  {/* CARD */}
+                  <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col w-full h-full group hover:-translate-y-2 transition-all duration-300">
+
+                    {/* VIDEO */}
+                    <div className="relative h-[420px] overflow-hidden">
+                      <video
+                        src={video.videoUrl}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    </div>
+
+                    {/* CONTENT */}
+                    <div className="p-4 flex flex-col flex-grow">
+
+                      <button
+                        onClick={() => {
+                          setSelectedVideo(video);
+                          swiperRef.current?.autoplay.stop();
+                        }}
+                        className="mt-auto w-full cursor-pointer py-3 rounded-xl bg-[#bd530a] text-white font-bold hover:brightness-110 transition"
+                      >
+                        Play Now
+                      </button>
+
                     </div>
                   </div>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* RIGHT BUTTON */}
+          <button className="swiper-next hidden md:flex bg-white/10 backdrop-blur-md p-3 rounded-full text-white hover:bg-white hover:text-[#041533] transition border border-white/20">
+            <ChevronRight size={24} />
+          </button>
+
+        </div>
       </div>
 
-      {/* Video Modal */}
+      {/* MODAL */}
       {selectedVideo && (
-        <div 
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4"
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
           onClick={() => setSelectedVideo(null)}
         >
-          <div className="relative w-full max-w-[360px]" onClick={e => e.stopPropagation()}>
-            <button 
-              className="absolute -top-12 right-0 text-white p-2 hover:bg-white/10 rounded-full" 
+          <div
+            className="relative w-full max-w-[400px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute -top-12 right-0 text-white"
               onClick={() => setSelectedVideo(null)}
             >
-              <X size={28} />
+              <X size={32} />
             </button>
-            <div className="rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/10">
-              <video 
-                src={selectedVideo.videoUrl} 
-                controls 
-                autoPlay 
-                className="w-full h-full object-contain" 
+
+            <div className="rounded-2xl overflow-hidden bg-black">
+              <video
+                src={selectedVideo.videoUrl}
+                controls
+                autoPlay
+                className="w-full aspect-[9/16] object-cover object-top"
               />
             </div>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -38,35 +38,53 @@ export default function LogoSlider() {
     fetchLogos();
   }, []);
 
-  if (loading) return <div className="py-10 text-center text-gray-500">Loading logos...</div>;
-  if (logos.length === 0) return <div className="py-10 text-center text-gray-500">No logos found.</div>;
+  if (loading)
+    return (
+      <div className="py-10 text-center text-gray-500">
+        Loading logos...
+      </div>
+    );
+
+  if (logos.length === 0)
+    return (
+      <div className="py-10 text-center text-gray-500">
+        No logos found.
+      </div>
+    );
 
   return (
-    <div className="bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 py-8 overflow-hidden">
-      <div className="relative flex items-center">
-        <div className="flex gap-6 animate-scroll whitespace-nowrap">
-          {[...logos, ...logos].map((logo, index) => (
-            <div
-              key={index}
-              className="flex-shrink-0 w-40 h-24 bg-white rounded-xl shadow-md border flex items-center justify-center p-3 hover:shadow-lg transition"
-            >
-              <Image
-                src={
-                  logo.logo?.startsWith("http")
-                    ? logo.logo
-                    : `${process.env.NEXT_PUBLIC_BASE_URL}${logo.logo}`
-                }
-                alt={logo.company || `Logo ${index}`}
-                width={120}
-                height={60}
-                className="object-contain max-w-full max-h-full"
-                unoptimized
-              />
-            </div>
-          ))}
+    <section className="bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 py-10">
+      
+      {/* ✅ CONTAINER */}
+      <div className="max-w-[1200px] mx-auto px-4 overflow-hidden">
+
+        <div className="relative flex items-center">
+          <div className="flex gap-6 animate-scroll whitespace-nowrap">
+            {[...logos, ...logos].map((logo, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-40 h-24 bg-white rounded-xl shadow-md border flex items-center justify-center p-3 hover:shadow-lg transition"
+              >
+                <Image
+                  src={
+                    logo.logo?.startsWith("http")
+                      ? logo.logo
+                      : `${process.env.NEXT_PUBLIC_BASE_URL}${logo.logo}`
+                  }
+                  alt={logo.company || `Logo ${index}`}
+                  width={120}
+                  height={60}
+                  className="object-contain max-w-full max-h-full"
+                  unoptimized
+                />
+              </div>
+            ))}
+          </div>
         </div>
+
       </div>
 
+      {/* Smooth infinite scroll */}
       <style jsx>{`
         @keyframes scroll {
           0% { transform: translateX(0); }
@@ -77,6 +95,6 @@ export default function LogoSlider() {
           animation: scroll 25s linear infinite;
         }
       `}</style>
-    </div>
+    </section>
   );
 }

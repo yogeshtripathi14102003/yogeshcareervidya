@@ -40,36 +40,36 @@ export default function StudentPlacementSlider() {
   }
 
   return (
-    <section className="bg-[#001a41] text-white py-16 overflow-hidden">
-      {/* Heading */}
-      <div className="text-center mb-10 px-4">
-        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-          10000+ Alumni Network
-        </h2>
-        <p className="mt-4">
-          <span className="bg-[#0056B3] px-6 py-2 rounded-full text-sm md:text-base font-bold shadow-lg">
-            #VidyaHaiTohSuccessHai!
-          </span>
-        </p>
-      </div>
+    <section className="bg-[#001a41] text-white py-16">
+      
+      {/* ✅ CONTAINER ADDED */}
+      <div className="max-w-[1200px] mx-auto px-4 overflow-hidden">
 
-      {/* Slider Container */}
-      <div className="w-full px-2">
+        {/* Heading */}
+        <div className="text-center mb-10">
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            10000+ Alumni Network
+          </h2>
+          <p className="mt-4">
+            <span className="bg-[#0056B3] px-6 py-2 rounded-full text-sm md:text-base font-bold shadow-lg">
+              #VidyaHaiTohSuccessHai!
+            </span>
+          </p>
+        </div>
+
+        {/* Slider */}
         <Swiper
           modules={[Autoplay, FreeMode]}
           loop={true}
-          speed={4000} // Increased speed for a smoother "infinite" feel
+          speed={4000}
           freeMode={true}
           autoplay={{
             delay: 0,
             disableOnInteraction: false,
           }}
           allowTouchMove={true}
-          
-          /* 🟢 GAP SETTINGS: Added spacing between cards */
-          spaceBetween={15} 
+          spaceBetween={15}
           slidesPerView={2}
-
           breakpoints={{
             480: {
               slidesPerView: 3,
@@ -88,28 +88,32 @@ export default function StudentPlacementSlider() {
         >
           {students.map((student) => (
             <SwiperSlide key={student._id}>
-              {/* 🟢 IMAGE SETTINGS: No cropping, centered inside a white box */}
-              <div className="bg-white h-40 md:h-44 rounded-lg flex items-center justify-center p-3 shadow-md hover:shadow-xl transition-shadow duration-300">
+              
+              {/* ✅ FIXED CARD */}
+              <div className="bg-white h-40 md:h-44 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+                
+                {/* ✅ IMAGE FULL FIT */}
                 <img
                   src={student.image}
                   alt={student.name || "Student Placement"}
-                  className="max-w-full max-h-full object-contain block mx-auto"
+                  className="w-full h-full object-contain p-2"
                   loading="lazy"
                 />
               </div>
+
             </SwiperSlide>
           ))}
         </Swiper>
+
       </div>
 
-      {/* CSS for Seamless Continuous Scrolling */}
+      {/* Smooth continuous scroll */}
       <style jsx global>{`
         .smooth-swiper .swiper-wrapper {
           transition-timing-function: linear !important;
           -webkit-transition-timing-function: linear !important;
         }
-        
-        /* Ensures the gap logic from Swiper props works correctly */
+
         .smooth-swiper .swiper-slide {
           height: auto;
         }

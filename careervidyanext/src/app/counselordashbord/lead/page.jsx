@@ -89,7 +89,7 @@ const LeadsPage = () => {
     fetchMyLeads();
   }, [fetchMyLeads]);
 
-  /* ================= EXCEL EXPORT (ALL FILTERED DATA) ================= */
+  /* ================= EXCEL EXPORT ================= */
   const handleExportExcel = async () => {
     setLoading(true);
     try {
@@ -98,7 +98,7 @@ const LeadsPage = () => {
       
       const params = {
         id: counselorId,
-        limit: "all", // Isse backend saari filtered leads dega
+        limit: "all",
         searchTerm: searchTerm.trim(),
         status: filterStatus || undefined,
       };
@@ -115,8 +115,8 @@ const LeadsPage = () => {
           "Phone Number": lead.phone || lead.mobile || lead.contactNo || "",
           "Course": lead.course || "",
           "City": lead.city || "",
-          "Status": lead.status || "New",
-          "Remark": lead.remark || "",
+          "Status": lead.status === "Not Picked" ? "Dead Lead" : lead.status,
+          "Remark History": lead.remark || "",
           "Next Follow-up": lead.followUpDate ? new Date(lead.followUpDate).toLocaleString() : "N/A",
           "Created At": new Date(lead.createdAt).toLocaleDateString(),
         }));
@@ -254,9 +254,28 @@ const LeadRow = ({ lead, onSave }) => {
   const hasChange = localStatus !== lead.status || localRemark.trim() !== "" || localDate !== formatForInput(lead.followUpDate);
 
   const handleUpdate = () => {
+    // 1. DEAD LEAD RESTRICTION (Only for "Not Picked")
+    if (localStatus === "Not Picked") {
+      const createdDate = new Date(lead.createdAt);
+      const diffDays = Math.floor((new Date() - createdDate) / (1000 * 60 * 60 * 24));
+      if (diffDays < 10) {
+        alert(` avi 10 days Nahi Huy please follwup kre. CONVERT HOGA APP kra Skte ho`);
+        return;
+      }
+    }
+
+    // 2. REMARK HISTORY (Append new remark to old ones)
+    let finalRemark = lead.remark || "";
+    if (localRemark.trim() !== "") {
+      const timestamp = new Date().toLocaleString();
+      finalRemark = finalRemark 
+        ? `${finalRemark}\n[${timestamp}]: ${localRemark}` 
+        : `[${timestamp}]: ${localRemark}`;
+    }
+
     onSave(lead._id, { 
       status: localStatus, 
-      remark: localRemark, 
+      remark: finalRemark, 
       followUpDate: localDate ? new Date(localDate).toISOString() : null 
     }); 
     setLocalRemark(""); 
@@ -306,14 +325,15 @@ const LeadRow = ({ lead, onSave }) => {
             onChange={(e) => setLocalStatus(e.target.value)} 
             className="border rounded p-1 text-[10px] font-bold w-full bg-white outline-none"
           >
-            {STATUS.map(s => <option key={s} value={s}>{s}</option>)}
+            {STATUS.map(s => <option key={s} value={s}>{s === "Not Picked" ? "Dead Lead" : s}</option>)}
           </select>
         </td>
 
         <td className="p-2 border-r border-gray-50">
           <div className="flex flex-col gap-1">
-            <div className="text-[10px] text-blue-800 font-semibold bg-blue-50/50 p-1 rounded border border-blue-100 truncate" title={lead.remark}>
-              {lead.remark ? `Last: ${lead.remark}` : "No remarks"}
+            {/* Scrollable Remark History to see all past remarks */}
+            <div className="text-[9px] text-blue-800 font-semibold bg-blue-50/50 p-1 rounded border border-blue-100 max-h-12 overflow-y-auto whitespace-pre-wrap">
+              {lead.remark || "No remarks"}
             </div>
             <input 
               type="text" 

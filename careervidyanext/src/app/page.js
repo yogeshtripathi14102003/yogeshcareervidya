@@ -11,9 +11,7 @@ import FLOW from "./components/FLOW";
 import Studentstrustus from "./components/Studentstrustus";
 import TestimonialsSlider from "./components/TestimonialsSlider";
 import LogoSlider from "./components/LogoSlider";
-
   import QueryPopup from "./components/QueryPopup";
-
 import  Universityimage  from "../app/components/universityimage";
 import ChatbotFloating from "./components/ChatbotFloating";
 import SocialSidebar from "./components/SocialSidebar";
@@ -24,26 +22,22 @@ import VideoSlider from "./components/VideoSlider";
 export default function Home() {
   return (
     <div> 
-    
       <Header />
       <Notification />
       <Slider />
       <Counter /> 
       <Getcourse  />
-      <ServiceSlider />
-      
+        <Universityimage  />
       <FLOW />
+      <ServiceSlider />
       <TeamSection />
+       <Studentstrustus />
      
    <QueryPopup />  
-   
-      <TestimonialsSlider />
       <Studentimageslider />
          <LogoSlider />
-      <Studentstrustus />
-      
+          <TestimonialsSlider />
          {/* <CardSlider /> */}
-      <Universityimage  />
       <VideoSlider />
       <FAQ />
 
