@@ -151,34 +151,40 @@ export const getLead = async (req, res) => {
       ];
     }
 
-    // 3. Dynamic Pagination & Selection
-    // .select() use karke heavy fields ko hata sakte hain agar zaroorat na ho
+    // 3. Query Setup
     let leadsQuery = Lead.find(query)
       .sort({ createdAt: -1 })
-      .lean(); // Lean performance ke liye best hai
+      .lean();
 
-    if (limit !== 'all') {
-      const pageSize = parseInt(limit) || 30; // Default 30 agar kuch na bheja jaye
+    // 4. Dynamic Pagination Logic
+    let pageSize = 0;
+    if (limit === 'all') {
+      // Agar 'all' hai toh skip aur limit apply nahi karenge
+      pageSize = 0; 
+    } else {
+      pageSize = parseInt(limit) || 30; // Default 30
       const skip = (parseInt(page) - 1) * pageSize;
       leadsQuery = leadsQuery.skip(skip).limit(pageSize);
     }
 
-    // 4. Parallel Data Fetching
+    // 5. Execution
     const [leads, total] = await Promise.all([
       leadsQuery,
       Lead.countDocuments(query)
     ]);
 
-    // totalPages calculate karte waqt 'all' ka dhyan rakhein
-    const currentLimit = limit === 'all' ? total : (parseInt(limit) || 30);
-    const totalPages = currentLimit > 0 ? Math.ceil(total / currentLimit) : 1;
+    // 6. Total Pages Calculation
+    // Agar limit 'all' hai toh totalPages 1 hi hoga, warna calculation calculation hogi
+    const finalPageSize = limit === 'all' ? total : pageSize;
+    const totalPages = finalPageSize > 0 ? Math.ceil(total / finalPageSize) : 1;
 
     res.json({
       success: true,
       total,
       data: leads,
-      totalPages: totalPages,
-      currentPage: parseInt(page)
+      totalPages: totalPages || 1,
+      currentPage: parseInt(page),
+      count: leads.length // Debugging ke liye help karega frontend par
     });
 
   } catch (err) {
