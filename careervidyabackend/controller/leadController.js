@@ -70,13 +70,13 @@ export const deleteCounselor = async (req, res) => {
 
 export const getLeads = async (req, res) => {
   try {
-    const { page = 1, limit = 40, searchTerm, status, fromDate, toDate, counselorId } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const { page = 1, limit, searchTerm, status, fromDate, toDate, counselorId } = req.query;
 
-    // Dynamic Filter Object
+    // Filter Building
     let query = {};
     if (status) query.status = status;
     if (counselorId) query.assignedTo = counselorId;
+    
     if (searchTerm) {
       query.$or = [
         { name: { $regex: searchTerm, $options: "i" } },
@@ -84,51 +84,62 @@ export const getLeads = async (req, res) => {
         { city: { $regex: searchTerm, $options: "i" } }
       ];
     }
+
     if (fromDate || toDate) {
       query.createdAt = {};
       if (fromDate) query.createdAt.$gte = new Date(fromDate);
       if (toDate) query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
     }
 
-    // Parallel execution for stats and data
+    // Performance Optimization: Sirf zaroori fields hi nikalna (Selection)
+    let leadsQuery = Lead.find(query)
+      .populate("assignedTo", "name email")
+      .sort({ createdAt: -1 })
+      .select("name phone email course city status assignedToName createdAt referralName studentName branch universityName remark");
+
+    // Pagination Logic
+    if (limit !== 'all') {
+      const pageSize = parseInt(limit) || 40;
+      const skip = (parseInt(page) - 1) * pageSize;
+      leadsQuery = leadsQuery.skip(skip).limit(pageSize);
+    }
+
+    // Parallel execution for speed with .lean() for faster JSON parsing
     const [leads, total, statusStats] = await Promise.all([
-      Lead.find(query)
-        .populate("assignedTo", "name email phone")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit))
-        .lean(),
+      leadsQuery.lean(),
       Lead.countDocuments(query),
-      // Stats for your Admin Cards
       Lead.aggregate([
+        { $match: query }, // Filter ke basis pe stats dikhane ke liye
         { $group: { _id: "$status", count: { $sum: 1 } } }
       ])
     ]);
+
+    const finalLimit = limit === 'all' ? total : (parseInt(limit) || 40);
 
     res.json({
       success: true,
       total,
       data: leads,
-      stats: statusStats, // Frontend cards ke liye
-      totalPages: Math.ceil(total / limit)
+      stats: statusStats,
+      totalPages: Math.ceil(total / finalLimit) || 1,
+      currentPage: parseInt(page)
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: "Error fetching leads: " + err.message });
   }
 };
 
 export const getLead = async (req, res) => {
   try {
-    // 1. Check if user exists (Auth check)
+    // 1. Auth Check
     if (!req.user || !req.user._id) {
       return res.status(401).json({ success: false, message: "User not authenticated" });
     }
 
     const counselorId = req.user._id;
-    const { page = 1, limit = 30, searchTerm, status } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const { page = 1, limit, searchTerm, status } = req.query;
 
-    // 2. Query Build karein
+    // 2. Query Build
     let query = { assignedTo: counselorId };
 
     if (status) query.status = status;
@@ -140,30 +151,41 @@ export const getLead = async (req, res) => {
       ];
     }
 
-    // 3. Data fetch karein
+    // 3. Dynamic Pagination & Selection
+    // .select() use karke heavy fields ko hata sakte hain agar zaroorat na ho
+    let leadsQuery = Lead.find(query)
+      .sort({ createdAt: -1 })
+      .lean(); // Lean performance ke liye best hai
+
+    if (limit !== 'all') {
+      const pageSize = parseInt(limit) || 30; // Default 30 agar kuch na bheja jaye
+      const skip = (parseInt(page) - 1) * pageSize;
+      leadsQuery = leadsQuery.skip(skip).limit(pageSize);
+    }
+
+    // 4. Parallel Data Fetching
     const [leads, total] = await Promise.all([
-      Lead.find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit))
-        .lean(),
+      leadsQuery,
       Lead.countDocuments(query)
     ]);
+
+    // totalPages calculate karte waqt 'all' ka dhyan rakhein
+    const currentLimit = limit === 'all' ? total : (parseInt(limit) || 30);
+    const totalPages = currentLimit > 0 ? Math.ceil(total / currentLimit) : 1;
 
     res.json({
       success: true,
       total,
       data: leads,
-      totalPages: Math.ceil(total / limit),
+      totalPages: totalPages,
       currentPage: parseInt(page)
     });
 
   } catch (err) {
-    console.error("Error in getMyLeads:", err); // Server console mein error check karein
+    console.error("Error in getLead (MyLeads):", err);
     res.status(500).json({ success: false, message: "Server Error: " + err.message });
   }
 };
-
 
 
 export const createLead = async (req, res) => {

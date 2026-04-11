@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import api from "@/utlis/api.js";
+import * as XLSX from "xlsx"; 
 import { FaWhatsapp, FaFileExcel, FaPhoneAlt, FaUserAlt } from "react-icons/fa";
 import StudentAdmission from "@/app/counselordashbord/components/StudentAdmission.jsx";
 import {
@@ -53,6 +54,7 @@ const LeadsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 30;
 
+  /* ================= FETCH DATA (PAGINATED) ================= */
   const fetchMyLeads = useCallback(async () => {
     setLoading(true);
     try {
@@ -87,11 +89,59 @@ const LeadsPage = () => {
     fetchMyLeads();
   }, [fetchMyLeads]);
 
+  /* ================= EXCEL EXPORT (ALL FILTERED DATA) ================= */
+  const handleExportExcel = async () => {
+    setLoading(true);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const counselorId = storedUser?._id || storedUser?.id;
+      
+      const params = {
+        id: counselorId,
+        limit: "all", // Isse backend saari filtered leads dega
+        searchTerm: searchTerm.trim(),
+        status: filterStatus || undefined,
+      };
+
+      if (filterMonth) params.fromDate = `${filterYear}-${filterMonth}-01`;
+
+      const res = await api.get("/api/v1/counselor-leads", { params });
+      
+      if (res.data.success && res.data.data.length > 0) {
+        const allLeads = res.data.data;
+
+        const dataToExport = allLeads.map((lead) => ({
+          "Lead Name": lead.name || "",
+          "Phone Number": lead.phone || lead.mobile || lead.contactNo || "",
+          "Course": lead.course || "",
+          "City": lead.city || "",
+          "Status": lead.status || "New",
+          "Remark": lead.remark || "",
+          "Next Follow-up": lead.followUpDate ? new Date(lead.followUpDate).toLocaleString() : "N/A",
+          "Created At": new Date(lead.createdAt).toLocaleDateString(),
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "MyLeads");
+
+        const fileName = `Leads_${filterStatus || "All"}_${filterMonth || "All"}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+      } else {
+        alert("Download ke liye koi data nahi mila!");
+      }
+    } catch (err) {
+      console.error("Export error", err);
+      alert("Export failed!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const updateLeadAPI = async (id, data) => {
     try {
       const res = await api.put(`/api/v1/leads/${id}`, data);
       if (res.data.success) {
-        // Refresh leads to show updated remark and history
         fetchMyLeads();
       }
     } catch (err) {
@@ -117,8 +167,13 @@ const LeadsPage = () => {
             <option value="2025">2025</option><option value="2026">2026</option>
           </select>
         </div>
-        <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95">
-          <FaFileExcel /> Export Excel
+
+        <button 
+          onClick={handleExportExcel}
+          disabled={loading}
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95 shadow-md disabled:opacity-50"
+        >
+          <FaFileExcel /> {loading ? "Processing..." : "Export Excel"}
         </button>
       </div>
 
@@ -210,14 +265,13 @@ const LeadRow = ({ lead, onSave }) => {
   return (
     <>
       <tr className={`hover:bg-blue-50/40 transition-colors ${isToday(lead.followUpDate) ? "bg-rose-50/50" : ""}`}>
-        {/* Basic Info */}
         <td className="p-3 border-r border-gray-50">
           <div className="flex flex-col gap-1.5">
             <span className="font-bold text-gray-900 text-[12px] uppercase flex items-center gap-1.5">
-              <FaUserAlt size={10} className="text-slate-400" /> {lead.name || "N/A"}
+              <FaUserAlt size={10} className="text-slate-400" /> {lead.name || ""}
             </span>
             <div className="flex items-center gap-2">
-               {phoneNumber ? (
+               {phoneNumber && (
                  <>
                   <a href={`tel:${phoneNumber}`} className="text-[10px] text-blue-600 font-bold hover:underline bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded flex items-center gap-1">
                     <FaPhoneAlt size={9} /> {phoneNumber}
@@ -226,105 +280,90 @@ const LeadRow = ({ lead, onSave }) => {
                     <FaWhatsapp size={16} />
                   </a>
                  </>
-               ) : <span className="text-red-400 text-[9px]">No Contact</span>}
+               )}
             </div>
           </div>
         </td>
 
-        {/* Course & Location */}
         <td className="p-3 border-r border-gray-50">
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-1 text-indigo-700 font-black uppercase text-[10px]">
-              <BookOpen size={11} /> {lead.course || "General"}
-            </div>
-            <div className="flex items-center gap-1 text-slate-500 font-bold uppercase text-[9px]">
-              <MapPin size={10} /> {lead.city || "Unknown City"}
-            </div>
+            {lead.course && (
+              <div className="flex items-center gap-1 text-indigo-700 font-black uppercase text-[10px]">
+                <BookOpen size={11} /> {lead.course}
+              </div>
+            )}
+            {lead.city && (
+              <div className="flex items-center gap-1 text-slate-500 font-bold uppercase text-[9px]">
+                <MapPin size={10} /> {lead.city}
+              </div>
+            )}
           </div>
         </td>
 
-        {/* Status */}
         <td className="border-r border-gray-50 px-2">
           <select 
             value={localStatus} 
             onChange={(e) => setLocalStatus(e.target.value)} 
-            className="border rounded p-1 text-[10px] font-bold w-full bg-white outline-none cursor-pointer focus:border-blue-500"
+            className="border rounded p-1 text-[10px] font-bold w-full bg-white outline-none"
           >
             {STATUS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </td>
 
-        {/* REMARK FIELD (Fixed Visibility) */}
         <td className="p-2 border-r border-gray-50">
           <div className="flex flex-col gap-1">
-            {/* Existing Remark Display */}
-            <div 
-              className="text-[10px] text-blue-800 font-semibold bg-blue-50/50 p-1 rounded border border-blue-100 truncate"
-              title={lead.remark}
-            >
-              {lead.remark ? `Last: ${lead.remark}` : "No previous remarks"}
+            <div className="text-[10px] text-blue-800 font-semibold bg-blue-50/50 p-1 rounded border border-blue-100 truncate" title={lead.remark}>
+              {lead.remark ? `Last: ${lead.remark}` : "No remarks"}
             </div>
-            {/* New Remark Input */}
             <input 
               type="text" 
               value={localRemark} 
               onChange={(e) => setLocalRemark(e.target.value)} 
               placeholder="Add new remark..." 
-              className="w-full p-1.5 text-[10px] bg-white border border-gray-300 rounded outline-none focus:ring-1 focus:ring-blue-400" 
+              className="w-full p-1.5 text-[10px] bg-white border border-gray-300 rounded outline-none" 
             />
           </div>
         </td>
 
-        {/* Date Field */}
         <td className="border-r border-gray-50 px-2">
           <input 
             type="datetime-local" 
             value={localDate} 
             onChange={(e) => setLocalDate(e.target.value)} 
-            className="border rounded p-1 text-[10px] font-semibold w-full outline-none bg-white focus:border-blue-500" 
+            className="border rounded p-1 text-[10px] font-semibold w-full outline-none bg-white" 
           />
         </td>
 
-        {/* Action Buttons */}
         <td className="p-3 text-center">
           <div className="flex gap-2 justify-center">
             <button 
                 disabled={!hasChange} 
                 onClick={handleUpdate} 
-                className="bg-blue-600 text-white px-3 py-1.5 rounded-md font-bold disabled:opacity-20 active:scale-90 transition-all shadow-sm hover:bg-blue-700"
-                title="Save Changes"
+                className="bg-blue-600 text-white px-3 py-1.5 rounded-md font-bold disabled:opacity-20 active:scale-90 shadow-sm"
             >
               <Save size={13}/>
             </button>
-            <button 
-                onClick={() => setShowAdmission(true)} 
-                className="bg-orange-500 text-white px-3 py-1.5 rounded-md font-bold active:scale-90 transition-all shadow-sm hover:bg-orange-600"
-                title="View Full Profile"
-            >
+            <button onClick={() => setShowAdmission(true)} className="bg-orange-500 text-white px-3 py-1.5 rounded-md font-bold active:scale-90 shadow-sm">
               View
             </button>
           </div>
         </td>
       </tr>
 
-      {/* Profile Modal */}
       {showAdmission && (
         <tr>
           <td colSpan="6" className="p-0 border-none">
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] p-4">
               <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col relative">
-                <div className="p-4 border-b bg-slate-50 flex justify-between items-center shrink-0">
+                <div className="p-4 border-b bg-slate-50 flex justify-between items-center">
                   <h3 className="font-black text-slate-700 uppercase flex items-center gap-2">
-                    <Smartphone size={18} className="text-blue-600" /> Student Profile & History
+                    <Smartphone size={18} className="text-blue-600" /> Student Profile
                   </h3>
-                  <button 
-                    onClick={() => setShowAdmission(false)} 
-                    className="bg-white border p-1.5 rounded-full text-slate-400 hover:text-red-500 transition-all shadow-sm"
-                  >
+                  <button onClick={() => setShowAdmission(false)} className="text-slate-400 hover:text-red-500">
                     <X size={20}/>
                   </button>
                 </div>
-                <div className="p-6 overflow-y-auto bg-gray-50/30">
+                <div className="p-6 overflow-y-auto">
                   <StudentAdmission lead={lead} onClose={() => setShowAdmission(false)} />
                 </div>
               </div>

@@ -32,150 +32,126 @@ const Allcounslerreport = () => {
     fetchCounselors();
   }, []);
 
-  /* ================= SAFE MATCH FUNCTION ================= */
-  const isSameCounselor = (lead, counselorId) => {
-    return (
-      String(lead?.counselorId) === String(counselorId) ||
-      String(lead?.counselorId?._id) === String(counselorId) ||
-      String(lead?.assignedTo) === String(counselorId) ||
-      String(lead?.assignedTo?._id) === String(counselorId)
-    );
-  };
-
-  /* ================= DOWNLOAD EXCEL ================= */
+  /* ================= DOWNLOAD EXCEL (BY COUNSELOR ID) ================= */
   const downloadExcel = async (counselor) => {
     try {
       setDownloadingId(counselor._id);
 
-      console.log("👉 Selected Counselor:", counselor._id);
-
+      // Backend ko 'limit: "all"' bhejna zaroori hai taaki pagination bypass ho jaye
       const res = await api.get(`/api/v1/leads`, {
         params: {
-          counselorId: counselor._id,
-          month: selectedMonth,
+          counselorId: counselor._id, // Filter by specific counselor
+          limit: "all",               // Saara data mangwane ke liye
         },
       });
 
       if (!res.data.success) {
-        alert("API error");
+        alert("Server se data nahi mil paya!");
         return;
       }
 
-      let allLeads = res.data.data || [];
+      // API se aaya hua raw data
+      let rawLeads = res.data.data || [];
 
-      console.log("👉 Total Leads from API:", allLeads.length);
-
-      /* ================= FILTER ================= */
-      const filteredLeads = allLeads.filter((lead) =>
-        isSameCounselor(lead, counselor._id)
-      );
-
-      console.log("✅ Filtered Leads:", filteredLeads.length);
+      // Frontend Filter: Sirf selected month ki leads filter karein
+      const filteredLeads = rawLeads.filter((lead) => {
+        if (!lead.createdAt) return false;
+        // Check if lead date starts with "YYYY-MM"
+        return lead.createdAt.startsWith(selectedMonth);
+      });
 
       if (filteredLeads.length === 0) {
-        alert("Is counselor ke liye koi lead nahi mili ❌");
-
-        // DEBUG HELP
-        console.log("Sample Lead:", allLeads[0]);
-
+        alert(`${counselor.name} ke liye ${selectedMonth} me koi data nahi mila.`);
         return;
       }
 
-      /* ================= SORT ================= */
-      filteredLeads.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
+      // Latest leads upar rakhne ke liye sort karein
+      filteredLeads.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-      /* ================= EXCEL DATA ================= */
+      /* ================= EXCEL DATA PREPARATION ================= */
       const excelData = filteredLeads.map((lead, index) => ({
         "S.No": index + 1,
         "Counselor Name": counselor.name,
         "Student Name": lead?.name || "N/A",
-        "Phone": lead?.phone || "N/A",
+        "Phone": lead?.phone || lead?.mobile || "N/A",
         "Email": lead?.email || "N/A",
         "Course": lead?.course || "N/A",
         "Status": lead?.status || "N/A",
         "Remark": lead?.remark || "N/A",
-        "Assign Date": lead?.createdAt
+        "Creation Date": lead?.createdAt
           ? new Date(lead.createdAt).toLocaleDateString()
           : "N/A",
       }));
 
-      /* ================= WORKBOOK ================= */
+      /* ================= GENERATE XLSX ================= */
       const worksheet = XLSX.utils.json_to_sheet(excelData);
       const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Counselor Report");
 
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Leads Report");
-
-      /* ================= DOWNLOAD ================= */
+      // Download trigger
       XLSX.writeFile(
         workbook,
-        `${counselor.name}_Detailed_Report_${selectedMonth}.xlsx`
+        `${counselor.name}_Report_${selectedMonth}.xlsx`
       );
+
     } catch (err) {
       console.error("Download Error:", err);
-      alert("Report download karne me error aayi ❌");
+      alert("Download fail ho gaya! Kripya backend pagination check karein.");
     } finally {
       setDownloadingId(null);
     }
   };
 
   return (
-    <div className="w-full">
-      {/* HEADER */}
+    <div className="w-full p-4">
+      {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-indigo-50 p-4 rounded-lg border border-indigo-100 gap-4">
         <div>
-          <h3 className="font-bold text-indigo-900">
+          <h3 className="font-bold text-indigo-900 text-lg uppercase tracking-tight">
             Counselor Detailed Report
           </h3>
           <p className="text-xs text-indigo-700">
-            Sirf assigned leads ka Excel download karein
+            Counselor ID ke basis par saari leads fetch karein.
           </p>
         </div>
 
-        {/* MONTH FILTER */}
-        <input
-          type="month"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          className="border border-indigo-300 p-2 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-sm"
-        />
+        {/* MONTH PICKER */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Select Month</label>
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="border border-indigo-300 p-2 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-sm font-semibold"
+          />
+        </div>
       </div>
 
-      {/* TABLE */}
+      {/* COUNSELOR LIST TABLE */}
       <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
         {loading ? (
           <div className="p-12 flex flex-col items-center gap-3">
             <Loader2 className="animate-spin text-indigo-600" size={32} />
-            <p className="text-gray-500 text-sm">
-              Counselors load ho rahe hain...
-            </p>
+            <p className="text-gray-500 text-sm">Loading counselors...</p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b">
-                <th className="p-4 text-sm font-semibold text-gray-600">
-                  Counselor
-                </th>
-                <th className="p-4 text-right text-sm font-semibold text-gray-600">
-                  Action
-                </th>
+                <th className="p-4 text-sm font-bold text-gray-600 uppercase">Counselor Details</th>
+                <th className="p-4 text-right text-sm font-bold text-gray-600 uppercase">Action</th>
               </tr>
             </thead>
 
             <tbody>
               {counselors.map((c) => (
-                <tr
-                  key={c._id}
-                  className="border-b hover:bg-gray-50 transition"
-                >
+                <tr key={c._id} className="border-b hover:bg-slate-50 transition-colors">
                   <td className="p-4">
-                    <div className="font-semibold text-gray-800">
+                    <div className="font-bold text-gray-800 uppercase leading-none">
                       {c.name}
                     </div>
-                    <div className="text-[10px] text-gray-400">
-                      {c._id}
+                    <div className="text-[10px] text-gray-400 mt-1 font-mono">
+                      ID: {c._id}
                     </div>
                   </td>
 
@@ -183,22 +159,24 @@ const Allcounslerreport = () => {
                     <button
                       onClick={() => downloadExcel(c)}
                       disabled={downloadingId === c._id}
-                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all
+                      className={`inline-flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-black transition-all shadow-sm active:scale-95
                         ${
                           downloadingId === c._id
                             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md active:scale-95"
+                            : "bg-emerald-600 hover:bg-emerald-700 text-white"
                         }`}
                     >
                       {downloadingId === c._id ? (
-                        <Loader2 size={16} className="animate-spin" />
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          <span>Fetching Leads...</span>
+                        </>
                       ) : (
-                        <Download size={16} />
+                        <>
+                          <Download size={16} />
+                          <span>Download Report</span>
+                        </>
                       )}
-
-                      {downloadingId === c._id
-                        ? "Preparing..."
-                        : "Download Excel"}
                     </button>
                   </td>
                 </tr>
