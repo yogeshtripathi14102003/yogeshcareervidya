@@ -132,20 +132,30 @@ export default function CareervidyaFormModal() {
             </button>
             
             {/* LEFT SIDE: Image */}
-            <div style={{ width: "40%", padding: "15px", display: "flex", alignItems: "center" }}>
-              <div style={{ width: "100%", height: "100%", borderRadius: "10px", overflow: "hidden" }}>
-                <Image src="/images/book1.jpg" alt="Books" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </div>
-            </div>
+<div style={{ width: "40%", padding: "15px", display: "flex", alignItems: "center" }}>
+  <div style={{ width: "100%", height: "100%", borderRadius: "10px", overflow: "hidden", position: "relative" }}>
+    <Image 
+      src="/images/book1.jpg" 
+      alt="Books" 
+      fill 
+      style={{ objectFit: "cover" }} 
+    />
+  </div>
+</div>
 
             {/* RIGHT SIDE: Integrated Form */}
             <div style={{ width: "60%", padding: "30px 40px", textAlign: 'center' }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
                 <Image src="/images/n12.png" alt="Logo" width={130} height={40} />
               </div>
-              <h3 style={{ marginBottom: "15px", fontSize: "16px", fontWeight: "700", color: "#111" }}>
-                Get Course Details Instantly!
-              </h3>
+               <div className="mb-4 overflow-x-auto">
+          <div className="flex min-w-max gap-2 text-[11px] font-bold text-green-700">
+            <span>✅ No-Cost EMI Available</span>|
+            <span>🎓 Govt-Approved Universities</span>|
+            <span>💼 100% Placement Assistance</span>|
+            <span>📞 Free Expert Counselling</span>
+          </div>
+        </div>
               
               <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
                 <label style={labelStyle}>Full Name *</label>

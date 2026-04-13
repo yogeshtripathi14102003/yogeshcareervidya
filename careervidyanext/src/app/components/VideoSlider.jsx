@@ -41,7 +41,7 @@ export default function VideoSlider() {
     <section className="bg-[#041533] py-16 md:py-24">
       
       {/* HEADER */}
-      <h2 className="text-center text-2xl md:text-5xl font-bold text-white mb-12 uppercase tracking-wide">
+      <h2 className="text-center text-2xl md:text-3xl font-bold text-white mb-12 uppercase tracking-wide">
         Success Stories
       </h2>
 

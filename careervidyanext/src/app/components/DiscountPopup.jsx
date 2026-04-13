@@ -195,8 +195,16 @@ const CelebrationSignupPopup = () => {
                     <p className="text-sm font-bold text-[#000080]">#VidyaHaiTohSuccessHai</p>
                     <p className="text-[10px] text-gray-400 font-medium">Student's Trusted Education Guidance Platform</p>
                   </div>
+                  
                 </div>
-
+  <div className="mb-4 overflow-x-auto">
+          <div className="flex min-w-max gap-2 text-[11px] font-bold text-green-700">
+            <span>✅ No-Cost EMI Available</span>|
+            <span>🎓 Govt-Approved Universities</span>|
+            <span>💼 100% Placement Assistance</span>|
+            <span>📞 Free Expert Counselling</span>
+          </div>
+        </div>
                 <form className="space-y-1">
                   <FloatingInput label="Full Name*" name="name" value={formData.name} onChange={handleChange} />
                   <div className="grid grid-cols-2 gap-3">
@@ -226,7 +234,7 @@ const CelebrationSignupPopup = () => {
                     disabled={loading}
                     className="w-full py-4 mt-3 rounded-xl text-white font-bold bg-[#000080] hover:bg-blue-900 transition-all shadow-lg active:scale-95"
                   >
-                    {loading ? "Processing..." : otpSent ? "Verify & Register" : "Send OTP to Apply"}
+                    {loading ? "Processing..." : otpSent ? "Verify & Register" : "Send OTP To Apply"}
                   </button>
                 </form>
               </div>
