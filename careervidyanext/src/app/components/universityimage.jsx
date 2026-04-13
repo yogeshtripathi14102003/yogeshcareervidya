@@ -104,7 +104,7 @@ export default function UniversitiesPage() {
 
         {/* Heading */}
         <div className="mb-10 text-left">
-          <h2 className="text-2xl md:text-4xl font-bold text-[#002147] leading-tight">
+          <h2 className="text-2xl md:text-4xl font-bold text-[#0056B3] leading-tight">
             Explore over 100 online universities & Compare on 30+ factors
           </h2>
           <div className="w-14 h-1 bg-[#0056B3] mt-3 rounded-full"></div>
@@ -169,7 +169,7 @@ export default function UniversitiesPage() {
           {displayLimit < universities.length && (
             <button
               onClick={handleViewMore}
-              className="bg-[#c15304] text-white px-7 py-2 rounded-lg font-semibold shadow-md"
+              className="bg-[#c15304]  cursor-pointer text-white px-7 py-2 rounded-lg font-semibold shadow-md"
             >
               VIEW MORE →
             </button>
@@ -178,7 +178,7 @@ export default function UniversitiesPage() {
           {displayLimit > INITIAL_LIMIT && (
             <button
               onClick={handleViewLess}
-              className="bg-[#c15304] text-white px-7 py-2 rounded-lg font-semibold shadow-md"
+              className="bg-[#c15304]  cursor-pointer text-white px-7 py-2 rounded-lg font-semibold shadow-md"
             >
               VIEW LESS ↑
             </button>

@@ -134,7 +134,7 @@ export default function CareervidyaFormModal() {
             {/* LEFT SIDE: Image */}
             <div style={{ width: "40%", padding: "15px", display: "flex", alignItems: "center" }}>
               <div style={{ width: "100%", height: "100%", borderRadius: "10px", overflow: "hidden" }}>
-                <img src="/images/book1.jpg" alt="Books" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <Image src="/images/book1.jpg" alt="Books" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             </div>
 
