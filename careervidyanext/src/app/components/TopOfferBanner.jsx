@@ -1,92 +1,69 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Phone, X } from "lucide-react";
+import { Phone, X, Gift } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-/* ================= LOGIN CHECK ================= */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("usertoken"); 
-  // agar cookies use karte ho to:
-  // return !!Cookies.get("token");
 };
 
 export default function BottomOfferBanner() {
   const [show, setShow] = useState(false);
   const router = useRouter();
 
-  /* ================= SHOW / HIDE BANNER ================= */
   useEffect(() => {
-    // ✅ agar user logged in hai → banner kabhi mat dikhao
     if (isLoggedIn()) {
       setShow(false);
       return;
     }
-
     const handleScroll = () => {
-      if (window.innerWidth < 768) {
-        setShow(true); // mobile me always show (guest only)
-      } else {
-        setShow(window.scrollY > 100);
-      }
+      if (window.innerWidth < 768) setShow(true);
+      else setShow(window.scrollY > 100);
     };
-
     window.addEventListener("scroll", handleScroll);
     handleScroll();
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* ================= SAFETY CHECK ================= */
   if (!show || isLoggedIn()) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full z-50 bg-gradient-to-r from-[#001a4d] to-[#002b80] text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
-
-        {/* Text */}
-        <div className="flex items-center gap-2 text-sm md:text-base text-center md:text-left">
-          <span className="text-lg">🎁</span>
-          <span>
-            You are eligible for{" "}
-            <strong className="text-yellow-300">
-              Upto ₹2000 Career Vidya Subsidy* Cashback
-            </strong>
-          </span>
+    /* bottom-0 kar diya hai taaki niche gap na rahe */
+    <div className="fixed bottom-0 left-0 w-full z-[999] border-t border-white/10 bg-[#001a4d] shadow-[0_-5px_20px_rgba(0,0,0,0.4)] animate-in slide-in-from-bottom duration-500">
+      
+      <div className="max-w-[1200px] mx-auto px-4 py-2 flex flex-col md:flex-row items-center justify-between gap-2">
+        
+        {/* Left: Text Section (More Compact) */}
+        <div className="flex items-center gap-2">
+          <div className="bg-yellow-500 p-1 rounded-md">
+             <Gift size={16} className="text-[#001a4d]" />
+          </div>
+          <p className="text-[11px] md:text-sm font-medium text-white">
+            Special Offer: <span className="text-yellow-400 font-bold">Upto ₹20000 Cashback*</span> 
+          </p>
         </div>
 
-        {/* Buttons */}
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          <a
-            href="https://wa.me/9289712364"
-            target="_blank"
-            className="bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-md text-sm"
-          >
-            WhatsApp
-          </a>
+        {/* Right: Actions */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 border-r border-white/20 pr-3">
+            <a href="https://wa.me/9289712364" target="_blank" className="hover:scale-110 transition-transform">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" className="w-5 h-5" alt="wa" />
+            </a>
+            <a href="tel:+919289712364" className="text-white/80 hover:text-yellow-400 transition-colors">
+              <Phone size={18} />
+            </a>
+          </div>
 
-          <a
-            href="tel:+919289712364"
-            className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-md text-sm"
-          >
-            <Phone size={16} />
-            Call Now
-          </a>
-
-          {/* Signup */}
           <button
             onClick={() => router.push("/signup")}
-            className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-1.5 rounded-md text-sm"
+            className="bg-yellow-500 hover:bg-yellow-400 text-[#001a4d] px-5 py-1 rounded-full text-[11px] font-bold uppercase transition-all active:scale-95"
           >
-            Enroll Now
+            Claim Now
           </button>
 
-          {/* Close */}
-          <button
-            onClick={() => setShow(false)}
-            className="ml-1 hover:text-red-400"
-          >
+          <button onClick={() => setShow(false)} className="text-white/40 hover:text-white">
             <X size={18} />
           </button>
         </div>
@@ -94,8 +71,6 @@ export default function BottomOfferBanner() {
     </div>
   );
 }
-
-
 
 
 // "use client";

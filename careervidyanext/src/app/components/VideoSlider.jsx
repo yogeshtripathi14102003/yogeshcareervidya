@@ -30,7 +30,7 @@ export default function VideoSlider() {
     { _id: "6", videoUrl: "/video/v5.mp4" },
     { _id: "7", videoUrl: "/video/v6.mp4" },
     { _id: "8", videoUrl: "/video/v7.mp4" },
-    { _id: "11", videoUrl: "/video/v10.mp4" },
+    { _id: "11", videoUrl: "/video/v10.mp4"},
     {_id: "12", videoUrl: "/video/v11.mp4" },
     {_id: "13", videoUrl: "/video/v12.mp4" },
     {_id: "14", videoUrl: "/video/v13.mp4" },
