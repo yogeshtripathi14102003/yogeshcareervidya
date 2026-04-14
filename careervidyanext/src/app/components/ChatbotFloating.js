@@ -3,13 +3,16 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { X, Phone, ChevronDown, Send } from "lucide-react";
-import api from "@/utlis/api"; // Aapka api utility
+import api from "@/utlis/api"; 
 
 export default function CareervidyaFormModal() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [showCallTooltip, setShowCallTooltip] = useState(false);
   const [animate, setAnimate] = useState(false);
+  
+  // --- Naya State: Scroll check karne ke liye ---
+  const [isVisible, setIsVisible] = useState(false);
 
   // API State
   const [courses, setCourses] = useState([]);
@@ -19,10 +22,25 @@ export default function CareervidyaFormModal() {
     mobile: "",
     course: "",
     branch: "",
-    email: "not-provided@cv.com", // Default value as per your previous logic
+    email: "not-provided@cv.com",
     city: "Website Query",
     message: "Interested in course details",
   });
+
+  // --- Scroll Logic: Jab user scroll karega tabhi dikhega ---
+  useEffect(() => {
+    const handleScroll = () => {
+      // Agar scroll 300px se zyada ho tabhi button dikhao
+      if (window.scrollY > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Smooth animation trigger
   useEffect(() => {
@@ -78,8 +96,18 @@ export default function CareervidyaFormModal() {
     setTimeout(() => setIsModalOpen(false), 300);
   };
 
+  // Agar user ne scroll nahi kiya, to kuch bhi render mat karo
+  if (!isVisible) return null;
+
   return (
-    <div style={{ position: "fixed", bottom: 50, right: 25, zIndex: 9999 }}>
+    <div style={{ 
+      position: "fixed", 
+      bottom: 50, 
+      right: 25, 
+      zIndex: 9999,
+      transition: "opacity 0.5s ease-in-out", // Smooth entry
+      opacity: isVisible ? 1 : 0 
+    }}>
       
       {/* --- SIDE ICONS --- */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
@@ -111,7 +139,7 @@ export default function CareervidyaFormModal() {
         </div>
       </div>
 
-      {/* --- MODAL OVERLAY --- */}
+      {/* --- MODAL OVERLAY --- (Baaki code same hai) */}
       {isModalOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
@@ -131,31 +159,24 @@ export default function CareervidyaFormModal() {
               <X size={18} color="#333" />
             </button>
             
-            {/* LEFT SIDE: Image */}
-<div style={{ width: "40%", padding: "15px", display: "flex", alignItems: "center" }}>
-  <div style={{ width: "100%", height: "100%", borderRadius: "10px", overflow: "hidden", position: "relative" }}>
-    <Image 
-      src="/images/book1.jpg" 
-      alt="Books" 
-      fill 
-      style={{ objectFit: "cover" }} 
-    />
-  </div>
-</div>
+            <div style={{ width: "40%", padding: "15px", display: "flex", alignItems: "center" }}>
+              <div style={{ width: "100%", height: "100%", borderRadius: "10px", overflow: "hidden", position: "relative" }}>
+                <Image src="/images/book1.jpg" alt="Books" fill style={{ objectFit: "cover" }} />
+              </div>
+            </div>
 
-            {/* RIGHT SIDE: Integrated Form */}
             <div style={{ width: "60%", padding: "30px 40px", textAlign: 'center' }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
                 <Image src="/images/n12.png" alt="Logo" width={130} height={40} />
               </div>
-               <div className="mb-4 overflow-x-auto">
-          <div className="flex min-w-max gap-2 text-[11px] font-bold text-green-700">
-            <span>✅ No-Cost EMI Available</span>|
-            <span>🎓 Govt-Approved Universities</span>|
-            <span>💼 100% Placement Assistance</span>|
-            <span>📞 Free Expert Counselling</span>
-          </div>
-        </div>
+              <div className="mb-4 overflow-x-auto">
+                <div className="flex min-w-max gap-2 text-[11px] font-bold text-green-700">
+                  <span>✅ No-Cost EMI Available</span>|
+                  <span>🎓 Govt-Approved Universities</span>|
+                  <span>💼 100% Placement Assistance</span>|
+                  <span>📞 Free Expert Counselling</span>
+                </div>
+              </div>
               
               <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
                 <label style={labelStyle}>Full Name *</label>
@@ -195,7 +216,7 @@ export default function CareervidyaFormModal() {
   );
 }
 
-// Reusable Styles (UI Unchanged)
+// Reusable Styles (Same as before)
 const sideButtonStyle = (bg) => ({
   width: 50, height: 50, borderRadius: "50%", background: bg, color: "#fff",
   display: "flex", alignItems: "center", justifyContent: "center",
@@ -203,7 +224,6 @@ const sideButtonStyle = (bg) => ({
 });
 
 const selectArrowStyle = { position: 'absolute', right: 12, top: 12, color: '#666', pointerEvents: 'none' };
-
 const submitButtonStyle = {
   width: "50%",  marginTop: "20px", padding: "12px", background: "#05347f", color: "#fff",
   border: "none", borderRadius: "2px", fontWeight: "bold", cursor: "pointer", 

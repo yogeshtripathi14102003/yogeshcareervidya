@@ -83,7 +83,7 @@ export default function VideoSlider() {
                   <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col w-full h-full group hover:-translate-y-2 transition-all duration-300">
 
                     {/* VIDEO */}
-                    <div className="relative h-[420px] overflow-hidden">
+                    <div className="relative h-[350px] overflow-hidden">
                       <video
                         src={video.videoUrl}
                         className="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500"
