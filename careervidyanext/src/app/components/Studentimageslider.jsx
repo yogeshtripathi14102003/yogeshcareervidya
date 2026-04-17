@@ -47,7 +47,7 @@ export default function StudentPlacementSlider() {
 
         {/* Heading */}
         <div className="text-center mb-10">
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
             10000+ Alumni Network
           </h2>
           <p className="mt-4">

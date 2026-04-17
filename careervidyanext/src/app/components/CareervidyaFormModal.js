@@ -35,7 +35,7 @@ export default function CareerVidyaPremiumWidget() {
             <video autoPlay muted loop playsInline style={videoStyle("cover")}>
               <source src="/video/v2.mp4" type="video/mp4" />
             </video>
-            <div style={bubbleLabel}><Sparkles size={10} /> Live</div>
+            {/* <div style={bubbleLabel}><Sparkles size={10} /> live  </div> */}
           </div>
         </div>
       )}
@@ -156,6 +156,8 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 
 // import { useState, useEffect, useRef } from "react";
 // import { X, Play, ArrowRight } from "lucide-react";
+// import { useRouter } from "next/navigation";
+
 
 // export default function CareerVidyaCircularVideo() {
 //   const [showPreview, setShowPreview] = useState(true);
@@ -200,6 +202,7 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 //       }
 //     }
 //   };
+//   const router = useRouter();
 
 //   return (
 //     <>
@@ -208,7 +211,7 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 //         <div onClick={toggleModal} style={bubbleStyle}>
 //           <div style={videoContainerStyle}>
 //             <video autoPlay muted loop playsInline style={videoFillStyle}>
-//               <source src="/video/v2.mp4" type="video/mp4" />
+//               <source src="/video/v12.mp4" type="video/mp4" />
 //             </video>
 //             {/* ICON REMOVED FROM HERE FOR CLEAN LOOK */}
 //           </div>
@@ -238,7 +241,7 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 //                   cursor: "pointer"
 //                 }}
 //               >
-//                 <source src="/video/v2.mp4" type="video/mp4" />
+//                 <source src="/video/v12.mp4" type="video/mp4" />
 //               </video>
 
 //               {!isPlaying && (
@@ -249,14 +252,17 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 //             </div>
 
 //             <div style={infoPanelStyle}>
-//               <h4 style={{ margin: 0, fontSize: "18px", color: "#1a73e8" }}>Abhimanyu Singh</h4>
-//               <p style={{ margin: "2px 0 12px", fontSize: "12px", color: "#666" }}>FOUNDER, CAREERVIDYA</p>
-//               <button 
-//                 onClick={() => { window.location.href = "#enquiry-form"; toggleModal(); }}
-//                 style={ctaBtnStyle}
-//               >
-//                 Start Counseling <ArrowRight size={14} />
-//               </button>
+//               <h4 style={{ margin: 0, fontSize: "18px", color: "#1a73e8" }}>Abhimanyu Singh Chouhan</h4>
+//               <p style={{ margin: "2px 0 12px", fontSize: "12px", color: "#666" }}>FOUNDER & CEO, CAREERVIDYA</p>
+//              <button 
+//   onClick={() => { 
+//     router.push("/teamexpand"); // 👈 smooth client-side navigation
+//     toggleModal();
+//   }}
+//   style={ctaBtnStyle}
+// >
+//   Start Counseling <ArrowRight size={14} />
+// </button>
 //             </div>
 //           </div>
 //         </div>
@@ -273,8 +279,8 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 //   bottom: "30px", 
 //   right: "30px", 
 //   zIndex: 9999, 
-//   width: "130px", 
-//   height: "130px", 
+//   width: "180px", 
+//   height: "180px", 
 //   cursor: "pointer"
 // };
 
@@ -283,7 +289,7 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 //   height: "100%", 
 //   borderRadius: "50%", 
 //   overflow: "hidden", 
-//   border: "4px solid #1a73e8", 
+//   border: "4px solid #ef814e", 
 //   boxShadow: "0 15px 35px rgba(0,0,0,0.3)", 
 //   position: "relative",
 //   zIndex: 2
@@ -322,6 +328,6 @@ const footerStyle = { marginTop: "15px", fontSize: "10px", color: "#a0aec0", tex
 //   pointerEvents: "none"
 // };
 
-// const infoPanelStyle = { background: "#fff", padding: "20px 30px", borderRadius: "25px", marginTop: "-50px", zIndex: 3, textAlign: "center", boxShadow: "0 15px 35px rgba(0,0,0,0.2)", width: "250px" };
-// const ctaBtnStyle = { background: "#1a73e8", color: "#fff", border: "none", borderRadius: "12px", padding: "12px 20px", fontWeight: "bold", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%" };
+// const infoPanelStyle = { background: "#fff", padding: "2px 3px", borderRadius: "5px", marginTop: "-50px", zIndex: 3, textAlign: "center", boxShadow: "0 15px 35px rgba(0,0,0,0.2)", width: "250px" };
+// const ctaBtnStyle = { background: "#1a73e8", color: "#fff", border: "none", borderRadius: "5px", padding: "5px 5px", fontWeight: "bold", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "2px", width: "100%" };
 // const closeBtnStyle = { position: "absolute", top: "-15px", right: "-15px", zIndex: 10, background: "#fff", border: "none", borderRadius: "50%", padding: "10px", cursor: "pointer", boxShadow: "0 5px 15px rgba(0,0,0,0.2)" };

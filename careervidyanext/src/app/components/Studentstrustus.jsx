@@ -68,7 +68,7 @@ export default function WhyStudentsTrustUs() {
           transition-all duration-1000 delay-200
           ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
-          Why <span className="text-gray-900 font-bold">Students Trust</span> Us
+           <span className="text-[#0056B3] font-bold"> Why Students Trust Us</span> 
         </h2>
 
         <div className="grid gap-6 md:grid-cols-3">

@@ -54,7 +54,7 @@ export default function TeamSlider() {
     <section className="relative bg-[#001a41] py-16 md:py-24 overflow-hidden">
       <div className="max-w-[95%] xl:max-w-[1450px] mx-auto px-4 md:px-8">
         
-        <h2 className="text-center text-3xl md:text-5xl font-bold text-white mb-12 md:mb-16 uppercase tracking-wide">
+        <h2 className="text-center text-2xl md:text-4xl font-bold text-white mb-12 md:mb-16 uppercase tracking-wide">
           Meet Our Expert Team
         </h2>
 
