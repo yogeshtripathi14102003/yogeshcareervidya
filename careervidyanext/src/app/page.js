@@ -18,7 +18,7 @@ import SocialSidebar from "./components/SocialSidebar";
 import ServiceSlider from "./components/ServiceSlider";
 import Notification from "../app/components/Notification";
 import VideoSlider from "./components/VideoSlider";
-import CareervidyaFormModal from "./components/CareervidyaFormModal";
+// import CareervidyaFormModal from "./components/CareervidyaFormModal";
 export default function Home() {
   return (
     <div> 
@@ -40,7 +40,7 @@ export default function Home() {
      
    <QueryPopup />  
      
-      <CareervidyaFormModal />
+      {/* <CareervidyaFormModal /> */}
          
          
          {/* <CardSlider /> */}
