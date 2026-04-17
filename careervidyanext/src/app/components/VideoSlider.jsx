@@ -42,6 +42,7 @@ export default function VideoSlider() {
     {_id: "22", videoUrl: "/video/v20.mp4", name: "Success Story 20", category: "ENGINEERING" },
     {_id: "23", videoUrl: "/video/v21.mp4", name: "Success Story 21", category: "MEDICAL" },
     {_id: "24", videoUrl: "/video/v22.mp4", name: "Success Story 22", category: "ENGINEERING" },
+    {_id: "25", videoUrl: "/video/v23.mp4", name: "Success Story 23", category: "NEET PG" },
   ];
 
   return (
