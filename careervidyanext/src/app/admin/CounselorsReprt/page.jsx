@@ -87,6 +87,7 @@ const LeadsPage = () => {
         "Date": l.createdAt?.slice(0, 10),
         "Name": l.name,
         "Phone": l.phone,
+        "email": l.email || "N/A",
         "Status": l.status,
         "Course": l.course || "N/A",  // Course field added
       "Remark": l.remark || "N/A",
