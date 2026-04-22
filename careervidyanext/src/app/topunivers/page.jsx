@@ -9,10 +9,7 @@ export const metadata = {
     "UGC recognized online courses",
     "executive education programs india",
     "part time courses for professionals",
-    "best career counseling platform",
-    "distance learning universities",
-    "job oriented professional courses",
-    "compare universities in India"
+  
   ].join(", "),
 };
 
