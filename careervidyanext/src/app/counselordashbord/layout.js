@@ -5,16 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 import {
-  User,
-  Mail,
-  LogOut,
-  BadgeCheck,
-  Menu,
-  X,
-  LayoutDashboard,
-  Users,
-  Settings,
-  Lock,
+  User, Mail, LogOut, BadgeCheck, Menu, X,
+  LayoutDashboard, Users, Settings, Lock, MapPin
 } from "lucide-react";
 
 const SIDEBAR_LINKS = [
@@ -32,6 +24,9 @@ export default function CounselorLayout({ children }) {
 
   const [user, setUser] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Date, Time aur Location ke states add kiye hain
+  const [dateTime, setDateTime] = useState(new Date());
+  const [location, setLocation] = useState("Noida, IN");
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -40,6 +35,10 @@ export default function CounselorLayout({ children }) {
     } else {
       setUser(JSON.parse(savedUser));
     }
+
+    // Time update (Seconds ke saath)
+    const timer = setInterval(() => setDateTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, [router]);
 
   // Mobile view mein route change hote hi sidebar band ho jaye
@@ -65,7 +64,7 @@ export default function CounselorLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-50 flex overflow-hidden">
       
-      {/* 1. MOBILE OVERLAY (Peeche ka parda) */}
+      {/* 1. MOBILE OVERLAY */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300"
@@ -73,14 +72,13 @@ export default function CounselorLayout({ children }) {
         />
       )}
 
-      {/* 2. SIDEBAR (Managed for all screens) */}
+      {/* 2. SIDEBAR */}
       <aside
         className={`fixed md:relative inset-y-0 left-0 z-50 w-64 bg-indigo-700 text-white transform transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         <div className="p-5 border-b border-indigo-600 flex items-center justify-between">
           <span className="text-xl font-bold tracking-tight">Counselor Panel</span>
-          {/* Close button for mobile only */}
           <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
             <X size={24} />
           </button>
@@ -115,7 +113,6 @@ export default function CounselorLayout({ children }) {
         <header className="h-16 bg-white border-b border-gray-200 px-4 flex items-center justify-between sticky top-0 z-30">
           
           <div className="flex items-center gap-4">
-            {/* Hamburger Button */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="p-2 hover:bg-gray-100 rounded-lg md:hidden text-gray-600"
@@ -123,7 +120,6 @@ export default function CounselorLayout({ children }) {
               <Menu size={24} />
             </button>
 
-            {/* Logo area */}
             <div className="flex items-center">
               <Image
                 src="/images/n12.png"
@@ -141,7 +137,15 @@ export default function CounselorLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* User Info Hidden on very small mobile */}
+            {/* DATE, TIME & LOCATION SECTION (Added) */}
+            <div className="hidden lg:flex flex-col items-end text-gray-500 mr-2">
+              <span className="text-[10px] font-bold uppercase">{dateTime.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+              <span className="text-xs font-mono font-bold text-indigo-600">{dateTime.toLocaleTimeString()}</span>
+              <div className="flex items-center gap-1 text-[9px] font-bold text-gray-400">
+                <MapPin size={10} /> {location}
+              </div>
+            </div>
+
             <div className="hidden xs:flex flex-col text-right">
                <span className="text-sm font-bold text-gray-800 leading-tight">{user.name}</span>
                <span className="text-[10px] text-green-600 font-bold uppercase">{user.status}</span>
@@ -157,10 +161,10 @@ export default function CounselorLayout({ children }) {
           </div>
         </header>
 
-        {/* 4. PAGE CONTENT (Scrollable area) */}
+        {/* 4. PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
            <div className="max-w-7xl mx-auto h-full">
-              {children}
+             {children}
            </div>
         </main>
 

@@ -1,11 +1,10 @@
-
-
 "use client";
 
 import Link from "next/link";
 import Header from "@/app/layout/Header";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import api  from "@/utlis/api.js"; // ✅ axios instance
 
 export default function JobDetailPage() {
   const { jobId } = useParams();
@@ -13,25 +12,20 @@ export default function JobDetailPage() {
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] =("");
 
   /* ================= FETCH JOB ================= */
   useEffect(() => {
     async function fetchJob() {
       try {
-        const res = await fetch(
-          `https://api.careervidya.in/api/v1/addjob/${jobId}`
-        );
-
-        if (!res.ok) {
-          setError("Job not found");
-          return;
-        }
-
-        const data = await res.json();
-        setJob(data.data);
+        const res = await api.get(`/api/v1/addjob/${jobId}`); // ✅ updated
+        setJob(res.data.data);
       } catch (err) {
-        setError("Something went wrong");
+        if (err.response?.status === 404) {
+          setError("Job not found");
+        } else {
+          setError("Something went wrong");
+        }
       } finally {
         setLoading(false);
       }
@@ -134,7 +128,7 @@ export default function JobDetailPage() {
 
               {/* Apply Button */}
               <Link href="/applynow">
-                <button className=" bg-[#2B6CB0]    hover:bg-[#1E4E8C] text-white px-6 py-3 rounded-lg text-sm md:text-base font-medium shadow">
+                <button className="bg-[#2B6CB0] hover:bg-[#1E4E8C] text-white px-6 py-3 rounded-lg text-sm md:text-base font-medium shadow">
                   Apply for this Job
                 </button>
               </Link>
@@ -162,7 +156,6 @@ export default function JobDetailPage() {
                 </ul>
               </>
             )}
-
           </div>
         </div>
       </div>

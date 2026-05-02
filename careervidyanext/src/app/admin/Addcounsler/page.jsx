@@ -22,6 +22,8 @@ import Addfessstracture from "@/app/admin/Addcounsler/component/Addfessstracture
 import AdminTiket from "@/app/admin/Addcounsler/component/AdminTiket.jsx";
 import LeadDelete from "@/app/admin/Addcounsler/component/LeadDelete.jsx";
 import CounslerPerform from "@/app/admin/Addcounsler/component/CounslerPerform.jsx";
+import Dailycounslsourreoprt from "@/app/admin/Addcounsler/component/Dailycounslsourreoprt.jsx";
+
 /* ================= STATUS OPTIONS ================= */
 const STATUS_OPTIONS = ["active", "leave", "Inactive"];
 
@@ -50,6 +52,7 @@ const CounselorsListPage = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [dailyReportOpen, setDailyReportOpen] = useState(false);
 
   /* ================= LOGIN ================= */
   const handleLogin = (e) => {
@@ -178,6 +181,7 @@ const CounselorsListPage = () => {
         </div>
       )}
 
+
       {/* ================= EDIT MODAL ================= */}
       {editOpen && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
@@ -205,7 +209,31 @@ const CounselorsListPage = () => {
           </div>
         </div>
       )}
+      <button
+  onClick={() => setDailyReportOpen(true)}
+  className=" courser-pointer  bg-indigo-500 text-white px-4 py-2 rounded"
+>
+  📊 Daily Report
+</button>
+{dailyReportOpen && (
+  <div className=" fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+    <div className="bg-white w-full max-w-4xl rounded-xl relative p-6 max-h-[90vh] overflow-y-auto">
+      
+      <button
+        onClick={() => setDailyReportOpen(false)}
+        className="absolute right-4 top-4 text-gray-500"
+      >
+        <X />
+      </button>
 
+      <h2 className="text-xl font-bold mb-4">
+        Daily Counselor Report
+      </h2>
+
+      <Dailycounslsourreoprt />
+    </div>
+  </div>
+)}
       {/* ================= REPORT MODAL ================= */}
       {reportOpen && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">

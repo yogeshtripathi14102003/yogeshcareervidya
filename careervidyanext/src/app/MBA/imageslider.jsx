@@ -12,8 +12,6 @@ export default function LogoSlider() {
     const fetchLogos = async () => {
       try {
         const res = await api.get("/api/v1/ourstudent");
-
-        // 🧩 Adjust this based on your actual backend response
         const data = res.data?.data || res.data || [];
 
         const uniqueCompanies = [];
@@ -40,60 +38,47 @@ export default function LogoSlider() {
     fetchLogos();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="py-10 text-center text-gray-500">Loading logos...</div>
-    );
-  }
+  if (loading) return <div className="py-10 text-center text-gray-500">Loading...</div>;
+  if (logos.length === 0) return null;
 
-  if (logos.length === 0) {
-    return (
-      <div className="py-10 text-center text-gray-500">
-        No logos found. Check your API response.
-      </div>
-    );
-  }
-
-  // 🧠 Tailwind + custom scroll animation
   return (
-    <div className="bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 py-8 overflow-hidden">
+    <div className="bg-white py-10 overflow-hidden">
       <div className="relative flex items-center">
-        <div className="flex gap-6 animate-scroll whitespace-nowrap">
+        {/* Slider Container */}
+        <div className="flex gap-8 animate-scroll whitespace-nowrap">
           {[...logos, ...logos].map((logo, index) => (
             <div
               key={index}
-              className="flex-shrink-0 bg-white border rounded-xl w-40 h-20 flex items-center justify-center shadow-sm hover:shadow-md transition"
+              className="flex-shrink-0 bg-white border border-gray-200 rounded-xl w-40 h-20 flex items-center justify-center shadow-sm overflow-hidden p-2"
             >
-              <Image
-                src={
-                  logo.logo?.startsWith("http")
-                    ? logo.logo
-                    : `${process.env.NEXT_PUBLIC_BASE_URL}${logo.logo}`
-                }
-                alt={logo.company || `Logo ${index}`}
-                width={120}
-                height={60}
-                className="object-contain"
-                unoptimized // useful for external URLs (Cloudinary)
-              />
+              {/* Image wrapper to ensure it stays inside */}
+              <div className="relative w-full h-full flex items-center justify-center">
+                <Image
+                  src={
+                    logo.logo?.startsWith("http")
+                      ? logo.logo
+                      : `${process.env.NEXT_PUBLIC_BASE_URL}${logo.logo}`
+                  }
+                  alt={logo.company || "Company Logo"}
+                  fill
+                  style={{ objectFit: "contain" }}
+                  className="p-1"
+                  unoptimized
+                />
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Custom smooth scroll animation */}
       <style jsx>{`
         @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
         .animate-scroll {
           display: flex;
-          animation: scroll 25s linear infinite;
+          animation: scroll 30s linear infinite;
         }
       `}</style>
     </div>

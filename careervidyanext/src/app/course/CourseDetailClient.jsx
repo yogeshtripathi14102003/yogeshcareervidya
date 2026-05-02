@@ -22,10 +22,14 @@ export default function CourseDetailClient({ course }) {
   const skipUniversityCompSlugs = [
     "mtech-master-of-technology",
     "btech-bachelors-of-technology",
+
+    "1-year-online-mba",
+
   ];
   const skipDetailSignupSlugs = [
     "mtech-master-of-technology",
     "btech-bachelors-of-technology",
+    "1-year-online-mba",
   ];
 
   return (

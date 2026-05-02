@@ -29,7 +29,6 @@ export default function UniversityDetail({ initialData }) {
     const [data] = useState(initialData);
     const [popupOpen, setPopupOpen] = useState(false);
     const [popupType, setPopupType] = useState("apply");
-
     const overviewRef = useRef(null);
     const coursesRef = useRef(null);
     const admissionRef = useRef(null);
@@ -39,7 +38,6 @@ export default function UniversityDetail({ initialData }) {
     const Eligibilityref = useRef(null);
     const approvelRef = useRef(null);
     const HeighlighRef = useRef(null);
-
     const tabs = ["Overview", "Key Highlight", "Courses","Approvel", "Eligibility", "Feesstracture", "Admission Process", "Placement", "Review", "Faq"];
     
     const handleTabClick = (tab) => {
@@ -96,11 +94,9 @@ export default function UniversityDetail({ initialData }) {
                         </div>
                     </div>
                 </section>
-
                 <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm overflow-x-auto">
                     <div className="max-w-7xl mx-auto px-4 py-4"><div className="flex items-center gap-3 min-w-max">{tabs.map((tab, index) => (<button key={index} className="px-6 py-3 rounded-lg border font-semibold text-sm transition-all text-gray-600 border-gray-200 hover:text-orange-500 hover:border-orange-200" onClick={() => handleTabClick(tab)}>{tab}</button>))}</div></div>
                 </div>
-
                 <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
                     <div ref={overviewRef}><div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm"><h2 className="text-[#0056D2] text-4xl font-bold mb-8">Overview</h2><div className="text-[#4A4A4A] text-[17px] leading-[1.8] space-y-6" dangerouslySetInnerHTML={{ __html: data.description || "No description available." }} /></div></div>
                     <div ref={certificateRef}><UniversityCertificate slug={data.slug} /></div>
@@ -112,7 +108,6 @@ export default function UniversityDetail({ initialData }) {
                     <div ref={factsRef}><FactsSection slug={data.slug} /></div>
                     <div ref={admissionRef}><AdmissionProcess slug={data.slug} /></div>
                 </div>
-
                 {popupOpen && popupType === "apply" && (<Applictionpopup open={popupOpen} onClose={() => setPopupOpen(false)} type={popupType} universityName={data.name} />)}
                 {popupOpen && popupType === "talk" && (<TalkToUniversity open={popupOpen} onClose={() => setPopupOpen(false)} universityName={data.name} phone={data.contactNumber || "+919319998717"} whatsapp={data.whatsappNumber || "+919319998717"} />)}
             </div>

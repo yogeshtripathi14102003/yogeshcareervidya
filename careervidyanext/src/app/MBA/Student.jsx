@@ -32,7 +32,7 @@ export default function StudentPlacementSlider() {
   return (
     <section className="relative overflow-hidden text-white py-16">
       {/* 🎨 Elegant Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#7B0000]/70 via-[#C8102E]/70 to-[#FF7F50]/70"></div>
+      <div className="absolute inset-0 bg-red-800"></div>
       <div className="absolute inset-0 bg-black/20"></div>
 
       <div className="relative z-10">

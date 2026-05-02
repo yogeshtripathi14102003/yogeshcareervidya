@@ -1,5 +1,4 @@
 import JobsClient from "@/app/career/JobsClient.jsx";
-
 export const dynamic = "force-dynamic"; // ✅ build error fix
 
 export const metadata = {
@@ -15,7 +14,7 @@ async function getJobs() {
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/addjob`,
       {
         cache: "no-store", // ✅ important
-      }
+      } 
     );
 
     // ❌ API fail

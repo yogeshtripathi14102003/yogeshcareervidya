@@ -17,15 +17,13 @@ const geistMono = Geist_Mono({
 });
 export const metadata = {
   metadataBase: new URL("https://www.careervidya.in"),
-  title: "CareerVidya - Best Career Guidance Platform",
-  description:
-    "Explore career paths, mentors, and expert guidance to shape your future with CareerVidya.",
-  keywords:
-    "CareerVidya, career guidance, education platform, learning, mentorship, students, jobs, future planning ,https://careervidya.in/course/online-mba-1",
+  title: "CareerVidya: Best Career Guidance & Online Education Platform India",
+ description: "Shape your future with CareerVidya. Access expert career guidance, mentorship programs, top online courses, and job planning tools for students and professionals.",
+ keywords: "CareerVidya, career guidance, online education platform, mentorship programs, student career planning, job placement assistance, top online courses in India",
   openGraph: {
-    title: "CareerVidya - Best Career Guidance Platform",
+    title: "CareerVidya: Unlock Your Potential with Expert Guidance",
     description:
-      "Explore career paths, mentors, and expert guidance to shape your future.",
+      "Join CareerVidya to access top online courses, professional mentorship, and career planning tools tailored for your success.",
     url: "https://www.careervidya.in",
     siteName: "CareerVidya",
     images: [
