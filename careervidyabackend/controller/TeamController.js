@@ -285,7 +285,7 @@ export const createTeamMember = async (req, res) => {
 export const getAllTeamMembers = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 50));
     const skip = (page - 1) * limit;
 
     // ✅ Sensitive data hide + pagination

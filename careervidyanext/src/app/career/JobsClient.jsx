@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/app/layout/Header";
 import Footer from "../layout/Footer";
@@ -12,6 +12,13 @@ export default function JobsClient({ initialJobs }) {
   const [jobs] = useState(initialJobs || []);
   const [search, setSearch] = useState("");
   const [selectedDept, setSelectedDept] = useState("");
+  
+  // Hydration error fix karne ke liye mounted state
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const allDepartments = [
     "Counselor",
@@ -139,25 +146,21 @@ export default function JobsClient({ initialJobs }) {
                         {job.experience || "0-1 yrs"}
                       </p>
 
-                      {/* Salary */}
                       <p className="text-sm mt-2 font-medium text-green-600">
                         💰 {job.salary || "Not Disclosed"}
                       </p>
 
-                      {/* Tags */}
                       <div className="flex flex-wrap gap-2 mt-3">
                         {job.type && (
                           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
                             {job.type}
                           </span>
                         )}
-
                         {job.mode && (
                           <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
                             {job.mode}
                           </span>
                         )}
-
                         {job.department && (
                           <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                             {job.department}
@@ -175,8 +178,9 @@ export default function JobsClient({ initialJobs }) {
                         Apply Now
                       </button>
 
+                      {/* FIXED DATE RENDERING */}
                       <span className="text-xs text-gray-400">
-                        {job.createdAt
+                        {isMounted && job.createdAt
                           ? new Date(job.createdAt).toLocaleDateString()
                           : ""}
                       </span>
