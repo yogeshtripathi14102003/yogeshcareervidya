@@ -22,12 +22,13 @@ const LeadScheduler = () => {
     fetchCounselors();
   }, []);
 
-  const fetchLeads = async () => {
+ const fetchLeads = async () => {
     try {
-      // YAHAN CHANGE KIYA HAI: limit=all lagaya hai
-      const res = await api.get("/api/v1/leads?limit=all");
+      // unassignedOnly=true bhejne se backend load kam lega (Agar backend ready ho)
+      const res = await api.get("/api/v1/leads?limit=all&unassignedOnly=true");
       if (res.data.success) {
         const all = res.data.data;
+        // Optimized filtering: Agar backend se filter hoke aa raha hai toh ye lines fast chalengi
         setLeads(all.filter((l) => !l.assignedTo));
         setAssignedLeads(all.filter((l) => l.assignedTo));
       }
@@ -36,15 +37,23 @@ const LeadScheduler = () => {
     }
   };
 
-  const fetchCounselors = async () => {
+const fetchCounselors = async () => {
+    setLoading(true); // Loading start karein
     try {
       const res = await api.get("/api/v1/counselor");
-      if (res.data.success) {
-        const activeCounselors = res.data.data.filter((c) => c.status === "active" || c.isActive === true);
-        setCounselors(activeCounselors);
+      
+      if (res?.data?.success && Array.isArray(res.data.data)) {
+        // Frontend filtering ko fast karne ke liye direct state update
+        const allData = res.data.data;
+        const activeOnly = allData.filter((c) => c.status === "active" || c.isActive === true);
+        
+        setCounselors(activeOnly);
       }
     } catch (err) {
+      console.error("Fetch Error:", err);
       alert("Failed to fetch counselors");
+    } finally {
+      setLoading(false); // Loading stop karein
     }
   };
 

@@ -1,10 +1,8 @@
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
 import api from "@/utlis/api.js";
-import { Users, Download } from "lucide-react";
+import { Users, Download, Trash2 } from "lucide-react";
 import * as XLSX from "xlsx";
 
 const STATUS_LIST = [
@@ -94,6 +92,45 @@ const Dailycounslsourreoprt = () => {
     fetchData();
   }, [date]);
 
+  /* ================= DELETE LOGIC (WITHOUT SPECIFIC ENDPOINT) ================= */
+  const deleteTodayLeads = async (counselorId, counselorName) => {
+    const confirmAction = window.confirm(
+      `Are you sure? This will delete all ${dailyData.find(c => c.counselorId === counselorId)?.totalLeads} leads assigned to ${counselorName} on ${date}.`
+    );
+    
+    if (!confirmAction) return;
+
+    setLoading(true);
+    try {
+      // 1. Pehle filter karke wahi leads nikalo jo delete karni hain
+      const leadsToDelete = await fetchAllLeads({ 
+        fromDate: date, 
+        toDate: date, 
+        assignedTo: counselorId 
+      });
+
+      if (leadsToDelete.length === 0) {
+        alert("No leads found to delete for today.");
+        return;
+      }
+
+      // 2. Ek-ek karke delete karo (Agar backend bulk delete support nahi karta)
+      const deletePromises = leadsToDelete.map(lead => 
+        api.delete(`/api/v1/leads/${lead._id}`)
+      );
+
+      await Promise.all(deletePromises);
+      
+      alert(`Successfully deleted today's leads for ${counselorName}`);
+      fetchData(); // Refresh list
+    } catch (err) {
+      console.error("Delete Error:", err);
+      alert("Error deleting leads. Make sure you have a delete route like /api/v1/leads/:id");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* ================= TOTAL ================= */
   const totalToday = dailyData.reduce((a, b) => a + b.totalLeads, 0);
   const overallTotal = allData.reduce((a, b) => a + b.totalLeads, 0);
@@ -101,45 +138,26 @@ const Dailycounslsourreoprt = () => {
   /* ================= EXCEL DOWNLOAD ================= */
   const downloadExcel = () => {
     const sheetData = [];
-
-    // 👉 DAILY SECTION
     sheetData.push({ Section: "DAILY REPORT", Date: date });
     sheetData.push({ Counselor: "", Total: "" });
 
     dailyData.forEach(c => {
-      sheetData.push({
-        Counselor: c.name,
-        Total: c.totalLeads
-      });
+      sheetData.push({ Counselor: c.name, Total: c.totalLeads });
     });
 
-    sheetData.push({}); // empty row
-
-    // 👉 ALL COUNSELOR SECTION
+    sheetData.push({}); 
     sheetData.push({ Section: "ALL COUNSELORS REPORT" });
 
     allData.forEach(c => {
-      const row = {
-        Counselor: c.name,
-        Total: c.totalLeads
-      };
-
-      STATUS_LIST.forEach(s => {
-        row[s] = c.statuses[s];
-      });
-
+      const row = { Counselor: c.name, Total: c.totalLeads };
+      STATUS_LIST.forEach(s => { row[s] = c.statuses[s]; });
       sheetData.push(row);
     });
 
     const worksheet = XLSX.utils.json_to_sheet(sheetData);
     const workbook = XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-
-    XLSX.writeFile(
-      workbook,
-      `Counselor_Report_${date}.xlsx`
-    );
+    XLSX.writeFile(workbook, `Counselor_Report_${date}.xlsx`);
   };
 
   return (
@@ -175,10 +193,21 @@ const Dailycounslsourreoprt = () => {
         <p className="text-2xl font-bold text-blue-700">{totalToday}</p>
       </div>
 
+      {/* DAILY LIST WITH DELETE */}
       {dailyData.map(c => (
-        <div key={c.counselorId} className="flex justify-between border p-2 rounded mb-2">
-          <p>{c.name}</p>
-          <p>{c.totalLeads}</p>
+        <div key={c.counselorId} className="flex justify-between items-center border p-2 rounded mb-2">
+          <div>
+            <p className="font-medium text-sm">{c.name}</p>
+            <p className="text-xs text-gray-500">Today's Leads: {c.totalLeads}</p>
+          </div>
+          <button 
+            onClick={() => deleteTodayLeads(c.counselorId, c.name)}
+            disabled={loading}
+            className="text-red-500 hover:bg-red-50 p-2 rounded transition-colors disabled:opacity-50"
+            title="Delete today's leads"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       ))}
 
@@ -208,9 +237,9 @@ const Dailycounslsourreoprt = () => {
       ))}
 
       {loading && (
-        <p className="text-center text-xs text-gray-400 mt-4">
-          Loading full data...
-        </p>
+        <div className="fixed bottom-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg text-xs">
+          Processing, please wait...
+        </div>
       )}
     </div>
   );
