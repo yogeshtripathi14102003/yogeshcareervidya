@@ -27,7 +27,7 @@ const courseUploads = upload.fields([
 ]);
 
 // ✅ Static routes PEHLE — dynamic routes baad mein
-router.get("/course/short", getCoursesShort);            // ✅ /short pehle
+router.get("/short", getCoursesShort);            // ✅ /short pehle
 router.get("/course/slug/:slug", getCourseBySlug);       // ✅ slug pehle
 
 // ✅ CRUD routes
