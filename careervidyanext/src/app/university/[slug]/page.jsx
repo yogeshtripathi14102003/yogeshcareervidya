@@ -1,13 +1,22 @@
+import UniversityDetail from "@/app/university/UniversityDetail.jsx";
 
-
-               
-import UniversityDetail from "@/app/university/UniversityDetail.jsx"; // अपने पाथ के अनुसार यहाँ सही रखें
+// यह लाइन सबसे ज़रूरी है ताकि बिल्ड के समय पेज क्रैश न हो
+export const dynamic = "force-dynamic";
 
 async function getUniversityData(slug) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.careervidya.in";
+  
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/university/slug/${slug}`, {
+    const res = await fetch(`${baseUrl}/api/v1/university/slug/${slug}`, {
       next: { revalidate: 60 }
     });
+
+    // चेक करें कि रिस्पॉन्स JSON है या HTML एरर
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+      return null;
+    }
+
     const data = await res.json();
     return data?.data || null;
   } catch (err) {
@@ -17,12 +26,9 @@ async function getUniversityData(slug) {
 }
 
 export default async function Page({ params }) {
-  // ✅ Next.js 15+ के लिए params को await करना अनिवार्य है
   const { slug } = await params;
-  
   const data = await getUniversityData(slug);
 
-  // यदि डेटा नहीं मिलता है, तो आप यहाँ एक हैंडलिंग जोड़ सकते हैं
   if (!data) {
     return <div className="p-10 text-center text-black">University not found.</div>;
   }
@@ -30,10 +36,9 @@ export default async function Page({ params }) {
   return <UniversityDetail initialData={data} />;
 }
 
-// यह फंक्शन Google सर्च में सही Title और Description दिखाएगा
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const data = await getUniversityData(slug); // वही फंक्शन जो आपने बनाया था
+  const data = await getUniversityData(slug);
 
   return {
     title: data ? `${data.name} | CareerVidya` : "University | CareerVidya",
