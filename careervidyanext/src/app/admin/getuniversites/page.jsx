@@ -11,7 +11,7 @@ export default function GetUniversityData() {
   const [deleting, setDeleting] = useState(null);
   const [editUni, setEditUni] = useState(null);
 
-  const BASE_URL = process.env.INTERNAL_API_URL;
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
   // ✅ SAFE IMAGE URL (NO fallback image)
   const getImage = (imageObj) => {

@@ -3,7 +3,7 @@
 import CourseDetailClient from "@/app/course/CourseDetailClient.jsx";
 
 async function getCourseData(slug) {
-  const res = await fetch(`${process.env.INTERNAL_API_URL}/api/v1/course/slug/${slug}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/course/slug/${slug}`, {
     next: { revalidate: 60 }
   });
   const data = await res.json();

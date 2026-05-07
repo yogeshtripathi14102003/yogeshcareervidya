@@ -5,7 +5,7 @@ import UniversityDetail from "@/app/university/UniversityDetail.jsx"; // अप�
 
 async function getUniversityData(slug) {
   try {
-    const res = await fetch(`${process.env.INTERNAL_API_URL}/api/v1/university/slug/${slug}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/university/slug/${slug}`, {
       next: { revalidate: 60 }
     });
     const data = await res.json();

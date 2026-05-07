@@ -16,7 +16,7 @@ export const metadata = {
 async function getUniversities() {
   try {
     // Note: Direct URL use karein server-side fetch ke liye
-    const res = await fetch(`${process.env.INTERNAL_API_URL}/api/v1/university`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/university`, {
       next: { revalidate: 3600 } // Har 1 ghante mein data refresh hoga (SEO + Speed)
     });
     const data = await res.json();

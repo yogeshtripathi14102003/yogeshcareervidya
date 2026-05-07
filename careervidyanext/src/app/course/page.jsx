@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 async function getCourses() {
-  const res = await fetch(`${process.env.INTERNAL_API_URL}/api/v1/course`, { cache: 'no-store' });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/course`, { cache: 'no-store' });
   const data = await res.json();
   return data.courses || [];
 }
