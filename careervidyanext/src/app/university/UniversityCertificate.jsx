@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '@/utlis/api.js';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const BASE_URL = process.env.INTERNAL_API_URL || "";
 
 const RecognitionSection = ({ slug }) => {
     const [recognitionHeading, setRecognitionHeading] = useState("");

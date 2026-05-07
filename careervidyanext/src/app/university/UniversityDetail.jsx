@@ -18,7 +18,7 @@ import DiscountPopup from "@/app/components/DiscountPopup.jsx";
 import ReviewRatingstatic from "@/app/components/ReviewRatingstatic.jsx";
 import Image from "next/image";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const BASE_URL = process.env.INTERNAL_API_URL || "";
 
 const getImagePath = (path) => {
     if (!path) return "/fallback-logo.png";

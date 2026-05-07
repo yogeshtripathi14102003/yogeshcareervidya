@@ -286,6 +286,41 @@ export const bulkDeleteLeads = async (req, res) => {
    UPLOAD EXCEL (Updated with new fields)
 ===================================================== */
 
+// export const uploadLeads = async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).json({ success: false, message: "File required" });
+//     }
+
+//     const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+//     const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+//     const leads = sheet.map((l) => ({
+//       name: l.name,
+//       phone: l.phone,
+//       email: l.email,
+//       course: l.course,
+//       city: l.city || "",
+
+//       // New fields mapping from Excel
+//       referralName: l.referralName || "",
+//       studentName: l.studentName || "",
+//       referralMobile: l.referralMobile || "",
+//       branch: l.branch || "",
+//       universityName: l.universityName || "",
+
+//       remark: l.remark || "",
+//       action: l.action || "",
+//       status: "New", // Default status from your schema enum
+//     }));
+
+//     const inserted = await Lead.insertMany(leads);
+//     res.json({ success: true, total: inserted.length });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
 export const uploadLeads = async (req, res) => {
   try {
     if (!req.file) {
@@ -295,32 +330,75 @@ export const uploadLeads = async (req, res) => {
     const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
     const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
-    const leads = sheet.map((l) => ({
-      name: l.name,
-      phone: l.phone,
-      email: l.email,
-      course: l.course,
-      city: l.city || "",
+    // ── Step 1: Normalize all keys to lowercase+trimmed ──────────────────────
+    // Handles: "Name", "NAME", "name", "  Name  " → all become "name"
+    const normalizeRow = (row) => {
+      const out = {};
+      for (const key of Object.keys(row)) {
+        out[key.trim().toLowerCase().replace(/\s+/g, "")] = row[key];
+      }
+      return out;
+    };
 
-      // New fields mapping from Excel
-      referralName: l.referralName || "",
-      studentName: l.studentName || "",
-      referralMobile: l.referralMobile || "",
-      branch: l.branch || "",
-      universityName: l.universityName || "",
+    // ── Step 2: Try multiple column name variants ─────────────────────────────
+    // e.g. get(row, "phone", "mobile", "contact") → first non-empty value wins
+    const get = (row, ...variants) => {
+      for (const v of variants) {
+        const key = v.trim().toLowerCase().replace(/\s+/g, "");
+        if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== "") {
+          return String(row[key]).trim();
+        }
+      }
+      return "";
+    };
 
-      remark: l.remark || "",
-      action: l.action || "",
-      status: "New", // Default status from your schema enum
-    }));
+    // ── Step 3: Map rows with flexible column names ───────────────────────────
+    const leads = sheet
+      .map((rawRow) => {
+        const l = normalizeRow(rawRow);
+        return {
+          name:           get(l, "name", "fullname", "full name", "studentname", "student name"),
+          phone:          get(l, "phone", "phoneno", "phone no", "mobile", "mobileno", "mobile no", "contact", "contactno"),
+          email:          get(l, "email", "emailid", "email id", "email address"),
+          course:         get(l, "course", "program", "programme", "stream"),
+          city:           get(l, "city", "location", "address", "district"),
 
-    const inserted = await Lead.insertMany(leads);
-    res.json({ success: true, total: inserted.length });
+          referralName:   get(l, "referralname", "referral name", "referral", "referredby", "referred by"),
+          studentName:    get(l, "studentname", "student name", "student"),
+          referralMobile: get(l, "referralmobile", "referral mobile", "referralphone", "referral phone"),
+          branch:         get(l, "branch", "centre", "center"),
+          universityName: get(l, "universityname", "university name", "university", "college", "collegename", "college name"),
+
+          remark:         get(l, "remark", "remarks", "note", "notes", "comment", "comments"),
+          action:         get(l, "action", "actions", "nextstep", "next step"),
+          status:         "New",
+        };
+      })
+      // ── Step 4: Skip rows with no phone (blank/header rows) ─────────────────
+      .filter((l) => l.phone && l.phone.length >= 6);
+
+    if (!leads.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid leads found. Check that your Excel has a 'phone' column with data.",
+      });
+    }
+
+    const inserted = await Lead.insertMany(leads, { ordered: false }); // ordered:false = skip duplicates, continue rest
+    res.json({ success: true, total: inserted.length, skipped: leads.length - inserted.length });
+
   } catch (err) {
+    // insertMany with ordered:false throws but still inserts — handle gracefully
+    if (err.name === "BulkWriteError") {
+      return res.json({
+        success: true,
+        total: err.result?.nInserted || 0,
+        message: `Inserted with some duplicates skipped`,
+      });
+    }
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 /* =====================================================
    ASSIGN LEADS
 ===================================================== */

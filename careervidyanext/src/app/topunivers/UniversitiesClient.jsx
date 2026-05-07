@@ -8,7 +8,7 @@ import Header from "@/app/layout/Header.jsx";
 import Footer from "@/app/layout/Footer.jsx";
 import Comparenow from "@/app/topunivers/Comparenow.jsx";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const BASE_URL = process.env.INTERNAL_API_URL || "";
 
 const getFullImageUrl = (path) => {
   if (!path) return null;

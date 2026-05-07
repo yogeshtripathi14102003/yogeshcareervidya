@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import api from "@/utlis/api.js"; // Ensure path is correct
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const BASE_URL = process.env.INTERNAL_API_URL || "";
 
 const getImagePath = (path) => {
     if (!path) return "/fallback-logo.png";

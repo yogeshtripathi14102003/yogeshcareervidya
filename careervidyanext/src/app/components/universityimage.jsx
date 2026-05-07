@@ -117,7 +117,7 @@ export default function UniversitiesPage() {
             const imageUrl = uni.universityImage
               ? uni.universityImage.startsWith("http")
                 ? uni.universityImage
-                : `${process.env.NEXT_PUBLIC_API_URL}/${uni.universityImage.replace(/^\/+/, "")}`
+                : `${process.env.INTERNAL_API_URL}/${uni.universityImage.replace(/^\/+/, "")}`
               : "/fallback.png";
 
             const isClickable =

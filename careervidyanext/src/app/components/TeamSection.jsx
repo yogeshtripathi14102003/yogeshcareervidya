@@ -17,7 +17,7 @@ import "swiper/css/pagination";
 export default function TeamSlider() {
   const [team, setTeam] = useState([]);
   const [loading, setLoading] = useState(true);
-  const BASE_URL = "https://api.careervidya.in";
+   const BASE_URL = process.env.INTERNAL_API_URL;
 
   useEffect(() => {
     const fetchTeam = async () => {

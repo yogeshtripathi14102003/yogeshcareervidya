@@ -11,7 +11,7 @@ export const metadata = {
 async function getInitialCourses() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/short?limit=24`,
+      `${process.env.INTERNAL_API_URL}/api/v1/short?limit=24`,
       {
         cache: "no-store",
       }
