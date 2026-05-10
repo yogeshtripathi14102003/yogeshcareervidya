@@ -26,7 +26,7 @@ function MentorCard({ mentor, onBook, onDetail }) {
     const experience = mentor.experience ?? mentor.years ?? 5;
     const responseRate = mentor.responseRate ?? mentor.response ?? "95%";
     const skills = mentor.skills || mentor.expertises || mentor.expertise || [];
-    const mobileNumber = mentor.mobileNumber || "919876543210"; 
+    const mobileNumber = mentor.mobileNumber || "9319998717"; 
     const whatsappNumber = mentor.whatsappNumber || mobileNumber; 
 
     return (
