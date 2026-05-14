@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { Menu, X, Search, User, ChevronDown } from "lucide-react";
 import { GraduationCap, Handshake, IndianRupee, Users } from 'lucide-react';
+import { useRouter, usePathname } from "next/navigation"; 
 
 import Signup from "../signup/page.jsx";
 import Subheader from "@/app/components/Subheader.jsx";
@@ -18,29 +19,28 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+const pathname = usePathname(); 
+
   const router = useRouter();
+useEffect(() => {
+  const loadUser = () => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser || storedUser === "undefined") {
+      setUser(null);
+      return;
+    }
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch (err) {
+      localStorage.removeItem("user");
+      setUser(null);
+    }
+  };
 
-  useEffect(() => {
-    const loadUser = () => {
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser || storedUser === "undefined") {
-        setUser(null);
-        return;
-      }
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (err) {
-        console.error("Invalid user data:", err);
-        localStorage.removeItem("user");
-        setUser(null);
-      }
-    };
-
-    loadUser();
-    window.addEventListener("storage", loadUser);
-    return () => window.removeEventListener("storage", loadUser);
-  }, []);
+  loadUser();
+  window.addEventListener("storage", loadUser);
+  return () => window.removeEventListener("storage", loadUser);
+}, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -104,10 +104,10 @@ export default function Header() {
         Why Career Vidya?
       </h4>
       <div className="grid grid-cols-1 gap-y-3">
-        <Link href="/whycareervidya/careervidya-car" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
+        <Link href="/whycareervidya/careervidya-care" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Continuous Career Guidance
         </Link>
-        <Link href="/coming-soon" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
+        <Link href="/whycareervidya/placement-support" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Expert Placement Cell
         </Link>
         <Link href="/coming-soon" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">

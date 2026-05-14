@@ -1,4 +1,5 @@
 import ExploreClient from "./ExploreClient";
+import { serverFetch } from "@/utlis/serverFetch"; // ✅
 
 export const metadata = {
   title: "Explore Professional Courses & Top Universities | CareerVidya",
@@ -8,8 +9,8 @@ export const metadata = {
 async function getData() {
   try {
     const [courseRes, uniRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/course`, { next: { revalidate: 3600 } }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/university`, { next: { revalidate: 3600 } })
+      serverFetch("/api/v1/course", { next: { revalidate: 3600 } }), // ✅
+      serverFetch("/api/v1/university", { next: { revalidate: 3600 } }) // ✅
     ]);
 
     const coursesData = await courseRes.json();

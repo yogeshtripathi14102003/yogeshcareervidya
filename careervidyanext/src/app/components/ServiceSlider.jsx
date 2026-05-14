@@ -79,7 +79,7 @@ const COMP = () => {
               <h1 className="text-2xl md:text-3xl font-extrabold text-[#0056B3]">
                 Where Real Stories Meet Honest Truth and Real Impact.
               </h1>
-              <p className="text-base md:text-lg text-gray-700 text-justify">
+              <p className="text-base md:text-xl text-gray-700 text-justify">
                 Career Vidya Is Proudly Recognized with The Prestigious Indian Business Award for Transforming Student Careers Through Expert Guidance and Online Education. From Simplifying Career Choices to Creating Success Stories, We Continue to Set New Benchmarks in Career Development.
                 With A Strong Network of Top Universities and Industry Experts, We Ensure Every Student Receives Personalized Guidance Tailored to Their Goals. Our Commitment Goes Beyond Admissions. We Focus on Long-Term Career Growth, Skill Development, And Real-World Opportunities. Thousands Of Learners Trust Career Vidya to Make Informed Decisions and Achieve Success with Confidence.
               </p>

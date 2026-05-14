@@ -1,17 +1,14 @@
 import UniversityDetail from "@/app/university/UniversityDetail.jsx";
+import { serverFetch } from "@/utlis/serverFetch"; // ✅
 
-// यह लाइन सबसे ज़रूरी है ताकि बिल्ड के समय पेज क्रैश न हो
 export const dynamic = "force-dynamic";
 
 async function getUniversityData(slug) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.careervidya.in";
-  
   try {
-    const res = await fetch(`${baseUrl}/api/v1/university/slug/${slug}`, {
+    const res = await serverFetch(`/api/v1/university/slug/${slug}`, { // ✅
       next: { revalidate: 60 }
     });
 
-    // चेक करें कि रिस्पॉन्स JSON है या HTML एरर
     const contentType = res.headers.get("content-type");
     if (!res.ok || !contentType || !contentType.includes("application/json")) {
       return null;

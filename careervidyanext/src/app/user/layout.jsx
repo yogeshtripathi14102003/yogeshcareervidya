@@ -52,11 +52,16 @@ export default function UserLayout({ children }) {
       .catch(() => handleLogout());
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("usertoken");
-    Cookies.remove("usertoken", { path: "/" });
-    router.replace("/login");
-  };
+ const handleLogout = () => {
+  localStorage.removeItem("usertoken");
+  localStorage.removeItem("user"); // ✅ yeh add karo
+  localStorage.removeItem("token");
+  Cookies.remove("usertoken", { path: "/" });
+  
+  window.dispatchEvent(new Event("storage")); // ✅ Header ko notify karo
+  
+  window.location.href = "/"; // ✅ router.replace ki jagah hard redirect
+};
 
   if (!userData) {
     return (

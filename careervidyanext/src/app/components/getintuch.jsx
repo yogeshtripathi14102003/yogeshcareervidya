@@ -94,13 +94,13 @@ export default function ContactUsPage() {
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-16 px-6">
+    <div className=" bg-gradient-to-b from-blue-50 to-blue-100 py-16 px-6">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-10">
         {/* Header */}
         <h1 className="text-3xl font-semibold text-center text-[#0056A4] mb-6">
           Let’s Discuss Your Future!
         </h1>
-        <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+        <p className="text-center text-gray-600 mb-5 max-w-2xl mx-auto">
           Get <strong>free career guidance</strong> from our experts to choose the best course, college,
           or career path for you. Your data is <strong>100% confidential</strong> — we’re here to help,
           not to sell.

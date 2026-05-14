@@ -1,76 +1,57 @@
-"use client";
+// src/components/LogoSlider.jsx
+// Server Component — fetches on server, renders client UI inline, no NEXT_PUBLIC URL
 
-import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import api from "@/utlis/api.js";
+import { serverFetch } from "@/utlis/serverFetch";
 
-export default function LogoSlider() {
-  const [logos, setLogos] = useState([]);
-  const [loading, setLoading] = useState(true);
+const getFullUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http") || path.startsWith("/")) return path;
+  return `/${path}`;
+};
 
-  useEffect(() => {
-    const fetchLogos = async () => {
-      try {
-        const res = await api.get("/api/v1/ourstudent");
-        const data = res.data?.data || res.data || [];
+export default async function LogoSlider() {
+  let logos = [];
 
-        const uniqueCompanies = [];
-        const seen = new Set();
+  try {
+    const res = await serverFetch("/api/v1/ourstudent", {
+      next: { revalidate: 300 },
+    });
 
-        data.forEach((student) => {
-          if (student.companyLogo && !seen.has(student.companyLogo)) {
-            uniqueCompanies.push({
-              logo: student.companyLogo,
-              company: student.company,
-            });
-            seen.add(student.companyLogo);
-          }
-        });
+    if (res.ok) {
+      const json = await res.json();
+      const data = json?.data || json || [];
 
-        setLogos(uniqueCompanies);
-      } catch (error) {
-        console.error("Error fetching company logos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const seen = new Set();
+      data.forEach((student) => {
+        if (student.companyLogo && !seen.has(student.companyLogo)) {
+          logos.push({
+            logo: student.companyLogo,
+            company: student.company,
+          });
+          seen.add(student.companyLogo);
+        }
+      });
+    }
+  } catch (err) {
+    console.error("LogoSlider: fetch failed →", err);
+  }
 
-    fetchLogos();
-  }, []);
-
-  if (loading)
-    return (
-      <div className="py-10 text-center text-gray-500">
-        Loading logos...
-      </div>
-    );
-
-  if (logos.length === 0)
-    return (
-      <div className="py-10 text-center text-gray-500">
-        No logos found.
-      </div>
-    );
+  if (logos.length === 0) return null;
 
   return (
     <section className="bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 py-10">
-      
-      {/* ✅ CONTAINER */}
       <div className="max-w-[1200px] mx-auto px-4 overflow-hidden">
-
         <div className="relative flex items-center">
-          <div className="flex gap-6 animate-scroll whitespace-nowrap">
+          <div className="flex gap-6 animate-logo-scroll whitespace-nowrap">
+            {/* Duplicate for seamless infinite scroll */}
             {[...logos, ...logos].map((logo, index) => (
               <div
                 key={index}
                 className="flex-shrink-0 w-40 h-24 bg-white rounded-xl shadow-md border flex items-center justify-center p-3 hover:shadow-lg transition"
               >
                 <Image
-                  src={
-                    logo.logo?.startsWith("http")
-                      ? logo.logo
-                      : `${process.env.NEXT_PUBLIC_BASE_URL}${logo.logo}`
-                  }
+                  src={getFullUrl(logo.logo)}
                   alt={logo.company || `Logo ${index}`}
                   width={120}
                   height={60}
@@ -81,18 +62,16 @@ export default function LogoSlider() {
             ))}
           </div>
         </div>
-
       </div>
 
-      {/* Smooth infinite scroll */}
-      <style jsx>{`
-        @keyframes scroll {
-          0% { transform: translateX(0); }
+      <style>{`
+        @keyframes logo-scroll {
+          0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        .animate-scroll {
+        .animate-logo-scroll {
           display: flex;
-          animation: scroll 25s linear infinite;
+          animation: logo-scroll 25s linear infinite;
         }
       `}</style>
     </section>

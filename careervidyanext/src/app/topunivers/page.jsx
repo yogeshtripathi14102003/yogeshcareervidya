@@ -1,4 +1,5 @@
 import UniversitiesClient from "./UniversitiesClient";
+import { serverFetch } from "@/utlis/serverFetch"; // ✅ add karo
 
 export const metadata = {
   title: "Top Online Courses & Universities for Students & Working Professionals | CareerVidya",
@@ -9,15 +10,13 @@ export const metadata = {
     "UGC recognized online courses",
     "executive education programs india",
     "part time courses for professionals",
-  
   ].join(", "),
 };
 
 async function getUniversities() {
   try {
-    // Note: Direct URL use karein server-side fetch ke liye
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/university`, {
-      next: { revalidate: 3600 } // Har 1 ghante mein data refresh hoga (SEO + Speed)
+    const res = await serverFetch("/api/v1/university", { // ✅ yahi change kiya
+      next: { revalidate: 3600 }
     });
     const data = await res.json();
     return data?.data || [];

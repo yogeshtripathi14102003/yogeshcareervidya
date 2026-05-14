@@ -11,19 +11,10 @@ export default function GetUniversityData() {
   const [deleting, setDeleting] = useState(null);
   const [editUni, setEditUni] = useState(null);
 
-  const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-  // ✅ SAFE IMAGE URL (NO fallback image)
   const getImage = (imageObj) => {
     const url = imageObj?.url || imageObj;
-
     if (!url) return null;
     if (typeof url === "string" && url.startsWith("http")) return url;
-
-    if (BASE_URL && typeof url === "string") {
-      return `${BASE_URL}/${url.replace(/^\/+/, "")}`;
-    }
-
     return null;
   };
 
