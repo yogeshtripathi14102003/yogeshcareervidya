@@ -39,7 +39,6 @@
 // };
 
 // export default nextConfig;  
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -52,6 +51,9 @@ const nextConfig = {
   },
 
   async rewrites() {
+    // 1. Pehle check karein variable hai ya nahi, nahi toh empty string ya local URL dein
+    const apiUrl = process.env.API_URL || 'https://api.careervidya.in'; 
+
     return [
       {
         source: "/",
@@ -59,8 +61,8 @@ const nextConfig = {
         destination: "/MBA/home",
       },
       {
-        source: "/api/v1/:path*",                              // ✅ client yeh dekhega
-        destination: `${process.env.API_URL}/api/v1/:path*`,  // ✅ server pe real URL
+        source: "/api/v1/:path*",
+        destination: `${apiUrl}/api/v1/:path*`, // Ab yeh hamesha valid URL hoga
       },
     ];
   },
