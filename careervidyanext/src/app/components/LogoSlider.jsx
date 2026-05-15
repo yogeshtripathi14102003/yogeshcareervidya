@@ -1,13 +1,13 @@
 // src/components/LogoSlider.jsx
-// Server Component — fetches on server, renders client UI inline, no NEXT_PUBLIC URL
-
 import Image from "next/image";
 import { serverFetch } from "@/utlis/serverFetch";
 
+const BASE_URL = process.env.API_URL || "https://api.careervidya.in";
+
 const getFullUrl = (path) => {
   if (!path) return "";
-  if (path.startsWith("http") || path.startsWith("/")) return path;
-  return `/${path}`;
+  if (path.startsWith("http")) return path;
+  return `${BASE_URL}/${path.replace(/^\//, "")}`;
 };
 
 export default async function LogoSlider() {
@@ -26,8 +26,8 @@ export default async function LogoSlider() {
       data.forEach((student) => {
         if (student.companyLogo && !seen.has(student.companyLogo)) {
           logos.push({
-            logo: student.companyLogo,
-            company: student.company,
+            logo: getFullUrl(student.companyLogo),
+            company: student.company || "",
           });
           seen.add(student.companyLogo);
         }
@@ -39,31 +39,11 @@ export default async function LogoSlider() {
 
   if (logos.length === 0) return null;
 
-  return (
-    <section className="bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 py-10">
-      <div className="max-w-[1200px] mx-auto px-4 overflow-hidden">
-        <div className="relative flex items-center">
-          <div className="flex gap-6 animate-logo-scroll whitespace-nowrap">
-            {/* Duplicate for seamless infinite scroll */}
-            {[...logos, ...logos].map((logo, index) => (
-              <div
-                key={index}
-                className="flex-shrink-0 w-40 h-24 bg-white rounded-xl shadow-md border flex items-center justify-center p-3 hover:shadow-lg transition"
-              >
-                <Image
-                  src={getFullUrl(logo.logo)}
-                  alt={logo.company || `Logo ${index}`}
-                  width={120}
-                  height={60}
-                  className="object-contain max-w-full max-h-full"
-                  unoptimized
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+  const doubled = [...logos, ...logos];
 
+  return (
+    <>
+      {/* ✅ CSS directly component mein */}
       <style>{`
         @keyframes logo-scroll {
           0%   { transform: translateX(0); }
@@ -73,7 +53,32 @@ export default async function LogoSlider() {
           display: flex;
           animation: logo-scroll 25s linear infinite;
         }
+        .animate-logo-scroll:hover {
+          animation-play-state: paused;
+        }
       `}</style>
-    </section>
+
+      <section className="bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 py-10 overflow-hidden">
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="flex gap-6 animate-logo-scroll whitespace-nowrap">
+            {doubled.map((logo, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-40 h-24 bg-white rounded-xl shadow-md border flex items-center justify-center p-3 hover:shadow-lg transition"
+              >
+                <Image
+                  src={logo.logo}
+                  alt={logo.company || `Company Logo ${index + 1}`}
+                  width={120}
+                  height={60}
+                  className="object-contain max-w-full max-h-full"
+                  unoptimized
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

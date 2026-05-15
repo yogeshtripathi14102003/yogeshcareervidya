@@ -16,7 +16,7 @@ import CourseKeyHighlights from "@/app/course/CourseKeyHighlights.jsx";
 import CourseOverview from "@/app/course/CourseOverview.jsx";
 import DiscountPopup from "@/app/components/DiscountPopup";
 import Studentimageslider from "@/app/components/Studentimageslider.jsx";
-import LogoSlider from "@/app/components/LogoSlider.jsx";
+// import LogoSlider from "@/app/components/LogoSlider.jsx";
 
 export default function CourseDetailClient({ course }) {
   const skipUniversityCompSlugs = [
@@ -193,7 +193,7 @@ export default function CourseDetailClient({ course }) {
       </main>
 
       <Studentimageslider />
-      <LogoSlider />
+      {/* <LogoSlider /> */}
       <Getintuch />
       <Footer />
       <DiscountPopup />

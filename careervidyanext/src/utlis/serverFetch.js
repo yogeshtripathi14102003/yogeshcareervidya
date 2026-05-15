@@ -12,6 +12,8 @@
 
 // src/utlis/serverFetch.js
 
+
+
 export const serverFetch = async (path, options = {}) => {
   const baseURL = process.env.API_URL || "https://api.careervidya.in";
 
