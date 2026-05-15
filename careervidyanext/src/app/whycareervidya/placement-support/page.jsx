@@ -11,7 +11,7 @@ import Getintuch from "@/app/components/getintuch.jsx"
 // ─── Static Data ──────────────────────────────────────────────────────────────
 
 const stats = [
-  { label: "Highest Package", val: "12 LPA" },
+  { label: "Highest Package", val: "37 LPA+" },
   { label: "Avg. Package",    val: "5.5 LPA" },
   { label: "Hiring Partners", val: "200+" },
   { label: "Placement Rate",  val: "95%" },
