@@ -13,7 +13,7 @@ import Getintuch from "@/app/components/getintuch.jsx"
 const stats = [
   { label: "Highest Package", val: "37 LPA+" },
   { label: "Avg. Package",    val: "5.5 LPA" },
-  { label: "Hiring Partners", val: "200+" },
+  { label: "Hiring Partners", val: "200+" },  
   { label: "Placement Rate",  val: "95%" },
 ];
 
@@ -41,7 +41,7 @@ const getFullUrl = (path) => {
 };
 
 // ─── Server fetch logos ───────────────────────────────────────────────────────
-
+ 
 async function getLogos() {
   try {
     const res = await serverFetch("/api/v1/ourstudent", {
@@ -66,9 +66,9 @@ async function getLogos() {
     return [];
   }
 }
-
+ 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
+   
 export default async function PlacementPage() {
   const logos = await getLogos();
 
@@ -347,10 +347,10 @@ At Career Vidya, we transform you into an industry-ready professional. Join our 
     © {new Date().getFullYear()} <span className="font-semibold text-gray-400">CareerVidya</span>. All rights reserved.
   </p>
   
-  <div className="flex items-center gap-2">
+  {/* <div className="flex items-center gap-2">
     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
     <p>System Time: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-  </div>
+  </div> */}
   
   <div className="flex gap-6">
     <p>Made with ❤️ Careervidya Team </p>

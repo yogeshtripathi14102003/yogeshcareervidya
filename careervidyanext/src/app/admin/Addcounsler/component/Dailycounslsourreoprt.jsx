@@ -106,7 +106,7 @@ const Dailycounslsourreoprt = () => {
       const leadsToDelete = await fetchAllLeads({ 
         fromDate: date, 
         toDate: date, 
-        assignedTo: counselorId 
+       counselorId: counselorId
       });
 
       if (leadsToDelete.length === 0) {

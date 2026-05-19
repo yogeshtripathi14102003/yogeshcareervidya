@@ -34,18 +34,19 @@ const getFullUrl = (path) => {
 
 export default function HeroSliderClient({ initialBanners = [] }) {
   const [slides, setSlides] = useState(() => {
-    // Priority 1: in-memory cache
-    if (globalBannerCache) return globalBannerCache;
-    // Priority 2: SSR banners passed from server (zero flash)
+    // ✅ FIX: Priority 1 — fresh SSR banners ALWAYS win over stale cache
+    // This prevents hydration mismatch caused by globalBannerCache having old image URLs
     if (initialBanners.length > 0) {
       const formatted = formatBanners(initialBanners);
-      globalBannerCache = formatted;
+      globalBannerCache = formatted; // update cache with fresh SSR data
       return formatted;
     }
+    // Priority 2: cache only as fallback when SSR returned nothing (e.g. API down)
+    if (globalBannerCache) return globalBannerCache;
     return [];
   });
 
-  // ⚡ KEY FIX: loading = true ONLY when there are genuinely no slides at all
+  // loading = true ONLY when there are genuinely no slides at all
   // If initialBanners came from server → slides already populated → loading = false immediately
   const [loading, setLoading] = useState(slides.length === 0);
 

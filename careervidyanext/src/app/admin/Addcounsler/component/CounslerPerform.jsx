@@ -1,5 +1,7 @@
 
 
+
+
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
@@ -133,8 +135,9 @@ const FinalAdmissionReport = () => {
 
       counselorUniversities[counselor].add(uni);
 
-    const isReferral =
-  item.refrelname && item.refrelname.trim() !== "";
+      const isReferral =
+        item.refrelname && item.refrelname.trim() !== "";
+      
       // -------- Monthly --------
       if (itemMonth === selMonth && itemYear === selYear) {
         counselorMap[counselor].monthlyTotal++;
@@ -159,13 +162,16 @@ const FinalAdmissionReport = () => {
       }
     });
 
-    // -------- Final Data --------
-    const finalData = Object.values(counselorMap).map((row) => ({
-      ...row,
-      universities: counselorUniversities[row.name]
-        ? [...counselorUniversities[row.name]]
-        : [],
-    }));
+    // -------- Final Data (Updated with Filter) --------
+    const finalData = Object.values(counselorMap)
+      .map((row) => ({
+        ...row,
+        universities: counselorUniversities[row.name]
+          ? [...counselorUniversities[row.name]]
+          : [],
+      }))
+      // यहाँ .filter() लगाया गया है ताकि जिस भी काउंसलर का एडमिशन 0 हो, वो लिस्ट से हट जाए
+      .filter((row) => row.dailyRowTotal > 0 || row.monthlyTotal > 0);
 
     // -------- Totals --------
     const grandDaily = finalData.reduce(
