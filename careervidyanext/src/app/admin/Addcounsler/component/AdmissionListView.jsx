@@ -1,68 +1,573 @@
-"use client";
+// "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import api from "@/utlis/api.js";
-import { Search, Pencil, Target, X, User, GraduationCap, Landmark, Receipt } from "lucide-react";
+// import React, { useEffect, useState, useMemo } from "react";
+// import api from "@/utlis/api.js";
+// import { Search, Pencil, Target, X, User, GraduationCap, Landmark, Receipt } from "lucide-react";
 
-const LeadsPage = () => {
-  const [leads, setLeads] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [editData, setEditData] = useState({});
+// const LeadsPage = () => {
+//   const [leads, setLeads] = useState([]);
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [selectedStudent, setSelectedStudent] = useState(null);
+//   const [editData, setEditData] = useState({});
 
-  // Dropdown States
-  const [feesData, setFeesData] = useState([]);
-  const [universities, setUniversities] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [branches, setBranches] = useState([]);
+//   // Dropdown States
+//   const [feesData, setFeesData] = useState([]);
+//   const [universities, setUniversities] = useState([]);
+//   const [courses, setCourses] = useState([]);
+//   const [branches, setBranches] = useState([]);
 
-  useEffect(() => {
-    fetchData();
-    fetchFeesConfig();
-  }, []);
+//   useEffect(() => {
+//     fetchData();
+//     fetchFeesConfig();
+//   }, []);
 
-  // AUTOMATIC CALCULATION LOGIC
-  useEffect(() => {
-    if (selectedStudent) {
-      const semFee = parseFloat(editData.semesterFees) || 0;
-      const semCount = parseFloat(editData.semesterCount) || 0;
-      const regFee = parseFloat(editData.registrationFee) || 0;
+//   // AUTOMATIC CALCULATION LOGIC
+//   useEffect(() => {
+//     if (selectedStudent) {
+//       const semFee = parseFloat(editData.semesterFees) || 0;
+//       const semCount = parseFloat(editData.semesterCount) || 0;
+//       const regFee = parseFloat(editData.registrationFee) || 0;
 
-      const cSemFee = parseFloat(editData.c_semesterFees) || 0;
-      const cRegFee = parseFloat(editData.c_registrationFee) || 0;
-      const cDiscount = parseFloat(editData.c_discount) || 0;
-const examFee = parseFloat(editData.examFees) || 0;
-const calculatedTotal = (semFee * semCount) + regFee + examFee*semCount;
-      // Calculate Official Total
+//       const cSemFee = parseFloat(editData.c_semesterFees) || 0;
+//       const cRegFee = parseFloat(editData.c_registrationFee) || 0;
+//       const cDiscount = parseFloat(editData.c_discount) || 0;
+// const examFee = parseFloat(editData.examFees) || 0;
+// const calculatedTotal = (semFee * semCount) + regFee + examFee*semCount;
+//       // Calculate Official Total
     
       
-      // Calculate Closing Total (Counselor's Deal)
-      const calculatedClosingTotal = ((cSemFee + examFee) * semCount) + cRegFee - cDiscount;
+//       // Calculate Closing Total (Counselor's Deal)
+//       const calculatedClosingTotal = ((cSemFee + examFee) * semCount) + cRegFee - cDiscount;
 
-      // Only update if values actually changed to avoid infinite loops
-      if (editData.totalFees !== calculatedTotal || editData.c_totalFees !== calculatedClosingTotal) {
-        setEditData(prev => ({
-          ...prev,
-          totalFees: calculatedTotal,
-          c_totalFees: calculatedClosingTotal
-        }));
+//       // Only update if values actually changed to avoid infinite loops
+//       if (editData.totalFees !== calculatedTotal || editData.c_totalFees !== calculatedClosingTotal) {
+//         setEditData(prev => ({
+//           ...prev,
+//           totalFees: calculatedTotal,
+//           c_totalFees: calculatedClosingTotal
+//         }));
+//       }
+//     }
+//   }, [
+//     editData.semesterFees, 
+//     editData.semesterCount, 
+//     editData.registrationFee, 
+//     editData.c_semesterFees, 
+//     editData.c_registrationFee, 
+//     editData.c_discount
+//   ]);
+
+//   const fetchData = async () => {
+//     try {
+//       const res = await api.get("/api/v1/ad");
+//       if (res.data.success) setLeads(res.data.data);
+//     } catch (err) {
+//       console.error("Data fetch error:", err);
+//     }
+//   };
+
+//   const fetchFeesConfig = async () => {
+//     try {
+//       const res = await api.get("/api/v1/admissionfess/all");
+//       if (res?.data?.success) {
+//         const data = res.data.data;
+//         setFeesData(data);
+//         setUniversities([...new Set(data.map(i => i.universityName))]);
+//       }
+//     } catch (err) {
+//       console.error("Fees Config fetch error:", err);
+//     }
+//   };
+
+//   const handleEditClick = (student) => {
+//     setSelectedStudent(student);
+//     setEditData({ ...student });
+    
+//     if (feesData.length > 0) {
+//       const filteredCourses = feesData
+//         .filter(i => i.universityName === student.universityName)
+//         .map(i => i.course);
+//       setCourses([...new Set(filteredCourses)]);
+
+//       const filteredBranches = feesData
+//         .filter(i => i.universityName === student.universityName && i.course === student.course)
+//         .map(i => i.branch);
+//       setBranches([...new Set(filteredBranches)]);
+//     }
+//   };
+
+//   const handleDropdownChange = (name, value) => {
+//     let newData = { ...editData, [name]: value };
+
+//     if (name === "universityName") {
+//       const filtered = feesData.filter(i => i.universityName === value);
+//       setCourses([...new Set(filtered.map(i => i.course))]);
+//       setBranches([]);
+//       newData.course = "";
+//       newData.branch = "";
+//     }
+
+//     if (name === "course") {
+//       const filtered = feesData.filter(
+//         i => i.universityName === editData.universityName && i.course === value
+//       );
+//       setBranches([...new Set(filtered.map(i => i.branch))]);
+//       newData.branch = "";
+      
+//       // Auto-fill fees from config if found
+//       const config = feesData.find(i => i.universityName === editData.universityName && i.course === value);
+//       if(config) {
+//           newData.semesterFees = config.semesterFees;
+//           newData.semesterCount = config.semesterCount;
+//           newData.registrationFee = config.registrationFee;
+//           newData.examFees = config.examFees;
+//       }
+//     }
+
+//     setEditData(newData);
+//   };
+
+//   const handleUpdate = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const res = await api.put(`/api/v1/ad/${selectedStudent._id}`, editData);
+//       if (res.data.success) {
+//         alert("Record Updated Successfully!");
+//         setSelectedStudent(null);
+//         fetchData();
+//       }
+//     } catch (err) {
+//       alert("Failed to update.");
+//     }
+//   };
+// // DELETE ADMISSION (DANGER ZONE)
+// const handleDelete = async () => {
+//   if (!selectedStudent?._id) return;
+
+//   const confirmDelete = window.confirm(
+//     "⚠️ Very Danger Zone!\nThis admission will be permanently deleted.\nAre you sure?"
+//   );
+
+//   if (!confirmDelete) return;
+
+//   try {
+//     const res = await api.delete(`/api/v1/ad/${selectedStudent._id}`);
+
+//     if (res.data.success) {
+//       alert("Admission Deleted Successfully!");
+//       setSelectedStudent(null);
+//       fetchData();
+//     }
+//   } catch (err) {
+//     alert("Delete Failed!");
+//     console.error(err);
+//   }
+// };
+//   const filteredLeads = useMemo(() => {
+//     return leads.filter((l) => {
+//       const term = searchTerm.toLowerCase();
+//       return !searchTerm || 
+//         l.studentName?.toLowerCase().includes(term) || 
+//         l.phone?.includes(searchTerm) ||
+//         l.counselorName?.toLowerCase().includes(term);
+//     });
+//   }, [leads, searchTerm]);
+
+//   return (
+//     <div className="p-4 bg-slate-50 min-h-screen font-sans text-slate-900">
+      
+//       {/* HEADER SECTION */}
+//       <div className="max-w-7xl mx-auto mb-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+//         <h1 className="text-lg font-bold flex gap-2 items-center text-slate-800">
+//           <Target className="text-orange-500" size={20} />
+//           Admission Records
+//         </h1>
+//         <div className="relative w-full md:w-72">
+//           <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+//           <input
+//             type="text"
+//             placeholder="Search leads..."
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//             className="pl-9 pr-4 py-2 w-full border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500 bg-slate-50"
+//           />
+//         </div>
+//       </div>
+
+//       {/* TABLE */}
+//       <div className="max-w-7xl mx-auto bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+//         <div className="overflow-x-auto">
+//           <table className="w-full text-xs text-left">
+//             <thead className="bg-slate-50 border-b border-slate-200">
+//               <tr className="text-slate-500 font-bold uppercase tracking-wider">
+//                 <th className="px-4 py-3">Student & Contact</th>
+//                 <th className="px-4 py-3">University & Course</th>
+//                 <th className="px-4 py-3">Fees Status</th>
+//                 <th className="px-4 py-3">Counselor</th>
+//                 <th className="px-4 py-3">Referral</th>
+//                 <th className="px-4 py-3 text-right">Action</th>
+//               </tr>
+//             </thead>
+//             <tbody className="divide-y divide-slate-100">
+//               {filteredLeads.map((student) => (
+//                 <tr key={student._id} className="hover:bg-orange-50/50 transition-colors">
+//                   <td className="px-4 py-2.5">
+//                     <div className="font-bold text-slate-800">{student.studentName}</div>
+//                     <div className="text-[10px] text-slate-500">{student.phone}</div>
+//                   </td>
+//                   <td className="px-4 py-2.5">
+//                     <div className="font-medium text-slate-700">{student.course}</div>
+//                     <div className="text-[9px] font-bold text-orange-600 uppercase">{student.universityName}</div>
+//                   </td>
+//                   <td className="px-4 py-2.5">
+//                     <div className="font-bold text-slate-800">₹{student.totalFees}</div>
+//                     <div className="text-green-600 font-bold text-[10px]">Closing: ₹{student.c_totalFees || 0}</div>
+//                   </td>
+//                   <td className="px-4 py-2.5 font-semibold text-slate-600 italic">{student.counselorName}</td>
+//                   <td className="px-4 py-2.5 font-semibold text-blue-600">
+//   {student.refrelname || "-"}
+// </td>
+//                   <td className="px-4 py-2.5 text-right">
+//                     <button
+//                       onClick={() => handleEditClick(student)}
+//                       className="bg-orange-500 text-white px-3 py-1.5 rounded-md text-[11px] font-bold hover:bg-orange-600 transition-all shadow-sm"
+//                     >
+//                       <Pencil size={12} className="inline mr-1" /> Edit
+//                     </button>
+                    
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
+
+//       {/* MODAL */}
+//       {selectedStudent && (
+//         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+//           <div className="bg-white rounded-xl w-full max-w-5xl overflow-hidden shadow-2xl border border-slate-200">
+//             <div className="px-6 py-3 border-b border-slate-100 flex justify-between items-center bg-white">
+//               <div className="flex items-center gap-2">
+//                 <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
+//                 <h2 className="text-sm font-bold text-slate-800 uppercase tracking-tight">Edit Student Profile</h2>
+//               </div>
+//               <button onClick={() => setSelectedStudent(null)} className="text-slate-400 hover:text-orange-500 p-1 rounded-full">
+//                 <X size={20} />
+//               </button>
+//             </div>
+            
+//             <form onSubmit={handleUpdate} className="p-6 overflow-y-auto max-h-[85vh]">
+//               <div className="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-3">
+                
+//                 <SectionTitle icon={<User size={14}/>} title="Personal Information" />
+//                 <InputField label="Student Name" value={editData.studentName} onChange={(val) => setEditData({...editData, studentName: val})} />
+//                 <InputField label="Father's Name" value={editData.fatherName} onChange={(val) => setEditData({...editData, fatherName: val})} />
+//                 <InputField 
+//   label="Mother's Name" 
+//   value={editData.motherName} 
+//   onChange={(val) => setEditData({...editData, motherName: val})} 
+// />
+//                 <InputField label="Aadhar Number" value={editData.adhraNumber} onChange={(val) => setEditData({...editData, adhraNumber: val})} />
+//                 <InputField label="Date of Birth" type="date" value={editData.dob} onChange={(val) => setEditData({...editData, dob: val})} />
+//                 <InputField label="Email Address" value={editData.email} onChange={(val) => setEditData({...editData, email: val})} />
+//                 <InputField label="Phone Number" value={editData.phone} onChange={(val) => setEditData({...editData, phone: val})} />
+
+//                 <SectionTitle icon={<GraduationCap size={14}/>} title="Academic Details" />
+//                 <SelectField label="University Name" value={editData.universityName} options={universities} onChange={(val) => handleDropdownChange("universityName", val)} />
+//                 <SelectField label="Course" value={editData.course} options={courses} disabled={!courses.length} onChange={(val) => handleDropdownChange("course", val)} />
+//                 <SelectField label="Branch" value={editData.branch} options={branches} disabled={!branches.length} onChange={(val) => setEditData({...editData, branch: val})} />
+//                 <InputField label="Counselor" value={editData.counselorName} onChange={(val) => setEditData({...editData, counselorName: val})} />
+//                 <InputField
+//   label="Referral Name"
+//   value={editData.refrelname}
+//   onChange={(val) => setEditData({ ...editData, refrelname: val })}
+// />
+//                 <InputField label="Admission Date" type="date" value={editData.admissionDate?.split('T')[0]} onChange={(val) => setEditData({...editData, admissionDate: val})} />
+
+//                 <SectionTitle icon={<Landmark size={14}/>} title="Official Fee Structure" />
+//                 <InputField label="Sem Fees" type="number" value={editData.semesterFees} onChange={(val) => setEditData({...editData, semesterFees: val})} />
+//                 <InputField label="Sem Count" type="number" value={editData.semesterCount} onChange={(val) => setEditData({...editData, semesterCount: val})} />
+//                 <InputField label="Reg Fee" type="number" value={editData.registrationFee} onChange={(val) => setEditData({...editData, registrationFee: val})} />
+//                 <InputField label="Total Fee (Calculated)" type="number" value={editData.totalFees} readOnly className="bg-slate-100" />
+// <InputField label="Exam Fees" type="number" value={editData.examFees} onChange={(val) => setEditData({...editData, examFees: val})} />
+//                 <SectionTitle icon={<Receipt size={14}/>} title="Closing (Counselor Deal)" />
+//                 <InputField label="Closing Sem Fee" type="number" value={editData.c_semesterFees} onChange={(val) => setEditData({...editData, c_semesterFees: val})} />
+//                 <InputField label="Closing Reg Fee" type="number" value={editData.c_registrationFee} onChange={(val) => setEditData({...editData, c_registrationFee: val})} />
+//                 <InputField label="Closing Discount" type="number" value={editData.c_discount} onChange={(val) => setEditData({...editData, c_discount: val})} />
+//                 <InputField label="Closing Total (Final)" type="number" value={editData.c_totalFees} highlight readOnly />
+//               </div>
+
+//               <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end gap-3">
+                
+//                 <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
+
+//   {/* LEFT SIDE - DANGER ZONE */}
+//   <div className="flex items-center gap-3">
+//     <span className="text-[11px] font-bold text-red-600 uppercase">
+//       ⚠️ Very Danger Zone
+//     </span>
+
+//     <button
+//       type="button"
+//       onClick={handleDelete}
+//       className="bg-red-600 text-white px-4 py-1.5 rounded-md text-[11px] font-bold hover:bg-red-700 shadow"
+//     >
+//       Delete Admission
+//     </button>
+//   </div>
+
+//   {/* RIGHT SIDE - NORMAL BUTTONS */}
+//   <div className="flex gap-3">
+//     <button
+//       type="button"
+//       onClick={() => setSelectedStudent(null)}
+//       className="px-5 py-2 text-[11px] font-bold text-slate-400"
+//     >
+//       Discard
+//     </button>
+
+//     <button
+//       type="submit"
+//       className="bg-orange-500 text-white px-8 py-2 rounded-lg text-[11px] font-bold hover:bg-orange-600 shadow-md"
+//     >
+//       Update Database
+//     </button>
+//   </div>
+
+// </div>
+                
+//               </div>
+//             </form>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// // HELPER COMPONENTS
+// const SectionTitle = ({ icon, title }) => (
+//   <div className="md:col-span-4 flex items-center gap-2 mt-2 border-b border-slate-100 pb-1">
+//     <span className="text-orange-500">{icon}</span>
+//     <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{title}</h3>
+//   </div>
+// );
+
+// const InputField = ({ label, value, onChange, type = "text", highlight = false, readOnly = false, className = "" }) => (
+//   <div className="flex flex-col gap-0.5">
+//     <label className={`text-[9px] font-bold ${highlight ? 'text-green-600' : 'text-slate-500'} ml-1 uppercase`}>{label}</label>
+//     <input
+//       type={type}
+//       value={value || ""}
+//       readOnly={readOnly}
+//       onChange={(e) => onChange && onChange(e.target.value)}
+//       className={`border ${highlight ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-white'} ${readOnly ? 'bg-slate-50 cursor-not-allowed' : ''} rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-100 outline-none transition-all ${className}`}
+//     />
+//   </div>
+// );
+
+// const SelectField = ({ label, value, options, onChange, disabled = false }) => (
+//   <div className="flex flex-col gap-0.5">
+//     <label className="text-[9px] font-bold text-slate-500 ml-1 uppercase">{label}</label>
+//     <select
+//       value={value || ""}
+//       onChange={(e) => onChange(e.target.value)}
+//       disabled={disabled}
+//       className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-white focus:ring-2 focus:ring-orange-100 outline-none transition-all disabled:bg-slate-50"
+//     >
+//       <option value="">Select {label}</option>
+//       {options.map((opt, i) => (
+//         <option key={i} value={opt}>{opt}</option>
+//       ))}
+//     </select>
+//   </div>
+// );
+
+// export default LeadsPage;
+"use client";
+
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import api from "@/utlis/api.js";
+import { Search, Pencil, Target, X, User, GraduationCap, Landmark, Receipt, Users, CalendarDays, ChevronUp, ChevronDown } from "lucide-react";
+
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+// ─── Month Picker Popup (like image) ─────────────────────────────────────────
+const MonthPicker = ({ value, onChange, onClear }) => {
+  // value = { month: 0-11 | null, year: number | null }
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(value?.year || today.getFullYear());
+
+  const days = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+
+  // Build calendar grid for the viewYear/viewMonth — but we just need month grid
+  // We show months grid for the year (like a month picker, not day picker)
+  const isSelected = (m) => value?.month === m && value?.year === viewYear;
+
+  return (
+    <div className="absolute top-full left-0 mt-1 z-50 bg-white border border-slate-200 rounded-xl shadow-2xl w-64 p-3 select-none">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-sm font-bold text-slate-800">{viewYear}</span>
+        <div className="flex gap-1">
+          <button onClick={()=>setViewYear(y=>y-1)} className="p-1 rounded hover:bg-slate-100 transition-colors">
+            <ChevronUp size={15} className="text-slate-500"/>
+          </button>
+          <button onClick={()=>setViewYear(y=>y+1)} className="p-1 rounded hover:bg-slate-100 transition-colors">
+            <ChevronDown size={15} className="text-slate-500"/>
+          </button>
+        </div>
+      </div>
+
+      {/* Month Grid */}
+      <div className="grid grid-cols-4 gap-1 mb-3">
+        {MONTHS_SHORT.map((m, i) => (
+          <button
+            key={i}
+            onClick={() => onChange({ month: i, year: viewYear })}
+            className={`py-2 rounded-lg text-xs font-bold transition-all
+              ${isSelected(i)
+                ? "bg-orange-500 text-white shadow"
+                : "text-slate-600 hover:bg-orange-50 hover:text-orange-600"
+              }`}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-between items-center border-t border-slate-100 pt-2">
+        <button
+          onClick={onClear}
+          className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors px-2 py-1"
+        >
+          Clear
+        </button>
+        <button
+          onClick={() => onChange({ month: today.getMonth(), year: today.getFullYear() })}
+          className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors px-2 py-1"
+        >
+          This Month
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+const Toast = ({ toasts, removeToast }) => (
+  <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2">
+    {toasts.map((t) => (
+      <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold border text-white
+        ${t.type==="success"?"bg-green-600 border-green-700":t.type==="error"?"bg-red-600 border-red-700":"bg-slate-700 border-slate-800"}`}>
+        <span>{t.message}</span>
+        <button onClick={()=>removeToast(t.id)} className="ml-2 opacity-70 hover:opacity-100"><X size={14}/></button>
+      </div>
+    ))}
+  </div>
+);
+
+// ─── Confirm Modal ────────────────────────────────────────────────────────────
+const ConfirmModal = ({ message, onConfirm, onCancel }) => (
+  <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+    <div className="bg-white rounded-xl shadow-2xl border border-slate-200 p-6 max-w-sm w-full">
+      <div className="flex items-start gap-3 mb-4">
+        <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+          <span className="text-red-600 text-lg">⚠️</span>
+        </div>
+        <div>
+          <h3 className="font-bold text-slate-800 text-sm mb-1">Confirm Delete</h3>
+          <p className="text-xs text-slate-500 leading-relaxed">{message}</p>
+        </div>
+      </div>
+      <div className="flex gap-2 justify-end">
+        <button onClick={onCancel} className="px-4 py-2 text-xs font-bold text-slate-500 border border-slate-200 rounded-lg">Cancel</button>
+        <button onClick={onConfirm} className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+);
+
+// ─── useToast ─────────────────────────────────────────────────────────────────
+const useToast = () => {
+  const [toasts, setToasts] = useState([]);
+  const addToast = (message, type="info") => {
+    const id = Date.now();
+    setToasts(prev=>[...prev,{id,message,type}]);
+    setTimeout(()=>setToasts(prev=>prev.filter(t=>t.id!==id)),3500);
+  };
+  const removeToast = (id) => setToasts(prev=>prev.filter(t=>t.id!==id));
+  return { toasts, addToast, removeToast };
+};
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+const LeadsPage = () => {
+  const [leads, setLeads]               = useState([]);
+  const [searchTerm, setSearchTerm]     = useState("");
+  // dateFilter = { month: 0-11 | null, year: number | null } | null
+  const [dateFilter, setDateFilter]     = useState(null);
+  const [showPicker, setShowPicker]     = useState(false);
+  const [filterCounselor, setFilterCounselor] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [editData, setEditData]         = useState({});
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const pickerRef = useRef(null);
+  const { toasts, addToast, removeToast } = useToast();
+
+  const [feesData, setFeesData]         = useState([]);
+  const [universities, setUniversities] = useState([]);
+  const [courses, setCourses]           = useState([]);
+  const [branches, setBranches]         = useState([]);
+
+  useEffect(() => { fetchData(); fetchFeesConfig(); }, []);
+
+  // Close picker on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+        setShowPicker(false);
       }
-    }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // ─── Auto Fee Calculation ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (!selectedStudent) return;
+    const semFee    = parseFloat(editData.semesterFees)      || 0;
+    const semCount  = parseFloat(editData.semesterCount)     || 0;
+    const regFee    = parseFloat(editData.registrationFee)   || 0;
+    const examFee   = parseFloat(editData.examFees)          || 0;
+    const cSemFee   = parseFloat(editData.c_semesterFees)    || 0;
+    const cRegFee   = parseFloat(editData.c_registrationFee) || 0;
+    const cDiscount = parseFloat(editData.c_discount)        || 0;
+
+    const calcTotal        = (semFee * semCount) + regFee + (examFee * semCount);
+    const calcClosingTotal = ((cSemFee + examFee) * semCount) + cRegFee - cDiscount;
+
+    setEditData(prev => {
+      if (prev.totalFees===calcTotal && prev.c_totalFees===calcClosingTotal) return prev;
+      return { ...prev, totalFees: calcTotal, c_totalFees: calcClosingTotal };
+    });
   }, [
-    editData.semesterFees, 
-    editData.semesterCount, 
-    editData.registrationFee, 
-    editData.c_semesterFees, 
-    editData.c_registrationFee, 
-    editData.c_discount
+    editData.semesterFees, editData.semesterCount, editData.registrationFee,
+    editData.examFees, editData.c_semesterFees, editData.c_registrationFee,
+    editData.c_discount, selectedStudent
   ]);
 
+  // ─── Fetch ────────────────────────────────────────────────────────────────
   const fetchData = async () => {
     try {
       const res = await api.get("/api/v1/ad");
       if (res.data.success) setLeads(res.data.data);
     } catch (err) {
-      console.error("Data fetch error:", err);
+      addToast("Failed to load records.", "error");
     }
   };
 
@@ -72,129 +577,258 @@ const calculatedTotal = (semFee * semCount) + regFee + examFee*semCount;
       if (res?.data?.success) {
         const data = res.data.data;
         setFeesData(data);
-        setUniversities([...new Set(data.map(i => i.universityName))]);
+        setUniversities([...new Set(data.map(i=>i.universityName))]);
       }
-    } catch (err) {
-      console.error("Fees Config fetch error:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
+  // ─── Counselors list ──────────────────────────────────────────────────────
+  const availableCounselors = useMemo(() => {
+    return [...new Set(leads.map(l=>l.counselorName).filter(Boolean))].sort();
+  }, [leads]);
+
+  // ─── Helper: does lead match date filter ──────────────────────────────────
+  const matchesDate = (l, df) => {
+    if (!df) return true;
+    const date = l.admissionDate ? new Date(l.admissionDate) : null;
+    if (!date || isNaN(date)) return false;
+    const mOk = df.month != null ? date.getMonth() === df.month : true;
+    const yOk = df.year  != null ? date.getFullYear() === df.year  : true;
+    return mOk && yOk;
+  };
+
+  // ─── Filtered leads ───────────────────────────────────────────────────────
+  const filteredLeads = useMemo(() => {
+    return leads.filter(l => {
+      const term = searchTerm.toLowerCase();
+      const matchSearch = !searchTerm ||
+        l.studentName?.toLowerCase().includes(term) ||
+        l.phone?.includes(searchTerm) ||
+        l.counselorName?.toLowerCase().includes(term);
+      const matchCounselor = !filterCounselor || l.counselorName === filterCounselor;
+      return matchSearch && matchCounselor && matchesDate(l, dateFilter);
+    });
+  }, [leads, searchTerm, filterCounselor, dateFilter]);
+
+  // ─── Counselor summary (respects date filter, ignores counselor filter) ───
+  const counselorStats = useMemo(() => {
+    const base = leads.filter(l => matchesDate(l, dateFilter));
+    const map = {};
+    base.forEach(l => {
+      const name = l.counselorName || "Unassigned";
+      if (!map[name]) map[name] = { count: 0, totalClosing: 0 };
+      map[name].count++;
+      map[name].totalClosing += parseFloat(l.c_totalFees) || 0;
+    });
+    return Object.entries(map).map(([name,v])=>({name,...v})).sort((a,b)=>b.count-a.count);
+  }, [leads, dateFilter]);
+
+  const isFilterActive = !!dateFilter || !!filterCounselor;
+
+  const dateLabel = dateFilter
+    ? `${dateFilter.month != null ? MONTHS_SHORT[dateFilter.month] : ""} ${dateFilter.year ?? ""}`.trim()
+    : "Filter by Month";
+
+  // ─── Edit handlers ────────────────────────────────────────────────────────
   const handleEditClick = (student) => {
     setSelectedStudent(student);
     setEditData({ ...student });
-    
     if (feesData.length > 0) {
-      const filteredCourses = feesData
-        .filter(i => i.universityName === student.universityName)
-        .map(i => i.course);
-      setCourses([...new Set(filteredCourses)]);
-
-      const filteredBranches = feesData
-        .filter(i => i.universityName === student.universityName && i.course === student.course)
-        .map(i => i.branch);
-      setBranches([...new Set(filteredBranches)]);
+      const fc = feesData.filter(i=>i.universityName===student.universityName).map(i=>i.course);
+      setCourses([...new Set(fc)]);
+      const fb = feesData.filter(i=>i.universityName===student.universityName&&i.course===student.course).map(i=>i.branch);
+      setBranches([...new Set(fb)]);
     }
   };
 
   const handleDropdownChange = (name, value) => {
     let newData = { ...editData, [name]: value };
-
     if (name === "universityName") {
-      const filtered = feesData.filter(i => i.universityName === value);
-      setCourses([...new Set(filtered.map(i => i.course))]);
+      const f = feesData.filter(i=>i.universityName===value);
+      setCourses([...new Set(f.map(i=>i.course))]);
       setBranches([]);
-      newData.course = "";
-      newData.branch = "";
+      newData.course = ""; newData.branch = "";
     }
-
     if (name === "course") {
-      const filtered = feesData.filter(
-        i => i.universityName === editData.universityName && i.course === value
-      );
-      setBranches([...new Set(filtered.map(i => i.branch))]);
+      const f = feesData.filter(i=>i.universityName===editData.universityName&&i.course===value);
+      setBranches([...new Set(f.map(i=>i.branch))]);
       newData.branch = "";
-      
-      // Auto-fill fees from config if found
-      const config = feesData.find(i => i.universityName === editData.universityName && i.course === value);
-      if(config) {
-          newData.semesterFees = config.semesterFees;
-          newData.semesterCount = config.semesterCount;
-          newData.registrationFee = config.registrationFee;
-          newData.examFees = config.examFees;
+      const config = feesData.find(i=>i.universityName===editData.universityName&&i.course===value);
+      if (config) {
+        newData.semesterFees    = config.semesterFees;
+        newData.semesterCount   = config.semesterCount;
+        newData.registrationFee = config.registrationFee;
+        newData.examFees        = config.examFees;
       }
     }
-
     setEditData(newData);
   };
 
+  // ─── Update ───────────────────────────────────────────────────────────────
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const res = await api.put(`/api/v1/ad/${selectedStudent._id}`, editData);
       if (res.data.success) {
-        alert("Record Updated Successfully!");
+        addToast("Record updated successfully!", "success");
         setSelectedStudent(null);
         fetchData();
-      }
+      } else { addToast(res.data.message || "Update failed.", "error"); }
     } catch (err) {
-      alert("Failed to update.");
+      addToast(err.response?.data?.message || "Failed to update.", "error");
+    } finally { setIsSubmitting(false); }
+  };
+
+  // ─── Delete ───────────────────────────────────────────────────────────────
+  const handleDeleteConfirmed = async () => {
+    setConfirmDelete(false);
+    if (!selectedStudent?._id) return;
+    try {
+      const res = await api.delete(`/api/v1/ad/${selectedStudent._id}`);
+      if (res.data.success) {
+        addToast("Admission deleted.", "success");
+        setSelectedStudent(null);
+        fetchData();
+      } else { addToast(res.data.message || "Delete failed.", "error"); }
+    } catch (err) {
+      addToast(err.response?.data?.message || "Delete failed.", "error");
     }
   };
-// DELETE ADMISSION (DANGER ZONE)
-const handleDelete = async () => {
-  if (!selectedStudent?._id) return;
 
-  const confirmDelete = window.confirm(
-    "⚠️ Very Danger Zone!\nThis admission will be permanently deleted.\nAre you sure?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-    const res = await api.delete(`/api/v1/ad/${selectedStudent._id}`);
-
-    if (res.data.success) {
-      alert("Admission Deleted Successfully!");
-      setSelectedStudent(null);
-      fetchData();
-    }
-  } catch (err) {
-    alert("Delete Failed!");
-    console.error(err);
-  }
-};
-  const filteredLeads = useMemo(() => {
-    return leads.filter((l) => {
-      const term = searchTerm.toLowerCase();
-      return !searchTerm || 
-        l.studentName?.toLowerCase().includes(term) || 
-        l.phone?.includes(searchTerm) ||
-        l.counselorName?.toLowerCase().includes(term);
-    });
-  }, [leads, searchTerm]);
-
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="p-4 bg-slate-50 min-h-screen font-sans text-slate-900">
-      
-      {/* HEADER SECTION */}
-      <div className="max-w-7xl mx-auto mb-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+
+      <Toast toasts={toasts} removeToast={removeToast}/>
+
+      {confirmDelete && (
+        <ConfirmModal
+          message="This admission record will be permanently deleted. Are you sure?"
+          onConfirm={handleDeleteConfirmed}
+          onCancel={()=>setConfirmDelete(false)}
+        />
+      )}
+
+      {/* ── HEADER ─────────────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto mb-3 flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <h1 className="text-lg font-bold flex gap-2 items-center text-slate-800">
-          <Target className="text-orange-500" size={20} />
+          <Target className="text-orange-500" size={20}/>
           Admission Records
         </h1>
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
-          <input
-            type="text"
-            placeholder="Search leads..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-4 py-2 w-full border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500 bg-slate-50"
-          />
+        <div className="flex items-center gap-2 w-full md:w-auto">
+
+          {/* Month Picker Button */}
+          <div className="relative" ref={pickerRef}>
+            <button
+              onClick={()=>setShowPicker(v=>!v)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all
+                ${dateFilter
+                  ? "bg-orange-500 text-white border-orange-500 shadow"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-orange-300"
+                }`}
+            >
+              <CalendarDays size={14}/>
+              {dateLabel}
+              {dateFilter && (
+                <span
+                  onClick={(e)=>{e.stopPropagation();setDateFilter(null);}}
+                  className="ml-1 opacity-80 hover:opacity-100"
+                >
+                  <X size={12}/>
+                </span>
+              )}
+            </button>
+
+            {showPicker && (
+              <MonthPicker
+                value={dateFilter}
+                onChange={(v)=>{ setDateFilter(v); setShowPicker(false); }}
+                onClear={()=>{ setDateFilter(null); setShowPicker(false); }}
+              />
+            )}
+          </div>
+
+          {/* Counselor Filter */}
+          <select
+            value={filterCounselor}
+            onChange={e=>setFilterCounselor(e.target.value)}
+            className="border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white outline-none focus:ring-2 focus:ring-orange-400 font-semibold text-slate-600"
+          >
+            <option value="">All Counselors</option>
+            {availableCounselors.map(c=>(
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+
+          {/* Search */}
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-2.5 text-slate-400" size={14}/>
+            <input
+              type="text"
+              placeholder="Search name, phone..."
+              value={searchTerm}
+              onChange={e=>setSearchTerm(e.target.value)}
+              className="pl-8 pr-4 py-2 w-full border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500 bg-slate-50"
+            />
+          </div>
+
+          {/* Record count + clear */}
+          <span className="text-[11px] bg-orange-50 text-orange-600 font-bold px-3 py-2 rounded-lg border border-orange-100 whitespace-nowrap">
+            {filteredLeads.length} records
+          </span>
+
+          {isFilterActive && (
+            <button
+              onClick={()=>{setDateFilter(null);setFilterCounselor("");}}
+              className="text-[11px] text-slate-400 hover:text-red-500 flex items-center gap-1 transition-colors whitespace-nowrap"
+            >
+              <X size={11}/> Clear
+            </button>
+          )}
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* ── COUNSELOR SUMMARY CARDS ─────────────────────────────────────── */}
+      {counselorStats.length > 0 && (
+        <div className="max-w-7xl mx-auto mb-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Users size={13} className="text-orange-500"/>
+            <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+              Counselor-wise
+              {dateFilter && (
+                <span className="ml-1 text-orange-500 normal-case font-bold">
+                  — {dateFilter.month!=null?MONTHS[dateFilter.month]:""} {dateFilter.year??""}
+                </span>
+              )}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            {counselorStats.map(cs=>(
+              <button
+                key={cs.name}
+                onClick={()=>setFilterCounselor(filterCounselor===cs.name?"":cs.name)}
+                className={`text-left p-3 rounded-xl border transition-all shadow-sm
+                  ${filterCounselor===cs.name
+                    ?"bg-orange-500 border-orange-500 text-white"
+                    :"bg-white border-slate-200 hover:border-orange-300 hover:shadow-md"}`}
+              >
+                <div className={`text-[10px] font-bold uppercase truncate mb-1 ${filterCounselor===cs.name?"text-orange-100":"text-slate-400"}`}>
+                  {cs.name}
+                </div>
+                <div className={`text-xl font-black leading-none ${filterCounselor===cs.name?"text-white":"text-slate-800"}`}>
+                  {cs.count}
+                </div>
+                <div className={`text-[9px] font-semibold mt-1 ${filterCounselor===cs.name?"text-orange-100":"text-green-600"}`}>
+                  ₹{cs.totalClosing.toLocaleString("en-IN")}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── TABLE ──────────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
@@ -205,11 +839,14 @@ const handleDelete = async () => {
                 <th className="px-4 py-3">Fees Status</th>
                 <th className="px-4 py-3">Counselor</th>
                 <th className="px-4 py-3">Referral</th>
+                <th className="px-4 py-3">Admission Date</th>
                 <th className="px-4 py-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredLeads.map((student) => (
+              {filteredLeads.length===0 ? (
+                <tr><td colSpan={7} className="text-center py-10 text-slate-400 text-sm">No records found.</td></tr>
+              ) : filteredLeads.map(student=>(
                 <tr key={student._id} className="hover:bg-orange-50/50 transition-colors">
                   <td className="px-4 py-2.5">
                     <div className="font-bold text-slate-800">{student.studentName}</div>
@@ -221,20 +858,22 @@ const handleDelete = async () => {
                   </td>
                   <td className="px-4 py-2.5">
                     <div className="font-bold text-slate-800">₹{student.totalFees}</div>
-                    <div className="text-green-600 font-bold text-[10px]">Closing: ₹{student.c_totalFees || 0}</div>
+                    <div className="text-green-600 font-bold text-[10px]">Closing: ₹{student.c_totalFees||0}</div>
                   </td>
                   <td className="px-4 py-2.5 font-semibold text-slate-600 italic">{student.counselorName}</td>
-                  <td className="px-4 py-2.5 font-semibold text-blue-600">
-  {student.refrelname || "-"}
-</td>
+                  <td className="px-4 py-2.5 font-semibold text-blue-600">{student.refrelname||"-"}</td>
+                  <td className="px-4 py-2.5 text-slate-500">
+                    {student.admissionDate
+                      ? new Date(student.admissionDate).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})
+                      : "-"}
+                  </td>
                   <td className="px-4 py-2.5 text-right">
                     <button
-                      onClick={() => handleEditClick(student)}
+                      onClick={()=>handleEditClick(student)}
                       className="bg-orange-500 text-white px-3 py-1.5 rounded-md text-[11px] font-bold hover:bg-orange-600 transition-all shadow-sm"
                     >
-                      <Pencil size={12} className="inline mr-1" /> Edit
+                      <Pencil size={12} className="inline mr-1"/> Edit
                     </button>
-                    
                   </td>
                 </tr>
               ))}
@@ -243,100 +882,76 @@ const handleDelete = async () => {
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* ── EDIT MODAL ─────────────────────────────────────────────────── */}
       {selectedStudent && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-5xl overflow-hidden shadow-2xl border border-slate-200">
+
             <div className="px-6 py-3 border-b border-slate-100 flex justify-between items-center bg-white">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
                 <h2 className="text-sm font-bold text-slate-800 uppercase tracking-tight">Edit Student Profile</h2>
               </div>
-              <button onClick={() => setSelectedStudent(null)} className="text-slate-400 hover:text-orange-500 p-1 rounded-full">
-                <X size={20} />
+              <button onClick={()=>setSelectedStudent(null)} className="text-slate-400 hover:text-orange-500 p-1 rounded-full transition-colors">
+                <X size={20}/>
               </button>
             </div>
-            
+
             <form onSubmit={handleUpdate} className="p-6 overflow-y-auto max-h-[85vh]">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-3">
-                
-                <SectionTitle icon={<User size={14}/>} title="Personal Information" />
-                <InputField label="Student Name" value={editData.studentName} onChange={(val) => setEditData({...editData, studentName: val})} />
-                <InputField label="Father's Name" value={editData.fatherName} onChange={(val) => setEditData({...editData, fatherName: val})} />
-                <InputField 
-  label="Mother's Name" 
-  value={editData.motherName} 
-  onChange={(val) => setEditData({...editData, motherName: val})} 
-/>
-                <InputField label="Aadhar Number" value={editData.adhraNumber} onChange={(val) => setEditData({...editData, adhraNumber: val})} />
-                <InputField label="Date of Birth" type="date" value={editData.dob} onChange={(val) => setEditData({...editData, dob: val})} />
-                <InputField label="Email Address" value={editData.email} onChange={(val) => setEditData({...editData, email: val})} />
-                <InputField label="Phone Number" value={editData.phone} onChange={(val) => setEditData({...editData, phone: val})} />
 
-                <SectionTitle icon={<GraduationCap size={14}/>} title="Academic Details" />
-                <SelectField label="University Name" value={editData.universityName} options={universities} onChange={(val) => handleDropdownChange("universityName", val)} />
-                <SelectField label="Course" value={editData.course} options={courses} disabled={!courses.length} onChange={(val) => handleDropdownChange("course", val)} />
-                <SelectField label="Branch" value={editData.branch} options={branches} disabled={!branches.length} onChange={(val) => setEditData({...editData, branch: val})} />
-                <InputField label="Counselor" value={editData.counselorName} onChange={(val) => setEditData({...editData, counselorName: val})} />
-                <InputField
-  label="Referral Name"
-  value={editData.refrelname}
-  onChange={(val) => setEditData({ ...editData, refrelname: val })}
-/>
-                <InputField label="Admission Date" type="date" value={editData.admissionDate?.split('T')[0]} onChange={(val) => setEditData({...editData, admissionDate: val})} />
+                <SectionTitle icon={<User size={14}/>} title="Personal Information"/>
+                <InputField label="Student Name"  value={editData.studentName}  onChange={val=>setEditData({...editData,studentName:val})}/>
+                <InputField label="Father's Name" value={editData.fatherName}   onChange={val=>setEditData({...editData,fatherName:val})}/>
+                <InputField label="Mother's Name" value={editData.motherName}   onChange={val=>setEditData({...editData,motherName:val})}/>
+                <InputField label="Aadhar Number" value={editData.adhraNumber}  onChange={val=>setEditData({...editData,adhraNumber:val})}/>
+                <InputField label="Date of Birth" type="date" value={editData.dob} onChange={val=>setEditData({...editData,dob:val})}/>
+                <InputField label="Email Address" value={editData.email}        onChange={val=>setEditData({...editData,email:val})}/>
+                <InputField label="Phone Number"  value={editData.phone}        onChange={val=>setEditData({...editData,phone:val})}/>
 
-                <SectionTitle icon={<Landmark size={14}/>} title="Official Fee Structure" />
-                <InputField label="Sem Fees" type="number" value={editData.semesterFees} onChange={(val) => setEditData({...editData, semesterFees: val})} />
-                <InputField label="Sem Count" type="number" value={editData.semesterCount} onChange={(val) => setEditData({...editData, semesterCount: val})} />
-                <InputField label="Reg Fee" type="number" value={editData.registrationFee} onChange={(val) => setEditData({...editData, registrationFee: val})} />
-                <InputField label="Total Fee (Calculated)" type="number" value={editData.totalFees} readOnly className="bg-slate-100" />
-<InputField label="Exam Fees" type="number" value={editData.examFees} onChange={(val) => setEditData({...editData, examFees: val})} />
-                <SectionTitle icon={<Receipt size={14}/>} title="Closing (Counselor Deal)" />
-                <InputField label="Closing Sem Fee" type="number" value={editData.c_semesterFees} onChange={(val) => setEditData({...editData, c_semesterFees: val})} />
-                <InputField label="Closing Reg Fee" type="number" value={editData.c_registrationFee} onChange={(val) => setEditData({...editData, c_registrationFee: val})} />
-                <InputField label="Closing Discount" type="number" value={editData.c_discount} onChange={(val) => setEditData({...editData, c_discount: val})} />
-                <InputField label="Closing Total (Final)" type="number" value={editData.c_totalFees} highlight readOnly />
+                <SectionTitle icon={<GraduationCap size={14}/>} title="Academic Details"/>
+                <SelectField label="University Name" value={editData.universityName} options={universities} onChange={val=>handleDropdownChange("universityName",val)}/>
+                <SelectField label="Course"  value={editData.course}  options={courses}   disabled={!courses.length}   onChange={val=>handleDropdownChange("course",val)}/>
+                <SelectField label="Branch"  value={editData.branch}  options={branches}  disabled={!branches.length}  onChange={val=>setEditData({...editData,branch:val})}/>
+                <InputField  label="Counselor"     value={editData.counselorName} onChange={val=>setEditData({...editData,counselorName:val})}/>
+                <InputField  label="Referral Name" value={editData.refrelname}    onChange={val=>setEditData({...editData,refrelname:val})}/>
+                <InputField  label="Admission Date" type="date" value={editData.admissionDate?.split("T")[0]} onChange={val=>setEditData({...editData,admissionDate:val})}/>
+
+                <SectionTitle icon={<Landmark size={14}/>} title="Official Fee Structure"/>
+                <InputField label="Sem Fees"   type="number" value={editData.semesterFees}    onChange={val=>setEditData({...editData,semesterFees:val})}/>
+                <InputField label="Sem Count"  type="number" value={editData.semesterCount}   onChange={val=>setEditData({...editData,semesterCount:val})}/>
+                <InputField label="Reg Fee"    type="number" value={editData.registrationFee} onChange={val=>setEditData({...editData,registrationFee:val})}/>
+                <InputField label="Exam Fees"  type="number" value={editData.examFees}        onChange={val=>setEditData({...editData,examFees:val})}/>
+                <InputField label="Total Fee (Calculated)" type="number" value={editData.totalFees} readOnly className="bg-slate-100"/>
+
+                <SectionTitle icon={<Receipt size={14}/>} title="Closing (Counselor Deal)"/>
+                <InputField label="Closing Sem Fee"  type="number" value={editData.c_semesterFees}    onChange={val=>setEditData({...editData,c_semesterFees:val})}/>
+                <InputField label="Closing Reg Fee"  type="number" value={editData.c_registrationFee} onChange={val=>setEditData({...editData,c_registrationFee:val})}/>
+                <InputField label="Closing Discount" type="number" value={editData.c_discount}        onChange={val=>setEditData({...editData,c_discount:val})}/>
+                <InputField label="Closing Total (Final)" type="number" value={editData.c_totalFees} highlight readOnly/>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end gap-3">
-                
-                <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
-
-  {/* LEFT SIDE - DANGER ZONE */}
-  <div className="flex items-center gap-3">
-    <span className="text-[11px] font-bold text-red-600 uppercase">
-      ⚠️ Very Danger Zone
-    </span>
-
-    <button
-      type="button"
-      onClick={handleDelete}
-      className="bg-red-600 text-white px-4 py-1.5 rounded-md text-[11px] font-bold hover:bg-red-700 shadow"
-    >
-      Delete Admission
-    </button>
-  </div>
-
-  {/* RIGHT SIDE - NORMAL BUTTONS */}
-  <div className="flex gap-3">
-    <button
-      type="button"
-      onClick={() => setSelectedStudent(null)}
-      className="px-5 py-2 text-[11px] font-bold text-slate-400"
-    >
-      Discard
-    </button>
-
-    <button
-      type="submit"
-      className="bg-orange-500 text-white px-8 py-2 rounded-lg text-[11px] font-bold hover:bg-orange-600 shadow-md"
-    >
-      Update Database
-    </button>
-  </div>
-
-</div>
-                
+              <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-bold text-red-600 uppercase">⚠️ Danger Zone</span>
+                  <button
+                    type="button"
+                    onClick={()=>setConfirmDelete(true)}
+                    className="bg-red-600 text-white px-4 py-1.5 rounded-md text-[11px] font-bold hover:bg-red-700 shadow transition-all"
+                  >
+                    Delete Admission
+                  </button>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <button type="button" onClick={()=>setSelectedStudent(null)}
+                    className="px-5 py-2 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                    Discard
+                  </button>
+                  <button type="submit" disabled={isSubmitting}
+                    className="bg-orange-500 text-white px-8 py-2 rounded-lg text-[11px] font-bold hover:bg-orange-600 shadow-md transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+                    {isSubmitting?"Saving...":"Update Database"}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -346,7 +961,7 @@ const handleDelete = async () => {
   );
 };
 
-// HELPER COMPONENTS
+// ─── Helper Components ────────────────────────────────────────────────────────
 const SectionTitle = ({ icon, title }) => (
   <div className="md:col-span-4 flex items-center gap-2 mt-2 border-b border-slate-100 pb-1">
     <span className="text-orange-500">{icon}</span>
@@ -354,32 +969,30 @@ const SectionTitle = ({ icon, title }) => (
   </div>
 );
 
-const InputField = ({ label, value, onChange, type = "text", highlight = false, readOnly = false, className = "" }) => (
+const InputField = ({ label, value, onChange, type="text", highlight=false, readOnly=false, className="" }) => (
   <div className="flex flex-col gap-0.5">
-    <label className={`text-[9px] font-bold ${highlight ? 'text-green-600' : 'text-slate-500'} ml-1 uppercase`}>{label}</label>
+    <label className={`text-[9px] font-bold ${highlight?"text-green-600":"text-slate-500"} ml-1 uppercase`}>{label}</label>
     <input
       type={type}
-      value={value || ""}
+      value={value??""}
       readOnly={readOnly}
-      onChange={(e) => onChange && onChange(e.target.value)}
-      className={`border ${highlight ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-white'} ${readOnly ? 'bg-slate-50 cursor-not-allowed' : ''} rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-100 outline-none transition-all ${className}`}
+      onChange={e=>onChange&&onChange(e.target.value)}
+      className={`border ${highlight?"border-green-200 bg-green-50":"border-slate-200 bg-white"} ${readOnly?"bg-slate-50 cursor-not-allowed":""} rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-100 outline-none transition-all ${className}`}
     />
   </div>
 );
 
-const SelectField = ({ label, value, options, onChange, disabled = false }) => (
+const SelectField = ({ label, value, options, onChange, disabled=false }) => (
   <div className="flex flex-col gap-0.5">
     <label className="text-[9px] font-bold text-slate-500 ml-1 uppercase">{label}</label>
     <select
-      value={value || ""}
-      onChange={(e) => onChange(e.target.value)}
+      value={value||""}
+      onChange={e=>onChange(e.target.value)}
       disabled={disabled}
       className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-white focus:ring-2 focus:ring-orange-100 outline-none transition-all disabled:bg-slate-50"
     >
       <option value="">Select {label}</option>
-      {options.map((opt, i) => (
-        <option key={i} value={opt}>{opt}</option>
-      ))}
+      {options.map((opt,i)=><option key={i} value={opt}>{opt}</option>)}
     </select>
   </div>
 );

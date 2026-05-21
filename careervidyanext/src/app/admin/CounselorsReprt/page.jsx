@@ -81,7 +81,7 @@ const LeadsPage = () => {
   const downloadExcel = async () => {
     try {
       const res = await api.get("/api/v1/leads", {
-        params: { limit: 2000, status: filterStatus, counselorId: selectedCounselor, searchTerm }
+        params: { limit: 20000, status: filterStatus, counselorId: selectedCounselor, searchTerm }
       });
       const dataToExport = res.data.data.map(l => ({
         "Date": l.createdAt?.slice(0, 10),
