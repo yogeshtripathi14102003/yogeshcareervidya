@@ -190,18 +190,17 @@ export const createLeadAdmission = async (req, res) => {
 };
 
 // ================= GET ALL ADMISSIONS =================
+// ================= GET ALL ADMISSIONS =================
 export const getAllLeadAdmissions = async (req, res) => {
   try {
-    const { limit, counselorId, counselorName } = req.query;
+    const { limit, counselorName } = req.query;
 
     const filter = {};
 
-    if (req.user?.role === "counselor") {
-      filter.counselor = req.user._id;        // JWT se — primary
-    } else if (counselorId) {
-      filter.counselor = counselorId;          // query param — fallback
-    } else if (counselorName) {
-      filter.counselorName = counselorName;    // naam se — last resort
+    // Admin = sab milega (filter empty)
+    // Counselor = sirf apne students (counselorName query param se)
+    if (counselorName) {
+      filter.counselorName = counselorName;
     }
 
     const admissions = await LeadAdmission.find(filter)
@@ -215,7 +214,6 @@ export const getAllLeadAdmissions = async (req, res) => {
       data: admissions,
     });
   } catch (error) {
-    // ✅ Actual error log karo terminal mein
     console.error("getAllLeadAdmissions error:", error.message);
     return res.status(500).json({
       success: false,

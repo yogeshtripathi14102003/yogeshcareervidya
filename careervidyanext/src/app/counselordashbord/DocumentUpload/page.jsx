@@ -1,3 +1,5 @@
+
+
 // "use client";
 // import { useState, useRef, useCallback, useEffect } from "react";
 // import api from "@/utlis/api.js";
@@ -15,19 +17,6 @@
 //   return "🖼️";
 // };
 
-// // ✅ localStorage se counselor info nikalo
-// const getCounselorInfo = () => {
-//   try {
-//     const user = JSON.parse(localStorage.getItem("user") || "{}");
-//     return {
-//       id: user._id || user.id || null,
-//       name: user.name || user.counselorName || null,
-//     };
-//   } catch {
-//     return { id: null, name: null };
-//   }
-// };
-
 // export default function CounselorPortal() {
 //   const [step, setStep] = useState(1);
 //   const [aadhar, setAadhar] = useState("");
@@ -40,30 +29,23 @@
 //   const [uploading, setUploading] = useState(false);
 //   const [error, setError] = useState("");
 //   const [success, setSuccess] = useState("");
-
+  
+//   // New States for Master Student List
 //   const [allStudents, setAllStudents] = useState([]);
 //   const [listLoading, setListLoading] = useState(false);
-//   const [filterTab, setFilterTab] = useState("all");
+//   const [filterTab, setFilterTab] = useState("all"); // all, verified, unverified, actionRequired
 
 //   const fileRef = useRef();
 
+//   // Fetch all students under this counselor on load
 //   useEffect(() => {
 //     fetchAllStudents();
 //   }, []);
 
-//   // ✅ Sirf is counselor ke students fetch karo
 //   const fetchAllStudents = async () => {
 //     setListLoading(true);
 //     try {
-//       const { id: counselorId, name: counselorName } = getCounselorInfo();
-
-//       const params = { limit: 500 };
-//       // Backend role-based filter use karta hai (req.user se),
-//       // lekin agar backend abhi update nahi hua toh fallback ke liye counselorId bhi bhejo
-//       if (counselorId) params.counselorId = counselorId;
-//       else if (counselorName) params.counselorName = counselorName;
-
-//       const res = await api.get("/api/v1/ad", { params });
+//       const res = await api.get("/api/v1/ad", { params: { limit: 500 } });
 //       if (res.data?.success) {
 //         setAllStudents(res.data.data || []);
 //       }
@@ -77,9 +59,10 @@
 //     setStep(1); setAadhar(""); setStudentName("");
 //     setAdmission(null); setDocs([]); setFiles([]);
 //     setError(""); setSuccess("");
-//     fetchAllStudents();
+//     fetchAllStudents(); // Refresh list on reset
 //   };
 
+//   /* ── Quick Select From List ── */
 //   const handleSelectStudent = (student) => {
 //     setError("");
 //     setSuccess("");
@@ -88,20 +71,14 @@
 //     setStep(2);
 //   };
 
-//   // ✅ Search bhi sirf apne students mein
+//   /* ── Search ── */
 //   const searchStudent = async () => {
 //     if (!aadhar.trim() || !studentName.trim()) {
 //       setError("Aadhar number aur student name dono bharo"); return;
 //     }
 //     setLoading(true); setError("");
 //     try {
-//       const { id: counselorId, name: counselorName } = getCounselorInfo();
-
-//       const params = { limit: 200 };
-//       if (counselorId) params.counselorId = counselorId;
-//       else if (counselorName) params.counselorName = counselorName;
-
-//       const res = await api.get("/api/v1/ad", { params });
+//       const res = await api.get("/api/v1/ad", { params: { limit: 200 } });
 //       const data = res.data;
 //       if (!data.success) throw new Error(data.message);
 
@@ -124,6 +101,7 @@
 //     setLoading(false);
 //   };
 
+//   /* ── Drag & Drop ── */
 //   const onDrop = useCallback((e) => {
 //     e.preventDefault(); setDragging(false);
 //     addFiles(Array.from(e.dataTransfer.files));
@@ -140,6 +118,7 @@
 
 //   const removeFile = (i) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
 
+//   /* ── Upload ── */
 //   const uploadDocs = async () => {
 //     if (!files.length) { setError("Koi file select nahi ki"); return; }
 //     setUploading(true); setError(""); setSuccess("");
@@ -168,15 +147,20 @@
 
 //   const rejectedDocs = docs.filter((d) => d.status === "rejected");
 
+//   /* ── Helper Functions for Directory List ── */
 //   const getStudentDocStatus = (student) => {
 //     const sDocs = student.documents || [];
 //     if (sDocs.length === 0) return { label: "No Docs", color: "#64748B", bg: "#F1F5F9", type: "unverified" };
+    
 //     const hasRejected = sDocs.some(d => d.status === "rejected");
 //     if (hasRejected) return { label: "Action Required ⚠️", color: "#EF4444", bg: "#FEF2F2", type: "rejected" };
+    
 //     const hasPending = sDocs.some(d => d.status === "pending");
 //     if (hasPending) return { label: "Pending Admin", color: "#F59E0B", bg: "#FFF8E1", type: "unverified" };
+    
 //     const allDone = sDocs.every(d => d.status === "done");
 //     if (allDone) return { label: "Verified ✓", color: "#10B981", bg: "#ECFDF5", type: "verified" };
+
 //     return { label: "Partial", color: "#6366F1", bg: "#EEF2FF", type: "unverified" };
 //   };
 
@@ -185,7 +169,7 @@
 //     if (filterTab === "verified") return statusInfo.type === "verified";
 //     if (filterTab === "unverified") return statusInfo.type === "unverified";
 //     if (filterTab === "actionRequired") return statusInfo.type === "rejected";
-//     return true;
+//     return true; // "all"
 //   });
 
 //   return (
@@ -224,9 +208,11 @@
 //           ))}
 //         </div>
 
+//         {/* Alerts */}
 //         {error   && <div style={styles.errorBox}>{error}</div>}
 //         {success && <div style={styles.successBox}>{success}</div>}
 
+//         {/* ── REAL-TIME COUNSELOR NOTIFICATION BANNER (Single Student Focus) ── */}
 //         {step > 1 && rejectedDocs.length > 0 && (
 //           <div style={styles.notificationBanner}>
 //             <div style={{ fontSize: 20 }}>⚠️</div>
@@ -235,15 +221,16 @@
 //                 Attention Required: {rejectedDocs.length} Document(s) Verification Failed!
 //               </div>
 //               <div style={{ fontSize: 12, color: "#7F1D1D", marginTop: 4 }}>
-//                 Please note that certain documents uploaded for this student have been rejected by the admin. Kindly check the rejection remarks and re-upload the valid documents.
+//                 Is student ke kuch documents admin ne reject kiye hain. Niche remarks check karein aur sahi document dobara upload karein.
 //               </div>
 //             </div>
 //           </div>
 //         )}
 
-//         {/* ── STEP 1 ── */}
+//         {/* ── STEP 1: Search & Master Directory List ── */}
 //         {step === 1 && (
 //           <>
+//             {/* Search Card */}
 //             <div style={styles.card}>
 //               <h2 style={styles.cardTitle}>Student Dhundo</h2>
 //               <p style={styles.cardSub}>Aadhar number aur naam dalo to verify karo</p>
@@ -278,6 +265,7 @@
 //               </button>
 //             </div>
 
+//             {/* ── MASTER DIRECTORY LIST WITH NOTIFICATION INDICATORS ── */}
 //             <div style={styles.card}>
 //               <div style={styles.listHeaderStack}>
 //                 <h3 style={{ ...styles.sectionTitle, margin: 0 }}>Student Management Directory</h3>
@@ -324,6 +312,7 @@
 //                       {filteredStudents.map((student) => {
 //                         const statusInfo = getStudentDocStatus(student);
 //                         const rejectedCount = (student.documents || []).filter(d => d.status === "rejected").length;
+
 //                         return (
 //                           <tr key={student._id} style={styles.tr}>
 //                             <td style={styles.td}>
@@ -347,7 +336,7 @@
 //                             <td style={styles.td}>
 //                               {rejectedCount > 0 ? (
 //                                 <div style={styles.inlineNotification}>
-//                                   <span style={{ marginRight: 4 }}>🚨</span>
+//                                   <span style={{ marginRight: 4 }}>🚨</span> 
 //                                   <strong>{rejectedCount} Doc Rejected</strong>
 //                                 </div>
 //                               ) : (
@@ -355,7 +344,10 @@
 //                               )}
 //                             </td>
 //                             <td style={styles.tdAction}>
-//                               <button onClick={() => handleSelectStudent(student)} style={styles.rowActionBtn}>
+//                               <button
+//                                 onClick={() => handleSelectStudent(student)}
+//                                 style={styles.rowActionBtn}
+//                               >
 //                                 View / Fix
 //                               </button>
 //                             </td>
@@ -370,9 +362,10 @@
 //           </>
 //         )}
 
-//         {/* ── STEP 2 ── */}
+//         {/* ── STEP 2: Upload ── */}
 //         {step === 2 && admission && (
 //           <div>
+//             {/* Student card */}
 //             <div style={styles.studentCard}>
 //               <div style={styles.studentAvatar}>
 //                 {admission.studentName?.[0]?.toUpperCase()}
@@ -385,6 +378,7 @@
 //               <div style={styles.docBadge}>{summary.total} Docs</div>
 //             </div>
 
+//             {/* Existing docs */}
 //             {docs.length > 0 && (
 //               <div style={styles.card}>
 //                 <h3 style={styles.sectionTitle}>Pehle se uploaded documents ({docs.length})</h3>
@@ -393,10 +387,10 @@
 //                     const sc = statusColor[doc.status] || statusColor.pending;
 //                     const isRejected = doc.status === "rejected";
 //                     return (
-//                       <div
-//                         key={doc._id}
-//                         style={{
-//                           ...styles.docItem,
+//                       <div 
+//                         key={doc._id} 
+//                         style={{ 
+//                           ...styles.docItem, 
 //                           border: isRejected ? "1.5px dashed #EF4444" : "1px solid #F1F5F9",
 //                           background: isRejected ? "#FFF5F5" : "#F8FAFC"
 //                         }}
@@ -425,6 +419,7 @@
 //               </div>
 //             )}
 
+//             {/* Upload zone */}
 //             <div style={styles.card}>
 //               <h3 style={styles.sectionTitle}>Naye Documents Upload Karo</h3>
 //               <div
@@ -468,7 +463,7 @@
 //           </div>
 //         )}
 
-//         {/* ── STEP 3 ── */}
+//         {/* ── STEP 3: Status ── */}
 //         {step === 3 && (
 //           <div style={styles.card}>
 //             <div style={styles.successHeader}>
@@ -576,6 +571,8 @@
 //   summaryVal:       { fontSize: 28, fontWeight: 800 },
 //   summaryLabel:     { fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2 },
 //   notificationBanner: { display: "flex", alignItems: "start", gap: 14, background: "#FEF2F2", border: "1.5px solid #FCA5A5", borderRadius: 12, padding: "16px", marginBottom: 20 },
+  
+//   /* ── Master Directory Custom Table Styles ── */
 //   listHeaderStack:  { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, marginBottom: 20 },
 //   tabContainer:     { display: "flex", background: "#F1F5F9", padding: 4, borderRadius: 10, gap: 4 },
 //   tabBtn:           { padding: "6px 12px", border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer", transition: "all 0.2s" },
@@ -597,9 +594,9 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import api from "@/utlis/api.js";
 
 const statusColor = {
-  pending: { bg: "#FFF8E1", text: "#F59E0B", border: "#FDE68A", label: "Pending" },
-  done:    { bg: "#ECFDF5", text: "#10B981", border: "#6EE7B7", label: "Approved ✓" },
-  rejected:{ bg: "#FEF2F2", text: "#EF4444", border: "#FECACA", label: "Rejected ✗" },
+  pending:  { bg: "#FFF8E1", text: "#F59E0B", border: "#FDE68A", label: "Pending" },
+  done:     { bg: "#ECFDF5", text: "#10B981", border: "#6EE7B7", label: "Approved ✓" },
+  rejected: { bg: "#FEF2F2", text: "#EF4444", border: "#FECACA", label: "Rejected ✗" },
 };
 
 const fileIcon = (type) => {
@@ -609,38 +606,55 @@ const fileIcon = (type) => {
   return "🖼️";
 };
 
+// ✅ localStorage se counselor info nikalo
+const getCounselorInfo = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    return {
+      id:   user._id || user.id || null,
+      name: user.name || user.counselorName || null,
+    };
+  } catch {
+    return { id: null, name: null };
+  }
+};
+
+// ✅ Counselor-scoped API params builder
+const getCounselorParams = (extra = {}) => {
+  const { name: counselorName } = getCounselorInfo();
+  const params = { ...extra };
+  if (counselorName) params.counselorName = counselorName;
+  return params;
+};
+
 export default function CounselorPortal() {
-  const [step, setStep] = useState(1);
-  const [aadhar, setAadhar] = useState("");
+  const [step, setStep]               = useState(1);
+  const [aadhar, setAadhar]           = useState("");
   const [studentName, setStudentName] = useState("");
-  const [admission, setAdmission] = useState(null);
-  const [docs, setDocs] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [dragging, setDragging] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  
-  // New States for Master Student List
+  const [admission, setAdmission]     = useState(null);
+  const [docs, setDocs]               = useState([]);
+  const [files, setFiles]             = useState([]);
+  const [dragging, setDragging]       = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [uploading, setUploading]     = useState(false);
+  const [error, setError]             = useState("");
+  const [success, setSuccess]         = useState("");
+
   const [allStudents, setAllStudents] = useState([]);
   const [listLoading, setListLoading] = useState(false);
-  const [filterTab, setFilterTab] = useState("all"); // all, verified, unverified, actionRequired
+  const [filterTab, setFilterTab]     = useState("all");
 
   const fileRef = useRef();
 
-  // Fetch all students under this counselor on load
-  useEffect(() => {
-    fetchAllStudents();
-  }, []);
+  useEffect(() => { fetchAllStudents(); }, []);
 
+  // ✅ FIXED: sirf is counselor ke students fetch karo
   const fetchAllStudents = async () => {
     setListLoading(true);
     try {
-      const res = await api.get("/api/v1/ad", { params: { limit: 500 } });
-      if (res.data?.success) {
-        setAllStudents(res.data.data || []);
-      }
+      const params = getCounselorParams({ limit: 500 });
+      const res = await api.get("/api/v1/ad", { params });
+      if (res.data?.success) setAllStudents(res.data.data || []);
     } catch (e) {
       console.error("Error fetching student list:", e);
     }
@@ -651,26 +665,25 @@ export default function CounselorPortal() {
     setStep(1); setAadhar(""); setStudentName("");
     setAdmission(null); setDocs([]); setFiles([]);
     setError(""); setSuccess("");
-    fetchAllStudents(); // Refresh list on reset
+    fetchAllStudents();
   };
 
-  /* ── Quick Select From List ── */
   const handleSelectStudent = (student) => {
-    setError("");
-    setSuccess("");
+    setError(""); setSuccess("");
     setAdmission(student);
     setDocs(student.documents || []);
     setStep(2);
   };
 
-  /* ── Search ── */
+  // ✅ FIXED: search bhi sirf is counselor ke students mein
   const searchStudent = async () => {
     if (!aadhar.trim() || !studentName.trim()) {
       setError("Aadhar number aur student name dono bharo"); return;
     }
     setLoading(true); setError("");
     try {
-      const res = await api.get("/api/v1/ad", { params: { limit: 200 } });
+      const params = getCounselorParams({ limit: 500 });
+      const res = await api.get("/api/v1/ad", { params });
       const data = res.data;
       if (!data.success) throw new Error(data.message);
 
@@ -701,7 +714,9 @@ export default function CounselorPortal() {
 
   const addFiles = (newFiles) => {
     const allowed = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "webp"];
-    const valid = newFiles.filter((f) => allowed.includes(f.name.split(".").pop().toLowerCase()));
+    const valid = newFiles.filter((f) =>
+      allowed.includes(f.name.split(".").pop().toLowerCase())
+    );
     if (valid.length !== newFiles.length)
       setError("Kuch files invalid hain — sirf PDF, DOC, JPG, PNG allowed");
     else setError("");
@@ -739,29 +754,25 @@ export default function CounselorPortal() {
 
   const rejectedDocs = docs.filter((d) => d.status === "rejected");
 
-  /* ── Helper Functions for Directory List ── */
   const getStudentDocStatus = (student) => {
     const sDocs = student.documents || [];
-    if (sDocs.length === 0) return { label: "No Docs", color: "#64748B", bg: "#F1F5F9", type: "unverified" };
-    
-    const hasRejected = sDocs.some(d => d.status === "rejected");
-    if (hasRejected) return { label: "Action Required ⚠️", color: "#EF4444", bg: "#FEF2F2", type: "rejected" };
-    
-    const hasPending = sDocs.some(d => d.status === "pending");
-    if (hasPending) return { label: "Pending Admin", color: "#F59E0B", bg: "#FFF8E1", type: "unverified" };
-    
-    const allDone = sDocs.every(d => d.status === "done");
-    if (allDone) return { label: "Verified ✓", color: "#10B981", bg: "#ECFDF5", type: "verified" };
-
+    if (sDocs.length === 0)
+      return { label: "No Docs", color: "#64748B", bg: "#F1F5F9", type: "unverified" };
+    if (sDocs.some((d) => d.status === "rejected"))
+      return { label: "Action Required ⚠️", color: "#EF4444", bg: "#FEF2F2", type: "rejected" };
+    if (sDocs.some((d) => d.status === "pending"))
+      return { label: "Pending Admin", color: "#F59E0B", bg: "#FFF8E1", type: "unverified" };
+    if (sDocs.every((d) => d.status === "done"))
+      return { label: "Verified ✓", color: "#10B981", bg: "#ECFDF5", type: "verified" };
     return { label: "Partial", color: "#6366F1", bg: "#EEF2FF", type: "unverified" };
   };
 
-  const filteredStudents = allStudents.filter(student => {
-    const statusInfo = getStudentDocStatus(student);
-    if (filterTab === "verified") return statusInfo.type === "verified";
-    if (filterTab === "unverified") return statusInfo.type === "unverified";
-    if (filterTab === "actionRequired") return statusInfo.type === "rejected";
-    return true; // "all"
+  const filteredStudents = allStudents.filter((student) => {
+    const s = getStudentDocStatus(student);
+    if (filterTab === "verified")       return s.type === "verified";
+    if (filterTab === "unverified")     return s.type === "unverified";
+    if (filterTab === "actionRequired") return s.type === "rejected";
+    return true;
   });
 
   return (
@@ -800,11 +811,9 @@ export default function CounselorPortal() {
           ))}
         </div>
 
-        {/* Alerts */}
         {error   && <div style={styles.errorBox}>{error}</div>}
         {success && <div style={styles.successBox}>{success}</div>}
 
-        {/* ── REAL-TIME COUNSELOR NOTIFICATION BANNER (Single Student Focus) ── */}
         {step > 1 && rejectedDocs.length > 0 && (
           <div style={styles.notificationBanner}>
             <div style={{ fontSize: 20 }}>⚠️</div>
@@ -813,19 +822,18 @@ export default function CounselorPortal() {
                 Attention Required: {rejectedDocs.length} Document(s) Verification Failed!
               </div>
               <div style={{ fontSize: 12, color: "#7F1D1D", marginTop: 4 }}>
-                Is student ke kuch documents admin ne reject kiye hain. Niche remarks check karein aur sahi document dobara upload karein.
+                 is this student documnet rejected via admin check below remark and upload again with correct document
               </div>
             </div>
           </div>
         )}
 
-        {/* ── STEP 1: Search & Master Directory List ── */}
+        {/* ── STEP 1 ── */}
         {step === 1 && (
           <>
-            {/* Search Card */}
             <div style={styles.card}>
-              <h2 style={styles.cardTitle}>Student Dhundo</h2>
-              <p style={styles.cardSub}>Aadhar number aur naam dalo to verify karo</p>
+              <h2 style={styles.cardTitle}>Finde Student </h2>
+              <p style={styles.cardSub}>please find your student fill adhar number & Name </p>
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Aadhar Number *</label>
@@ -857,25 +865,24 @@ export default function CounselorPortal() {
               </button>
             </div>
 
-            {/* ── MASTER DIRECTORY LIST WITH NOTIFICATION INDICATORS ── */}
             <div style={styles.card}>
               <div style={styles.listHeaderStack}>
                 <h3 style={{ ...styles.sectionTitle, margin: 0 }}>Student Management Directory</h3>
                 <div style={styles.tabContainer}>
                   {[
-                    { id: "all", label: `All (${allStudents.length})` },
-                    { id: "verified", label: "Verified ✓" },
-                    { id: "unverified", label: "Unverified / Pending" },
-                    { id: "actionRequired", label: "Action Required ⚠️" }
-                  ].map(tab => (
+                    { id: "all",           label: `All (${allStudents.length})` },
+                    { id: "verified",      label: "Verified ✓" },
+                    { id: "unverified",    label: "Unverified / Pending" },
+                    { id: "actionRequired",label: "Action Required ⚠️" },
+                  ].map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setFilterTab(tab.id)}
                       style={{
                         ...styles.tabBtn,
                         background: filterTab === tab.id ? "#6366F1" : "transparent",
-                        color: filterTab === tab.id ? "#fff" : "#64748B",
-                        fontWeight: filterTab === tab.id ? "600" : "400"
+                        color:      filterTab === tab.id ? "#fff"    : "#64748B",
+                        fontWeight: filterTab === tab.id ? "600"     : "400",
                       }}
                     >
                       {tab.label}
@@ -885,16 +892,20 @@ export default function CounselorPortal() {
               </div>
 
               {listLoading ? (
-                <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>List load ho rahi hai...</div>
+                <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>
+                  List load ho rahi hai...
+                </div>
               ) : filteredStudents.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>Is category me koi student nahi mila.</div>
+                <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>
+                  Is category student not founde 
+                </div>
               ) : (
                 <div style={styles.tableWrapper}>
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.thRow}>
                         <th style={styles.th}>Student Name</th>
-                        <th style={styles.th}>Course & Uni</th>
+                        <th style={styles.th}>Course &amp; Uni</th>
                         <th style={styles.th}>Verification Status</th>
                         <th style={styles.th}>Notification Alert</th>
                         <th style={styles.thAction}>Action</th>
@@ -902,9 +913,10 @@ export default function CounselorPortal() {
                     </thead>
                     <tbody>
                       {filteredStudents.map((student) => {
-                        const statusInfo = getStudentDocStatus(student);
-                        const rejectedCount = (student.documents || []).filter(d => d.status === "rejected").length;
-
+                        const statusInfo   = getStudentDocStatus(student);
+                        const rejectedCount = (student.documents || []).filter(
+                          (d) => d.status === "rejected"
+                        ).length;
                         return (
                           <tr key={student._id} style={styles.tr}>
                             <td style={styles.td}>
@@ -919,8 +931,8 @@ export default function CounselorPortal() {
                               <span style={{
                                 ...styles.statusBadge,
                                 background: statusInfo.bg,
-                                color: statusInfo.color,
-                                border: `1px solid ${statusInfo.color}40`
+                                color:      statusInfo.color,
+                                border:     `1px solid ${statusInfo.color}40`,
                               }}>
                                 {statusInfo.label}
                               </span>
@@ -928,7 +940,7 @@ export default function CounselorPortal() {
                             <td style={styles.td}>
                               {rejectedCount > 0 ? (
                                 <div style={styles.inlineNotification}>
-                                  <span style={{ marginRight: 4 }}>🚨</span> 
+                                  <span style={{ marginRight: 4 }}>🚨</span>
                                   <strong>{rejectedCount} Doc Rejected</strong>
                                 </div>
                               ) : (
@@ -954,10 +966,9 @@ export default function CounselorPortal() {
           </>
         )}
 
-        {/* ── STEP 2: Upload ── */}
+        {/* ── STEP 2 ── */}
         {step === 2 && admission && (
           <div>
-            {/* Student card */}
             <div style={styles.studentCard}>
               <div style={styles.studentAvatar}>
                 {admission.studentName?.[0]?.toUpperCase()}
@@ -970,21 +981,20 @@ export default function CounselorPortal() {
               <div style={styles.docBadge}>{summary.total} Docs</div>
             </div>
 
-            {/* Existing docs */}
             {docs.length > 0 && (
               <div style={styles.card}>
-                <h3 style={styles.sectionTitle}>Pehle se uploaded documents ({docs.length})</h3>
+                <h3 style={styles.sectionTitle}> allready  uploaded documents ({docs.length})</h3>
                 <div style={styles.docList}>
                   {docs.map((doc) => {
-                    const sc = statusColor[doc.status] || statusColor.pending;
+                    const sc         = statusColor[doc.status] || statusColor.pending;
                     const isRejected = doc.status === "rejected";
                     return (
-                      <div 
-                        key={doc._id} 
-                        style={{ 
-                          ...styles.docItem, 
-                          border: isRejected ? "1.5px dashed #EF4444" : "1px solid #F1F5F9",
-                          background: isRejected ? "#FFF5F5" : "#F8FAFC"
+                      <div
+                        key={doc._id}
+                        style={{
+                          ...styles.docItem,
+                          border:     isRejected ? "1.5px dashed #EF4444" : "1px solid #F1F5F9",
+                          background: isRejected ? "#FFF5F5" : "#F8FAFC",
                         }}
                       >
                         <span style={styles.docFileIcon}>{fileIcon(doc.fileType)}</span>
@@ -993,7 +1003,9 @@ export default function CounselorPortal() {
                             {doc.fileName} {isRejected && "⚠️"}
                           </div>
                           <div style={styles.docDate}>
-                            {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString("hi-IN") : ""}
+                            {doc.uploadedAt
+                              ? new Date(doc.uploadedAt).toLocaleDateString("hi-IN")
+                              : ""}
                           </div>
                           {doc.adminRemark && (
                             <div style={{ ...styles.remark, color: isRejected ? "#DC2626" : "#EF4444" }}>
@@ -1011,18 +1023,21 @@ export default function CounselorPortal() {
               </div>
             )}
 
-            {/* Upload zone */}
             <div style={styles.card}>
-              <h3 style={styles.sectionTitle}>Naye Documents Upload Karo</h3>
+              <h3 style={styles.sectionTitle}>please Upload new  Documents  </h3>
               <div
-                style={{ ...styles.dropZone, borderColor: dragging ? "#6366F1" : "#D1D5DB", background: dragging ? "#EEF2FF" : "#FAFAFA" }}
+                style={{
+                  ...styles.dropZone,
+                  borderColor: dragging ? "#6366F1" : "#D1D5DB",
+                  background:  dragging ? "#EEF2FF" : "#FAFAFA",
+                }}
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={onDrop}
                 onClick={() => fileRef.current?.click()}
               >
                 <div style={styles.dropIcon}>📁</div>
-                <div style={styles.dropText}>Files yahan drag karo ya click karo</div>
+                <div style={styles.dropText}>Please do  click karo Here </div>
                 <div style={styles.dropSub}>PDF, DOC, DOCX, JPG, PNG, WEBP • Max 10MB each</div>
                 <input
                   ref={fileRef} type="file" multiple hidden
@@ -1055,13 +1070,13 @@ export default function CounselorPortal() {
           </div>
         )}
 
-        {/* ── STEP 3: Status ── */}
+        {/* ── STEP 3 ── */}
         {step === 3 && (
           <div style={styles.card}>
             <div style={styles.successHeader}>
               <div style={styles.successIcon}>✅</div>
-              <h2 style={styles.cardTitle}>Documents Upload Ho Gaye!</h2>
-              <p style={styles.cardSub}>Admin jald hi verify karega aur notification aayega</p>
+              <h2 style={styles.cardTitle}>Documents Upload !</h2>
+              <p style={styles.cardSub}>Admin verify your document then update notification </p>
             </div>
 
             <div style={styles.summaryRow}>
@@ -1110,72 +1125,70 @@ export default function CounselorPortal() {
 }
 
 const styles = {
-  page:             { minHeight: "100vh", background: "#F8FAFC", fontFamily: "'Outfit', sans-serif" },
-  header:           { background: "#fff", borderBottom: "1px solid #E5E7EB", padding: "0 24px", position: "sticky", top: 0, zIndex: 100 },
-  headerInner:      { maxWidth: 1000, margin: "0 auto", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" },
-  logo:             { display: "flex", alignItems: "center", gap: 12 },
-  logoIcon:         { fontSize: 28 },
-  logoTitle:        { fontWeight: 700, fontSize: 18, color: "#1E293B" },
-  logoSub:          { fontSize: 11, color: "#94A3B8" },
-  logoutBtn:        { background: "none", border: "1px solid #E5E7EB", borderRadius: 8, padding: "6px 14px", cursor: "pointer", color: "#64748B", fontSize: 13 },
-  container:        { maxWidth: 1000, margin: "0 auto", padding: "32px 24px" },
-  stepsRow:         { display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 32, gap: 0 },
-  stepWrap:         { display: "flex", alignItems: "center", gap: 8 },
-  stepCircle:       { width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, flexShrink: 0 },
-  stepLabel:        { fontSize: 13, fontWeight: 500, whiteSpace: "nowrap" },
-  stepLine:         { width: 60, height: 2, margin: "0 8px" },
-  card:             { background: "#fff", borderRadius: 16, padding: 28, marginBottom: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
-  cardTitle:        { fontSize: 20, fontWeight: 700, color: "#1E293B", margin: "0 0 4px" },
-  cardSub:          { fontSize: 14, color: "#94A3B8", margin: "0 0 20px" },
-  formGrid:         { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 },
-  formGroup:        { display: "flex", flexDirection: "column", gap: 6 },
-  label:            { fontSize: 13, fontWeight: 600, color: "#374151" },
-  input:            { padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit" },
-  btn:              { background: "linear-gradient(135deg, #6366F1, #8B5CF6)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", width: "100%", fontFamily: "inherit" },
-  errorBox:         { background: "#FEF2F2", color: "#DC2626", border: "1px solid #FECACA", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 14 },
-  successBox:       { background: "#ECFDF5", color: "#059669", border: "1px solid #6EE7B7", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 14 },
-  studentCard:      { background: "#fff", borderRadius: 16, padding: "20px 24px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
-  studentAvatar:    { width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 22, flexShrink: 0 },
-  studentName:      { fontWeight: 700, fontSize: 17, color: "#1E293B" },
-  studentMeta:      { fontSize: 13, color: "#94A3B8", marginTop: 2 },
-  docBadge:         { marginLeft: "auto", background: "#EEF2FF", color: "#6366F1", borderRadius: 20, padding: "4px 12px", fontSize: 13, fontWeight: 600 },
-  sectionTitle:     { fontSize: 15, fontWeight: 700, color: "#374151", margin: "0 0 12px" },
-  docList:          { display: "flex", flexDirection: "column", gap: 8 },
-  docItem:          { display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#F8FAFC", borderRadius: 10, border: "1px solid #F1F5F9" },
-  docFileIcon:      { fontSize: 22, flexShrink: 0 },
-  docInfo:          { flex: 1, minWidth: 0 },
-  docName:          { fontSize: 13, fontWeight: 500, color: "#1E293B", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
-  docDate:          { fontSize: 11, color: "#94A3B8", marginTop: 2 },
-  remark:           { fontSize: 12, color: "#EF4444", marginTop: 3 },
-  statusBadge:      { padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, flexShrink: 0, textAlign: "center", display: "inline-block" },
-  dropZone:         { border: "2px dashed", borderRadius: 12, padding: "40px 20px", textAlign: "center", cursor: "pointer", transition: "all 0.2s" },
-  dropIcon:         { fontSize: 36, marginBottom: 8 },
-  dropText:         { fontSize: 15, fontWeight: 600, color: "#374151", marginBottom: 4 },
-  dropSub:          { fontSize: 12, color: "#9CA3AF" },
-  selectedFiles:    { marginTop: 16, padding: 16, background: "#F8FAFC", borderRadius: 10 },
-  selectedFileItem: { display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #F1F5F9", fontSize: 14 },
-  fileSize:         { fontSize: 12, color: "#94A3B8" },
-  removeBtn:        { background: "none", border: "none", color: "#EF4444", cursor: "pointer", fontSize: 16, padding: "0 4px" },
-  successHeader:    { textAlign: "center", marginBottom: 24 },
-  successIcon:      { fontSize: 48, marginBottom: 8 },
-  summaryRow:       { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 },
-  summaryCard:      { textAlign: "center", padding: "16px 8px", borderRadius: 12, border: "2px solid", background: "#fff" },
-  summaryVal:       { fontSize: 28, fontWeight: 800 },
-  summaryLabel:     { fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2 },
+  page:               { minHeight: "100vh", background: "#F8FAFC", fontFamily: "'Outfit', sans-serif" },
+  header:             { background: "#fff", borderBottom: "1px solid #E5E7EB", padding: "0 24px", position: "sticky", top: 0, zIndex: 100 },
+  headerInner:        { maxWidth: 1000, margin: "0 auto", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" },
+  logo:               { display: "flex", alignItems: "center", gap: 12 },
+  logoIcon:           { fontSize: 28 },
+  logoTitle:          { fontWeight: 700, fontSize: 18, color: "#1E293B" },
+  logoSub:            { fontSize: 11, color: "#94A3B8" },
+  logoutBtn:          { background: "none", border: "1px solid #E5E7EB", borderRadius: 8, padding: "6px 14px", cursor: "pointer", color: "#64748B", fontSize: 13 },
+  container:          { maxWidth: 1000, margin: "0 auto", padding: "32px 24px" },
+  stepsRow:           { display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 32, gap: 0 },
+  stepWrap:           { display: "flex", alignItems: "center", gap: 8 },
+  stepCircle:         { width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, flexShrink: 0 },
+  stepLabel:          { fontSize: 13, fontWeight: 500, whiteSpace: "nowrap" },
+  stepLine:           { width: 60, height: 2, margin: "0 8px" },
+  card:               { background: "#fff", borderRadius: 16, padding: 28, marginBottom: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
+  cardTitle:          { fontSize: 20, fontWeight: 700, color: "#1E293B", margin: "0 0 4px" },
+  cardSub:            { fontSize: 14, color: "#94A3B8", margin: "0 0 20px" },
+  formGrid:           { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 },
+  formGroup:          { display: "flex", flexDirection: "column", gap: 6 },
+  label:              { fontSize: 13, fontWeight: 600, color: "#374151" },
+  input:              { padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit" },
+  btn:                { background: "linear-gradient(135deg, #6366F1, #8B5CF6)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", width: "100%", fontFamily: "inherit" },
+  errorBox:           { background: "#FEF2F2", color: "#DC2626", border: "1px solid #FECACA", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 14 },
+  successBox:         { background: "#ECFDF5", color: "#059669", border: "1px solid #6EE7B7", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 14 },
+  studentCard:        { background: "#fff", borderRadius: 16, padding: "20px 24px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
+  studentAvatar:      { width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 22, flexShrink: 0 },
+  studentName:        { fontWeight: 700, fontSize: 17, color: "#1E293B" },
+  studentMeta:        { fontSize: 13, color: "#94A3B8", marginTop: 2 },
+  docBadge:           { marginLeft: "auto", background: "#EEF2FF", color: "#6366F1", borderRadius: 20, padding: "4px 12px", fontSize: 13, fontWeight: 600 },
+  sectionTitle:       { fontSize: 15, fontWeight: 700, color: "#374151", margin: "0 0 12px" },
+  docList:            { display: "flex", flexDirection: "column", gap: 8 },
+  docItem:            { display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#F8FAFC", borderRadius: 10, border: "1px solid #F1F5F9" },
+  docFileIcon:        { fontSize: 22, flexShrink: 0 },
+  docInfo:            { flex: 1, minWidth: 0 },
+  docName:            { fontSize: 13, fontWeight: 500, color: "#1E293B", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  docDate:            { fontSize: 11, color: "#94A3B8", marginTop: 2 },
+  remark:             { fontSize: 12, color: "#EF4444", marginTop: 3 },
+  statusBadge:        { padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, flexShrink: 0, textAlign: "center", display: "inline-block" },
+  dropZone:           { border: "2px dashed", borderRadius: 12, padding: "40px 20px", textAlign: "center", cursor: "pointer", transition: "all 0.2s" },
+  dropIcon:           { fontSize: 36, marginBottom: 8 },
+  dropText:           { fontSize: 15, fontWeight: 600, color: "#374151", marginBottom: 4 },
+  dropSub:            { fontSize: 12, color: "#9CA3AF" },
+  selectedFiles:      { marginTop: 16, padding: 16, background: "#F8FAFC", borderRadius: 10 },
+  selectedFileItem:   { display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #F1F5F9", fontSize: 14 },
+  fileSize:           { fontSize: 12, color: "#94A3B8" },
+  removeBtn:          { background: "none", border: "none", color: "#EF4444", cursor: "pointer", fontSize: 16, padding: "0 4px" },
+  successHeader:      { textAlign: "center", marginBottom: 24 },
+  successIcon:        { fontSize: 48, marginBottom: 8 },
+  summaryRow:         { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 },
+  summaryCard:        { textAlign: "center", padding: "16px 8px", borderRadius: 12, border: "2px solid", background: "#fff" },
+  summaryVal:         { fontSize: 28, fontWeight: 800 },
+  summaryLabel:       { fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2 },
   notificationBanner: { display: "flex", alignItems: "start", gap: 14, background: "#FEF2F2", border: "1.5px solid #FCA5A5", borderRadius: 12, padding: "16px", marginBottom: 20 },
-  
-  /* ── Master Directory Custom Table Styles ── */
-  listHeaderStack:  { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, marginBottom: 20 },
-  tabContainer:     { display: "flex", background: "#F1F5F9", padding: 4, borderRadius: 10, gap: 4 },
-  tabBtn:           { padding: "6px 12px", border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer", transition: "all 0.2s" },
-  tableWrapper:     { overflowX: "auto", border: "1px solid #E2E8F0", borderRadius: 12 },
-  table:            { width: "100%", borderCollapse: "collapse", textAlign: "left" },
-  thRow:            { background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" },
-  th:               { padding: "12px 16px", fontSize: 12, fontWeight: 600, color: "#64748B" },
-  thAction:         { padding: "12px 16px", fontSize: 12, fontWeight: 600, color: "#64748B", textAlign: "right" },
-  tr:               { borderBottom: "1px solid #F1F5F9", transition: "background 0.2s" },
-  td:               { padding: "14px 16px", verticalAlign: "middle" },
-  tdAction:         { padding: "14px 16px", verticalAlign: "middle", textAlign: "right" },
-  rowActionBtn:     { background: "#6366F1", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 12, fontWeight: 500, cursor: "pointer" },
-  inlineNotification: { display: "inline-flex", alignItems: "center", background: "#FEF2F2", color: "#EF4444", border: "1px solid #FCA5A5", borderRadius: 6, padding: "4px 8px", fontSize: 12 }
+  listHeaderStack:    { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, marginBottom: 20 },
+  tabContainer:       { display: "flex", background: "#F1F5F9", padding: 4, borderRadius: 10, gap: 4 },
+  tabBtn:             { padding: "6px 12px", border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer", transition: "all 0.2s" },
+  tableWrapper:       { overflowX: "auto", border: "1px solid #E2E8F0", borderRadius: 12 },
+  table:              { width: "100%", borderCollapse: "collapse", textAlign: "left" },
+  thRow:              { background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" },
+  th:                 { padding: "12px 16px", fontSize: 12, fontWeight: 600, color: "#64748B" },
+  thAction:           { padding: "12px 16px", fontSize: 12, fontWeight: 600, color: "#64748B", textAlign: "right" },
+  tr:                 { borderBottom: "1px solid #F1F5F9", transition: "background 0.2s" },
+  td:                 { padding: "14px 16px", verticalAlign: "middle" },
+  tdAction:           { padding: "14px 16px", verticalAlign: "middle", textAlign: "right" },
+  rowActionBtn:       { background: "#6366F1", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 12, fontWeight: 500, cursor: "pointer" },
+  inlineNotification: { display: "inline-flex", alignItems: "center", background: "#FEF2F2", color: "#EF4444", border: "1px solid #FCA5A5", borderRadius: 6, padding: "4px 8px", fontSize: 12 },
 };

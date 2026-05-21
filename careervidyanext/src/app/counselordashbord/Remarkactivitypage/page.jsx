@@ -1,48 +1,589 @@
+
+
+
+
+// "use client";
+
+// import React, { useState, useEffect, useCallback, useMemo } from "react";
+// import api from "@/utlis/api.js";
+// import {
+//   Clock, User, ChevronLeft, ChevronRight, 
+//   Search, RefreshCw, AlertCircle, PhoneCall, Calendar
+// } from "lucide-react";
+// import { FaWhatsapp, FaPhoneAlt } from "react-icons/fa";
+
+// /* ═══════════════════════════════════════════
+//     SAFE DATA EXTRACTOR HELPERS
+// ═══════════════════════════════════════════ */
+
+// // Array extraction fail-safe helper
+// const getLogsArray = (lead) => {
+//   if (!lead) return [];
+//   const logs = lead.followUpHistory || lead.remarks || lead.history || lead.activityLog || lead.logs || [];
+//   return Array.isArray(logs) ? logs : [];
+// };
+
+// // Target range parsing mechanics (Day & Month Matchers)
+// const matchDateStrings = (logIsoStr, selectedDateYMD) => {
+//   if (!logIsoStr || !selectedDateYMD) return false;
+//   const d = new Date(logIsoStr);
+//   if (isNaN(d.getTime())) return false;
+  
+//   const y = d.getFullYear();
+//   const m = String(d.getMonth() + 1).padStart(2, '0');
+//   const day = String(d.getDate()).padStart(2, '0');
+//   return `${y}-${m}-${day}` === selectedDateYMD;
+// };
+
+// const matchMonthStrings = (logIsoStr, selectedDateYMD) => {
+//   if (!logIsoStr || !selectedDateYMD) return false;
+//   const d = new Date(logIsoStr);
+//   if (isNaN(d.getTime())) return false;
+  
+//   const targetYearMonth = selectedDateYMD.substring(0, 7); // "YYYY-MM"
+//   const y = d.getFullYear();
+//   const m = String(d.getMonth() + 1).padStart(2, '0');
+//   return `${y}-${m}` === targetYearMonth;
+// };
+
+// const STATUS_COLORS = {
+//   "New":            { bg: "#EFF6FF", text: "#1D4ED8", border: "#BFDBFE" },
+//   "Hot Lead":        { bg: "#FFF7ED", text: "#C2410C", border: "#FED7AA" },
+//   "Follow-up":       { bg: "#F0FDF4", text: "#15803D", border: "#BBF7D0" },
+//   "Details Shared":  { bg: "#FAF5FF", text: "#7E22CE", border: "#E9D5FF" },
+//   "Admission Done":  { bg: "#ECFDF5", text: "#047857", border: "#6EE7B7" },
+//   "Not Picked":      { bg: "#FEF2F2", text: "#DC2626", border: "#FECACA" },
+//   "Not Interested":  { bg: "#F1F5F9", text: "#475569", border: "#CBD5E1" },
+// };
+
+// const getStatusStyle = (status) =>
+//   STATUS_COLORS[status] || { bg: "#F8FAFC", text: "#64748B", border: "#E2E8F0" };
+
+// const fmtDate = (d) =>
+//   d
+//     ? new Date(d).toLocaleString("en-IN", {
+//         day: "2-digit", month: "short",
+//         hour: "2-digit", minute: "2-digit",
+//       })
+//     : "—";
+
+// /* ═══════════════════════════════════════════
+//     MAIN DASHBOARD COMPONENT
+// ═══════════════════════════════════════════ */
+// const RemarkActivityPage = ({ isAdmin = false }) => {
+//   const [leads, setLeads]             = useState([]);
+//   const [loading, setLoading]         = useState(true);
+//   const [searchTerm, setSearchTerm]   = useState("");
+//   const [filterType, setFilterType]   = useState("all"); 
+//   const [timeScope, setTimeScope]     = useState("day"); // 'day' | 'month' | 'lifetime'
+  
+//   // Date configuration (Keeps "Today" selection completely live)
+//   const [selectedDate, setSelectedDate] = useState(() => {
+//     const today = new Date();
+//     const y = today.getFullYear();
+//     const m = String(today.getMonth() + 1).padStart(2, '0');
+//     const d = String(today.getDate()).padStart(2, '0');
+//     return `${y}-${m}-${d}`;
+//   });
+
+//   const [counselorId, setCounselorId]     = useState(null);
+//   const [counselorName, setCounselorName] = useState("");
+//   const [currentPage, setCurrentPage]   = useState(1);
+//   const ITEMS = 20;
+
+//   /* ── Get Active User Session ── */
+//   useEffect(() => {
+//     if (!isAdmin) {
+//       try {
+//         const u = JSON.parse(localStorage.getItem("user") || "{}");
+//         setCounselorId(u._id || u.id || null);
+//         setCounselorName(u.name || "");
+//       } catch (e) {
+//         console.error("Session fetch error:", e);
+//       }
+//     }
+//   }, [isAdmin]);
+
+//   /* ── Main Data Synchronization API ── */
+//   const fetchLeads = useCallback(async () => {
+//     setLoading(true);
+//     try {
+//       const params = { limit: 5000 };
+//       if (!isAdmin && counselorId) params.id = counselorId;
+
+//       const res = await api.get("/api/v1/counselor-leads", { params });
+//       if (res.data.success) {
+//         setLeads(res.data.data || []);
+//       }
+//     } catch (err) {
+//       console.error("API error:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [isAdmin, counselorId]);
+
+//   useEffect(() => {
+//     if (isAdmin || counselorId) fetchLeads();
+//   }, [fetchLeads, isAdmin, counselorId]);
+
+//   /* ── Metric Performance Engine (Calculates Today vs Zero Remarks parallelly) ── */
+//   const stats = useMemo(() => {
+//     let scopedCallsCount = 0;
+//     let leadsTouchedInScope = 0;
+//     let noRemarkCount = 0; 
+
+//     leads.forEach((l) => {
+//       const logList = getLogsArray(l);
+//       let leadHasScopeActivity = false;
+
+//       // 1. GLOBAL NO-REMARK CHECK (Always absolute, ignores dates for total count)
+//       const hasRootRemark = !!(l.remark?.toString().trim() || l.latestRemark?.toString().trim());
+//       if (logList.length === 0 && !hasRootRemark) {
+//         noRemarkCount++;
+//       }
+
+//       // 2. LIVE DATE/MONTH ACTIVITY TRACKER (Counts updates for Today / Selected Month)
+//       logList.forEach((log) => {
+//         const logDate = typeof log === "object" ? (log.date || log.createdAt) : l.updatedAt;
+        
+//         let isMatch = false;
+//         if (timeScope === "day")         isMatch = matchDateStrings(logDate, selectedDate);
+//         else if (timeScope === "month")  isMatch = matchMonthStrings(logDate, selectedDate);
+//         else                             isMatch = true;
+
+//         if (isMatch) {
+//           scopedCallsCount++;
+//           leadHasScopeActivity = true;
+//         }
+//       });
+
+//       if (logList.length === 0 && hasRootRemark) {
+//         let isRootMatch = false;
+//         if (timeScope === "day")         isRootMatch = matchDateStrings(l.updatedAt, selectedDate);
+//         else if (timeScope === "month")  isRootMatch = matchMonthStrings(l.updatedAt, selectedDate);
+//         else                             isRootMatch = true;
+
+//         if (isRootMatch) {
+//           scopedCallsCount++;
+//           leadHasScopeActivity = true;
+//         }
+//       }
+
+//       if (leadHasScopeActivity) {
+//         leadsTouchedInScope++;
+//       }
+//     });
+
+//     return {
+//       totalPool:    leads.length,
+//       totalCalls:   scopedCallsCount, 
+//       interacted:   leadsTouchedInScope,
+//       noRemarks:    noRemarkCount, 
+//       pending:      leads.length - leadsTouchedInScope
+//     };
+//   }, [leads, selectedDate, timeScope]);
+
+//   /* ── Filter Engine ── */
+//   const filteredLeads = useMemo(() => {
+//     return leads.filter((lead) => {
+//       // Search box logic
+//       const phone = lead.phone || lead.mobile || lead.contactNo || "";
+//       const matchSearch =
+//         !searchTerm ||
+//         lead.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         phone.toString().includes(searchTerm);
+        
+//       if (!matchSearch) return false;
+
+//       const logList = getLogsArray(lead);
+//       const hasRootRemark = !!(lead.remark?.toString().trim() || lead.latestRemark?.toString().trim());
+
+//       // ROUTE A: Absolute Zero Remark Filtering
+//       if (filterType === "no_remark") {
+//         return logList.length === 0 && !hasRootRemark;
+//       }
+
+//       // ROUTE B: Time & Date Filter Route (Brings back Today's updates tracking)
+//       let matchScopeActivity = false;
+//       logList.forEach((log) => {
+//         const logDate = typeof log === "object" ? (log.date || log.createdAt) : lead.updatedAt;
+//         if (timeScope === "day" && matchDateStrings(logDate, selectedDate)) matchScopeActivity = true;
+//         if (timeScope === "month" && matchMonthStrings(logDate, selectedDate)) matchScopeActivity = true;
+//         if (timeScope === "lifetime") matchScopeActivity = true;
+//       });
+
+//       if (logList.length === 0 && hasRootRemark) {
+//         if (timeScope === "day" && matchDateStrings(lead.updatedAt, selectedDate)) matchScopeActivity = true;
+//         if (timeScope === "month" && matchMonthStrings(lead.updatedAt, selectedDate)) matchScopeActivity = true;
+//         if (timeScope === "lifetime") matchScopeActivity = true;
+//       }
+
+//       if (filterType === "interacted") return matchScopeActivity;
+//       if (filterType === "pending")    return !matchScopeActivity;
+      
+//       return true; 
+//     });
+//   }, [leads, searchTerm, filterType, selectedDate, timeScope]);
+
+//   const totalPages = Math.ceil(filteredLeads.length / ITEMS);
+  
+//   const paginatedLeads = useMemo(() => {
+//     const start = (currentPage - 1) * ITEMS;
+//     return filteredLeads.slice(start, start + ITEMS);
+//   }, [filteredLeads, currentPage]);
+
+//   return (
+//     <div className="min-h-screen bg-slate-50 pb-10">
+
+//       {/* Control Header Layout (Date Pickers are permanently enabled now) */}
+//       <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
+//         <div className="max-w-7xl mx-auto px-5 py-3 flex justify-between items-center flex-wrap gap-4">
+//           <div className="flex items-center gap-3">
+//             <div className="bg-blue-100 p-2 rounded-lg">
+//               <PhoneCall size={20} className="text-blue-600" />
+//             </div>
+//             <div>
+//               <h1 className="text-base font-black text-slate-800">
+//                 {isAdmin ? "Counselors Analysis Panel" : "My Lead Audit Dashboard"}
+//               </h1>
+//               {!isAdmin && counselorName && (
+//                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+//                   Counselor: <span className="text-blue-600">{counselorName}</span>
+//                 </p>
+//               )}
+//             </div>
+//           </div>
+
+//           {/* Date controls are preserved and visible across active scopes */}
+//           <div className="flex items-center gap-2 flex-wrap">
+//             <div className="bg-slate-100 p-1 rounded-lg flex items-center gap-1 border text-[11px] font-bold">
+//               <button 
+//                 onClick={() => { setTimeScope("day"); setCurrentPage(1); }}
+//                 className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'day' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+//               >
+//                 📅 Date View
+//               </button>
+//               <button 
+//                 onClick={() => { setTimeScope("month"); setCurrentPage(1); }}
+//                 className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'month' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+//               >
+//                 📊 Month View
+//               </button>
+//               <button 
+//                 onClick={() => { setTimeScope("lifetime"); setCurrentPage(1); }}
+//                 className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'lifetime' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+//               >
+//                 ♾️ Lifetime
+//               </button>
+//             </div>
+
+//             {timeScope !== "lifetime" && (
+//               <input
+//                 type="date"
+//                 value={selectedDate}
+//                 onChange={(e) => { setSelectedDate(e.target.value); setCurrentPage(1); }}
+//                 className="border rounded-lg px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 bg-white"
+//               />
+//             )}
+
+//             <button
+//               onClick={fetchLeads}
+//               disabled={loading}
+//               className="p-2 border rounded-lg text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-40 flex items-center gap-1 text-xs font-bold bg-white"
+//             >
+//               <RefreshCw size={13} className={loading ? "animate-spin" : ""} /> Sync
+//             </button>
+//           </div>
+//         </div>
+//       </header>
+
+//       <div className="max-w-7xl mx-auto px-5 py-5">
+
+//         {/* Metric Boxes Top Grid */}
+//         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+//           {[
+//             { label: "Total Lead Pool", val: stats.totalPool, color: "#64748B", type: "all" },
+//             { 
+//               label: timeScope === 'day' ? "Calls (Selected Day)" : timeScope === 'month' ? "Calls (Selected Month)" : "Lifetime Calls", 
+//               val: stats.totalCalls, color: "#10B981", type: "interacted" 
+//             },
+//             { label: "🚫 No Remark Added", val: stats.noRemarks, color: "#EF4444", type: "no_remark" },
+//             { label: "Untouched Remaining", val: stats.pending, color: "#D97706", type: "pending" },
+//           ].map((s, idx) => (
+//             <div
+//               key={idx}
+//               onClick={() => s.type && (setFilterType(s.type), setCurrentPage(1))}
+//               className={`bg-white rounded-xl border p-4 shadow-sm transition-all cursor-pointer hover:shadow-md
+//                 ${filterType === s.type ? "ring-2 ring-offset-1 scale-[1.01] shadow-md" : ""}`}
+//               style={{ borderLeftWidth: 5, borderLeftColor: s.color }}
+//             >
+//               <span className="text-[9px] font-black uppercase tracking-wider block mb-1" style={{ color: s.color }}>
+//                 {s.label}
+//               </span>
+//               <p className="text-2xl font-black text-slate-800">{s.val}</p>
+//             </div>
+//           ))}
+//         </div>
+
+//         {/* Filter Tab Interface Center */}
+//         <div className="bg-white border rounded-xl shadow-sm p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
+//           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg flex-wrap">
+//             {[
+//               { id: "all",        label: "📋 Complete Pool" },
+//               { id: "interacted", label: `✅ Contacted Leads` },
+//               { id: "no_remark",  label: `🚫 No Remark Added (${stats.noRemarks})` },
+//               { id: "pending",    label: `⏳ Fresh/No Contact` },
+//             ].map((tab) => (
+//               <button
+//                 key={tab.id}
+//                 onClick={() => { setFilterType(tab.id); setCurrentPage(1); }}
+//                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all
+//                   ${filterType === tab.id
+//                     ? "bg-white shadow text-blue-700"
+//                     : "text-slate-500 hover:text-slate-700"}`}
+//               >
+//                 {tab.label}
+//               </button>
+//             ))}
+//           </div>
+
+//           <div className="relative">
+//             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+//             <input
+//               type="text"
+//               placeholder="Search candidate profiles..."
+//               value={searchTerm}
+//               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+//               className="pl-8 pr-3 py-1.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-400 w-56 text-slate-700"
+//             />
+//           </div>
+//         </div>
+
+//         {/* Table Rendering Space */}
+//         {loading ? (
+//           <div className="bg-white rounded-xl border p-16 text-center shadow-sm">
+//             <RefreshCw size={28} className="animate-spin text-blue-500 mx-auto mb-3" />
+//             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Syncing System Engine...</p>
+//           </div>
+//         ) : paginatedLeads.length === 0 ? (
+//           <div className="bg-white rounded-xl border p-16 text-center shadow-sm">
+//             <AlertCircle size={32} className="text-slate-300 mx-auto mb-3" />
+//             <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">No matching active profiles found</p>
+//           </div>
+//         ) : (
+//           <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+//             <div className="overflow-x-auto">
+//               <table className="w-full text-[11px] min-w-[800px]">
+//                 <thead className="bg-slate-50 border-b text-[10px] font-black uppercase text-slate-500 tracking-wider">
+//                   <tr>
+//                     <th className="p-3 text-left w-10">#</th>
+//                     <th className="p-3 text-left">Lead Details</th>
+//                     {isAdmin && <th className="p-3 text-left">Assigned To</th>}
+//                     <th className="p-3 text-left">Status</th>
+//                     <th className="p-3 text-center">Interactions Count</th>
+//                     <th className="p-3 text-left" style={{ minWidth: 340 }}>Remarks History Logs</th>
+//                     <th className="p-3 text-left">Last System Update</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody className="divide-y divide-slate-100 bg-white">
+//                   {paginatedLeads.map((lead, idx) => {
+//                     const phone     = lead.phone || lead.mobile || lead.contactNo;
+//                     const logList   = getLogsArray(lead);
+//                     const ss        = getStatusStyle(lead.status);
+//                     const hasRootRemark = !!(lead.remark?.toString().trim() || lead.latestRemark?.toString().trim());
+//                     const totalLogsCount = logList.length === 0 && hasRootRemark ? 1 : logList.length;
+
+//                     // Dynamically evaluates filtering based on time context unless explicitly isolated inside no_remark
+//                     const logsToRender = filterType === "no_remark" ? [] : logList.filter((log) => {
+//                       const logDate = typeof log === "object" ? (log.date || log.createdAt) : lead.updatedAt;
+//                       if (timeScope === "day") return matchDateStrings(logDate, selectedDate);
+//                       if (timeScope === "month") return matchMonthStrings(logDate, selectedDate);
+//                       return true;
+//                     });
+
+//                     const rootMatchesScope = filterType !== "no_remark" && logList.length === 0 && hasRootRemark && (
+//                       timeScope === "day" ? matchDateStrings(lead.updatedAt, selectedDate) :
+//                       timeScope === "month" ? matchMonthStrings(lead.updatedAt, selectedDate) : true
+//                     );
+
+//                     return (
+//                       <tr 
+//                         key={lead._id || idx} 
+//                         className={`hover:bg-blue-50/10 transition-colors 
+//                           ${totalLogsCount === 0 ? "bg-red-50/20" : ""} 
+//                           ${(logsToRender.length > 0 || rootMatchesScope) ? "bg-emerald-50/10" : ""}`}
+//                       >
+//                         <td className="p-3 text-slate-400 font-bold">
+//                           {(currentPage - 1) * ITEMS + idx + 1}
+//                         </td>
+
+//                         <td className="p-3">
+//                           <div className="font-black text-slate-800 uppercase text-[11px]">
+//                             {lead.name || "Unknown Candidate"}
+//                           </div>
+//                           {phone && (
+//                             <div className="flex items-center gap-1.5 mt-1">
+//                               <a
+//                                 href={`tel:${phone}`}
+//                                 className="flex items-center gap-1 text-blue-600 font-bold bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded text-[9px] hover:underline"
+//                               >
+//                                 <FaPhoneAlt size={8} /> {phone}
+//                               </a>
+//                               <a
+//                                 href={`https://wa.me/${phone.toString().replace(/\D/g, "")}`}
+//                                 target="_blank"
+//                                 rel="noopener noreferrer"
+//                                 className="text-emerald-500 hover:scale-105 transition-transform"
+//                               >
+//                                 <FaWhatsapp size={14} />
+//                               </a>
+//                             </div>
+//                           )}
+//                         </td>
+
+//                         {isAdmin && (
+//                           <td className="p-3 font-bold text-indigo-600">
+//                             {lead.assignedToName || "—"}
+//                           </td>
+//                         )}
+
+//                         <td className="p-3">
+//                           <span
+//                             className="px-2 py-1 rounded-full text-[9px] font-black border uppercase tracking-wide whitespace-nowrap"
+//                             style={{ background: ss.bg, color: ss.text, borderColor: ss.border }}
+//                           >
+//                             {lead.status || "New"}
+//                           </span>
+//                         </td>
+
+//                         <td className="p-3 text-center">
+//                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border 
+//                             ${totalLogsCount === 0 ? 'bg-red-100 text-red-700 border-red-200 shadow-sm' : 'bg-slate-50 text-slate-700'}`}
+//                           >
+//                             {totalLogsCount} {totalLogsCount === 0 ? "No Remarks 🚫" : "Logs Done"}
+//                           </span>
+//                         </td>
+
+//                         {/* Text and context layout updates render smoothly */}
+//                         <td className="p-3">
+//                           <div className="flex flex-col gap-1 max-h-28 overflow-y-auto pr-1">
+//                             {logsToRender.length > 0 ? (
+//                               logsToRender.slice().reverse().map((log, i) => {
+//                                 const remarkText = typeof log === "object"
+//                                   ? (log.remark || log.text || log.comment || log.remarks || "—")
+//                                   : log;
+//                                 const logDate = typeof log === "object" ? (log.date || log.createdAt) : null;
+
+//                                 return (
+//                                   <div key={i} className="bg-slate-50 border rounded p-1.5 border-slate-200">
+//                                     {logDate && (
+//                                       <p className="text-[8px] text-slate-400 font-black mb-0.5">⏱️ {fmtDate(logDate)}</p>
+//                                     )}
+//                                     <p className="text-[10px] text-slate-800 font-bold leading-tight">{remarkText}</p>
+//                                   </div>
+//                                 );
+//                               })
+//                             ) : rootMatchesScope ? (
+//                               <div className="bg-emerald-50/50 border border-emerald-100 rounded p-1.5">
+//                                 <p className="text-[8px] text-emerald-600 font-black mb-0.5">⏱️ {fmtDate(lead.updatedAt)}</p>
+//                                 <p className="text-[10px] text-slate-800 font-bold">{lead.remark || lead.latestRemark}</p>
+//                               </div>
+//                             ) : (
+//                               <span className="text-red-400 italic text-[10px] font-bold">🚫 Zero Remarks / Completely Fresh Lead</span>
+//                             )}
+//                           </div>
+//                         </td>
+
+//                         <td className="p-3 text-slate-500 font-semibold whitespace-nowrap">
+//                           {fmtDate(lead.updatedAt || lead.createdAt)}
+//                         </td>
+//                       </tr>
+//                     );
+//                   })}
+//                 </tbody>
+//               </table>
+//             </div>
+
+//             {/* Pagination UI Block */}
+//             {totalPages > 1 && (
+//               <div className="p-3 border-t bg-slate-50 flex items-center justify-between">
+//                 <span className="text-xs text-slate-500 font-semibold">
+//                   Showing {(currentPage - 1) * ITEMS + 1}–
+//                   {Math.min(currentPage * ITEMS, filteredLeads.length)} of {filteredLeads.length}
+//                 </span>
+//                 <div className="flex items-center gap-2">
+//                   <button
+//                     disabled={currentPage === 1}
+//                     onClick={() => setCurrentPage((p) => p - 1)}
+//                     className="p-1.5 border rounded bg-white disabled:opacity-30"
+//                   >
+//                     <ChevronLeft size={14} />
+//                   </button>
+//                   <span className="text-xs font-black min-w-[80px] text-center text-slate-700">
+//                     Page {currentPage} of {totalPages}
+//                   </span>
+//                   <button
+//                     disabled={currentPage === totalPages}
+//                     onClick={() => setCurrentPage((p) => p + 1)}
+//                     className="p-1.5 border rounded bg-white disabled:opacity-30"
+//                   >
+//                     <ChevronRight size={14} />
+//                   </button>
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default RemarkActivityPage;
+
+
+
+
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import api from "@/utlis/api.js";
 import {
-  MessageSquare, Clock, User, Filter,
-  ChevronLeft, ChevronRight, Search,
-  RefreshCw, AlertCircle, CheckCircle2
+  Clock, User, ChevronLeft, ChevronRight, 
+  Search, RefreshCw, AlertCircle, PhoneCall, Calendar
 } from "lucide-react";
 import { FaWhatsapp, FaPhoneAlt } from "react-icons/fa";
 
 /* ═══════════════════════════════════════════
-    SAFE HELPERS (Multi-Key Backend Support)
+    SAFE DATA EXTRACTOR HELPERS
 ═══════════════════════════════════════════ */
 
-// Sabhi possible key names ko handle karne ke liye fallback helper
-const getHistoryArray = (lead) => {
+const getLogsArray = (lead) => {
   if (!lead) return [];
-  return lead.followUpHistory || lead.remarks || lead.history || [];
+  const logs = lead.followUpHistory || lead.remarks || lead.history || lead.activityLog || lead.logs || [];
+  return Array.isArray(logs) ? logs : [];
 };
 
-const normalizeDateStr = (dateInput) => {
-  if (!dateInput) return "";
-  const d = new Date(dateInput);
-  return isNaN(d.getTime()) ? "" : d.toISOString().split("T")[0];
-};
-
-// Kisi specific date ke remarks filter karne ke liye
-const getHistoryForDate = (lead, targetDateStr) => {
-  const history = getHistoryArray(lead);
-  const targetNormalized = normalizeDateStr(targetDateStr);
-  if (!targetNormalized) return [];
+const matchDateStrings = (logIsoStr, selectedDateYMD) => {
+  if (!logIsoStr || !selectedDateYMD) return false;
+  const d = new Date(logIsoStr);
+  if (isNaN(d.getTime())) return false;
   
-  return history.filter((h) => {
-    const hDate = h?.date || h?.createdAt; 
-    return hDate && normalizeDateStr(hDate) === targetNormalized;
-  });
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}` === selectedDateYMD;
 };
 
-const getRemarkCount = (lead) => getHistoryArray(lead).length;
-
-// Sabse naya (latest) remark nikalne ke liye
-const getLatestHistory = (lead) => {
-  const history = getHistoryArray(lead);
-  return history.length ? history[history.length - 1] : null;
+const matchMonthStrings = (logIsoStr, selectedDateYMD) => {
+  if (!logIsoStr || !selectedDateYMD) return false;
+  const d = new Date(logIsoStr);
+  if (isNaN(d.getTime())) return false;
+  
+  const targetYearMonth = selectedDateYMD.substring(0, 7);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}` === targetYearMonth;
 };
 
 const STATUS_COLORS = {
@@ -67,22 +608,28 @@ const fmtDate = (d) =>
     : "—";
 
 /* ═══════════════════════════════════════════
-    MAIN COMPONENT
+    MAIN DASHBOARD COMPONENT
 ═══════════════════════════════════════════ */
 const RemarkActivityPage = ({ isAdmin = false }) => {
   const [leads, setLeads]             = useState([]);
   const [loading, setLoading]         = useState(true);
   const [searchTerm, setSearchTerm]   = useState("");
-  const [filterType, setFilterType]   = useState("today"); // today | once | multiple | all
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [filterType, setFilterType]   = useState("all"); 
+  const [timeScope, setTimeScope]     = useState("day"); 
+  
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    const d = String(today.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  });
+
   const [counselorId, setCounselorId]     = useState(null);
   const [counselorName, setCounselorName] = useState("");
   const [currentPage, setCurrentPage]   = useState(1);
   const ITEMS = 20;
 
-  /* ── Auth Layer ── */
   useEffect(() => {
     if (!isAdmin) {
       try {
@@ -90,28 +637,23 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
         setCounselorId(u._id || u.id || null);
         setCounselorName(u.name || "");
       } catch (e) {
-        console.error("Localstorage parsing error:", e);
+        console.error("Session fetch error:", e);
       }
     }
   }, [isAdmin]);
 
-  /* ── Data Fetching ── */
   const fetchLeads = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { limit: 1000 };
+      const params = { limit: 5000 };
       if (!isAdmin && counselorId) params.id = counselorId;
 
       const res = await api.get("/api/v1/counselor-leads", { params });
       if (res.data.success) {
-        // Debugging logs taaki data structure console me check ho sake
-        if (res.data.data && res.data.data.length > 0) {
-          console.log("👉 Full Lead Sample Object:", res.data.data[0]);
-        }
         setLeads(res.data.data || []);
       }
     } catch (err) {
-      console.error("Fetch API error:", err);
+      console.error("API error:", err);
     } finally {
       setLoading(false);
     }
@@ -121,10 +663,68 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
     if (isAdmin || counselorId) fetchLeads();
   }, [fetchLeads, isAdmin, counselorId]);
 
-  /* ── Advanced Filtering (useMemo Performance Optimizer) ── */
+  /* ── Metric Performance Engine ── */
+  const stats = useMemo(() => {
+    let scopedCallsCount = 0;
+    let leadsTouchedInScope = 0;
+    let noRemarkCount = 0; 
+
+    leads.forEach((l) => {
+      const logList = getLogsArray(l);
+      let leadHasScopeActivity = false;
+
+      // 1. GLOBAL NO-REMARK CHECK (अब इसमें 'Not Interested' को काउंट नहीं किया जाएगा)
+      const hasRootRemark = !!(l.remark?.toString().trim() || l.latestRemark?.toString().trim());
+      if (logList.length === 0 && !hasRootRemark) {
+        if (l.status !== "Not Interested") { // ◄ बदलाव यहाँ है
+          noRemarkCount++;
+        }
+      }
+
+      // 2. LIVE DATE/MONTH ACTIVITY TRACKER
+      logList.forEach((log) => {
+        const logDate = typeof log === "object" ? (log.date || log.createdAt) : l.updatedAt;
+        
+        let isMatch = false;
+        if (timeScope === "day")         isMatch = matchDateStrings(logDate, selectedDate);
+        else if (timeScope === "month")  isMatch = matchMonthStrings(logDate, selectedDate);
+        else                             isMatch = true;
+
+        if (isMatch) {
+          scopedCallsCount++;
+          leadHasScopeActivity = true;
+        }
+      });
+
+      if (logList.length === 0 && hasRootRemark) {
+        let isRootMatch = false;
+        if (timeScope === "day")         isRootMatch = matchDateStrings(l.updatedAt, selectedDate);
+        else if (timeScope === "month")  isRootMatch = matchMonthStrings(l.updatedAt, selectedDate);
+        else                             isRootMatch = true;
+
+        if (isRootMatch) {
+          scopedCallsCount++;
+          leadHasScopeActivity = true;
+        }
+      }
+
+      if (leadHasScopeActivity) {
+        leadsTouchedInScope++;
+      }
+    });
+
+    return {
+      totalPool:    leads.length,
+      totalCalls:   scopedCallsCount, 
+      interacted:   leadsTouchedInScope,
+      noRemarks:    noRemarkCount, 
+      pending:      leads.length - leadsTouchedInScope
+    };
+  }, [leads, selectedDate, timeScope]);
+
+  /* ── Filter Engine ── */
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
-      // 1. Search Logic
       const phone = lead.phone || lead.mobile || lead.contactNo || "";
       const matchSearch =
         !searchTerm ||
@@ -133,19 +733,37 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
         
       if (!matchSearch) return false;
 
-      // 2. Tab Filter Logic
-      const count   = getRemarkCount(lead);
-      const todayH  = getHistoryForDate(lead, selectedDate);
+      const logList = getLogsArray(lead);
+      const hasRootRemark = !!(lead.remark?.toString().trim() || lead.latestRemark?.toString().trim());
 
-      if (filterType === "today")    return todayH.length > 0;
-      if (filterType === "once")     return count === 1;
-      if (filterType === "multiple") return count >= 2;
-      if (filterType === "all")      return count > 0;
-      return true;
+      // ROUTE A: Absolute Zero Remark Filtering (यहाँ से 'Not Interested' को पूरी तरह हटा दिया गया है)
+      if (filterType === "no_remark") {
+        if (lead.status === "Not Interested") return false; // ◄ बदलाव यहाँ है
+        return logList.length === 0 && !hasRootRemark;
+      }
+
+      // ROUTE B: Time & Date Filter Route
+      let matchScopeActivity = false;
+      logList.forEach((log) => {
+        const logDate = typeof log === "object" ? (log.date || log.createdAt) : lead.updatedAt;
+        if (timeScope === "day" && matchDateStrings(logDate, selectedDate)) matchScopeActivity = true;
+        if (timeScope === "month" && matchMonthStrings(logDate, selectedDate)) matchScopeActivity = true;
+        if (timeScope === "lifetime") matchScopeActivity = true;
+      });
+
+      if (logList.length === 0 && hasRootRemark) {
+        if (timeScope === "day" && matchDateStrings(lead.updatedAt, selectedDate)) matchScopeActivity = true;
+        if (timeScope === "month" && matchMonthStrings(lead.updatedAt, selectedDate)) matchScopeActivity = true;
+        if (timeScope === "lifetime") matchScopeActivity = true;
+      }
+
+      if (filterType === "interacted") return matchScopeActivity;
+      if (filterType === "pending")    return !matchScopeActivity;
+      
+      return true; 
     });
-  }, [leads, searchTerm, filterType, selectedDate]);
+  }, [leads, searchTerm, filterType, selectedDate, timeScope]);
 
-  // Pagination bounds logic
   const totalPages = Math.ceil(filteredLeads.length / ITEMS);
   
   const paginatedLeads = useMemo(() => {
@@ -153,31 +771,19 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
     return filteredLeads.slice(start, start + ITEMS);
   }, [filteredLeads, currentPage]);
 
-  /* ── Stats Calculations ── */
-  const stats = useMemo(() => {
-    const todayStr = new Date().toISOString().split("T")[0];
-    return {
-      todayUpdated:   leads.filter((l) => getHistoryForDate(l, todayStr).length > 0).length,
-      onceRemark:     leads.filter((l) => getRemarkCount(l) === 1).length,
-      multipleRemark: leads.filter((l) => getRemarkCount(l) >= 2).length,
-      totalRemarked:  leads.filter((l) => getRemarkCount(l) > 0).length,
-      noRemark:       leads.filter((l) => getRemarkCount(l) === 0).length,
-    };
-  }, [leads]);
-
   return (
     <div className="min-h-screen bg-slate-50 pb-10">
 
-      {/* ── Top Header Bar ── */}
+      {/* Control Header Layout */}
       <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-5 py-3 flex justify-between items-center flex-wrap gap-3">
+        <div className="max-w-7xl mx-auto px-5 py-3 flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div className="bg-blue-100 p-2 rounded-lg">
-              <MessageSquare size={20} className="text-blue-600" />
+              <PhoneCall size={20} className="text-blue-600" />
             </div>
             <div>
               <h1 className="text-base font-black text-slate-800">
-                {isAdmin ? "All Counselors — Remark Activity" : "My Remark Activity"}
+                {isAdmin ? "Counselors Analysis Panel" : "My Lead Audit Dashboard"}
               </h1>
               {!isAdmin && counselorName && (
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
@@ -187,65 +793,89 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="bg-slate-100 p-1 rounded-lg flex items-center gap-1 border text-[11px] font-bold">
+              <button 
+                onClick={() => { setTimeScope("day"); setCurrentPage(1); }}
+                className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'day' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+              >
+                📅 Date View
+              </button>
+              <button 
+                onClick={() => { setTimeScope("month"); setCurrentPage(1); }}
+                className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'month' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+              >
+                📊 Month View
+              </button>
+              <button 
+                onClick={() => { setTimeScope("lifetime"); setCurrentPage(1); }}
+                className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'lifetime' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+              >
+                ♾️ Lifetime
+              </button>
+            </div>
+
+            {timeScope !== "lifetime" && (
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => { setSelectedDate(e.target.value); setCurrentPage(1); }}
+                className="border rounded-lg px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 bg-white"
+              />
+            )}
+
             <button
               onClick={fetchLeads}
               disabled={loading}
-              className="p-2 border rounded-lg text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-40"
+              className="p-2 border rounded-lg text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-40 flex items-center gap-1 text-xs font-bold bg-white"
             >
-              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+              <RefreshCw size={13} className={loading ? "animate-spin" : ""} /> Sync
             </button>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => { setSelectedDate(e.target.value); setCurrentPage(1); }}
-              className="border rounded-lg px-3 py-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 bg-white"
-            />
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-5 py-5">
 
-        {/* ── KPI Grid Dashboard ── */}
+        {/* Metric Boxes Top Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
           {[
-            { label: "Updated Today",  val: stats.todayUpdated,   color: "#2563EB", type: "today",    icon: <Clock size={14}/> },
-            { label: "1x Remark Only", val: stats.onceRemark,     color: "#D97706", type: "once",     icon: <AlertCircle size={14}/> },
-            { label: "2+ Remarks",     val: stats.multipleRemark, color: "#7C3AED", type: "multiple", icon: <CheckCircle2 size={14}/> },
-            { label: "Has Any Remark", val: stats.totalRemarked,  color: "#0891B2", type: "all",      icon: <MessageSquare size={14}/> },
-            { label: "No Remark Yet",  val: stats.noRemark,       color: "#DC2626", type: null,       icon: <User size={14}/> },
-          ].map((s) => (
+            { label: "Total Lead Pool", val: stats.totalPool, color: "#64748B", type: "all" },
+            { 
+              label: timeScope === 'day' ? "Calls (Today )" : timeScope === 'month' ? "Calls (Selected Month)" : "Lifetime Calls", 
+              val: stats.totalCalls, color: "#10B981", type: "interacted" 
+            },
+            { label: "🚫 No Remark Added", val: stats.noRemarks, color: "#EF4444", type: "no_remark" },
+            { label: "Untouched Remaining", val: stats.pending, color: "#D97706", type: "pending" },
+          ].map((s, idx) => (
             <div
-              key={s.label}
+              key={idx}
               onClick={() => s.type && (setFilterType(s.type), setCurrentPage(1))}
-              className={`bg-white rounded-xl border p-3 shadow-sm transition-all
-                ${s.type ? "cursor-pointer hover:shadow-md" : "cursor-default opacity-80"}
-                ${filterType === s.type ? "ring-2 ring-offset-1 scale-[1.02] shadow-md" : ""}`}
-              style={{ borderLeftWidth: 4, borderLeftColor: s.color }}
+              className={`bg-white rounded-xl border p-4 shadow-sm transition-all cursor-pointer hover:shadow-md
+                ${filterType === s.type ? "ring-2 ring-offset-1 scale-[1.01] shadow-md" : ""}`}
+              style={{ borderLeftWidth: 5, borderLeftColor: s.color }}
             >
-              <div className="flex items-center gap-1.5 mb-1" style={{ color: s.color }}>
-                {s.icon}
-                <span className="text-[9px] font-black uppercase tracking-wider">{s.label}</span>
-              </div>
+              <span className="text-[9px] font-black uppercase tracking-wider block mb-1" style={{ color: s.color }}>
+                {s.label}
+              </span>
               <p className="text-2xl font-black text-slate-800">{s.val}</p>
             </div>
           ))}
         </div>
 
-        {/* ── Filters Controllers Panel ── */}
+        {/* Filter Tab Interface Center */}
         <div className="bg-white border rounded-xl shadow-sm p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg flex-wrap">
             {[
-              { id: "today",    label: "📅 Today's Activity" },
-              { id: "once",     label: "1️⃣  Only 1 Remark" },
-              { id: "multiple", label: "🔁 2+ Remarks" },
-              { id: "all",      label: "📋 All Remarked" },
+              { id: "all",        label: "📋 Complete Pool" },
+              { id: "interacted", label: `✅ Contacted Leads` },
+              { id: "no_remark",  label: `🚫 No Remark Added (${stats.noRemarks})` },
+              { id: "pending",    label: `⏳ Fresh/No Contact` },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => { setFilterType(tab.id); setCurrentPage(1); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all
                   ${filterType === tab.id
                     ? "bg-white shadow text-blue-700"
                     : "text-slate-500 hover:text-slate-700"}`}
@@ -255,76 +885,70 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search name or phone..."
-                value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                className="pl-8 pr-3 py-1.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-400 w-52 text-slate-700"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500"
-                >
-                  <Filter size={12} />
-                </button>
-              )}
-            </div>
-            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
-              {filteredLeads.length} leads
-            </span>
+          <div className="relative">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search candidate profiles..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              className="pl-8 pr-3 py-1.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-400 w-56 text-slate-700"
+            />
           </div>
         </div>
 
-        {/* ── Main Responsive Table Layout ── */}
+        {/* Table Rendering Space */}
         {loading ? (
           <div className="bg-white rounded-xl border p-16 text-center shadow-sm">
             <RefreshCw size={28} className="animate-spin text-blue-500 mx-auto mb-3" />
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Loading Activity Dashboard...</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Syncing System Engine...</p>
           </div>
         ) : paginatedLeads.length === 0 ? (
           <div className="bg-white rounded-xl border p-16 text-center shadow-sm">
-            <MessageSquare size={32} className="text-slate-200 mx-auto mb-3" />
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">No matching active logs found</p>
+            <AlertCircle size={32} className="text-slate-300 mx-auto mb-3" />
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">No matching active profiles found</p>
           </div>
         ) : (
           <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-[11px] min-w-[860px]">
+              <table className="w-full text-[11px] min-w-[800px]">
                 <thead className="bg-slate-50 border-b text-[10px] font-black uppercase text-slate-500 tracking-wider">
                   <tr>
                     <th className="p-3 text-left w-10">#</th>
                     <th className="p-3 text-left">Lead Details</th>
-                    {isAdmin && <th className="p-3 text-left">Assigned Counselor</th>}
+                    {isAdmin && <th className="p-3 text-left">Assigned To</th>}
                     <th className="p-3 text-left">Status</th>
-                    <th className="p-3 text-center">Total Interaction</th>
-                    <th className="p-3 text-left" style={{ minWidth: 280 }}>
-                      {filterType === "today"
-                        ? `Logs — ${new Date(selectedDate).toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" })}`
-                        : "Last Active Remark"}
-                    </th>
-                    <th className="p-3 text-left">Planned Follow-up</th>
+                    <th className="p-3 text-center">Interactions Count</th>
+                    <th className="p-3 text-left" style={{ minWidth: 340 }}>Remarks History Logs</th>
+                    <th className="p-3 text-left">Last System Update</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {paginatedLeads.map((lead, idx) => {
-                    const phone       = lead.phone || lead.mobile || lead.contactNo;
-                    const count       = getRemarkCount(lead);
-                    const dateHistory = getHistoryForDate(lead, selectedDate);
-                    const latest      = getLatestHistory(lead);
-                    const ss          = getStatusStyle(lead.status);
-                    const followToday =
-                      lead.followUpDate &&
-                      normalizeDateStr(lead.followUpDate) === normalizeDateStr(new Date());
+                    const phone     = lead.phone || lead.mobile || lead.contactNo;
+                    const logList   = getLogsArray(lead);
+                    const ss        = getStatusStyle(lead.status);
+                    const hasRootRemark = !!(lead.remark?.toString().trim() || lead.latestRemark?.toString().trim());
+                    const totalLogsCount = logList.length === 0 && hasRootRemark ? 1 : logList.length;
+
+                    const logsToRender = filterType === "no_remark" ? [] : logList.filter((log) => {
+                      const logDate = typeof log === "object" ? (log.date || log.createdAt) : lead.updatedAt;
+                      if (timeScope === "day") return matchDateStrings(logDate, selectedDate);
+                      if (timeScope === "month") return matchMonthStrings(logDate, selectedDate);
+                      return true;
+                    });
+
+                    const rootMatchesScope = filterType !== "no_remark" && logList.length === 0 && hasRootRemark && (
+                      timeScope === "day" ? matchDateStrings(lead.updatedAt, selectedDate) :
+                      timeScope === "month" ? matchMonthStrings(lead.updatedAt, selectedDate) : true
+                    );
 
                     return (
-                      <tr
-                        key={lead._id || idx}
-                        className={`hover:bg-blue-50/20 transition-colors ${followToday ? "bg-amber-50/30" : ""}`}
+                      <tr 
+                        key={lead._id || idx} 
+                        className={`hover:bg-blue-50/10 transition-colors 
+                          ${totalLogsCount === 0 ? "bg-red-50/20" : ""} 
+                          {(logsToRender.length > 0 || rootMatchesScope) ? "bg-emerald-50/10" : ""}`}
                       >
                         <td className="p-3 text-slate-400 font-bold">
                           {(currentPage - 1) * ITEMS + idx + 1}
@@ -332,7 +956,7 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
 
                         <td className="p-3">
                           <div className="font-black text-slate-800 uppercase text-[11px]">
-                            {lead.name}
+                            {lead.name || "Unknown Candidate"}
                           </div>
                           {phone && (
                             <div className="flex items-center gap-1.5 mt-1">
@@ -346,130 +970,68 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
                                 href={`https://wa.me/${phone.toString().replace(/\D/g, "")}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-emerald-500 hover:scale-110 transition-transform"
+                                className="text-emerald-500 hover:scale-105 transition-transform"
                               >
                                 <FaWhatsapp size={14} />
                               </a>
                             </div>
                           )}
-                          {lead.city && (
-                            <div className="text-[9px] text-slate-400 mt-1 font-semibold uppercase">
-                              📍 {lead.city}
-                            </div>
-                          )}
                         </td>
 
                         {isAdmin && (
-                          <td className="p-3">
-                            <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
-                              {lead.assignedToName || "—"}
-                            </span>
+                          <td className="p-3 font-bold text-indigo-600">
+                            {lead.assignedToName || "—"}
                           </td>
                         )}
 
                         <td className="p-3">
                           <span
-                            className="px-2 py-1 rounded-full text-[9px] font-black border whitespace-nowrap uppercase tracking-wide"
+                            className="px-2 py-1 rounded-full text-[9px] font-black border uppercase tracking-wide whitespace-nowrap"
                             style={{ background: ss.bg, color: ss.text, borderColor: ss.border }}
                           >
-                            {lead.status === "Not Picked" ? "Dead Lead" : lead.status}
+                            {lead.status || "New"}
                           </span>
                         </td>
 
                         <td className="p-3 text-center">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black border
-                              ${count === 0
-                                ? "bg-red-50 text-red-500 border-red-100"
-                                : count === 1
-                                ? "bg-amber-50 text-amber-600 border-amber-100"
-                                : "bg-purple-50 text-purple-600 border-purple-100"}`}
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border 
+                            ${totalLogsCount === 0 ? 'bg-red-100 text-red-700 border-red-200 shadow-sm' : 'bg-slate-50 text-slate-700'}`}
                           >
-                            <MessageSquare size={9} />
-                            {count}x
+                            {totalLogsCount} {totalLogsCount === 0 ? "No Remarks 🚫" : "Logs Done"}
                           </span>
                         </td>
 
-                        {/* Remark Logs Render System */}
                         <td className="p-3">
-                          {filterType === "today" ? (
-                            <div className="flex flex-col gap-1 max-h-28 overflow-y-auto pr-1">
-                              {dateHistory.length > 0 ? (
-                                dateHistory.map((h, i) => (
-                                  <div
-                                    key={i}
-                                    className="bg-blue-50/70 border border-blue-100 rounded-lg p-1.5"
-                                  >
-                                    <div className="flex items-center justify-between mb-1 gap-2">
-                                      <span className="text-[8px] text-blue-500 font-bold">
-                                        {fmtDate(h.date || h.createdAt)}
-                                      </span>
-                                      {h.status && (
-                                        <span
-                                          className="text-[7px] font-black px-1.5 rounded-full border uppercase"
-                                          style={{
-                                            background: getStatusStyle(h.status).bg,
-                                            color: getStatusStyle(h.status).text,
-                                            borderColor: getStatusStyle(h.status).border,
-                                          }}
-                                        >
-                                          {h.status === "Not Picked" ? "Dead" : h.status}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className="text-[10px] text-slate-700 font-semibold leading-relaxed">
-                                      {h.remark || h.text || h.comment || "—"}
-                                    </div>
+                          <div className="flex flex-col gap-1 max-h-28 overflow-y-auto pr-1">
+                            {logsToRender.length > 0 ? (
+                              logsToRender.slice().reverse().map((log, i) => {
+                                const remarkText = typeof log === "object"
+                                  ? (log.remark || log.text || log.comment || log.remarks || "—")
+                                  : log;
+                                const logDate = typeof log === "object" ? (log.date || log.createdAt) : null;
+
+                                return (
+                                  <div key={i} className="bg-slate-50 border rounded p-1.5 border-slate-200">
+                                    {logDate && (
+                                      <p className="text-[8px] text-slate-400 font-black mb-0.5">⏱️ {fmtDate(logDate)}</p>
+                                    )}
+                                    <p className="text-[10px] text-slate-800 font-bold leading-tight">{remarkText}</p>
                                   </div>
-                                ))
-                              ) : (
-                                <span className="text-slate-300 text-[10px] italic">No active logs on this date</span>
-                              )}
-                            </div>
-                          ) : (
-                            latest ? (
-                              <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-1.5">
-                                <div className="flex items-center justify-between mb-1 gap-2">
-                                  <span className="text-[8px] text-slate-400 font-bold">
-                                    {fmtDate(latest.date || latest.createdAt)}
-                                  </span>
-                                  {latest.status && (
-                                    <span
-                                      className="text-[7px] font-black px-1.5 rounded-full border uppercase"
-                                      style={{
-                                        background: getStatusStyle(latest.status).bg,
-                                        color: getStatusStyle(latest.status).text,
-                                        borderColor: getStatusStyle(latest.status).border,
-                                      }}
-                                    >
-                                      {latest.status === "Not Picked" ? "Dead" : latest.status}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-[10px] text-slate-700 font-semibold leading-relaxed">
-                                  {latest.remark || latest.text || latest.comment || "—"}
-                                </div>
+                                );
+                              })
+                            ) : rootMatchesScope ? (
+                              <div className="bg-emerald-50/50 border border-emerald-100 rounded p-1.5">
+                                <p className="text-[8px] text-emerald-600 font-black mb-0.5">⏱️ {fmtDate(lead.updatedAt)}</p>
+                                <p className="text-[10px] text-slate-800 font-bold">{lead.remark || lead.latestRemark}</p>
                               </div>
                             ) : (
-                              <span className="text-slate-300 text-[10px] italic">No interaction records found</span>
-                            )
-                          )}
+                              <span className="text-red-400 italic text-[10px] font-bold">🚫 Zero Remarks / Completely Fresh Lead</span>
+                            )}
+                          </div>
                         </td>
 
-                        <td className="p-3 whitespace-nowrap">
-                          {lead.followUpDate ? (
-                            <div
-                              className={`text-[10px] font-bold rounded-lg px-2 py-1 inline-block
-                                ${followToday
-                                  ? "bg-amber-100 text-amber-700 border border-amber-200 shadow-sm animate-pulse"
-                                  : "bg-slate-100 text-slate-600 border"}`}
-                            >
-                              {followToday && "🔔 "}
-                              {fmtDate(lead.followUpDate)}
-                            </div>
-                          ) : (
-                            <span className="text-slate-300 text-[10px]">—</span>
-                          )}
+                        <td className="p-3 text-slate-500 font-semibold whitespace-nowrap">
+                          {fmtDate(lead.updatedAt || lead.createdAt)}
                         </td>
                       </tr>
                     );
@@ -478,7 +1040,7 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
               </table>
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination UI Block */}
             {totalPages > 1 && (
               <div className="p-3 border-t bg-slate-50 flex items-center justify-between">
                 <span className="text-xs text-slate-500 font-semibold">
@@ -489,17 +1051,17 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
                   <button
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((p) => p - 1)}
-                    className="p-1.5 border rounded bg-white disabled:opacity-30 hover:bg-slate-100 transition-colors"
+                    className="p-1.5 border rounded bg-white disabled:opacity-30"
                   >
                     <ChevronLeft size={14} />
                   </button>
-                  <span className="text-xs font-bold min-w-[80px] text-center text-slate-700">
+                  <span className="text-xs font-black min-w-[80px] text-center text-slate-700">
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage((p) => p + 1)}
-                    className="p-1.5 border rounded bg-white disabled:opacity-30 hover:bg-slate-100 transition-colors"
+                    className="p-1.5 border rounded bg-white disabled:opacity-30"
                   >
                     <ChevronRight size={14} />
                   </button>

@@ -37,7 +37,7 @@ export default function AdminPanel() {
   const fetchAdmissions = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get("/api/v1/ad", { params: { limit: 200 } });
+      const res = await api.get("/api/v1/ad", { params: { limit: 5000 } });
       if (res.data.success) setAdmissions(res.data.data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
@@ -97,6 +97,7 @@ export default function AdminPanel() {
     } catch (e) { showToast("❌ " + (e.response?.data?.message || e.message)); }
     setVerifying(false);
   };
+  
 
   /* ── Verify all pending ── */
   const verifyAll = async (admissionId, status, remark = "") => {
@@ -237,9 +238,9 @@ export default function AdminPanel() {
                           <td style={{ ...s.td, textAlign: "center" }}><span style={{ color: "#10B981", fontWeight: 600 }}>{cs.done}</span></td>
                           <td style={{ ...s.td, textAlign: "center" }}><span style={{ color: "#EF4444", fontWeight: 600 }}>{cs.rejected}</span></td>
                           <td style={s.td}>
-                            <button onClick={() => { setFilterCounselor(cs.name); setTab("admissions"); }} style={s.viewBtn}>
-                              View →
-                            </button>
+                            <button onClick={() => { setFilterCounselor(cs.name); setFilterStatus("all"); setSearchText(""); setTab("admissions"); setSelected(null); }} style={s.viewBtn}>
+  View →
+</button>
                           </td>
                         </tr>
                       ))}

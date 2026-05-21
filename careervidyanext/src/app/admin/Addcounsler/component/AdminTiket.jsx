@@ -57,17 +57,7 @@ export default function AdminTiket() {
     try {
       setSendingAll(true);
 
-      // ── Option A: dedicated broadcast endpoint (recommended) ──────
-      // await api.post("/api/v1/tickat/notify-all", { message: notifyAllText });
-
-      // ── Option B: patch every ticket (fallback) ───────────────────
-      await Promise.all(
-        tickets.map((ticket) =>
-          api.patch(`/api/v1/tickat/${ticket._id}/notify-all`, {
-            message: notifyAllText,
-          })
-        )
-      );
+      await api.post("/api/v1/tickat/notify-all", { message: notifyAllText });
 
       alert("Broadcast sent to all counselors!");
       setNotifyAllText("");
