@@ -30,6 +30,9 @@ export default function RaiseTicketPage() {
   const [dismissedGlobal, setDismissedGlobal] = useState([]);
   const [dismissedTicket, setDismissedTicket] = useState([]);
 
+  // ─── POPUP STATE (पूरा मैसेज देखने के लिए) ──────────────────────
+  const [selectedBroadcast, setSelectedBroadcast] = useState(null);
+
   // ─── Load user from localStorage ────────────────────────────────
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -58,9 +61,9 @@ export default function RaiseTicketPage() {
           .flatMap((t) => t.globalMessages || [])
           .filter(
             (msg, i, arr) =>
-              arr.findIndex((m) => (m._id || m.timestamp) === (msg._id || msg.timestamp)) === i
+              arr.findIndex((m) => (m._id || m.timestamp || m.sentAt) === (msg._id || msg.timestamp || msg.sentAt)) === i
           )
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          .sort((a, b) => new Date(b.sentAt || b.timestamp) - new Date(a.sentAt || a.timestamp));
 
         setGlobalMessages(allGlobal);
       }
@@ -87,7 +90,7 @@ export default function RaiseTicketPage() {
 
   // ─── Global broadcast notifications ─────────────────────────────
   const visibleGlobal = useMemo(() => {
-    return globalMessages.filter((msg) => !dismissedGlobal.includes(msg._id || msg.timestamp));
+    return globalMessages.filter((msg) => !dismissedGlobal.includes(msg._id || msg.timestamp || msg.sentAt));
   }, [globalMessages, dismissedGlobal]);
 
   // ─── Form handlers ───────────────────────────────────────────────
@@ -107,7 +110,6 @@ export default function RaiseTicketPage() {
     setStatus({ type: "", msg: "" });
 
     try {
-      // 🎯 FIXED PAYLOAD: Schema ke hisaab se bilkul exact data structure
       const payload = {
         subject: formData.subject,
         counselorId: user._id,
@@ -116,7 +118,7 @@ export default function RaiseTicketPage() {
           goals: formData.goals || "",
           urgency: formData.urgency
         },
-        status: "Open" // Schema mein 'Pending' nahi hai, default enum 'Open' hai!
+        status: "Open"
       };
 
       const res = await api.post("/api/v1/tickat", payload);
@@ -141,7 +143,7 @@ export default function RaiseTicketPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f9fafb] py-6 px-4 sm:px-6">
+    <div className="min-h-screen bg-[#f9fafb] py-6 px-4 sm:px-6 relative">
       <div className="max-w-6xl mx-auto space-y-4">
 
         {/* 1. BROADCAST BANNER */}
@@ -150,13 +152,13 @@ export default function RaiseTicketPage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-amber-700 font-bold text-sm">
                 <Radio size={16} className="animate-pulse" />
-                Admin Broadcast
+                Admin Broadcast <span className="text-[10px] text-amber-500 font-normal">(Click message to read full)</span>
               </div>
               <button
                 onClick={() =>
                   setDismissedGlobal((prev) => [
                     ...prev,
-                    ...visibleGlobal.map((m) => m._id || m.timestamp),
+                    ...visibleGlobal.map((m) => m._id || m.timestamp || m.sentAt),
                   ])
                 }
                 className="text-amber-400 hover:text-amber-700"
@@ -164,18 +166,36 @@ export default function RaiseTicketPage() {
                 <X size={15} />
               </button>
             </div>
-            <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
-              {visibleGlobal.map((msg, idx) => (
-                <div
-                  key={msg._id || idx}
-                  className="bg-white border border-amber-100 rounded p-2.5 flex justify-between items-start gap-3"
-                >
-                  <p className="text-xs text-gray-700 flex-1">{msg.message}</p>
-                  <span className="text-[9px] text-amber-500 font-semibold whitespace-nowrap">
-                    {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : "Just Now"}
-                  </span>
-                </div>
-              ))}
+            
+            <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+              {visibleGlobal.map((msg, idx) => {
+                const isNew = idx === 0;
+
+                return (
+                  <div
+                    key={msg._id || idx}
+                    onClick={() => setSelectedBroadcast(msg)}
+                    className="bg-white border border-amber-100 hover:border-amber-300 rounded-lg px-3 py-2 flex items-center justify-between gap-3 shadow-sm cursor-pointer transition-all hover:bg-amber-50/30"
+                    title="Click to expand"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {isNew && (
+                        <span className="bg-rose-600 text-white text-[11px] font-black px-2.5 py-1 rounded shadow-sm animate-pulse shrink-0 tracking-wider uppercase inline-flex items-center justify-center h-6">
+                          NEW
+                        </span>
+                      )}
+                      {/* truncate लगाने से लंबी लाइन कट जाएगी और स्क्रीन ख़राब नहीं होगी */}
+                      <p className="text-xs text-gray-700 font-medium truncate flex-1">
+                        {msg.message}
+                      </p>
+                    </div>
+                    
+                    <span className="text-[10px] text-amber-600 font-semibold whitespace-nowrap bg-amber-100/50 px-2 py-0.5 rounded shrink-0">
+                      {msg.sentAt || msg.timestamp ? new Date(msg.sentAt || msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just Now"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -354,7 +374,6 @@ export default function RaiseTicketPage() {
                 </div>
               ) : (
                 myTickets.map((ticket) => {
-                  // Schema alignment parsing safely
                   const parsedIssue = ticket.description?.issue || "No description provided";
                   const parsedUrgency = ticket.description?.urgency || "Medium";
 
@@ -450,6 +469,58 @@ export default function RaiseTicketPage() {
         </div>
       </div>
 
+      {/* ─── 3. LIGHT POPUP MODAL (पूरा मैसेज दिखाने के लिए) ─── */}
+      {selectedBroadcast && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white border border-amber-200 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-scaleUp">
+            
+            {/* पॉपअप हेडर */}
+            <div className="bg-amber-50 border-b border-amber-100 px-5 py-4 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                <Radio size={16} className="text-amber-600 animate-pulse" />
+                Full Broadcast Message
+              </div>
+              <button
+                onClick={() => setSelectedBroadcast(null)}
+                className="bg-white hover:bg-gray-100 p-1.5 rounded-full border text-gray-400 hover:text-gray-700 transition-colors shadow-sm"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            {/* पॉपअप कंटेंट */}
+            <div className="p-6 space-y-4">
+              <div className="bg-gray-50/80 border rounded-xl p-4 max-h-60 overflow-y-auto custom-scrollbar">
+                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap break-words">
+                  {selectedBroadcast.message}
+                </p>
+              </div>
+              
+              <div className="flex justify-between items-center text-[11px] text-gray-400 font-medium bg-gray-50 px-3 py-2 rounded-lg border border-dashed">
+                <span>Sent Time:</span>
+                <span className="text-amber-700 font-bold">
+                  {selectedBroadcast.sentAt || selectedBroadcast.timestamp 
+                    ? new Date(selectedBroadcast.sentAt || selectedBroadcast.timestamp).toLocaleString() 
+                    : "Just Now"}
+                </span>
+              </div>
+            </div>
+
+            {/* पॉपअप फूटर */}
+            <div className="bg-gray-50 px-5 py-3 flex justify-end border-t">
+              <button
+                onClick={() => setSelectedBroadcast(null)}
+                className="px-4 py-1.5 bg-gray-800 hover:bg-gray-900 text-white rounded-lg text-xs font-semibold shadow transition-all cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ─── CUSTOM SCROLLBAR & POPUP ANIMATIONS ─── */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
@@ -461,6 +532,16 @@ export default function RaiseTicketPage() {
           background: #e2e8f0;
           border-radius: 10px;
         }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleUp {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fadeIn { animation: fadeIn 0.2s ease-out forwards; }
+        .animate-scaleUp { animation: scaleUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
       `}</style>
     </div>
   );

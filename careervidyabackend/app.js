@@ -85,8 +85,14 @@ app.use("/api/v1/ad",leadAdmissionRoutes);
 app.use("/api/v1/admissionfess", admissionfessRoutes);
 app.use("/api/v1/tickat", ticketRouter);
 app.use("/api/v1/videos", videoRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-// ✅ Simple Ping Route
+// Purani line ko isse replace karein:
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
+  setHeaders: function (res, path, stat) {
+    res.set('Access-Control-Allow-Origin', '*'); 
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  }
+}));// ✅ Simple Ping Route
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");
 });

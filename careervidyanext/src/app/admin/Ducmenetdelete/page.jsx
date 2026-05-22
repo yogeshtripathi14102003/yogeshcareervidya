@@ -2,6 +2,8 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import api from "@/utlis/api.js";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const statusColor = {
   pending:  { bg: "#FFF8E1", text: "#F59E0B", border: "#FDE68A", label: "Pending" },
@@ -29,6 +31,7 @@ export default function AdmissionsOnlyPanel() {
   const [filterMonth, setFilterMonth] = useState("all");
   const [searchText, setSearchText] = useState("");
   const [toast, setToast] = useState("");
+  const [downloadingZip, setDownloadingZip] = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -45,6 +48,62 @@ export default function AdmissionsOnlyPanel() {
   useEffect(() => {
     fetchAdmissions();
   }, [fetchAdmissions]);
+
+  /* ── Download ALL Docs As ZIP (Approved, Rejected, Pending) ── */
+  const downloadAllDocs = async (studentName, documents) => {
+    // Ab hum status === "done" ka filter hata kar sari files check kar rahe hain jinka fileUrl available hai
+    const allFiles = (documents || []).filter(d => d.fileUrl);
+    
+    if (allFiles.length === 0) {
+      showToast("❌ Is student ka koi bhi document nahi mila!");
+      return;
+    }
+
+    setDownloadingZip(true);
+    showToast("📦 Zip file taiyar ho rahi hai, kripya intezar karein...");
+
+    try {
+      const zip = new JSZip();
+      let successfulDownloads = 0;
+      
+      const downloadPromises = allFiles.map(async (doc, index) => {
+        try {
+          const response = await fetch(doc.fileUrl);
+          if (!response.ok) throw new Error("Network response was not ok");
+          const blob = await response.blob();
+          
+          // File extension nikal kar safe name banana
+          const fileExtension = doc.fileName.split('.').pop();
+          const cleanName = doc.fileName.replace(`.${fileExtension}`, "");
+          
+          // File ke name ke aage uska status (Approved/Rejected/Pending) jod diya hai taaki pehchanne me aasani ho
+          const currentStatus = doc.status ? doc.status.toUpperCase() : "DOC";
+          const finalFileName = `${cleanName}_(${currentStatus})_${index + 1}.${fileExtension}`;
+          
+          zip.file(finalFileName, blob);
+          successfulDownloads++;
+        } catch (error) {
+          console.error(`Failed to download file due to CORS/Network: ${doc.fileName}`, error);
+        }
+      });
+
+      await Promise.all(downloadPromises);
+      
+      if (successfulDownloads === 0) {
+        throw new Error("CORS Block: Files fetch nahi ho saki. Storage server par CORS config check karein.");
+      }
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const safeStudentName = studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      saveAs(content, `${safeStudentName}_all_docs.zip`);
+      showToast(`✅ ${successfulDownloads} files safaltapurvak download ho gayi!`);
+    } catch (err) {
+      console.error(err);
+      showToast("❌ Download fail: Storage server ne files access karne se roka (CORS Error).");
+    } finally {
+      setDownloadingZip(false);
+    }
+  };
 
   /* ── Delete Document/Image ── */
   const deleteDoc = async (admissionId, docId) => {
@@ -226,7 +285,7 @@ export default function AdmissionsOnlyPanel() {
             )}
           </div>
         ) : (
-          /* ── DETAIL VIEW WITH ADHAR AND DELETE IMAGE ── */
+          /* ── DETAIL VIEW ── */
           <div>
             <div style={s.pageHeader}>
               <button onClick={() => setSelected(null)} style={s.backBtn}>← Back To List</button>
@@ -252,15 +311,32 @@ export default function AdmissionsOnlyPanel() {
               </div>
             </div>
 
-            {(selected.documents || []).some((d) => d.status === "pending") && (
-              <div style={s.bulkActions}>
-                <span style={s.bulkLabel}>Bulk Action:</span>
+            {/* Actions Bar for Operations */}
+            <div style={s.bulkActions}>
+              <span style={s.bulkLabel}>Actions:</span>
+              
+              {(selected.documents || []).some((d) => d.status === "pending") && (
                 <button onClick={() => verifyAll(selected._id, "done")}
                   style={{ ...s.bulkBtn, background: "#10B981", color: "#fff" }}>
                   ✅ Approve All Pending
                 </button>
-              </div>
-            )}
+              )}
+
+              {/* Naya Button jo student ki SARI files zip download karega */}
+              <button 
+                onClick={() => downloadAllDocs(selected.studentName, selected.documents)}
+                disabled={downloadingZip}
+                style={{ 
+                  ...s.bulkBtn, 
+                  background: "#6366F1", 
+                  color: "#fff", 
+                  opacity: downloadingZip ? 0.7 : 1,
+                  cursor: downloadingZip ? "not-allowed" : "pointer" 
+                }}
+              >
+                📥 {downloadingZip ? "Zipping..." : "Download All Student Files"}
+              </button>
+            </div>
 
             <div style={s.card}>
               <h2 style={s.cardTitle}>Documents ({(selected.documents || []).length})</h2>
@@ -300,7 +376,6 @@ export default function AdmissionsOnlyPanel() {
                               Verify
                             </button>
                           )}
-                          {/* Image/Document Delete Button */}
                           <button
                             onClick={() => deleteDoc(selected._id, doc._id)}
                             style={s.deleteBtn}
@@ -390,7 +465,7 @@ const s = {
   verifyBtn:       { background: "#6366F1", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
   deleteBtn:       { background: "#FEF2F2", color: "#EF4444", border: "1px solid #FCA5A5", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
   viewFileBtn:     { background: "#F1F5F9", color: "#374151", borderRadius: 8, padding: "5px 10px", fontSize: 12, textDecoration: "none", flexShrink: 0 },
-  bulkActions:     { display: "flex", alignItems: "center", gap: 12, background: "#FFF8E1", borderRadius: 10, padding: "12px 16px", marginBottom: 16 },
+  bulkActions:     { display: "flex", alignItems: "center", gap: 12, background: "#FFF8E1", borderRadius: 10, padding: "12px 16px", marginBottom: 16, flexWrap: "wrap" },
   bulkLabel:       { fontSize: 14, fontWeight: 600, color: "#92400E" },
   bulkBtn:         { border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit" },
   infoLabel:       { fontSize: 11, color: "#94A3B8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 },
