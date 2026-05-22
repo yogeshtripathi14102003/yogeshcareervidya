@@ -1,8 +1,10 @@
 
+
+
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import api from "@/utlis/api.js";
-import JSZip from "jszip";
+import { PDFDocument } from "pdf-lib"; // Naya package install karein: npm install pdf-lib
 import { saveAs } from "file-saver";
 
 const statusColor = {
@@ -31,7 +33,7 @@ export default function AdmissionsOnlyPanel() {
   const [filterMonth, setFilterMonth] = useState("all");
   const [searchText, setSearchText] = useState("");
   const [toast, setToast] = useState("");
-  const [downloadingZip, setDownloadingZip] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -49,9 +51,8 @@ export default function AdmissionsOnlyPanel() {
     fetchAdmissions();
   }, [fetchAdmissions]);
 
-  /* ── Download ALL Docs As ZIP (Approved, Rejected, Pending) ── */
-  const downloadAllDocs = async (studentName, documents) => {
-    // Ab hum status === "done" ka filter hata kar sari files check kar rahe hain jinka fileUrl available hai
+  /* ── Download ALL Docs As A Single Merged PDF ── */
+  const downloadAllDocsAsSinglePDF = async (studentName, documents) => {
     const allFiles = (documents || []).filter(d => d.fileUrl);
     
     if (allFiles.length === 0) {
@@ -59,49 +60,72 @@ export default function AdmissionsOnlyPanel() {
       return;
     }
 
-    setDownloadingZip(true);
-    showToast("📦 Zip file taiyar ho rahi hai, kripya intezar karein...");
+    setDownloadingPdf(true);
+    showToast("📄 Sabhi documents ko milakar ek single PDF taiyar ho rahi hai...");
 
     try {
-      const zip = new JSZip();
-      let successfulDownloads = 0;
-      
-      const downloadPromises = allFiles.map(async (doc, index) => {
+      // Ek khali master PDF document banayein
+      const masterPdf = await PDFDocument.create();
+      let successfulFiles = 0;
+
+      for (const doc of allFiles) {
         try {
           const response = await fetch(doc.fileUrl);
-          if (!response.ok) throw new Error("Network response was not ok");
-          const blob = await response.blob();
+          if (!response.ok) throw new Error("Fetch failed");
+          const arrayBuffer = await response.arrayBuffer();
           
-          // File extension nikal kar safe name banana
-          const fileExtension = doc.fileName.split('.').pop();
-          const cleanName = doc.fileName.replace(`.${fileExtension}`, "");
-          
-          // File ke name ke aage uska status (Approved/Rejected/Pending) jod diya hai taaki pehchanne me aasani ho
-          const currentStatus = doc.status ? doc.status.toUpperCase() : "DOC";
-          const finalFileName = `${cleanName}_(${currentStatus})_${index + 1}.${fileExtension}`;
-          
-          zip.file(finalFileName, blob);
-          successfulDownloads++;
-        } catch (error) {
-          console.error(`Failed to download file due to CORS/Network: ${doc.fileName}`, error);
-        }
-      });
+          const fileType = doc.fileType?.toLowerCase() || "";
+          const isPdf = fileType.includes("pdf") || doc.fileName.toLowerCase().endsWith(".pdf");
+          const isImage = fileType.includes("image") || doc.fileName.toLowerCase().match(/\.(jpg|jpeg|png)$/);
 
-      await Promise.all(downloadPromises);
-      
-      if (successfulDownloads === 0) {
-        throw new Error("CORS Block: Files fetch nahi ho saki. Storage server par CORS config check karein.");
+          if (isPdf) {
+            // Agar pehle se PDF hai, to uske saare pages copy karke master PDF me dalein
+            const srcPdf = await PDFDocument.load(arrayBuffer);
+            const copiedPages = await masterPdf.copyPages(srcPdf, srcPdf.getPageIndices());
+            copiedPages.forEach((page) => masterPdf.addPage(page));
+            successfulFiles++;
+          } else if (isImage) {
+            // Agar image hai, to use naye page par embed karein
+            let image;
+            if (doc.fileName.toLowerCase().endsWith(".png") || fileType.includes("png")) {
+              image = await masterPdf.embedPng(arrayBuffer);
+            } else {
+              image = await masterPdf.embedJpg(arrayBuffer);
+            }
+
+            // Image ke size ke hisab se naya page banayein
+            const page = masterPdf.addPage([image.width, image.height]);
+            page.drawImage(image, {
+              x: 0,
+              y: 0,
+              width: image.width,
+              height: image.height,
+            });
+            successfulFiles++;
+          } else {
+            console.warn(`Unsupported file format skipped: ${doc.fileName}`);
+          }
+        } catch (error) {
+          console.error(`Failed to process file: ${doc.fileName}`, error);
+        }
       }
 
-      const content = await zip.generateAsync({ type: "blob" });
+      if (successfulFiles === 0) {
+        throw new Error("Koi bhi file process nahi ho saki. CORS error ho sakti hai.");
+      }
+
+      // Master PDF ko save karein aur download karwayein
+      const pdfBytes = await masterPdf.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const safeStudentName = studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      saveAs(content, `${safeStudentName}_all_docs.zip`);
-      showToast(`✅ ${successfulDownloads} files safaltapurvak download ho gayi!`);
+      
+      saveAs(blob, `${safeStudentName}_combined_documents.pdf`);
+      showToast(`✅ ${successfulFiles} files ko ek hi PDF me merge karke download kar diya gaya hai!`);
     } catch (err) {
       console.error(err);
-      showToast("❌ Download fail: Storage server ne files access karne se roka (CORS Error).");
+      showToast("❌ Merge fail: Storage server CORS policy check karein.");
     } finally {
-      setDownloadingZip(false);
+      setDownloadingPdf(false);
     }
   };
 
@@ -322,19 +346,19 @@ export default function AdmissionsOnlyPanel() {
                 </button>
               )}
 
-              {/* Naya Button jo student ki SARI files zip download karega */}
+              {/* Naya Button jo student ki SARI files ko MERGE karke single PDF dega */}
               <button 
-                onClick={() => downloadAllDocs(selected.studentName, selected.documents)}
-                disabled={downloadingZip}
+                onClick={() => downloadAllDocsAsSinglePDF(selected.studentName, selected.documents)}
+                disabled={downloadingPdf}
                 style={{ 
                   ...s.bulkBtn, 
                   background: "#6366F1", 
                   color: "#fff", 
-                  opacity: downloadingZip ? 0.7 : 1,
-                  cursor: downloadingZip ? "not-allowed" : "pointer" 
+                  opacity: downloadingPdf ? 0.7 : 1,
+                  cursor: downloadingPdf ? "not-allowed" : "pointer" 
                 }}
               >
-                📥 {downloadingZip ? "Zipping..." : "Download All Student Files"}
+                📥 {downloadingPdf ? "Merging into single PDF..." : "Download Combined PDF"}
               </button>
             </div>
 

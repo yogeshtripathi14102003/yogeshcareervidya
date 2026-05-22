@@ -3,7 +3,7 @@ import fs from "fs";
 
 const createLocalUploader = ({
   folder = "uploads/documents",
-  maxFileSizeMB = 10,
+  maxFileSizeMB = 20,
   maxFiles = 20,
 } = {}) => {
   // ✅ Folder auto-create

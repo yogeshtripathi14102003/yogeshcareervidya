@@ -1,3 +1,5 @@
+
+
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
 import api from "@/utlis/api.js";
@@ -53,11 +55,11 @@ export default function CounselorPortal() {
   const [listLoading, setListLoading] = useState(false);
   const [filterTab, setFilterTab]     = useState("all");
 
-  const fileRef = useRef(null);
+  const fileRef = useRef();
 
   useEffect(() => { fetchAllStudents(); }, []);
 
-  // ✅ sirf is counselor ke students fetch karo
+  // ✅ FIXED: sirf is counselor ke students fetch karo
   const fetchAllStudents = async () => {
     setListLoading(true);
     try {
@@ -74,7 +76,6 @@ export default function CounselorPortal() {
     setStep(1); setAadhar(""); setStudentName("");
     setAdmission(null); setDocs([]); setFiles([]);
     setError(""); setSuccess("");
-    if (fileRef.current) fileRef.current.value = "";
     fetchAllStudents();
   };
 
@@ -85,7 +86,7 @@ export default function CounselorPortal() {
     setStep(2);
   };
 
-  // ✅ search bhi sirf is counselor ke students mein
+  // ✅ FIXED: search bhi sirf is counselor ke students mein
   const searchStudent = async () => {
     if (!aadhar.trim() || !studentName.trim()) {
       setError("Aadhar number aur student name dono bharo"); return;
@@ -135,38 +136,23 @@ export default function CounselorPortal() {
 
   const removeFile = (i) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
 
-  /* ── 🌟 Upload (With Network Stream & Reset Safety Fixed) ── */
+  /* ── Upload ── */
   const uploadDocs = async () => {
     if (!files.length) { setError("Koi file select nahi ki"); return; }
     setUploading(true); setError(""); setSuccess("");
-    
     const fd = new FormData();
     files.forEach((f) => fd.append("documents", f));
-    
     try {
-      // Content-Type aur extended timeout configuration taaki infinite loop block na ho
-      const res = await api.post(`/api/v1/ad/${admission._id}/documents`, fd, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        timeout: 600000, // 10 minutes session tolerance
-      });
-      
+      const res = await api.post(`/api/v1/ad/${admission._id}/documents`, fd);
       const data = res.data;
       if (!data.success) throw new Error(data.message);
-      
       setDocs(data.allDocuments || []);
-      
-      // 💡 FIX: State clear karne ke sath event system value ko completely clear kiya hai
       setFiles([]);
-      if (fileRef.current) {
-        fileRef.current.value = "";
-      }
-      
-      setSuccess(`✅ ${data.uploadedDocuments?.length || files.length} Your documents have been verified by the admin. The notification has been updated successfully.`);
+      setSuccess(`✅ ${data.uploadedDocuments?.length || files.length} Your documents have been verified by the admin. The notification has been updated successfully.
+ .`);
       setStep(3);
     } catch (e) {
-      setError(e.response?.data?.message || e.message || "Network layer bottleneck. Try again.");
+      setError(e.response?.data?.message || e.message);
     }
     setUploading(false);
   };
@@ -248,7 +234,8 @@ export default function CounselorPortal() {
                 Attention Required: {rejectedDocs.length} Document(s) Verification Failed!
               </div>
               <div style={{ fontSize: 12, color: "#7F1D1D", marginTop: 4 }}>
-                This student's document has been rejected during the admin verification process. Please check the remarks below and upload the correct document again.
+This student's document has been rejected during the admin verification process. Please check the remarks below and upload the correct document again.
+
               </div>
             </div>
           </div>
@@ -258,8 +245,8 @@ export default function CounselorPortal() {
         {step === 1 && (
           <>
             <div style={styles.card}>
-              <h2 style={styles.cardTitle}>Find Student</h2>
-              <p style={styles.cardSub}>please find your student fill adhar number & Name</p>
+              <h2 style={styles.cardTitle}>Find Student </h2>
+              <p style={styles.cardSub}>please find your student fill adhar number & Name </p>
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Aadhar Number *</label>
@@ -323,7 +310,7 @@ export default function CounselorPortal() {
                 </div>
               ) : filteredStudents.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>
-                  Is category student not found
+                  Is category student not founde 
                 </div>
               ) : (
                 <div style={styles.tableWrapper}>
@@ -409,7 +396,7 @@ export default function CounselorPortal() {
 
             {docs.length > 0 && (
               <div style={styles.card}>
-                <h3 style={styles.sectionTitle}>already uploaded documents ({docs.length})</h3>
+                <h3 style={styles.sectionTitle}> allready  uploaded documents ({docs.length})</h3>
                 <div style={styles.docList}>
                   {docs.map((doc) => {
                     const sc         = statusColor[doc.status] || statusColor.pending;
@@ -429,7 +416,9 @@ export default function CounselorPortal() {
                             {doc.fileName} {isRejected && "⚠️"}
                           </div>
                           <div style={styles.docDate}>
-                            {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString("hi-IN") : ""}
+                            {doc.uploadedAt
+                              ? new Date(doc.uploadedAt).toLocaleDateString("hi-IN")
+                              : ""}
                           </div>
                           {doc.adminRemark && (
                             <div style={{ ...styles.remark, color: isRejected ? "#DC2626" : "#EF4444" }}>
@@ -448,7 +437,7 @@ export default function CounselorPortal() {
             )}
 
             <div style={styles.card}>
-              <h3 style={styles.sectionTitle}>please Upload new Documents</h3>
+              <h3 style={styles.sectionTitle}>please Upload new  Documents  </h3>
               <div
                 style={{
                   ...styles.dropZone,
@@ -461,14 +450,11 @@ export default function CounselorPortal() {
                 onClick={() => fileRef.current?.click()}
               >
                 <div style={styles.dropIcon}>📁</div>
-                <div style={styles.dropText}>Please do click karo Here</div>
+                <div style={styles.dropText}>Please do  click karo Here </div>
                 <div style={styles.dropSub}>PDF, DOC, DOCX, JPG, PNG, WEBP • Max 10MB each</div>
-                
-                {/* 💡 FIX: Added onClick to reset file stream pipeline targets */}
                 <input
                   ref={fileRef} type="file" multiple hidden
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-                  onClick={(e) => { e.target.value = null; }}
                   onChange={(e) => addFiles(Array.from(e.target.files))}
                 />
               </div>
@@ -503,7 +489,8 @@ export default function CounselorPortal() {
             <div style={styles.successHeader}>
               <div style={styles.successIcon}>✅</div>
               <h2 style={styles.cardTitle}>Documents Upload !</h2>
-              <p style={styles.cardSub}>Your documents have been verified by the admin. The notification has been updated successfully.</p>
+              <p style={styles.cardSub}>Your documents have been verified by the admin. The notification has been updated successfully.
+ </p>
             </div>
 
             <div style={styles.summaryRow}>
