@@ -17,7 +17,7 @@ const SIDEBAR_LINKS = [
   { name: "Admissions", icon: BadgeCheck, path: "/counselordashbord/admission" },
   { name: "Generate Ticket", icon: Mail, path: "/counselordashbord/genrateticket" },
   {name: "DocumentUpload", icon: Users, path: "/counselordashbord/DocumentUpload" },
-  {name:"Remarhistory", icon: Users, path:"/counselordashbord/Remarkactivitypage"},
+  {name:"Remarkhistory", icon: Users, path:"/counselordashbord/Remarkactivitypage"},
 ];
 
 export default function CounselorLayout({ children }) {

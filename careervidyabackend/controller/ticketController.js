@@ -287,3 +287,28 @@ export const resolveTicket = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+// 1. सभी ब्रॉडकास्ट संदेशों को गेट करने के लिए
+export const getBroadcasts = async (req, res) => {
+  try {
+    // अगर आपने ब्रॉडकास्ट के लिए अलग मॉडल बनाया है (जैसे Broadcast) तो:
+    // const broadcasts = await Broadcast.find().sort({ createdAt: -1 });
+    
+    // या अगर आप किसी और तरीके से स्टोर कर रहे हैं, तो वो डेटा यहाँ से भेजें:
+    res.status(200).json({ success: true, data: broadcasts || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 2. किसी ब्रॉडकास्ट को डिलीट करने के लिए
+export const deleteBroadcast = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // await Broadcast.findByIdAndDelete(id);
+    
+    res.status(200).json({ success: true, message: "Broadcast deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

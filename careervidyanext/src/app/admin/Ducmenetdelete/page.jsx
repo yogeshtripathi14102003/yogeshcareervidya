@@ -1,5 +1,4 @@
 
-
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import api from "@/utlis/api.js";
@@ -17,11 +16,8 @@ const fileIcon = (type) => {
   return "🖼️";
 };
 
-export default function AdminPanel() {
-  const [tab, setTab] = useState("dashboard");
+export default function AdmissionsOnlyPanel() {
   const [admissions, setAdmissions] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [verifyModal, setVerifyModal] = useState(null);
@@ -30,7 +26,7 @@ export default function AdminPanel() {
   const [verifying, setVerifying] = useState(false);
   const [filterCounselor, setFilterCounselor] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterMonth, setFilterMonth] = useState("all"); // New Monthly Filter State
+  const [filterMonth, setFilterMonth] = useState("all");
   const [searchText, setSearchText] = useState("");
   const [toast, setToast] = useState("");
 
@@ -46,35 +42,28 @@ export default function AdminPanel() {
     setLoading(false);
   }, []);
 
-  /* ── Fetch notifications ── */
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const res = await api.get("/api/v1/ad/notifications");
-      if (res.data.success) {
-        setNotifications(res.data.data || []);
-        setUnreadCount(res.data.unreadCount || 0);
-      }
-    } catch (e) { console.error(e); }
-  }, []);
-
   useEffect(() => {
     fetchAdmissions();
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, [fetchAdmissions, fetchNotifications]);
+  }, [fetchAdmissions]);
 
-  /* ── Mark notification read ── */
-  const markRead = async (id) => {
-    await api.put(`/api/v1/ad/notifications/${id}/read`);
-    fetchNotifications();
-  };
-
-  /* ── Mark all read ── */
-  const markAllRead = async () => {
-    await api.put("/api/v1/ad/notifications/read-all");
-    fetchNotifications();
-    showToast("✅ Saari notifications read mark ho gayi");
+  /* ── Delete Document/Image ── */
+  const deleteDoc = async (admissionId, docId) => {
+    if (!window.confirm("Kya aap sach me is document/image ko delete karna chahte hain?")) return;
+    try {
+      const res = await api.delete(`/api/v1/ad/${admissionId}/documents/${docId}`);
+      if (res.data.success) {
+        showToast("🗑️ Document successfully delete ho gaya");
+        fetchAdmissions();
+        if (selected && selected._id === admissionId) {
+          const r2 = await api.get(`/api/v1/ad/${admissionId}`);
+          if (r2.data.success) setSelected(r2.data.data);
+        }
+      } else {
+        showToast("❌ " + res.data.message);
+      }
+    } catch (e) { 
+      showToast("❌ " + (e.response?.data?.message || e.message)); 
+    }
   };
 
   /* ── Verify single doc ── */
@@ -89,9 +78,9 @@ export default function AdminPanel() {
         { status: verifyStatus, adminRemark: verifyRemark }
       );
       if (res.data.success) {
-        showToast(verifyStatus === "done" ? "✅ Document approved!" : "❌ Document rejected, counselor ko notify kiya");
+        showToast(verifyStatus === "done" ? "✅ Document approved!" : "❌ Document rejected");
         setVerifyModal(null); setVerifyRemark(""); setVerifyStatus("done");
-        fetchAdmissions(); fetchNotifications();
+        fetchAdmissions();
         if (selected) {
           const r2 = await api.get(`/api/v1/ad/${selected._id}`);
           if (r2.data.success) setSelected(r2.data.data);
@@ -110,8 +99,8 @@ export default function AdminPanel() {
         { status, adminRemark: remark }
       );
       if (res.data.success) {
-        showToast(`✅ ${res.data.updatedCount} docs ${status === "done" ? "approved" : "rejected"}`);
-        fetchAdmissions(); fetchNotifications();
+        showToast(`✅ Docs updated successfully`);
+        fetchAdmissions();
         if (selected?._id === admissionId) {
           const r2 = await api.get(`/api/v1/ad/${admissionId}`);
           if (r2.data.success) setSelected(r2.data.data);
@@ -120,23 +109,15 @@ export default function AdminPanel() {
     } catch (e) { showToast("❌ " + (e.response?.data?.message || e.message)); }
   };
 
-  /* ── Derived data ── */
   const counselors = [...new Set(admissions.map((a) => a.counselorName).filter(Boolean))];
 
-  // Months list for filter dropdown
   const monthsList = [
-    { value: "0", label: "January" },
-    { value: "1", label: "February" },
-    { value: "2", label: "March" },
-    { value: "3", label: "April" },
-    { value: "4", label: "May" },
-    { value: "5", label: "June" },
-    { value: "6", label: "July" },
-    { value: "7", label: "August" },
-    { value: "8", label: "September" },
-    { value: "9", label: "October" },
-    { value: "10", label: "November" },
-    { value: "11", label: "December" }
+    { value: "0", label: "January" }, { value: "1", label: "February" },
+    { value: "2", label: "March" }, { value: "3", label: "April" },
+    { value: "4", label: "May" }, { value: "5", label: "June" },
+    { value: "6", label: "July" }, { value: "7", label: "August" },
+    { value: "8", label: "September" }, { value: "9", label: "October" },
+    { value: "10", label: "November" }, { value: "11", label: "December" }
   ];
 
   const filteredAdmissions = admissions.filter((a) => {
@@ -153,7 +134,6 @@ export default function AdminPanel() {
       filterStatus === "has_rejected" ? (a.documents || []).some((d) => d.status === "rejected") :
       true;
 
-    // Monthly wise filter check logic
     let matchMonth = true;
     if (filterMonth !== "all") {
       const firstDocDate = a.documents && a.documents[0]?.uploadedAt ? new Date(a.documents[0].uploadedAt) : (a.createdAt ? new Date(a.createdAt) : null);
@@ -163,134 +143,25 @@ export default function AdminPanel() {
         matchMonth = false;
       }
     }
-
     return matchCounselor && matchSearch && matchStatus && matchMonth;
-  });
-
-  const totalAdmissions = admissions.length;
-  const totalDocs    = admissions.reduce((s, a) => s + (a.documents?.length || 0), 0);
-  const pendingDocs  = admissions.reduce((s, a) => s + (a.documents?.filter((d) => d.status === "pending").length || 0), 0);
-  const approvedDocs = admissions.reduce((s, a) => s + (a.documents?.filter((d) => d.status === "done").length || 0), 0);
-
-  const counselorStats = counselors.map((name) => {
-    const ca = admissions.filter((a) => a.counselorName === name);
-    const docs = ca.flatMap((a) => a.documents || []);
-    return {
-      name,
-      admissions: ca.length,
-      totalDocs: docs.length,
-      pending:  docs.filter((d) => d.status === "pending").length,
-      done:     docs.filter((d) => d.status === "done").length,
-      rejected: docs.filter((d) => d.status === "rejected").length,
-    };
   });
 
   return (
     <div style={s.page}>
       {toast && <div style={s.toast}>{toast}</div>}
 
-      {/* Sidebar */}
-      <div style={s.sidebar}>
-        <div style={s.sidebarLogo}>
-          <span style={{ fontSize: 28 }}>🛡️</span>
-          <div>
-            <div style={s.sidebarTitle}>Admin Panel</div>
-            <div style={s.sidebarSub}>DocVerify System</div>
-          </div>
-        </div>
-        {[
-          { id: "dashboard",     icon: "📊", label: "Dashboard" },
-          { id: "admissions",    icon: "👨‍🎓", label: "Admissions" },
-          { id: "notifications", icon: "🔔", label: "Notifications", badge: unreadCount },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => { setTab(item.id); setSelected(null); }}
-            style={{ ...s.navBtn, ...(tab === item.id ? s.navBtnActive : {}) }}
-          >
-            <span>{item.icon}</span>
-            <span style={{ flex: 1 }}>{item.label}</span>
-            {item.badge > 0 && <span style={s.badge}>{item.badge}</span>}
-          </button>
-        ))}
-      </div>
-
-      {/* Main */}
-      <div style={s.main}>
-
-        {/* ── DASHBOARD ── */}
-        {tab === "dashboard" && (
+      <div style={s.mainFull}>
+        {/* ── LIST VIEW ── */}
+        {!selected ? (
           <div>
             <div style={s.pageHeader}>
-              <h1 style={s.pageTitle}>Dashboard</h1>
+              <h1 style={s.pageTitle}>👨‍🎓 Admissions Management</h1>
               <button onClick={fetchAdmissions} style={s.refreshBtn}>🔄 Refresh</button>
-            </div>
-            <div style={s.statsGrid}>
-              {[
-                { label: "Total Admissions", val: totalAdmissions, color: "#6366F1", icon: "👨‍🎓" },
-                { label: "Total Documents",  val: totalDocs,       color: "#3B82F6", icon: "📁" },
-                { label: "Pending Review",   val: pendingDocs,     color: "#F59E0B", icon: "⏳" },
-                { label: "Approved",         val: approvedDocs,    color: "#10B981", icon: "✅" },
-              ].map((st) => (
-                <div key={st.label} style={{ ...s.statCard, borderTop: `4px solid ${st.color}` }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>{st.icon}</div>
-                  <div style={{ ...s.statVal, color: st.color }}>{st.val}</div>
-                  <div style={s.statLabel}>{st.label}</div>
-                </div>
-              ))}
-            </div>
-            <div style={s.card}>
-              <h2 style={s.cardTitle}>Counselor-wise Summary</h2>
-              {counselorStats.length === 0 ? (
-                <div style={s.empty}>Koi data nahi</div>
-              ) : (
-                <div style={s.tableWrap}>
-                  <table style={s.table}>
-                    <thead>
-                      <tr>
-                        {["Counselor", "Admissions", "Total Docs", "Pending", "Approved", "Rejected", "Action"].map((h) => (
-                          <th key={h} style={s.th}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {counselorStats.map((cs) => (
-                        <tr key={cs.name} style={s.tr}>
-                          <td style={s.td}>
-                            <div style={s.counselorCell}>
-                              <div style={s.counselorAvatar}>{cs.name[0]?.toUpperCase()}</div>
-                              <span style={{ fontWeight: 600 }}>{cs.name}</span>
-                            </div>
-                          </td>
-                          <td style={{ ...s.td, textAlign: "center" }}>{cs.admissions}</td>
-                          <td style={{ ...s.td, textAlign: "center", fontWeight: 600 }}>{cs.totalDocs}</td>
-                          <td style={{ ...s.td, textAlign: "center" }}><span style={{ color: "#F59E0B", fontWeight: 600 }}>{cs.pending}</span></td>
-                          <td style={{ ...s.td, textAlign: "center" }}><span style={{ color: "#10B981", fontWeight: 600 }}>{cs.done}</span></td>
-                          <td style={{ ...s.td, textAlign: "center" }}><span style={{ color: "#EF4444", fontWeight: 600 }}>{cs.rejected}</span></td>
-                          <td style={s.td}>
-                            <button onClick={() => { setFilterCounselor(cs.name); setFilterStatus("all"); setFilterMonth("all"); setSearchText(""); setTab("admissions"); setSelected(null); }} style={s.viewBtn}>
-                              View →
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── ADMISSIONS LIST ── */}
-        {tab === "admissions" && !selected && (
-          <div>
-            <div style={s.pageHeader}>
-              <h1 style={s.pageTitle}>Admissions</h1>
-              <button onClick={() => { setFilterCounselor(""); setFilterStatus("all"); setFilterMonth("all"); setSearchText(""); }} style={s.refreshBtn}>
+              <button onClick={() => { setFilterCounselor(""); setFilterStatus("all"); setFilterMonth("all"); setSearchText(""); }} style={s.clearBtn}>
                 Clear Filters
               </button>
             </div>
+
             <div style={s.filtersRow}>
               <input style={s.searchInput} placeholder="🔍 Student name, email, phone..."
                 value={searchText} onChange={(e) => setSearchText(e.target.value)} />
@@ -304,19 +175,19 @@ export default function AdminPanel() {
                 <option value="all_done">All Approved</option>
                 <option value="has_rejected">Has Rejected</option>
               </select>
-              {/* New Monthly wise filter Dropdown */}
               <select style={s.select} value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
                 <option value="all">All Months</option>
                 {monthsList.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
               </select>
             </div>
+
             <div style={s.resultCount}>{filteredAdmissions.length} admission(s) found</div>
+
             {loading ? (
-              <div style={s.loading}>Loading...</div>
+              <div style={s.loading}>Loading Admissions Data...</div>
             ) : filteredAdmissions.length === 0 ? (
               <div style={s.empty}>Koi admission nahi mila</div>
             ) : (
-              /* Converted Grid layout into structured List Layout */
               <div style={s.admissionListStack}>
                 {filteredAdmissions.map((adm) => {
                   const docs = adm.documents || [];
@@ -354,15 +225,14 @@ export default function AdminPanel() {
               </div>
             )}
           </div>
-        )}
-
-        {/* ── ADMISSION DETAIL ── */}
-        {tab === "admissions" && selected && (
+        ) : (
+          /* ── DETAIL VIEW WITH ADHAR AND DELETE IMAGE ── */
           <div>
             <div style={s.pageHeader}>
-              <button onClick={() => setSelected(null)} style={s.backBtn}>← Back</button>
+              <button onClick={() => setSelected(null)} style={s.backBtn}>← Back To List</button>
               <h1 style={s.pageTitle}>{selected.studentName}</h1>
             </div>
+
             <div style={{ ...s.card, marginBottom: 16 }}>
               <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
                 {[
@@ -372,7 +242,7 @@ export default function AdminPanel() {
                   ["Email", selected.email],
                   ["Phone", selected.phone],
                   ["Counselor", selected.counselorName],
-                  ["Aadhar", selected.adhraNumber],
+                  ["Aadhar Number", selected.adhraNumber],
                 ].map(([k, v]) => v ? (
                   <div key={k} style={{ minWidth: 150 }}>
                     <div style={s.infoLabel}>{k}</div>
@@ -381,6 +251,7 @@ export default function AdminPanel() {
                 ) : null)}
               </div>
             </div>
+
             {(selected.documents || []).some((d) => d.status === "pending") && (
               <div style={s.bulkActions}>
                 <span style={s.bulkLabel}>Bulk Action:</span>
@@ -390,6 +261,7 @@ export default function AdminPanel() {
                 </button>
               </div>
             )}
+
             <div style={s.card}>
               <h2 style={s.cardTitle}>Documents ({(selected.documents || []).length})</h2>
               {(selected.documents || []).length === 0 ? (
@@ -428,6 +300,13 @@ export default function AdminPanel() {
                               Verify
                             </button>
                           )}
+                          {/* Image/Document Delete Button */}
+                          <button
+                            onClick={() => deleteDoc(selected._id, doc._id)}
+                            style={s.deleteBtn}
+                          >
+                            🗑️ Delete
+                          </button>
                         </div>
                       </div>
                     );
@@ -435,45 +314,6 @@ export default function AdminPanel() {
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        {/* ── NOTIFICATIONS ── */}
-        {tab === "notifications" && (
-          <div>
-            <div style={s.pageHeader}>
-              <h1 style={s.pageTitle}>
-                Notifications {unreadCount > 0 && <span style={s.badge}>{unreadCount}</span>}
-              </h1>
-              {unreadCount > 0 && (
-                <button onClick={markAllRead} style={s.refreshBtn}>✅ Mark All Read</button>
-              )}
-            </div>
-            {notifications.length === 0 ? (
-              <div style={s.empty}>Koi notification nahi hai</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {notifications.map((n) => (
-                  <div
-                    key={n._id}
-                    style={{ ...s.notifCard, background: n.isRead ? "#fff" : "#F0F4FF", borderLeft: `4px solid ${n.type === "doc_approved" ? "#10B981" : n.type === "doc_rejected" ? "#EF4444" : "#6366F1"}` }}
-                    onClick={() => !n.isRead && markRead(n._id)}
-                  >
-                    <div style={s.notifIcon}>
-                      {n.type === "doc_approved" ? "✅" : n.type === "doc_rejected" ? "❌" : "📄"}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={s.notifMsg}>{n.message}</div>
-                      <div style={s.notifMeta}>
-                        {n.counselorName} • {new Date(n.createdAt).toLocaleString("hi-IN")}
-                        {!n.isRead && <span style={s.unreadDot}> • New</span>}
-                      </div>
-                    </div>
-                    {!n.isRead && <div style={s.notifUnreadBall} />}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -494,9 +334,9 @@ export default function AdminPanel() {
             </div>
             {verifyStatus === "rejected" && (
               <div style={{ marginBottom: 16 }}>
-                <label style={s.modalLabel}>Rejection Reason * (counselor ko bheja jaayega)</label>
+                <label style={s.modalLabel}>Rejection Reason *</label>
                 <textarea style={s.textarea} rows={3}
-                  placeholder="e.g. Aadhar card blurry hai, clear photo upload karo"
+                  placeholder="e.g. Image blurry hai..."
                   value={verifyRemark} onChange={(e) => setVerifyRemark(e.target.value)} />
               </div>
             )}
@@ -504,7 +344,7 @@ export default function AdminPanel() {
               <button onClick={() => setVerifyModal(null)} style={s.cancelBtn}>Cancel</button>
               <button onClick={verifyDoc} disabled={verifying}
                 style={{ ...s.confirmBtn, background: verifyStatus === "done" ? "#10B981" : "#EF4444", opacity: verifying ? 0.7 : 1 }}>
-                {verifying ? "Processing..." : verifyStatus === "done" ? "✅ Approve" : "❌ Reject & Notify"}
+                {verifying ? "Processing..." : verifyStatus === "done" ? "✅ Approve" : "❌ Reject"}
               </button>
             </div>
           </div>
@@ -516,48 +356,29 @@ export default function AdminPanel() {
 
 const s = {
   page:            { display: "flex", minHeight: "100vh", background: "#F8FAFC", fontFamily: "'Outfit', sans-serif" },
-  sidebar:         { width: 230, background: "#1E1B4B", display: "flex", flexDirection: "column", gap: 4, padding: "24px 12px", flexShrink: 0, position: "sticky", top: 0, height: "100vh", overflowY: "auto" },
-  sidebarLogo:     { display: "flex", alignItems: "center", gap: 10, padding: "0 8px 24px" },
-  sidebarTitle:    { color: "#fff", fontWeight: 700, fontSize: 16 },
-  sidebarSub:      { color: "#A5B4FC", fontSize: 11 },
-  navBtn:          { display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, background: "none", border: "none", color: "#A5B4FC", fontSize: 14, cursor: "pointer", fontFamily: "inherit", width: "100%", textAlign: "left" },
-  navBtnActive:    { background: "#312E81", color: "#fff" },
-  badge:           { background: "#EF4444", color: "#fff", borderRadius: 20, padding: "1px 7px", fontSize: 11, fontWeight: 700 },
-  main:            { flex: 1, padding: "28px 32px", overflowY: "auto", maxWidth: "calc(100% - 230px)" },
+  mainFull:        { flex: 1, padding: "32px 40px", overflowY: "auto", width: "100%" },
   pageHeader:      { display: "flex", alignItems: "center", gap: 16, marginBottom: 24, flexWrap: "wrap" },
-  pageTitle:       { fontSize: 22, fontWeight: 800, color: "#1E293B", margin: 0, display: "flex", alignItems: "center", gap: 8 },
-  refreshBtn:      { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontFamily: "inherit", marginLeft: "auto" },
-  backBtn:         { background: "#EEF2FF", border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, color: "#6366F1", fontWeight: 600, fontFamily: "inherit" },
-  statsGrid:       { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 },
-  statCard:        { background: "#fff", borderRadius: 14, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
-  statVal:         { fontSize: 32, fontWeight: 800 },
-  statLabel:       { fontSize: 13, color: "#94A3B8", marginTop: 2 },
+  pageTitle:       { fontSize: 24, fontWeight: 800, color: "#1E293B", margin: 0 },
+  refreshBtn:      { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontFamily: "inherit", marginLeft: "auto" },
+  clearBtn:        { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontFamily: "inherit" },
+  backBtn:         { background: "#EEF2FF", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, color: "#6366F1", fontWeight: 600, fontFamily: "inherit" },
   card:            { background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", marginBottom: 16 },
   cardTitle:       { fontSize: 17, fontWeight: 700, color: "#1E293B", margin: "0 0 16px" },
-  tableWrap:       { overflowX: "auto" },
-  table:           { width: "100%", borderCollapse: "collapse" },
-  th:              { textAlign: "left", padding: "10px 12px", background: "#F8FAFC", fontSize: 12, fontWeight: 700, color: "#64748B", borderBottom: "2px solid #E5E7EB", whiteSpace: "nowrap" },
-  tr:              { borderBottom: "1px solid #F1F5F9", cursor: "pointer" },
-  td:              { padding: "12px 12px", fontSize: 14, color: "#374151" },
-  counselorCell:   { display: "flex", alignItems: "center", gap: 8 },
-  counselorAvatar: { width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 14, flexShrink: 0 },
-  viewBtn:         { background: "#EEF2FF", color: "#6366F1", border: "none", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit" },
   filtersRow:      { display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" },
   searchInput:     { flex: 2, minWidth: 200, padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit" },
   select:          { flex: 1, minWidth: 160, padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit", background: "#fff" },
   resultCount:     { fontSize: 13, color: "#94A3B8", marginBottom: 14 },
   
-  /* Styled List View Layout Configs */
   admissionListStack: { display: "flex", flexDirection: "column", gap: 10 },
-  admListItem:     { background: "#fff", borderRadius: 12, padding: "14px 20px", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", border: "1px solid #E2E8F0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, transition: "transform 0.15s, border-color 0.15s" },
+  admListItem:     { background: "#fff", borderRadius: 12, padding: "16px 24px", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", border: "1px solid #E2E8F0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 },
   admListLeft:     { display: "flex", alignItems: "center", gap: 14, flex: "1", minWidth: 200 },
-  admListMid:      { display: "flex", gap: 30, flex: "1.5", flexWrap: "wrap" },
-  admListInfoItem: { fontSize: 13, color: "#64748B" },
+  admListMid:      { display: "flex", gap: 40, flex: "1.5", flexWrap: "wrap" },
+  admListInfoItem: { fontSize: 14, color: "#64748B" },
   admListRight:    { display: "flex", alignItems: "center", gap: 16 },
   listArrow:       { color: "#94A3B8", fontSize: 14, paddingLeft: 4 },
 
   admAvatar:       { width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 18, flexShrink: 0 },
-  admName:         { fontWeight: 700, fontSize: 15, color: "#1E293B" },
+  admName:         { fontWeight: 700, fontSize: 16, color: "#1E293B" },
   admMeta:         { fontSize: 12, color: "#94A3B8", marginTop: 2 },
   pendingDot:      { background: "#F59E0B", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 },
   docPills:        { display: "flex", gap: 6, flexWrap: "wrap" },
@@ -567,18 +388,13 @@ const s = {
   docMeta:         { fontSize: 12, color: "#94A3B8", marginTop: 3 },
   statusBadge:     { padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, flexShrink: 0, whiteSpace: "nowrap" },
   verifyBtn:       { background: "#6366F1", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
+  deleteBtn:       { background: "#FEF2F2", color: "#EF4444", border: "1px solid #FCA5A5", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
   viewFileBtn:     { background: "#F1F5F9", color: "#374151", borderRadius: 8, padding: "5px 10px", fontSize: 12, textDecoration: "none", flexShrink: 0 },
   bulkActions:     { display: "flex", alignItems: "center", gap: 12, background: "#FFF8E1", borderRadius: 10, padding: "12px 16px", marginBottom: 16 },
   bulkLabel:       { fontSize: 14, fontWeight: 600, color: "#92400E" },
   bulkBtn:         { border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit" },
   infoLabel:       { fontSize: 11, color: "#94A3B8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 },
   infoVal:         { fontSize: 14, color: "#1E293B", fontWeight: 500, marginTop: 2 },
-  notifCard:       { background: "#fff", borderRadius: 12, padding: "14px 18px", display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", boxShadow: "0 1px 2px rgba(0,0,0,0.04)" },
-  notifIcon:       { fontSize: 22, flexShrink: 0, marginTop: 2 },
-  notifMsg:        { fontSize: 14, color: "#1E293B", lineHeight: 1.5, whiteSpace: "pre-line" },
-  notifMeta:       { fontSize: 12, color: "#94A3B8", marginTop: 4 },
-  unreadDot:       { color: "#6366F1", fontWeight: 700 },
-  notifUnreadBall: { width: 8, height: 8, borderRadius: "50%", background: "#6366F1", flexShrink: 0, marginTop: 6 },
   empty:           { textAlign: "center", padding: "40px 20px", color: "#94A3B8", fontSize: 15 },
   loading:         { textAlign: "center", padding: "40px 20px", color: "#94A3B8" },
   toast:           { position: "fixed", bottom: 24, right: 24, background: "#1E293B", color: "#fff", padding: "12px 20px", borderRadius: 12, fontSize: 14, zIndex: 9999, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" },
@@ -590,4 +406,3 @@ const s = {
   cancelBtn:       { flex: 1, padding: 10, borderRadius: 10, border: "1px solid #E5E7EB", background: "#fff", cursor: "pointer", fontSize: 14, fontFamily: "inherit" },
   confirmBtn:      { flex: 2, padding: 10, borderRadius: 10, border: "none", color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" },
 };
-

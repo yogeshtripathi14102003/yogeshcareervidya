@@ -24,11 +24,11 @@ export default function RaiseTicketPage() {
     urgency: "Medium",
   });
   const [myTickets, setMyTickets] = useState([]);
-  const [globalMessages, setGlobalMessages] = useState([]); // broadcast from admin
+  const [globalMessages, setGlobalMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", msg: "" });
-  const [dismissedGlobal, setDismissedGlobal] = useState([]); // dismissed broadcasts
-  const [dismissedTicket, setDismissedTicket] = useState([]); // dismissed ticket replies
+  const [dismissedGlobal, setDismissedGlobal] = useState([]);
+  const [dismissedTicket, setDismissedTicket] = useState([]);
 
   // ─── Load user from localStorage ────────────────────────────────
   useEffect(() => {
@@ -38,25 +38,23 @@ export default function RaiseTicketPage() {
     }
   }, []);
 
-  // ─── Fetch this counselor's tickets + global broadcasts ──────────
+  // ─── Fetch tickets + global broadcasts ──────────────────────────
   const fetchMyTickets = async (counselorId) => {
     try {
       if (!counselorId) return;
+      const res = await api.get(`/api/v1/tickat`);
 
-      // counselorId filter → only this counselor's tickets
-      const res = await api.get(`/api/v1/tickat?counselorId=${counselorId}`);
+      if (res.data.success && Array.isArray(res.data.data)) {
+        const allTickets = res.data.data;
 
-      if (res.data.success) {
-        setMyTickets(res.data.data);
+        const filteredTickets = allTickets.filter((t) => {
+          const tId = t.counselorId?._id || t.counselor?._id || t.counselorId;
+          return tId === counselorId;
+        });
+        setMyTickets(filteredTickets);
 
-        // Backend can return globalMessages alongside tickets
-        // If you use a dedicated broadcast endpoint, fetch separately:
-        // const gRes = await api.get("/api/v1/tickat/global-messages");
-        // setGlobalMessages(gRes.data.data || []);
-
-        // ── Using inline response (Option B — fallback) ──────────
-        // Deduplicate global messages embedded inside ticket objects
-        const allGlobal = (res.data.data || [])
+        // Ek se zyada tickets se global messages collect karne ke liye flatMap
+        const allGlobal = allTickets
           .flatMap((t) => t.globalMessages || [])
           .filter(
             (msg, i, arr) =>
@@ -75,15 +73,10 @@ export default function RaiseTicketPage() {
     if (user?._id) fetchMyTickets(user._id);
   }, [user]);
 
-  // ─── Ticket-specific admin notifications ────────────────────────
-  // Only tickets that have adminMessages AND haven't been dismissed
+  // ─── Ticket-specific notifications ──────────────────────────────
   const ticketNotifications = useMemo(() => {
     return myTickets
-      .filter(
-        (t) =>
-          t.adminMessages?.length > 0 &&
-          !dismissedTicket.includes(t._id)
-      )
+      .filter((t) => t.adminMessages?.length > 0 && !dismissedTicket.includes(t._id))
       .map((t) => ({
         ticketId: t._id,
         subject: t.subject,
@@ -92,11 +85,9 @@ export default function RaiseTicketPage() {
       }));
   }, [myTickets, dismissedTicket]);
 
-  // ─── Global broadcast notifications (not yet dismissed) ─────────
+  // ─── Global broadcast notifications ─────────────────────────────
   const visibleGlobal = useMemo(() => {
-    return globalMessages.filter(
-      (msg) => !dismissedGlobal.includes(msg._id || msg.timestamp)
-    );
+    return globalMessages.filter((msg) => !dismissedGlobal.includes(msg._id || msg.timestamp));
   }, [globalMessages, dismissedGlobal]);
 
   // ─── Form handlers ───────────────────────────────────────────────
@@ -108,33 +99,41 @@ export default function RaiseTicketPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user?._id) {
-      setStatus({ type: "error", msg: "User not logged in!" });
+      setStatus({ type: "error", msg: "User session not found. Please log in again." });
       return;
     }
+    
     setLoading(true);
     setStatus({ type: "", msg: "" });
 
     try {
+      // 🎯 FIXED PAYLOAD: Schema ke hisaab se bilkul exact data structure
       const payload = {
         subject: formData.subject,
-        counselorId: user._id,        // ← schema ke saath match karta hai
+        counselorId: user._id,
         description: {
           issue: formData.issue,
-          goals: formData.goals,
-          urgency: formData.urgency,
+          goals: formData.goals || "",
+          urgency: formData.urgency
         },
+        status: "Open" // Schema mein 'Pending' nahi hai, default enum 'Open' hai!
       };
 
       const res = await api.post("/api/v1/tickat", payload);
-      if (res.data.success) {
+      
+      if (res.data.success || res.status === 200 || res.status === 201) {
         setStatus({ type: "success", msg: "Ticket raised successfully!" });
         setFormData({ subject: "", issue: "", goals: "", urgency: "Medium" });
-        fetchMyTickets(user._id);
+        await fetchMyTickets(user._id);
+      } else {
+        setStatus({ type: "error", msg: "Failed to create ticket. Try again." });
       }
     } catch (err) {
+      console.error("Submission Error Details:", err);
+      const backendError = err.response?.data?.message || err.response?.data?.error || err.message;
       setStatus({
         type: "error",
-        msg: err.response?.data?.message || "Failed to submit ticket.",
+        msg: `Submission Failed: ${backendError}`,
       });
     } finally {
       setLoading(false);
@@ -145,11 +144,7 @@ export default function RaiseTicketPage() {
     <div className="min-h-screen bg-[#f9fafb] py-6 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto space-y-4">
 
-        {/* ══════════════════════════════════════════════════════════
-            NOTIFICATION BANNERS — shown at very top
-        ═══════════════════════════════════════════════════════════ */}
-
-        {/* 1. BROADCAST BANNER — admin ne sabhi ko bheja */}
+        {/* 1. BROADCAST BANNER */}
         {visibleGlobal.length > 0 && (
           <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
@@ -176,8 +171,8 @@ export default function RaiseTicketPage() {
                   className="bg-white border border-amber-100 rounded p-2.5 flex justify-between items-start gap-3"
                 >
                   <p className="text-xs text-gray-700 flex-1">{msg.message}</p>
-                  <span className="text-[9px] text-amber-400 whitespace-nowrap">
-                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  <span className="text-[9px] text-amber-500 font-semibold whitespace-nowrap">
+                    {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : "Just Now"}
                   </span>
                 </div>
               ))}
@@ -185,7 +180,7 @@ export default function RaiseTicketPage() {
           </div>
         )}
 
-        {/* 2. TICKET-SPECIFIC REPLY BANNER — admin ne is counselor ki ticket pe reply kiya */}
+        {/* 2. TICKET-SPECIFIC REPLY BANNER */}
         {ticketNotifications.length > 0 && (
           <div className="w-full bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
@@ -218,20 +213,13 @@ export default function RaiseTicketPage() {
                     <span className="text-xs text-gray-700 mt-0.5">
                       {note.lastMsg?.message}
                     </span>
-                    {note.totalReplies > 1 && (
-                      <span className="text-[9px] text-indigo-300 mt-0.5">
-                        +{note.totalReplies - 1} more {note.totalReplies - 1 === 1 ? "reply" : "replies"} — see below
-                      </span>
-                    )}
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span className="text-[9px] text-gray-400 whitespace-nowrap">
-                      {new Date(note.lastMsg?.timestamp).toLocaleTimeString()}
+                      {note.lastMsg?.sentAt ? new Date(note.lastMsg.sentAt).toLocaleTimeString() : ""}
                     </span>
                     <button
-                      onClick={() =>
-                        setDismissedTicket((prev) => [...prev, note.ticketId])
-                      }
+                      onClick={() => setDismissedTicket((prev) => [...prev, note.ticketId])}
                       className="text-[9px] text-indigo-300 hover:text-indigo-600"
                     >
                       Dismiss
@@ -243,12 +231,10 @@ export default function RaiseTicketPage() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════════════════════════
-            MAIN CONTENT — form + ticket history
-        ═══════════════════════════════════════════════════════════ */}
+        {/* MAIN LAYOUT */}
         <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-          {/* ── LEFT: Raise Ticket Form ─────────────────────────── */}
+          {/* FORM PANEL */}
           <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden sticky top-6">
             <div className="bg-indigo-600 p-4 text-white font-bold text-md flex items-center gap-2">
               <MessageSquare size={18} />
@@ -263,12 +249,8 @@ export default function RaiseTicketPage() {
                       : "bg-red-50 text-red-700 border-red-100"
                   }`}
                 >
-                  {status.type === "success" ? (
-                    <CheckCircle2 size={14} />
-                  ) : (
-                    <AlertCircle size={14} />
-                  )}
-                  {status.msg}
+                  {status.type === "success" ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+                  <span className="break-words">{status.msg}</span>
                 </div>
               )}
 
@@ -283,7 +265,7 @@ export default function RaiseTicketPage() {
                   placeholder="Short title..."
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
                 />
               </div>
 
@@ -295,7 +277,7 @@ export default function RaiseTicketPage() {
                   name="urgency"
                   value={formData.urgency}
                   onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
                 >
                   <option value="Low">Low</option>
                   <option value="Medium">Medium</option>
@@ -312,19 +294,34 @@ export default function RaiseTicketPage() {
                   name="issue"
                   rows="4"
                   required
+                  placeholder="Describe your request in detail..."
                   value={formData.issue}
                   onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-md text-sm resize-none outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full border px-3 py-2 rounded-md text-sm resize-none outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                  Goals (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="goals"
+                  placeholder="What is the expected outcome?"
+                  value={formData.goals}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700 disabled:bg-gray-300 transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700 disabled:bg-gray-400 transition-all cursor-pointer shadow-sm"
               >
                 {loading ? (
-                  "Submitting..."
+                  <span className="flex items-center gap-1 animate-pulse">Submitting...</span>
                 ) : (
                   <>
                     <Send size={15} />
@@ -335,7 +332,7 @@ export default function RaiseTicketPage() {
             </form>
           </div>
 
-          {/* ── RIGHT: Ticket History ───────────────────────────── */}
+          {/* HISTORY PANEL */}
           <div className="flex-1 w-full space-y-4">
             <div className="flex items-center justify-between border-b pb-2">
               <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
@@ -356,98 +353,97 @@ export default function RaiseTicketPage() {
                   No tickets found in your history
                 </div>
               ) : (
-                myTickets.map((ticket) => (
-                  <div
-                    key={ticket._id}
-                    className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
-                  >
-                    {/* Status bar on left edge */}
-                    <div
-                      className={`absolute left-0 top-0 bottom-0 w-1 ${
-                        ticket.status === "Resolved"
-                          ? "bg-green-500"
-                          : "bg-yellow-400"
-                      }`}
-                    />
+                myTickets.map((ticket) => {
+                  // Schema alignment parsing safely
+                  const parsedIssue = ticket.description?.issue || "No description provided";
+                  const parsedUrgency = ticket.description?.urgency || "Medium";
 
-                    {/* Ticket header */}
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 text-indigo-500 mb-1">
-                          <Tag size={13} />
-                          <span className="text-[10px] font-bold uppercase tracking-tighter">
-                            ID: {ticket._id?.slice(-6)}
+                  return (
+                    <div
+                      key={ticket._id}
+                      className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+                    >
+                      <div
+                        className={`absolute left-0 top-0 bottom-0 w-1 ${
+                          ticket.status === "Resolved" ? "bg-green-500" : "bg-yellow-400"
+                        }`}
+                      />
+
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 text-indigo-500 mb-1">
+                            <Tag size={13} />
+                            <span className="text-[10px] font-bold uppercase tracking-tighter">
+                              ID: {ticket._id?.slice(-6)}
+                            </span>
+                          </div>
+                          <h3 className="font-bold text-gray-800 text-md">{ticket.subject}</h3>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                              ticket.status === "Resolved"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {ticket.status || "Open"}
+                          </span>
+                          <span
+                            className={`text-[9px] font-medium ${
+                              parsedUrgency === "Urgent" ? "text-red-500 animate-pulse" : "text-gray-400"
+                            }`}
+                          >
+                            Priority: {parsedUrgency}
                           </span>
                         </div>
-                        <h3 className="font-bold text-gray-800 text-md">
-                          {ticket.subject}
-                        </h3>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                            ticket.status === "Resolved"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {ticket.status}
-                        </span>
-                        <span
-                          className={`text-[9px] font-medium ${
-                            ticket.description?.urgency === "Urgent"
-                              ? "text-red-500 animate-pulse"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          Priority: {ticket.description?.urgency}
-                        </span>
+
+                      <div className="bg-gray-50 p-3 rounded-md mb-3 text-sm text-gray-600 border-l-2 border-gray-200 italic break-words">
+                        {parsedIssue}
                       </div>
-                    </div>
 
-                    {/* Issue description */}
-                    <div className="bg-gray-50 p-3 rounded-md mb-3 text-sm text-gray-600 border-l-2 border-gray-200 italic">
-                      {ticket.description?.issue}
-                    </div>
-
-                    {/* ── Admin replies specific to THIS ticket ────── */}
-                    {ticket.adminMessages?.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-indigo-400 uppercase tracking-wide">
-                          <History size={12} />
-                          Admin replies on this ticket ({ticket.adminMessages.length})
+                      {ticket.description?.goals && (
+                        <div className="text-xs text-gray-500 mb-3">
+                          <strong className="text-gray-700">Goals:</strong> {ticket.description.goals}
                         </div>
-                        <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
-                          {ticket.adminMessages.map((msg, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-indigo-50 border border-indigo-100 p-3 rounded-lg flex gap-3 items-start"
-                            >
-                              <div className="bg-indigo-100 p-1.5 rounded-full text-indigo-600 shrink-0">
-                                <MessageSquare size={13} />
-                              </div>
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-xs text-indigo-900 font-medium break-words">
-                                  {msg.message}
-                                </span>
-                                <span className="text-[9px] text-gray-400 mt-1 uppercase">
-                                  {new Date(
-                                    msg.timestamp || ticket.updatedAt
-                                  ).toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* Created date */}
-                    <p className="text-[9px] text-gray-300 mt-3">
-                      Created: {new Date(ticket.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))
+                      {ticket.adminMessages?.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-indigo-400 uppercase tracking-wide">
+                            <History size={12} />
+                            Admin replies ({ticket.adminMessages.length})
+                          </div>
+                          <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+                            {ticket.adminMessages.map((msg, idx) => (
+                              <div
+                                key={idx}
+                                className="bg-indigo-50 border border-indigo-100 p-3 rounded-lg flex gap-3 items-start"
+                              >
+                                <div className="bg-indigo-100 p-1.5 rounded-full text-indigo-600 shrink-0">
+                                  <MessageSquare size={13} />
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-xs text-indigo-900 font-medium break-words">
+                                    {msg.message}
+                                  </span>
+                                  <span className="text-[9px] text-gray-400 mt-1 uppercase">
+                                    {new Date(msg.sentAt || ticket.updatedAt).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <p className="text-[9px] text-gray-300 mt-3">
+                        Created: {new Date(ticket.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>

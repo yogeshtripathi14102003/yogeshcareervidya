@@ -108,6 +108,7 @@ const Layout = ({ children }) => {
     { href: "/admin/VideoPage", label: "Videos", icon: Lock },
     {href: "/admin/CounselorsReprt", label: "Counselor Report", icon: Lock},
     {href: "/admin/AdminDocumentcheck", label: "Document Check", icon: Lock},
+    {href: "/admin/Ducmenetdelete", label: "Document Delete", icon: Lock},
   ];
 
   const filteredMenu = menuItems.filter((item) => {
