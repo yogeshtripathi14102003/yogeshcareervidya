@@ -288,27 +288,52 @@ export const resolveTicket = async (req, res) => {
   }
 };
 
-// 1. सभी ब्रॉडकास्ट संदेशों को गेट करने के लिए
+// ─────────────────────────────────────────────────────────────────
+// 9. GET ALL BROADCASTS
+// GET /api/v1/tickat/notify-all
+// किसी भी एक हालिया टिकट से globalMessages की लिस्ट निकाल कर फ्रंटएंड को देता है
+// ─────────────────────────────────────────────────────────────────
 export const getBroadcasts = async (req, res) => {
   try {
-    // अगर आपने ब्रॉडकास्ट के लिए अलग मॉडल बनाया है (जैसे Broadcast) तो:
-    // const broadcasts = await Broadcast.find().sort({ createdAt: -1 });
-    
-    // या अगर आप किसी और तरीके से स्टोर कर रहे हैं, तो वो डेटा यहाँ से भेजें:
-    res.status(200).json({ success: true, data: broadcasts || [] });
+    // सबसे लेटेस्ट टिकट ढूंढो जिसमें globalMessages मौजूद हों
+    const latestTicket = await Ticket.findOne(
+      { globalMessages: { $exists: true, $not: { $size: 0 } } },
+      { globalMessages: 1 }
+    ).sort({ createdAt: -1 });
+
+    // अगर कोई भी टिकट या मैसेज नहीं मिलता तो खाली एरे भेजें
+    const broadcasts = latestTicket ? latestTicket.globalMessages : [];
+
+    // नए मैसेजेस को फ्रंटएंड पर सबसे ऊपर दिखाने के लिए रिवर्स (sort) कर देते हैं
+    broadcasts.sort((a, b) => new Date(b.sentAt || b.createdAt) - new Date(a.sentAt || a.createdAt));
+
+    res.status(200).json({ success: true, data: broadcasts });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-// 2. किसी ब्रॉडकास्ट को डिलीट करने के लिए
+// ─────────────────────────────────────────────────────────────────
+// 10. DELETE BROADCAST
+// DELETE /api/v1/tickat/notify-all/:id
+// सभी टिकट्स की globalMessages एरे में से इस स्पेसिफिक आईडी वाले मैसेज को हटाता है
+// ─────────────────────────────────────────────────────────────────
 export const deleteBroadcast = async (req, res) => {
   try {
     const { id } = req.params;
-    // await Broadcast.findByIdAndDelete(id);
-    
-    res.status(200).json({ success: true, message: "Broadcast deleted successfully" });
+
+    // सभी टिकट्स के अंदर जाओ और globalMessages एरे में से इस _id वाले ऑब्जेक्ट को $pull (remove) कर दो
+    const result = await Ticket.updateMany(
+      {},
+      { $pull: { globalMessages: { _id: id } } }
+    );
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Broadcast notification removed from all active logs successfully.",
+      modifiedCount: result.modifiedCount
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
