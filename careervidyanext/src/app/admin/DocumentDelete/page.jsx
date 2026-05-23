@@ -1,10 +1,7 @@
-
-
-
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import api from "@/utlis/api.js";
-import { PDFDocument } from "pdf-lib"; // Naya package install karein: npm install pdf-lib
+import { PDFDocument } from "pdf-lib";
 import { saveAs } from "file-saver";
 
 const statusColor = {
@@ -18,6 +15,12 @@ const fileIcon = (type) => {
   if (type.includes("pdf")) return "📄";
   if (type.includes("word") || type.includes("doc")) return "📝";
   return "🖼️";
+};
+
+// ✅ FIX: Always convert http:// to https:// to avoid Mixed Content errors
+const toSecureUrl = (url) => {
+  if (!url) return url;
+  return url.replace(/^http:\/\//i, "https://");
 };
 
 export default function AdmissionsOnlyPanel() {
@@ -54,7 +57,7 @@ export default function AdmissionsOnlyPanel() {
   /* ── Download ALL Docs As A Single Merged PDF ── */
   const downloadAllDocsAsSinglePDF = async (studentName, documents) => {
     const allFiles = (documents || []).filter(d => d.fileUrl);
-    
+
     if (allFiles.length === 0) {
       showToast("❌ Is student ka koi bhi document nahi mila!");
       return;
@@ -64,43 +67,35 @@ export default function AdmissionsOnlyPanel() {
     showToast("📄 Sabhi documents ko milakar ek single PDF taiyar ho rahi hai...");
 
     try {
-      // Ek khali master PDF document banayein
       const masterPdf = await PDFDocument.create();
       let successfulFiles = 0;
 
       for (const doc of allFiles) {
         try {
-          const response = await fetch(doc.fileUrl);
+          // ✅ FIX: Use secure URL to avoid Mixed Content block
+          const secureUrl = toSecureUrl(doc.fileUrl);
+          const response = await fetch(secureUrl);
           if (!response.ok) throw new Error("Fetch failed");
           const arrayBuffer = await response.arrayBuffer();
-          
+
           const fileType = doc.fileType?.toLowerCase() || "";
           const isPdf = fileType.includes("pdf") || doc.fileName.toLowerCase().endsWith(".pdf");
           const isImage = fileType.includes("image") || doc.fileName.toLowerCase().match(/\.(jpg|jpeg|png)$/);
 
           if (isPdf) {
-            // Agar pehle se PDF hai, to uske saare pages copy karke master PDF me dalein
             const srcPdf = await PDFDocument.load(arrayBuffer);
             const copiedPages = await masterPdf.copyPages(srcPdf, srcPdf.getPageIndices());
             copiedPages.forEach((page) => masterPdf.addPage(page));
             successfulFiles++;
           } else if (isImage) {
-            // Agar image hai, to use naye page par embed karein
             let image;
             if (doc.fileName.toLowerCase().endsWith(".png") || fileType.includes("png")) {
               image = await masterPdf.embedPng(arrayBuffer);
             } else {
               image = await masterPdf.embedJpg(arrayBuffer);
             }
-
-            // Image ke size ke hisab se naya page banayein
             const page = masterPdf.addPage([image.width, image.height]);
-            page.drawImage(image, {
-              x: 0,
-              y: 0,
-              width: image.width,
-              height: image.height,
-            });
+            page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
             successfulFiles++;
           } else {
             console.warn(`Unsupported file format skipped: ${doc.fileName}`);
@@ -111,19 +106,17 @@ export default function AdmissionsOnlyPanel() {
       }
 
       if (successfulFiles === 0) {
-        throw new Error("Koi bhi file process nahi ho saki. CORS error ho sakti hai.");
+        throw new Error("Koi bhi file process nahi ho saki. Server HTTPS support check karein.");
       }
 
-      // Master PDF ko save karein aur download karwayein
       const pdfBytes = await masterPdf.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const safeStudentName = studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      
       saveAs(blob, `${safeStudentName}_combined_documents.pdf`);
       showToast(`✅ ${successfulFiles} files ko ek hi PDF me merge karke download kar diya gaya hai!`);
     } catch (err) {
       console.error(err);
-      showToast("❌ Merge fail: Storage server CORS policy check karein.");
+      showToast("❌ Merge fail: " + err.message);
     } finally {
       setDownloadingPdf(false);
     }
@@ -144,8 +137,8 @@ export default function AdmissionsOnlyPanel() {
       } else {
         showToast("❌ " + res.data.message);
       }
-    } catch (e) { 
-      showToast("❌ " + (e.response?.data?.message || e.message)); 
+    } catch (e) {
+      showToast("❌ " + (e.response?.data?.message || e.message));
     }
   };
 
@@ -195,12 +188,12 @@ export default function AdmissionsOnlyPanel() {
   const counselors = [...new Set(admissions.map((a) => a.counselorName).filter(Boolean))];
 
   const monthsList = [
-    { value: "0", label: "January" }, { value: "1", label: "February" },
-    { value: "2", label: "March" }, { value: "3", label: "April" },
-    { value: "4", label: "May" }, { value: "5", label: "June" },
-    { value: "6", label: "July" }, { value: "7", label: "August" },
-    { value: "8", label: "September" }, { value: "9", label: "October" },
-    { value: "10", label: "November" }, { value: "11", label: "December" }
+    { value: "0", label: "January" },  { value: "1",  label: "February" },
+    { value: "2", label: "March" },    { value: "3",  label: "April" },
+    { value: "4", label: "May" },      { value: "5",  label: "June" },
+    { value: "6", label: "July" },     { value: "7",  label: "August" },
+    { value: "8", label: "September" },{ value: "9",  label: "October" },
+    { value: "10", label: "November" },{ value: "11", label: "December" },
   ];
 
   const filteredAdmissions = admissions.filter((a) => {
@@ -211,7 +204,7 @@ export default function AdmissionsOnlyPanel() {
         a.phone?.includes(searchText)
       : true;
     const matchStatus =
-      filterStatus === "all" ? true :
+      filterStatus === "all"          ? true :
       filterStatus === "has_pending"  ? (a.documents || []).some((d) => d.status === "pending") :
       filterStatus === "all_done"     ? (a.documents?.length > 0 && (a.documents || []).every((d) => d.status === "done")) :
       filterStatus === "has_rejected" ? (a.documents || []).some((d) => d.status === "rejected") :
@@ -219,13 +212,12 @@ export default function AdmissionsOnlyPanel() {
 
     let matchMonth = true;
     if (filterMonth !== "all") {
-      const firstDocDate = a.documents && a.documents[0]?.uploadedAt ? new Date(a.documents[0].uploadedAt) : (a.createdAt ? new Date(a.createdAt) : null);
-      if (firstDocDate) {
-        matchMonth = firstDocDate.getMonth().toString() === filterMonth;
-      } else {
-        matchMonth = false;
-      }
+      const firstDocDate = a.documents && a.documents[0]?.uploadedAt
+        ? new Date(a.documents[0].uploadedAt)
+        : (a.createdAt ? new Date(a.createdAt) : null);
+      matchMonth = firstDocDate ? firstDocDate.getMonth().toString() === filterMonth : false;
     }
+
     return matchCounselor && matchSearch && matchStatus && matchMonth;
   });
 
@@ -240,14 +232,21 @@ export default function AdmissionsOnlyPanel() {
             <div style={s.pageHeader}>
               <h1 style={s.pageTitle}>👨‍🎓 Admissions Management</h1>
               <button onClick={fetchAdmissions} style={s.refreshBtn}>🔄 Refresh</button>
-              <button onClick={() => { setFilterCounselor(""); setFilterStatus("all"); setFilterMonth("all"); setSearchText(""); }} style={s.clearBtn}>
+              <button
+                onClick={() => { setFilterCounselor(""); setFilterStatus("all"); setFilterMonth("all"); setSearchText(""); }}
+                style={s.clearBtn}
+              >
                 Clear Filters
               </button>
             </div>
 
             <div style={s.filtersRow}>
-              <input style={s.searchInput} placeholder="🔍 Student name, email, phone..."
-                value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+              <input
+                style={s.searchInput}
+                placeholder="🔍 Student name, email, phone..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
               <select style={s.select} value={filterCounselor} onChange={(e) => setFilterCounselor(e.target.value)}>
                 <option value="">All Counselors</option>
                 {counselors.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -283,10 +282,10 @@ export default function AdmissionsOnlyPanel() {
                         <div style={s.admAvatar}>{adm.studentName?.[0]?.toUpperCase()}</div>
                         <div style={{ minWidth: 0 }}>
                           <div style={s.admName}>{adm.studentName}</div>
-                          <div style={s.admMeta}>Counselor: <span style={{fontWeight:600, color: "#475569"}}>{adm.counselorName}</span></div>
+                          <div style={s.admMeta}>Counselor: <span style={{ fontWeight: 600, color: "#475569" }}>{adm.counselorName}</span></div>
                         </div>
                       </div>
-                      
+
                       <div style={s.admListMid}>
                         <div style={s.admListInfoItem}><span>📚 Course:</span> <strong>{adm.course || "—"}</strong></div>
                         <div style={s.admListInfoItem}><span>📱 Phone:</span> <strong>{adm.phone}</strong></div>
@@ -335,27 +334,28 @@ export default function AdmissionsOnlyPanel() {
               </div>
             </div>
 
-            {/* Actions Bar for Operations */}
+            {/* Actions Bar */}
             <div style={s.bulkActions}>
               <span style={s.bulkLabel}>Actions:</span>
-              
+
               {(selected.documents || []).some((d) => d.status === "pending") && (
-                <button onClick={() => verifyAll(selected._id, "done")}
-                  style={{ ...s.bulkBtn, background: "#10B981", color: "#fff" }}>
+                <button
+                  onClick={() => verifyAll(selected._id, "done")}
+                  style={{ ...s.bulkBtn, background: "#10B981", color: "#fff" }}
+                >
                   ✅ Approve All Pending
                 </button>
               )}
 
-              {/* Naya Button jo student ki SARI files ko MERGE karke single PDF dega */}
-              <button 
+              <button
                 onClick={() => downloadAllDocsAsSinglePDF(selected.studentName, selected.documents)}
                 disabled={downloadingPdf}
-                style={{ 
-                  ...s.bulkBtn, 
-                  background: "#6366F1", 
-                  color: "#fff", 
+                style={{
+                  ...s.bulkBtn,
+                  background: "#6366F1",
+                  color: "#fff",
                   opacity: downloadingPdf ? 0.7 : 1,
-                  cursor: downloadingPdf ? "not-allowed" : "pointer" 
+                  cursor: downloadingPdf ? "not-allowed" : "pointer",
                 }}
               >
                 📥 {downloadingPdf ? "Merging into single PDF..." : "Download Combined PDF"}
@@ -382,7 +382,13 @@ export default function AdmissionsOnlyPanel() {
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           {doc.fileUrl && (
-                            <a href={doc.fileUrl} target="_blank" rel="noreferrer" style={s.viewFileBtn}>
+                            // ✅ FIX: Use secure URL for View link too
+                            <a
+                              href={toSecureUrl(doc.fileUrl)}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={s.viewFileBtn}
+                            >
                               👁️ View
                             </a>
                           )}
@@ -425,8 +431,15 @@ export default function AdmissionsOnlyPanel() {
             <p style={{ margin: "0 0 16px", color: "#94A3B8", fontSize: 13 }}>📄 {verifyModal.fileName}</p>
             <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
               {["done", "rejected"].map((st) => (
-                <button key={st} onClick={() => setVerifyStatus(st)}
-                  style={{ ...s.statusToggle, background: verifyStatus === st ? (st === "done" ? "#10B981" : "#EF4444") : "#F1F5F9", color: verifyStatus === st ? "#fff" : "#64748B" }}>
+                <button
+                  key={st}
+                  onClick={() => setVerifyStatus(st)}
+                  style={{
+                    ...s.statusToggle,
+                    background: verifyStatus === st ? (st === "done" ? "#10B981" : "#EF4444") : "#F1F5F9",
+                    color: verifyStatus === st ? "#fff" : "#64748B",
+                  }}
+                >
                   {st === "done" ? "✅ Approve" : "❌ Reject"}
                 </button>
               ))}
@@ -434,15 +447,26 @@ export default function AdmissionsOnlyPanel() {
             {verifyStatus === "rejected" && (
               <div style={{ marginBottom: 16 }}>
                 <label style={s.modalLabel}>Rejection Reason *</label>
-                <textarea style={s.textarea} rows={3}
+                <textarea
+                  style={s.textarea}
+                  rows={3}
                   placeholder="e.g. Image blurry hai..."
-                  value={verifyRemark} onChange={(e) => setVerifyRemark(e.target.value)} />
+                  value={verifyRemark}
+                  onChange={(e) => setVerifyRemark(e.target.value)}
+                />
               </div>
             )}
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setVerifyModal(null)} style={s.cancelBtn}>Cancel</button>
-              <button onClick={verifyDoc} disabled={verifying}
-                style={{ ...s.confirmBtn, background: verifyStatus === "done" ? "#10B981" : "#EF4444", opacity: verifying ? 0.7 : 1 }}>
+              <button
+                onClick={verifyDoc}
+                disabled={verifying}
+                style={{
+                  ...s.confirmBtn,
+                  background: verifyStatus === "done" ? "#10B981" : "#EF4444",
+                  opacity: verifying ? 0.7 : 1,
+                }}
+              >
                 {verifying ? "Processing..." : verifyStatus === "done" ? "✅ Approve" : "❌ Reject"}
               </button>
             </div>
@@ -454,54 +478,52 @@ export default function AdmissionsOnlyPanel() {
 }
 
 const s = {
-  page:            { display: "flex", minHeight: "100vh", background: "#F8FAFC", fontFamily: "'Outfit', sans-serif" },
-  mainFull:        { flex: 1, padding: "32px 40px", overflowY: "auto", width: "100%" },
-  pageHeader:      { display: "flex", alignItems: "center", gap: 16, marginBottom: 24, flexWrap: "wrap" },
-  pageTitle:       { fontSize: 24, fontWeight: 800, color: "#1E293B", margin: 0 },
-  refreshBtn:      { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontFamily: "inherit", marginLeft: "auto" },
-  clearBtn:        { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontFamily: "inherit" },
-  backBtn:         { background: "#EEF2FF", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, color: "#6366F1", fontWeight: 600, fontFamily: "inherit" },
-  card:            { background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", marginBottom: 16 },
-  cardTitle:       { fontSize: 17, fontWeight: 700, color: "#1E293B", margin: "0 0 16px" },
-  filtersRow:      { display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" },
-  searchInput:     { flex: 2, minWidth: 200, padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit" },
-  select:          { flex: 1, minWidth: 160, padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit", background: "#fff" },
-  resultCount:     { fontSize: 13, color: "#94A3B8", marginBottom: 14 },
-  
+  page:               { display: "flex", minHeight: "100vh", background: "#F8FAFC", fontFamily: "'Outfit', sans-serif" },
+  mainFull:           { flex: 1, padding: "32px 40px", overflowY: "auto", width: "100%" },
+  pageHeader:         { display: "flex", alignItems: "center", gap: 16, marginBottom: 24, flexWrap: "wrap" },
+  pageTitle:          { fontSize: 24, fontWeight: 800, color: "#1E293B", margin: 0 },
+  refreshBtn:         { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontFamily: "inherit", marginLeft: "auto" },
+  clearBtn:           { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontFamily: "inherit" },
+  backBtn:            { background: "#EEF2FF", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, color: "#6366F1", fontWeight: 600, fontFamily: "inherit" },
+  card:               { background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", marginBottom: 16 },
+  cardTitle:          { fontSize: 17, fontWeight: 700, color: "#1E293B", margin: "0 0 16px" },
+  filtersRow:         { display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" },
+  searchInput:        { flex: 2, minWidth: 200, padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit" },
+  select:             { flex: 1, minWidth: 160, padding: "10px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", fontFamily: "inherit", background: "#fff" },
+  resultCount:        { fontSize: 13, color: "#94A3B8", marginBottom: 14 },
   admissionListStack: { display: "flex", flexDirection: "column", gap: 10 },
-  admListItem:     { background: "#fff", borderRadius: 12, padding: "16px 24px", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", border: "1px solid #E2E8F0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 },
-  admListLeft:     { display: "flex", alignItems: "center", gap: 14, flex: "1", minWidth: 200 },
-  admListMid:      { display: "flex", gap: 40, flex: "1.5", flexWrap: "wrap" },
-  admListInfoItem: { fontSize: 14, color: "#64748B" },
-  admListRight:    { display: "flex", alignItems: "center", gap: 16 },
-  listArrow:       { color: "#94A3B8", fontSize: 14, paddingLeft: 4 },
-
-  admAvatar:       { width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 18, flexShrink: 0 },
-  admName:         { fontWeight: 700, fontSize: 16, color: "#1E293B" },
-  admMeta:         { fontSize: 12, color: "#94A3B8", marginTop: 2 },
-  pendingDot:      { background: "#F59E0B", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 },
-  docPills:        { display: "flex", gap: 6, flexWrap: "wrap" },
-  pill:            { padding: "3px 9px", borderRadius: 20, fontSize: 12, fontWeight: 600 },
-  docRow:          { display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#F8FAFC", borderRadius: 10, border: "1px solid #F1F5F9" },
-  docName:         { fontSize: 14, fontWeight: 500, color: "#1E293B" },
-  docMeta:         { fontSize: 12, color: "#94A3B8", marginTop: 3 },
-  statusBadge:     { padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, flexShrink: 0, whiteSpace: "nowrap" },
-  verifyBtn:       { background: "#6366F1", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
-  deleteBtn:       { background: "#FEF2F2", color: "#EF4444", border: "1px solid #FCA5A5", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
-  viewFileBtn:     { background: "#F1F5F9", color: "#374151", borderRadius: 8, padding: "5px 10px", fontSize: 12, textDecoration: "none", flexShrink: 0 },
-  bulkActions:     { display: "flex", alignItems: "center", gap: 12, background: "#FFF8E1", borderRadius: 10, padding: "12px 16px", marginBottom: 16, flexWrap: "wrap" },
-  bulkLabel:       { fontSize: 14, fontWeight: 600, color: "#92400E" },
-  bulkBtn:         { border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit" },
-  infoLabel:       { fontSize: 11, color: "#94A3B8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 },
-  infoVal:         { fontSize: 14, color: "#1E293B", fontWeight: 500, marginTop: 2 },
-  empty:           { textAlign: "center", padding: "40px 20px", color: "#94A3B8", fontSize: 15 },
-  loading:         { textAlign: "center", padding: "40px 20px", color: "#94A3B8" },
-  toast:           { position: "fixed", bottom: 24, right: 24, background: "#1E293B", color: "#fff", padding: "12px 20px", borderRadius: 12, fontSize: 14, zIndex: 9999, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" },
-  modalOverlay:    { position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 },
-  modal:           { background: "#fff", borderRadius: 16, padding: 28, width: "90%", maxWidth: 420, boxShadow: "0 20px 40px rgba(0,0,0,0.15)" },
-  modalLabel:      { fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 },
-  textarea:        { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, fontFamily: "inherit", resize: "vertical", outline: "none", boxSizing: "border-box" },
-  statusToggle:    { flex: 1, padding: 10, borderRadius: 10, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit", transition: "all 0.2s" },
-  cancelBtn:       { flex: 1, padding: 10, borderRadius: 10, border: "1px solid #E5E7EB", background: "#fff", cursor: "pointer", fontSize: 14, fontFamily: "inherit" },
-  confirmBtn:      { flex: 2, padding: 10, borderRadius: 10, border: "none", color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" },
+  admListItem:        { background: "#fff", borderRadius: 12, padding: "16px 24px", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", border: "1px solid #E2E8F0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 },
+  admListLeft:        { display: "flex", alignItems: "center", gap: 14, flex: "1", minWidth: 200 },
+  admListMid:         { display: "flex", gap: 40, flex: "1.5", flexWrap: "wrap" },
+  admListInfoItem:    { fontSize: 14, color: "#64748B" },
+  admListRight:       { display: "flex", alignItems: "center", gap: 16 },
+  listArrow:          { color: "#94A3B8", fontSize: 14, paddingLeft: 4 },
+  admAvatar:          { width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 18, flexShrink: 0 },
+  admName:            { fontWeight: 700, fontSize: 16, color: "#1E293B" },
+  admMeta:            { fontSize: 12, color: "#94A3B8", marginTop: 2 },
+  pendingDot:         { background: "#F59E0B", color: "#fff", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, flexShrink: 0 },
+  docPills:           { display: "flex", gap: 6, flexWrap: "wrap" },
+  pill:               { padding: "3px 9px", borderRadius: 20, fontSize: 12, fontWeight: 600 },
+  docRow:             { display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#F8FAFC", borderRadius: 10, border: "1px solid #F1F5F9" },
+  docName:            { fontSize: 14, fontWeight: 500, color: "#1E293B" },
+  docMeta:            { fontSize: 12, color: "#94A3B8", marginTop: 3 },
+  statusBadge:        { padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, flexShrink: 0, whiteSpace: "nowrap" },
+  verifyBtn:          { background: "#6366F1", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
+  deleteBtn:          { background: "#FEF2F2", color: "#EF4444", border: "1px solid #FCA5A5", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", flexShrink: 0 },
+  viewFileBtn:        { background: "#F1F5F9", color: "#374151", borderRadius: 8, padding: "5px 10px", fontSize: 12, textDecoration: "none", flexShrink: 0 },
+  bulkActions:        { display: "flex", alignItems: "center", gap: 12, background: "#FFF8E1", borderRadius: 10, padding: "12px 16px", marginBottom: 16, flexWrap: "wrap" },
+  bulkLabel:          { fontSize: 14, fontWeight: 600, color: "#92400E" },
+  bulkBtn:            { border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit" },
+  infoLabel:          { fontSize: 11, color: "#94A3B8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 },
+  infoVal:            { fontSize: 14, color: "#1E293B", fontWeight: 500, marginTop: 2 },
+  empty:              { textAlign: "center", padding: "40px 20px", color: "#94A3B8", fontSize: 15 },
+  loading:            { textAlign: "center", padding: "40px 20px", color: "#94A3B8" },
+  toast:              { position: "fixed", bottom: 24, right: 24, background: "#1E293B", color: "#fff", padding: "12px 20px", borderRadius: 12, fontSize: 14, zIndex: 9999, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" },
+  modalOverlay:       { position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 },
+  modal:              { background: "#fff", borderRadius: 16, padding: 28, width: "90%", maxWidth: 420, boxShadow: "0 20px 40px rgba(0,0,0,0.15)" },
+  modalLabel:         { fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 },
+  textarea:           { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 14, fontFamily: "inherit", resize: "vertical", outline: "none", boxSizing: "border-box" },
+  statusToggle:       { flex: 1, padding: 10, borderRadius: 10, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit", transition: "all 0.2s" },
+  cancelBtn:          { flex: 1, padding: 10, borderRadius: 10, border: "1px solid #E5E7EB", background: "#fff", cursor: "pointer", fontSize: 14, fontFamily: "inherit" },
+  confirmBtn:         { flex: 2, padding: 10, borderRadius: 10, border: "none", color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit" },
 };

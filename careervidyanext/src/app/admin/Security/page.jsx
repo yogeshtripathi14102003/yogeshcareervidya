@@ -31,7 +31,7 @@ const PERMISSIONS_LIST = [
   { id: "VideoPage", label: "Video Management" },
   { id: "CounselorReprt", label: "Counselor Report" },
   { id: "AdminDocumentcheck", label: "Document Check" },
-  { id: "Ducmenetdelete", label: "Document Delete" },
+  { id: "DocumentDelete", label: "Document Delete" },
 ];
 
 export default function GiveAccessPage() {

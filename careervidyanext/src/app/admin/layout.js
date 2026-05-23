@@ -107,9 +107,14 @@ const Layout = ({ children }) => {
     { href: "/admin/Security", label: "Security", icon: Lock },
     { href: "/admin/VideoPage", label: "Videos", icon: Lock },
     {href: "/admin/CounselorsReprt", label: "Counselor Report", icon: Lock},
-    {href: "/admin/AdminDocumentcheck", label: "Document Check", icon: Lock},
-    {href: "/admin/Ducmenetdelete", label: "Document Delete", icon: Lock},
-  ];
+    {href: "/admin/Adminremark", label: "Adminremark", icon: Lock},
+   {href: "/admin/AdminDocumentcheck", label: "AdminDocumentcheck", icon: Lock},
+{
+  id: "DocumentDelete",
+  href: "/admin/DocumentDelete",
+  label: "Document Delete",
+  icon: Lock,
+}  ];
 
   const filteredMenu = menuItems.filter((item) => {
     if (userRole === "admin") return true;
