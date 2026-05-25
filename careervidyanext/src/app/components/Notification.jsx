@@ -1,242 +1,104 @@
-// "use client";
-// import React, { useEffect, useState } from "react";
-// import { Megaphone } from "lucide-react";
-// import api from "@/utlis/api.js"; // ✅ Your existing api.js
-
-// export default function AnnouncementBar() {
-//   const [announcement, setAnnouncement] = useState({
-//     title: "Loading announcements...",
-//     description: "",
-//     url: "#",
-//   });
-
-//   // Fetch announcement from backend
-//   const fetchAnnouncement = async () => {
-//     try {
-//       const res = await api.get("/api/v1/notifications"); // ✅ Fetch notifications
-//       if (res.data && res.data.length > 0) {
-//         // Take the latest notification
-//         const latest = res.data[0];
-//         setAnnouncement({
-//           title: latest.title,
-//           description: latest.description,
-//           url: latest.url || "#", // fallback
-//         });
-//       } else {
-//         setAnnouncement({ title: "No announcements currently", description: "", url: "#" });
-//       }
-//     } catch (err) {
-//       console.error("Failed to fetch announcements:", err);
-//       setAnnouncement({ title: "Failed to load announcements", description: "", url: "#" });
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchAnnouncement();
-//   }, []);
-
-//   // Handle click on New badge
-//   const handleNewClick = () => {
-//     if (announcement.url && announcement.url !== "#") {
-//       window.open(announcement.url, "_blank"); // open in new tab
-//     }
-//   };
-
-//   return (
-//     <div className="w-full bg-[#de5e06] h-10 md:h-12 flex items-center overflow-hidden border-b border-white/10 shadow-md">
-      
-//       <style jsx>{`
-//         @keyframes custom-glow {
-//           0%, 100% { text-shadow: 0 0 0px #f40707ff; transform: scale(1); }
-//           50% { text-shadow: 0 0 10px #e01717ff, 0 0 20px #ff1b1bff; transform: scale(1.05); }
-//         }
-//         .animate-unique-blink {
-//           animation: custom-glow 1.5s infinite ease-in-out;
-//         }
-//       `}</style>
-
-//       {/* Fixed Label Section */}
-//       <div className="flex items-center px-4 md:px-6 bg-[#de5e06] z-10 h-full shadow-[5px_0_15px_rgba(0,0,0,0.2)]">
-//         <div className="flex items-center gap-2 animate-unique-blink text-white">
-//           <Megaphone className="w-5 h-5 fill-white/40" />
-//           <span className="font-bold text-sm md:text-base whitespace-nowrap">
-//             Announcements
-//           </span>
-//         </div>
-//       </div>
-
-//       <div className="flex-1 flex items-center">
-//         <marquee 
-//           behavior="scroll" 
-//           direction="left" 
-//           scrollamount="6"
-//           className="text-white font-medium text-sm md:text-base cursor-pointer"
-//           onMouseOver={(e) => e.currentTarget.stop()} 
-//           onMouseOut={(e) => e.currentTarget.start()}
-//         >
-//           {announcement.title} - {announcement.description}
-//           <span
-//             onClick={handleNewClick} // ✅ Clickable
-//             className="ml-4 bg-red-600 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase animate-pulse cursor-pointer"
-//             title="Click to view"
-//           >
-//             New
-//           </span>
-//         </marquee>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 "use client";
-
 import React, { useEffect, useState } from "react";
-import { Zap, BellRing, ChevronRight } from "lucide-react";
-import api from "@/utlis/api.js";
+import { Megaphone, ArrowUpRight } from "lucide-react";
+import api from "@/utlis/api.js"; // ✅ Your existing api.js
 
 export default function AnnouncementBar() {
-  const [mounted, setMounted] = useState(false);
-
   const [announcement, setAnnouncement] = useState({
     title: "Loading announcements...",
     description: "",
     url: "#",
   });
 
-  useEffect(() => {
-    setMounted(true);
-
-    const fetchAnnouncement = async () => {
-      try {
-        const res = await api.get("/api/v1/notifications");
-
-        if (res.data && res.data.length > 0) {
-          const latest = res.data[0];
-
-          setAnnouncement({
-            title: latest.title,
-            description: latest.description,
-            url: latest.url || "#",
-          });
-        } else {
-          setAnnouncement({
-            title: "No announcements currently",
-            description: "",
-            url: "#",
-          });
-        }
-      } catch (err) {
-        console.error(err);
-
+  // Fetch announcement from backend
+  const fetchAnnouncement = async () => {
+    try {
+      const res = await api.get("/api/v1/notifications");
+      if (res.data && res.data.length > 0) {
+        const latest = res.data[0];
         setAnnouncement({
-          title: "Failed to load announcements",
-          description: "",
-          url: "#",
+          title: latest.title,
+          description: latest.description,
+          url: latest.url || "#",
         });
+      } else {
+        setAnnouncement({ title: "No announcements currently", description: "", url: "#" });
       }
-    };
+    } catch (err) {
+      console.error("Failed to fetch announcements:", err);
+      setAnnouncement({ title: "Failed to load announcements", description: "", url: "#" });
+    }
+  };
 
+  useEffect(() => {
     fetchAnnouncement();
   }, []);
 
-  const handleNewClick = () => {
+  const handleAnnouncementClick = () => {
     if (announcement.url && announcement.url !== "#") {
       window.open(announcement.url, "_blank");
     }
   };
 
-  if (!mounted) return null;
-
   return (
-    <div className="w-full relative h-10 md:h-12 flex items-center overflow-hidden border-b shadow-md">
-
-      {/* LOGO BASED BACKGROUND */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0B3C91] via-[#ffffff] to-[#FF7A00] bg-[length:200%_200%] animate-gradient"></div>
-
+    <div className="w-full bg-gradient-to-r from-[#030712] via-[#1e3a8a] to-[#030712] bg-[length:200%_auto] animate-gradient-shift h-11 md:h-12 flex items-center overflow-hidden border-b border-white/10 shadow-md relative select-none">
+      
+      {/* 🛠️ Perfect Single Text Marquee Animation */}
       <style jsx>{`
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
+        @keyframes single-marquee {
+          0% { transform: translateX(100%); }   
+          100% { transform: translateX(-100%); } 
+        }
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
         }
-
-        .animate-gradient {
-          animation: gradient 6s infinite linear;
+        .marquee-wrapper {
+          display: inline-block;
+          white-space: nowrap;
+          animation: single-marquee 25s linear infinite; /* 25s में एक चक्कर पूरा करेगा, एकदम नॉर्मल स्पीड */
         }
-
-        .label-shine::after {
-          content: "";
-          position: absolute;
-          top: -50%;
-          left: -60%;
-          width: 20%;
-          height: 200%;
-          background: rgba(255, 255, 255, 0.3);
-          transform: rotate(30deg);
-          animation: shine 3s infinite;
+        .marquee-wrapper:hover {
+          animation-play-state: paused; /* माउस लाने पर रुक जाएगा */
         }
-
-        @keyframes shine {
-          0% { left: -60%; }
-          100% { left: 150%; }
+        .animate-gradient-shift {
+          animation: gradient-shift 8s ease infinite;
         }
       `}</style>
 
-      {/* LEFT LABEL */}
-      <div className="flex items-center px-3 md:px-5 bg-[#0B3C91] z-20 h-full label-shine shadow-lg border-r border-white/20">
-
-        <div className="flex items-center gap-2 text-white">
-
-          <BellRing className="w-4 h-4 md:w-5 md:h-5 text-orange-400 animate-pulse" />
-
-          <span className="font-black text-[10px] md:text-xs uppercase tracking-widest whitespace-nowrap">
-            New Updates
+      {/* Left Side: Fixed Announcements Badge */}
+      <div className="flex items-center px-4 md:px-6 bg-[#0f172a] z-20 h-full shadow-[8px_0_15px_rgba(0,0,0,0.4)] border-r border-white/10 shrink-0">
+        <div className="flex items-center gap-2 text-white font-bold text-sm md:text-base tracking-wide">
+          <div className="relative flex h-2 w-2 mr-0.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+          </div>
+          <Megaphone className="w-4 h-4 md:w-5 md:h-5 text-orange-400 fill-orange-400/20" />
+          <span className="whitespace-nowrap uppercase text-[11px] md:text-xs tracking-widest text-slate-200">
+            Announcements
           </span>
-
         </div>
       </div>
 
-      {/* MARQUEE */}
-      <div className="flex-1 flex items-center z-10">
-
-        <marquee
-          behavior="scroll"
-          direction="left"
-          scrollamount="6"
-          className="text-[#0B3C91] font-bold text-sm md:text-base cursor-pointer"
-          onMouseOver={(e) => e.currentTarget.stop()}
-          onMouseOut={(e) => e.currentTarget.start()}
+      {/* Center & Right: Clean Flow Container */}
+      <div className="flex-1 overflow-hidden relative h-full flex items-center">
+        <div 
+          onClick={handleAnnouncementClick}
+          className="marquee-wrapper cursor-pointer text-white font-medium text-xs md:text-sm lg:text-base drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
         >
-          <div className="flex items-center gap-2 px-4">
-
-            <BellRing className="w-4 h-4 text-orange-500 animate-bounce" />
-
-            <span className="inline-flex items-center">
-
-              {announcement.title}
-
-              <ChevronRight className="w-5 h-5 mx-2 text-[#FF7A00]" />
-
-              <span className="opacity-80 font-semibold">
-                {announcement.description}
-              </span>
-
+          {/* ✅ सिर्फ एक ही ब्लॉक रहेगा, कोई डुप्लीकेट नहीं */}
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="bg-gradient-to-r from-orange-600 to-amber-500 text-[10px] text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wider shadow-md animate-pulse shrink-0 mr-1">
+              New
             </span>
-
-            {/* NEW BUTTON */}
-            <span
-              onClick={handleNewClick}
-              className="ml-4 flex items-center gap-1 bg-[#FF7A00] text-white text-[10px] px-2.5 py-1 rounded-full font-black border border-white shadow-md hover:scale-105 transition animate-pulse"
-            >
-              <Zap size={10} className="fill-white" />
-              NEW
+            <span className="hover:text-orange-300 transition-colors duration-200 whitespace-nowrap">
+              {announcement.title} {announcement.description && `— ${announcement.description}`}
             </span>
-
+            {announcement.url !== "#" && <ArrowUpRight className="w-4 h-4 text-orange-400 opacity-90 shrink-0 inline ml-1" />}
           </div>
-        </marquee>
-
+        </div>
       </div>
+
     </div>
   );
 }

@@ -109,17 +109,16 @@ const Layout = ({ children }) => {
     {href: "/admin/CounselorsReprt", label: "Counselor Report", icon: Lock},
     {href: "/admin/Adminremark", label: "Adminremark", icon: Lock},
    {href: "/admin/AdminDocumentcheck", label: "AdminDocumentcheck", icon: Lock},
-{
-  id: "DocumentDelete",
-  href: "/admin/DocumentDelete",
-  label: "Document Delete",
-  icon: Lock,
-}  ];
+{ href: "/admin/DocumentDelete", label: "Document Delete", icon: Lock, id: "DocumentDelete" }
 
-  const filteredMenu = menuItems.filter((item) => {
-    if (userRole === "admin") return true;
-    return permissions.some(p => p.toLowerCase().trim() === item.label.toLowerCase().trim());
-  });
+  ];
+
+ // NAYA — ye lagao
+const filteredMenu = menuItems.filter((item) => {
+  if (userRole === "admin") return true;
+  const matchKey = (item.id || item.label).toLowerCase().trim();
+  return permissions.some(p => p.toLowerCase().trim() === matchKey);
+});
 
   if (checkingAuth) {
     return <div className="w-full h-screen flex justify-center items-center font-semibold">Verifying Access...</div>;

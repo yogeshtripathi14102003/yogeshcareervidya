@@ -110,8 +110,8 @@ useEffect(() => {
         <Link href="/whycareervidya/placement-support" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Expert Placement Cell
         </Link>
-        <Link href="/coming-soon" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Exclusive Job Opportunities
+        <Link href="/WP/home" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Balance your job and learning
         </Link>
         <Link href="/coming-soon" className="text-sm text-gray-700 font-medium hover:text-[#04458b] hover:pl-2 transition-all duration-200 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Industry Internship Programs

@@ -450,7 +450,7 @@ This student's document has been rejected during the admin verification process.
                 onClick={() => fileRef.current?.click()}
               >
                 <div style={styles.dropIcon}>📁</div>
-                <div style={styles.dropText}>Please do  click karo Here </div>
+                <div style={styles.dropText}> upload files</div>
                 <div style={styles.dropSub}>PDF, DOC, DOCX, JPG, PNG, WEBP • Max 10MB each</div>
                 <input
                   ref={fileRef} type="file" multiple hidden

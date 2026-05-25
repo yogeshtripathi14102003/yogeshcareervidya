@@ -1,18 +1,15 @@
-
-
-
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import api from "@/utlis/api.js";
 import {
-  Clock, User, ChevronLeft, ChevronRight, 
+  Clock, User, ChevronLeft, ChevronRight,
   Search, RefreshCw, AlertCircle, PhoneCall, Calendar
 } from "lucide-react";
 import { FaWhatsapp, FaPhoneAlt } from "react-icons/fa";
 
 /* ═══════════════════════════════════════════
-    SAFE DATA EXTRACTOR HELPERS
+    HELPERS
 ═══════════════════════════════════════════ */
 
 const getLogsArray = (lead) => {
@@ -21,27 +18,46 @@ const getLogsArray = (lead) => {
   return Array.isArray(logs) ? logs : [];
 };
 
+// ✅ FIX 1: IST mein date string banao (pehle UTC tha — raat 12 ke baad galat date aata tha)
+const toISTDateString = (isoStr) => {
+  if (!isoStr) return "";
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); // "YYYY-MM-DD"
+};
+
+const toISTMonthString = (isoStr) => {
+  if (!isoStr) return "";
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }).substring(0, 7); // "YYYY-MM"
+};
+
 const matchDateStrings = (logIsoStr, selectedDateYMD) => {
   if (!logIsoStr || !selectedDateYMD) return false;
-  const d = new Date(logIsoStr);
-  if (isNaN(d.getTime())) return false;
-  
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}` === selectedDateYMD;
+  return toISTDateString(logIsoStr) === selectedDateYMD;
 };
 
 const matchMonthStrings = (logIsoStr, selectedDateYMD) => {
   if (!logIsoStr || !selectedDateYMD) return false;
-  const d = new Date(logIsoStr);
-  if (isNaN(d.getTime())) return false;
-  
-  const targetYearMonth = selectedDateYMD.substring(0, 7);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  return `${y}-${m}` === targetYearMonth;
+  return toISTMonthString(logIsoStr) === selectedDateYMD.substring(0, 7);
 };
+
+// ✅ FIX 2: timeZone: "Asia/Kolkata" add kiya
+const fmtDate = (d) =>
+  d
+    ? new Date(d).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "—";
+
+// ✅ Aaj ki IST date
+const todayIST = () =>
+  new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
 const STATUS_COLORS = {
   "New":            { bg: "#EFF6FF", text: "#1D4ED8", border: "#BFDBFE" },
@@ -56,35 +72,22 @@ const STATUS_COLORS = {
 const getStatusStyle = (status) =>
   STATUS_COLORS[status] || { bg: "#F8FAFC", text: "#64748B", border: "#E2E8F0" };
 
-const fmtDate = (d) =>
-  d
-    ? new Date(d).toLocaleString("en-IN", {
-        day: "2-digit", month: "short",
-        hour: "2-digit", minute: "2-digit",
-      })
-    : "—";
-
 /* ═══════════════════════════════════════════
-    MAIN DASHBOARD COMPONENT
+    MAIN COMPONENT
 ═══════════════════════════════════════════ */
 const RemarkActivityPage = ({ isAdmin = false }) => {
-  const [leads, setLeads]             = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [searchTerm, setSearchTerm]   = useState("");
-  const [filterType, setFilterType]   = useState("all"); 
-  const [timeScope, setTimeScope]     = useState("day"); 
-  
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    const y = today.getFullYear();
-    const m = String(today.getMonth() + 1).padStart(2, '0');
-    const d = String(today.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  });
+  const [leads, setLeads]           = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [timeScope, setTimeScope]   = useState("day");
+
+  // ✅ FIX 3: todayIST() se default date lo (pehle manual YYYY-MM-DD tha)
+  const [selectedDate, setSelectedDate] = useState(todayIST());
 
   const [counselorId, setCounselorId]     = useState(null);
   const [counselorName, setCounselorName] = useState("");
-  const [currentPage, setCurrentPage]   = useState(1);
+  const [currentPage, setCurrentPage]     = useState(1);
   const ITEMS = 20;
 
   useEffect(() => {
@@ -120,32 +123,29 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
     if (isAdmin || counselorId) fetchLeads();
   }, [fetchLeads, isAdmin, counselorId]);
 
-  /* ── Metric Performance Engine ── */
+  /* ── Stats ── */
   const stats = useMemo(() => {
     let scopedCallsCount = 0;
     let leadsTouchedInScope = 0;
-    let noRemarkCount = 0; 
+    let noRemarkCount = 0;
 
     leads.forEach((l) => {
       const logList = getLogsArray(l);
       let leadHasScopeActivity = false;
 
-      // 1. GLOBAL NO-REMARK CHECK (अब इसमें 'Not Interested' को काउंट नहीं किया जाएगा)
       const hasRootRemark = !!(l.remark?.toString().trim() || l.latestRemark?.toString().trim());
       if (logList.length === 0 && !hasRootRemark) {
-        if (l.status !== "Not Interested") { // ◄ बदलाव यहाँ है
+        if (l.status !== "Not Interested") {
           noRemarkCount++;
         }
       }
 
-      // 2. LIVE DATE/MONTH ACTIVITY TRACKER
       logList.forEach((log) => {
         const logDate = typeof log === "object" ? (log.date || log.createdAt) : l.updatedAt;
-        
         let isMatch = false;
-        if (timeScope === "day")         isMatch = matchDateStrings(logDate, selectedDate);
-        else if (timeScope === "month")  isMatch = matchMonthStrings(logDate, selectedDate);
-        else                             isMatch = true;
+        if (timeScope === "day")        isMatch = matchDateStrings(logDate, selectedDate);
+        else if (timeScope === "month") isMatch = matchMonthStrings(logDate, selectedDate);
+        else                            isMatch = true;
 
         if (isMatch) {
           scopedCallsCount++;
@@ -155,9 +155,9 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
 
       if (logList.length === 0 && hasRootRemark) {
         let isRootMatch = false;
-        if (timeScope === "day")         isRootMatch = matchDateStrings(l.updatedAt, selectedDate);
-        else if (timeScope === "month")  isRootMatch = matchMonthStrings(l.updatedAt, selectedDate);
-        else                             isRootMatch = true;
+        if (timeScope === "day")        isRootMatch = matchDateStrings(l.updatedAt, selectedDate);
+        else if (timeScope === "month") isRootMatch = matchMonthStrings(l.updatedAt, selectedDate);
+        else                            isRootMatch = true;
 
         if (isRootMatch) {
           scopedCallsCount++;
@@ -165,21 +165,19 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
         }
       }
 
-      if (leadHasScopeActivity) {
-        leadsTouchedInScope++;
-      }
+      if (leadHasScopeActivity) leadsTouchedInScope++;
     });
 
     return {
-      totalPool:    leads.length,
-      totalCalls:   scopedCallsCount, 
-      interacted:   leadsTouchedInScope,
-      noRemarks:    noRemarkCount, 
-      pending:      leads.length - leadsTouchedInScope
+      totalPool:  leads.length,
+      totalCalls: scopedCallsCount,
+      interacted: leadsTouchedInScope,
+      noRemarks:  noRemarkCount,
+      pending:    leads.length - leadsTouchedInScope,
     };
   }, [leads, selectedDate, timeScope]);
 
-  /* ── Filter Engine ── */
+  /* ── Filter ── */
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
       const phone = lead.phone || lead.mobile || lead.contactNo || "";
@@ -187,42 +185,40 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
         !searchTerm ||
         lead.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         phone.toString().includes(searchTerm);
-        
+
       if (!matchSearch) return false;
 
       const logList = getLogsArray(lead);
       const hasRootRemark = !!(lead.remark?.toString().trim() || lead.latestRemark?.toString().trim());
 
-      // ROUTE A: Absolute Zero Remark Filtering (यहाँ से 'Not Interested' को पूरी तरह हटा दिया गया है)
       if (filterType === "no_remark") {
-        if (lead.status === "Not Interested") return false; // ◄ बदलाव यहाँ है
+        if (lead.status === "Not Interested") return false;
         return logList.length === 0 && !hasRootRemark;
       }
 
-      // ROUTE B: Time & Date Filter Route
       let matchScopeActivity = false;
       logList.forEach((log) => {
         const logDate = typeof log === "object" ? (log.date || log.createdAt) : lead.updatedAt;
-        if (timeScope === "day" && matchDateStrings(logDate, selectedDate)) matchScopeActivity = true;
+        if (timeScope === "day"   && matchDateStrings(logDate, selectedDate))  matchScopeActivity = true;
         if (timeScope === "month" && matchMonthStrings(logDate, selectedDate)) matchScopeActivity = true;
         if (timeScope === "lifetime") matchScopeActivity = true;
       });
 
       if (logList.length === 0 && hasRootRemark) {
-        if (timeScope === "day" && matchDateStrings(lead.updatedAt, selectedDate)) matchScopeActivity = true;
+        if (timeScope === "day"   && matchDateStrings(lead.updatedAt, selectedDate))  matchScopeActivity = true;
         if (timeScope === "month" && matchMonthStrings(lead.updatedAt, selectedDate)) matchScopeActivity = true;
         if (timeScope === "lifetime") matchScopeActivity = true;
       }
 
       if (filterType === "interacted") return matchScopeActivity;
       if (filterType === "pending")    return !matchScopeActivity;
-      
-      return true; 
+
+      return true;
     });
   }, [leads, searchTerm, filterType, selectedDate, timeScope]);
 
   const totalPages = Math.ceil(filteredLeads.length / ITEMS);
-  
+
   const paginatedLeads = useMemo(() => {
     const start = (currentPage - 1) * ITEMS;
     return filteredLeads.slice(start, start + ITEMS);
@@ -231,7 +227,7 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
   return (
     <div className="min-h-screen bg-slate-50 pb-10">
 
-      {/* Control Header Layout */}
+      {/* Header */}
       <header className="bg-white border-b sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-5 py-3 flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-3">
@@ -252,24 +248,17 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
 
           <div className="flex items-center gap-2 flex-wrap">
             <div className="bg-slate-100 p-1 rounded-lg flex items-center gap-1 border text-[11px] font-bold">
-              <button 
-                onClick={() => { setTimeScope("day"); setCurrentPage(1); }}
-                className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'day' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
-              >
-                📅 Date View
-              </button>
-              <button 
-                onClick={() => { setTimeScope("month"); setCurrentPage(1); }}
-                className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'month' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
-              >
-                📊 Month View
-              </button>
-              <button 
-                onClick={() => { setTimeScope("lifetime"); setCurrentPage(1); }}
-                className={`px-2.5 py-1 rounded-md transition-all ${timeScope === 'lifetime' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
-              >
-                ♾️ Lifetime
-              </button>
+              {["day", "month", "lifetime"].map((scope) => (
+                <button
+                  key={scope}
+                  onClick={() => { setTimeScope(scope); setCurrentPage(1); }}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    timeScope === scope ? "bg-white shadow text-blue-600" : "text-slate-500"
+                  }`}
+                >
+                  {scope === "day" ? "📅 Date View" : scope === "month" ? "📊 Month View" : "♾️ Lifetime"}
+                </button>
+              ))}
             </div>
 
             {timeScope !== "lifetime" && (
@@ -280,6 +269,14 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
                 className="border rounded-lg px-3 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 bg-white"
               />
             )}
+
+            {/* ✅ Today button add kiya */}
+            <button
+              onClick={() => { setSelectedDate(todayIST()); setCurrentPage(1); }}
+              className="border border-blue-300 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50 transition"
+            >
+              Today
+            </button>
 
             <button
               onClick={fetchLeads}
@@ -294,20 +291,20 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
 
       <div className="max-w-7xl mx-auto px-5 py-5">
 
-        {/* Metric Boxes Top Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
           {[
-            { label: "Total Lead Pool", val: stats.totalPool, color: "#64748B", type: "all" },
-            { 
-              label: timeScope === 'day' ? "Calls (Today )" : timeScope === 'month' ? "Calls (Selected Month)" : "Lifetime Calls", 
-              val: stats.totalCalls, color: "#10B981", type: "interacted" 
+            { label: "Total Lead Pool",   val: stats.totalPool,  color: "#64748B", type: "all" },
+            {
+              label: timeScope === "day" ? "Calls (Today)" : timeScope === "month" ? "Calls (This Month)" : "Lifetime Calls",
+              val: stats.totalCalls, color: "#10B981", type: "interacted",
             },
-            { label: "🚫 No Remark Added", val: stats.noRemarks, color: "#EF4444", type: "no_remark" },
-            { label: "Untouched Remaining", val: stats.pending, color: "#D97706", type: "pending" },
+            { label: "🚫 No Remark Added",   val: stats.noRemarks, color: "#EF4444", type: "no_remark" },
+            { label: "Untouched Remaining",  val: stats.pending,   color: "#D97706", type: "pending" },
           ].map((s, idx) => (
             <div
               key={idx}
-              onClick={() => s.type && (setFilterType(s.type), setCurrentPage(1))}
+              onClick={() => { setFilterType(s.type); setCurrentPage(1); }}
               className={`bg-white rounded-xl border p-4 shadow-sm transition-all cursor-pointer hover:shadow-md
                 ${filterType === s.type ? "ring-2 ring-offset-1 scale-[1.01] shadow-md" : ""}`}
               style={{ borderLeftWidth: 5, borderLeftColor: s.color }}
@@ -320,22 +317,20 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
           ))}
         </div>
 
-        {/* Filter Tab Interface Center */}
+        {/* Filter Tabs */}
         <div className="bg-white border rounded-xl shadow-sm p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg flex-wrap">
             {[
               { id: "all",        label: "📋 Complete Pool" },
-              { id: "interacted", label: `✅ Contacted Leads` },
-              { id: "no_remark",  label: `🚫 No Remark Added (${stats.noRemarks})` },
-              { id: "pending",    label: `⏳ Fresh/No Contact` },
+              { id: "interacted", label: "✅ Contacted Leads" },
+              { id: "no_remark",  label: `🚫 No Remark (${stats.noRemarks})` },
+              { id: "pending",    label: "⏳ Fresh/No Contact" },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => { setFilterType(tab.id); setCurrentPage(1); }}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all
-                  ${filterType === tab.id
-                    ? "bg-white shadow text-blue-700"
-                    : "text-slate-500 hover:text-slate-700"}`}
+                  ${filterType === tab.id ? "bg-white shadow text-blue-700" : "text-slate-500 hover:text-slate-700"}`}
               >
                 {tab.label}
               </button>
@@ -354,7 +349,7 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
           </div>
         </div>
 
-        {/* Table Rendering Space */}
+        {/* Table */}
         {loading ? (
           <div className="bg-white rounded-xl border p-16 text-center shadow-sm">
             <RefreshCw size={28} className="animate-spin text-blue-500 mx-auto mb-3" />
@@ -375,37 +370,38 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
                     <th className="p-3 text-left">Lead Details</th>
                     {isAdmin && <th className="p-3 text-left">Assigned To</th>}
                     <th className="p-3 text-left">Status</th>
-                    <th className="p-3 text-center">Interactions Count</th>
-                    <th className="p-3 text-left" style={{ minWidth: 340 }}>Remarks History Logs</th>
-                    <th className="p-3 text-left">Last System Update</th>
+                    <th className="p-3 text-center">Interactions</th>
+                    <th className="p-3 text-left" style={{ minWidth: 340 }}>Remarks History</th>
+                    <th className="p-3 text-left">Last Update (IST)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {paginatedLeads.map((lead, idx) => {
-                    const phone     = lead.phone || lead.mobile || lead.contactNo;
-                    const logList   = getLogsArray(lead);
-                    const ss        = getStatusStyle(lead.status);
+                    const phone = lead.phone || lead.mobile || lead.contactNo;
+                    const logList = getLogsArray(lead);
+                    const ss = getStatusStyle(lead.status);
                     const hasRootRemark = !!(lead.remark?.toString().trim() || lead.latestRemark?.toString().trim());
                     const totalLogsCount = logList.length === 0 && hasRootRemark ? 1 : logList.length;
 
                     const logsToRender = filterType === "no_remark" ? [] : logList.filter((log) => {
                       const logDate = typeof log === "object" ? (log.date || log.createdAt) : lead.updatedAt;
-                      if (timeScope === "day") return matchDateStrings(logDate, selectedDate);
+                      if (timeScope === "day")   return matchDateStrings(logDate, selectedDate);
                       if (timeScope === "month") return matchMonthStrings(logDate, selectedDate);
                       return true;
                     });
 
-                    const rootMatchesScope = filterType !== "no_remark" && logList.length === 0 && hasRootRemark && (
-                      timeScope === "day" ? matchDateStrings(lead.updatedAt, selectedDate) :
-                      timeScope === "month" ? matchMonthStrings(lead.updatedAt, selectedDate) : true
-                    );
+                    const rootMatchesScope =
+                      filterType !== "no_remark" &&
+                      logList.length === 0 &&
+                      hasRootRemark &&
+                      (timeScope === "day"   ? matchDateStrings(lead.updatedAt, selectedDate) :
+                       timeScope === "month" ? matchMonthStrings(lead.updatedAt, selectedDate) : true);
 
                     return (
-                      <tr 
-                        key={lead._id || idx} 
-                        className={`hover:bg-blue-50/10 transition-colors 
-                          ${totalLogsCount === 0 ? "bg-red-50/20" : ""} 
-                          {(logsToRender.length > 0 || rootMatchesScope) ? "bg-emerald-50/10" : ""}`}
+                      <tr
+                        key={lead._id || idx}
+                        className={`hover:bg-blue-50/10 transition-colors
+                          ${totalLogsCount === 0 ? "bg-red-50/20" : ""}`}
                       >
                         <td className="p-3 text-slate-400 font-bold">
                           {(currentPage - 1) * ITEMS + idx + 1}
@@ -451,8 +447,10 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
                         </td>
 
                         <td className="p-3 text-center">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border 
-                            ${totalLogsCount === 0 ? 'bg-red-100 text-red-700 border-red-200 shadow-sm' : 'bg-slate-50 text-slate-700'}`}
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border
+                            ${totalLogsCount === 0
+                              ? "bg-red-100 text-red-700 border-red-200 shadow-sm"
+                              : "bg-slate-50 text-slate-700"}`}
                           >
                             {totalLogsCount} {totalLogsCount === 0 ? "No Remarks 🚫" : "Logs Done"}
                           </span>
@@ -466,11 +464,12 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
                                   ? (log.remark || log.text || log.comment || log.remarks || "—")
                                   : log;
                                 const logDate = typeof log === "object" ? (log.date || log.createdAt) : null;
-
                                 return (
                                   <div key={i} className="bg-slate-50 border rounded p-1.5 border-slate-200">
                                     {logDate && (
-                                      <p className="text-[8px] text-slate-400 font-black mb-0.5">⏱️ {fmtDate(logDate)}</p>
+                                      <p className="text-[8px] text-slate-400 font-black mb-0.5">
+                                        ⏱️ {fmtDate(logDate)}
+                                      </p>
                                     )}
                                     <p className="text-[10px] text-slate-800 font-bold leading-tight">{remarkText}</p>
                                   </div>
@@ -478,11 +477,17 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
                               })
                             ) : rootMatchesScope ? (
                               <div className="bg-emerald-50/50 border border-emerald-100 rounded p-1.5">
-                                <p className="text-[8px] text-emerald-600 font-black mb-0.5">⏱️ {fmtDate(lead.updatedAt)}</p>
-                                <p className="text-[10px] text-slate-800 font-bold">{lead.remark || lead.latestRemark}</p>
+                                <p className="text-[8px] text-emerald-600 font-black mb-0.5">
+                                  ⏱️ {fmtDate(lead.updatedAt)}
+                                </p>
+                                <p className="text-[10px] text-slate-800 font-bold">
+                                  {lead.remark || lead.latestRemark}
+                                </p>
                               </div>
                             ) : (
-                              <span className="text-red-400 italic text-[10px] font-bold">🚫 Zero Remarks / Completely Fresh Lead</span>
+                              <span className="text-red-400 italic text-[10px] font-bold">
+                                🚫 Zero Remarks / Completely Fresh Lead
+                              </span>
                             )}
                           </div>
                         </td>
@@ -497,7 +502,6 @@ const RemarkActivityPage = ({ isAdmin = false }) => {
               </table>
             </div>
 
-            {/* Pagination UI Block */}
             {totalPages > 1 && (
               <div className="p-3 border-t bg-slate-50 flex items-center justify-between">
                 <span className="text-xs text-slate-500 font-semibold">
