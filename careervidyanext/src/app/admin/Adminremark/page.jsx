@@ -12,14 +12,14 @@ import {
   FileText,
   CalendarDays,
   CheckCircle,
-  PhoneMissed,
+  XCircle,
 } from "lucide-react";
 
 // ✅ UTC date ko IST mein convert karo
 const toIST = (dateStr) => {
   if (!dateStr) return "";
   const d = new Date(dateStr);
-  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); // "2025-05-25"
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 };
 
 // ✅ Aaj ki IST date
@@ -34,7 +34,6 @@ const LeadsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // DATE — default aaj ki IST date
   const [selectedDate, setSelectedDate] = useState(todayIST());
 
   // STATS
@@ -42,20 +41,19 @@ const LeadsPage = () => {
   const [todayCallCount, setTodayCallCount] = useState(0);
   const [todayFollowupCount, setTodayFollowupCount] = useState(0);
   const [todayAdmissionCount, setTodayAdmissionCount] = useState(0);
-  const [notPickedCount, setNotPickedCount] = useState(0);
+  const [notInterestedCount, setNotInterestedCount] = useState(0); // ✅ Not Picked → Not Interested
   const [detailsSharedCount, setDetailsSharedCount] = useState(0);
 
-  // ✅ FIX: Backend ko date filter bhejo — IST date se UTC range banao
   const fetchLeads = useCallback(async () => {
     setLoading(true);
 
     try {
       const res = await api.get("/api/v1/leads", {
         params: {
-          limit: 500,
+          limit: 3000,
           counselorId: selectedCounselor || undefined,
           searchTerm: searchTerm || undefined,
-          date: selectedDate, // ✅ Backend mein date filter
+          date: selectedDate,
         },
       });
 
@@ -63,7 +61,6 @@ const LeadsPage = () => {
         const allLeads = res.data.data || [];
         setLeads(allLeads);
 
-        // ✅ Backend se already filtered data aa raha hai, stats seedha calculate karo
         setTodayCallCount(allLeads.length);
 
         setTodayRemarkCount(
@@ -78,8 +75,9 @@ const LeadsPage = () => {
           allLeads.filter((l) => l.status === "Admission Done").length
         );
 
-        setNotPickedCount(
-          allLeads.filter((l) => l.status === "Not Picked").length
+        // ✅ "Not Picked" → "Not Interested"
+        setNotInterestedCount(
+          allLeads.filter((l) => l.status === "Not Interested").length
         );
 
         setDetailsSharedCount(
@@ -93,7 +91,6 @@ const LeadsPage = () => {
     }
   }, [selectedCounselor, searchTerm, selectedDate]);
 
-  // FETCH COUNSELORS
   const fetchCounselors = async () => {
     try {
       const res = await api.get("/api/v1/counselor");
@@ -116,7 +113,6 @@ const LeadsPage = () => {
     fetchCounselors();
   }, []);
 
-  // ✅ Sirf search term se local filter — date filter backend ne kar diya
   const filteredLeads = leads.filter((l) => {
     if (!searchTerm) return true;
     return (
@@ -146,7 +142,6 @@ const LeadsPage = () => {
       {/* FILTER BAR */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 mb-5 shadow-sm flex flex-wrap gap-3 items-center">
 
-        {/* COUNSELOR */}
         <select
           value={selectedCounselor}
           onChange={(e) => setSelectedCounselor(e.target.value)}
@@ -160,7 +155,6 @@ const LeadsPage = () => {
           ))}
         </select>
 
-        {/* SEARCH */}
         <div className="relative flex-1 min-w-[250px]">
           <Search size={16} className="absolute left-3 top-3 text-slate-400" />
           <input
@@ -172,7 +166,6 @@ const LeadsPage = () => {
           />
         </div>
 
-        {/* DATE */}
         <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-white">
           <CalendarDays size={16} className="text-slate-500" />
           <input
@@ -183,7 +176,6 @@ const LeadsPage = () => {
           />
         </div>
 
-        {/* TODAY BUTTON */}
         <button
           onClick={() => setSelectedDate(todayIST())}
           className="border border-blue-300 text-blue-600 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-50 transition"
@@ -191,7 +183,6 @@ const LeadsPage = () => {
           Today
         </button>
 
-        {/* REFRESH */}
         <button
           onClick={fetchLeads}
           className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition"
@@ -235,12 +226,13 @@ const LeadsPage = () => {
           <h2 className="text-3xl font-black text-slate-800">{todayAdmissionCount}</h2>
         </div>
 
+        {/* ✅ Not Picked → Not Interested */}
         <div className="bg-white rounded-xl p-4 border shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-bold text-slate-500 uppercase">Not Picked</p>
-            <PhoneMissed size={18} className="text-red-500" />
+            <p className="text-xs font-bold text-slate-500 uppercase">Not Interested</p>
+            <XCircle size={18} className="text-red-500" />
           </div>
-          <h2 className="text-3xl font-black text-slate-800">{notPickedCount}</h2>
+          <h2 className="text-3xl font-black text-slate-800">{notInterestedCount}</h2>
         </div>
 
         <div className="bg-white rounded-xl p-4 border shadow-sm">
@@ -292,11 +284,8 @@ const LeadsPage = () => {
                   <tr key={l._id} className="border-b hover:bg-slate-50 transition">
 
                     <td className="p-4 text-slate-400 text-xs">{index + 1}</td>
-
                     <td className="p-4 font-semibold text-slate-700">{l.name}</td>
-
                     <td className="p-4 text-slate-600">{l.phone}</td>
-
                     <td className="p-4 text-slate-600">
                       {l.assignedTo?.name || "Unassigned"}
                     </td>
@@ -308,7 +297,7 @@ const LeadsPage = () => {
                             ? "bg-green-100 text-green-700"
                             : l.status === "Follow-up"
                             ? "bg-orange-100 text-orange-700"
-                            : l.status === "Not Picked"
+                            : l.status === "Not Interested"  // ✅ Not Picked → Not Interested
                             ? "bg-red-100 text-red-700"
                             : l.status === "Details Shared"
                             ? "bg-blue-100 text-blue-700"

@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useEffect, useState } from "react";
 import { Megaphone, ArrowUpRight } from "lucide-react";
@@ -41,7 +42,8 @@ export default function AnnouncementBar() {
   };
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#030712] via-[#1e3a8a] to-[#030712] bg-[length:200%_auto] animate-gradient-shift h-11 md:h-12 flex items-center overflow-hidden border-b border-white/10 shadow-md relative select-none">
+    /* 🌟 Fixed Background: Pure Black ki jagah Deep Navy Blue (#0f1e3d) se Royal Blue (#1e3a8a) ka elegant gradient transition */
+    <div className="w-full bg-gradient-to-r from-[#0f1e3d] via-[#1e3a8a] to-[#0f1e3d] bg-[length:200%_auto] animate-gradient-shift h-11 md:h-12 flex items-center overflow-hidden border-b border-white/10 shadow-md relative select-none">
       
       {/* 🛠️ Perfect Single Text Marquee Animation */}
       <style jsx>{`
@@ -56,18 +58,18 @@ export default function AnnouncementBar() {
         .marquee-wrapper {
           display: inline-block;
           white-space: nowrap;
-          animation: single-marquee 25s linear infinite; /* 25s में एक चक्कर पूरा करेगा, एकदम नॉर्मल स्पीड */
+          animation: single-marquee 25s linear infinite;
         }
         .marquee-wrapper:hover {
-          animation-play-state: paused; /* माउस लाने पर रुक जाएगा */
+          animation-play-state: paused;
         }
         .animate-gradient-shift {
           animation: gradient-shift 8s ease infinite;
         }
       `}</style>
 
-      {/* Left Side: Fixed Announcements Badge */}
-      <div className="flex items-center px-4 md:px-6 bg-[#0f172a] z-20 h-full shadow-[8px_0_15px_rgba(0,0,0,0.4)] border-r border-white/10 shrink-0">
+      {/* 🌟 Left Side: Badge background updated from pure dark black to Rich Dark Slate Blue (#172554) */}
+      <div className="flex items-center px-4 md:px-6 bg-[#172554] z-20 h-full shadow-[8px_0_15px_rgba(15,30,61,0.5)] border-r border-white/10 shrink-0">
         <div className="flex items-center gap-2 text-white font-bold text-sm md:text-base tracking-wide">
           <div className="relative flex h-2 w-2 mr-0.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -84,9 +86,8 @@ export default function AnnouncementBar() {
       <div className="flex-1 overflow-hidden relative h-full flex items-center">
         <div 
           onClick={handleAnnouncementClick}
-          className="marquee-wrapper cursor-pointer text-white font-medium text-xs md:text-sm lg:text-base drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+          className="marquee-wrapper cursor-pointer text-white font-medium text-xs md:text-sm lg:text-base drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
         >
-          {/* ✅ सिर्फ एक ही ब्लॉक रहेगा, कोई डुप्लीकेट नहीं */}
           <div className="flex items-center gap-3 shrink-0">
             <span className="bg-gradient-to-r from-orange-600 to-amber-500 text-[10px] text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wider shadow-md animate-pulse shrink-0 mr-1">
               New
