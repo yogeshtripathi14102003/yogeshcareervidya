@@ -530,88 +530,6 @@ export const deleteCounselor = async (req, res) => {
    LEADS
 ===================================================== */
 
-// export const getLeads = async (req, res) => {
-//   try {
-//     const {
-//       page = 1,
-//       limit,
-//       searchTerm,
-//       status,
-//       fromDate,
-//       toDate,
-//       counselorId,
-//       unassignedOnly,
-//       date, // ✅ NEW: LeadsPage dashboard ke liye IST date filter
-//     } = req.query;
-
-//     let query = {};
-
-//     if (status) query.status = status;
-//     if (counselorId) query.assignedTo = counselorId;
-//     if (unassignedOnly === "true") query.assignedTo = { $exists: false };
-
-//     if (searchTerm) {
-//       query.$or = [
-//         { name: { $regex: searchTerm, $options: "i" } },
-//         { phone: { $regex: searchTerm, $options: "i" } },
-//         { city: { $regex: searchTerm, $options: "i" } },
-//       ];
-//     }
-
-//     // ✅ LeadsPage dashboard: date param se updatedAt filter (IST → UTC convert)
-//     // Example: "2025-05-25" → start: 2025-05-24T18:30:00Z, end: 2025-05-25T18:29:59Z
-//     if (date) {
-//       const startIST = new Date(`${date}T00:00:00+05:30`); // IST din ki shuruat
-//       const endIST = new Date(`${date}T23:59:59.999+05:30`); // IST din ka ant
-//       query.updatedAt = { $gte: startIST, $lte: endIST };
-//     }
-
-//     // ✅ Agar date nahi aaya toh purana fromDate/toDate createdAt filter chalega
-//    if (!date && (fromDate || toDate)) {
-//   query.updatedAt = {}; // ✅ updatedAt se filter — assign hone pe updatedAt change hota hai
-//   if (fromDate) query.updatedAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
-//   if (toDate) query.updatedAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
-// }
-
-//     let leadsQuery = Lead.find(query)
-//       .populate("assignedTo", "name email")
-//       .sort({ updatedAt: -1 }) // ✅ updatedAt se sort — latest updated pehle
-//       .select(
-//         "name phone email course city status assignedTo assignedToName createdAt updatedAt referralName studentName branch universityName remark"
-//       );
-
-//     if (limit !== "all") {
-//       const pageSize = parseInt(limit) || 40;
-//       const skip = (parseInt(page) - 1) * pageSize;
-//       leadsQuery = leadsQuery.skip(skip).limit(pageSize);
-//     }
-
-//     const [leads, total, statusStats] = await Promise.all([
-//       leadsQuery.lean(),
-//       Lead.countDocuments(query),
-//       Lead.aggregate([
-//         { $match: query },
-//         { $group: { _id: "$status", count: { $sum: 1 } } },
-//       ]),
-//     ]);
-
-//     const finalLimit =
-//       limit === "all" ? total : parseInt(limit) || 40;
-
-//     res.json({
-//       success: true,
-//       total,
-//       data: leads,
-//       stats: statusStats,
-//       totalPages: Math.ceil(total / finalLimit) || 1,
-//       currentPage: parseInt(page),
-//     });
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Error fetching leads: " + err.message });
-//   }
-// };
 export const getLeads = async (req, res) => {
   try {
     const {
@@ -623,51 +541,52 @@ export const getLeads = async (req, res) => {
       toDate,
       counselorId,
       unassignedOnly,
-      date,
+      date, // ✅ NEW: LeadsPage dashboard ke liye IST date filter
     } = req.query;
- 
+
     let query = {};
- 
+
     if (status) query.status = status;
     if (counselorId) query.assignedTo = counselorId;
     if (unassignedOnly === "true") query.assignedTo = { $exists: false };
- 
+
     if (searchTerm) {
       query.$or = [
-        { name:  { $regex: searchTerm, $options: "i" } },
+        { name: { $regex: searchTerm, $options: "i" } },
         { phone: { $regex: searchTerm, $options: "i" } },
-        { city:  { $regex: searchTerm, $options: "i" } },
+        { city: { $regex: searchTerm, $options: "i" } },
       ];
     }
- 
+
+    // ✅ LeadsPage dashboard: date param se updatedAt filter (IST → UTC convert)
+    // Example: "2025-05-25" → start: 2025-05-24T18:30:00Z, end: 2025-05-25T18:29:59Z
     if (date) {
-      const startIST = new Date(`${date}T00:00:00+05:30`);
-      const endIST   = new Date(`${date}T23:59:59.999+05:30`);
+      const startIST = new Date(`${date}T00:00:00+05:30`); // IST din ki shuruat
+      const endIST = new Date(`${date}T23:59:59.999+05:30`); // IST din ka ant
       query.updatedAt = { $gte: startIST, $lte: endIST };
     }
- 
-    if (!date && (fromDate || toDate)) {
-      query.updatedAt = {};
-      if (fromDate) query.updatedAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
-      if (toDate)   query.updatedAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
-    }
- 
+
+    // ✅ Agar date nahi aaya toh purana fromDate/toDate createdAt filter chalega
+ // Yeh createdAt pe hona chahiye daily assignment ke liye
+if (!date && (fromDate || toDate)) {
+  query.createdAt = {};  // ✅ createdAt — assignment date
+  if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+  if (toDate)   query.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+}
+
     let leadsQuery = Lead.find(query)
       .populate("assignedTo", "name email")
-      .sort({ updatedAt: -1 })
+      .sort({ updatedAt: -1 }) // ✅ updatedAt se sort — latest updated pehle
       .select(
-        // ✅ followUpHistory explicitly included
-        "name phone email course city status assignedTo assignedToName " +
-        "createdAt updatedAt referralName studentName branch universityName " +
-        "remark followUpHistory"
+        "name phone email course city status assignedTo assignedToName createdAt updatedAt referralName studentName branch universityName remark"
       );
- 
+
     if (limit !== "all") {
       const pageSize = parseInt(limit) || 40;
-      const skip     = (parseInt(page) - 1) * pageSize;
-      leadsQuery     = leadsQuery.skip(skip).limit(pageSize);
+      const skip = (parseInt(page) - 1) * pageSize;
+      leadsQuery = leadsQuery.skip(skip).limit(pageSize);
     }
- 
+
     const [leads, total, statusStats] = await Promise.all([
       leadsQuery.lean(),
       Lead.countDocuments(query),
@@ -676,9 +595,10 @@ export const getLeads = async (req, res) => {
         { $group: { _id: "$status", count: { $sum: 1 } } },
       ]),
     ]);
- 
-    const finalLimit = limit === "all" ? total : parseInt(limit) || 40;
- 
+
+    const finalLimit =
+      limit === "all" ? total : parseInt(limit) || 40;
+
     res.json({
       success: true,
       total,
@@ -688,11 +608,12 @@ export const getLeads = async (req, res) => {
       currentPage: parseInt(page),
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Error fetching leads: " + err.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching leads: " + err.message });
   }
 };
- 
- 
+
 export const getLead = async (req, res) => {
   try {
     if (!req.user || !req.user._id) {
@@ -972,7 +893,6 @@ export const assignSelectedLeads = async (req, res) => {
   }
 };
 
-
 export const getLeadsByCounselorId = async (req, res) => {
   try {
     const {
@@ -984,43 +904,36 @@ export const getLeadsByCounselorId = async (req, res) => {
       fromDate,
       toDate,
     } = req.query;
- 
+
     if (!id)
-      return res.status(400).json({ success: false, message: "Counselor ID is required" });
- 
+      return res
+        .status(400)
+        .json({ success: false, message: "Counselor ID is required" });
+
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    let query  = { assignedTo: id };
- 
+    let query = { assignedTo: id };
+
     if (status) query.status = status;
- 
     if (searchTerm) {
       query.$or = [
-        { name:  { $regex: searchTerm, $options: "i" } },
+        { name: { $regex: searchTerm, $options: "i" } },
         { phone: { $regex: searchTerm, $options: "i" } },
-        { city:  { $regex: searchTerm, $options: "i" } },
+        { city: { $regex: searchTerm, $options: "i" } },
       ];
     }
- 
+
     if (fromDate || toDate) {
       query.createdAt = {};
       if (fromDate) query.createdAt.$gte = new Date(fromDate);
-      if (toDate)   query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+      if (toDate)
+        query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
     }
- 
+
     const [leads, total, statusStats] = await Promise.all([
       Lead.find(query)
-        .sort({ updatedAt: -1 })  // ✅ updatedAt sort — latest activity pehle
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(parseInt(limit))
-        // ✅ KEY FIX: followUpHistory explicitly select kiya
-        // Pehle sirf lean() tha without select — Mongoose sometimes strips
-        // large arrays if a schema transform or plugin is active.
-        // Ab explicitly include kiya hai taaki kabhi strip na ho.
-        .select(
-          "name phone email course city status assignedTo assignedToName " +
-          "createdAt updatedAt referralName studentName branch universityName " +
-          "remark latestRemark followUpHistory remarks history activityLog logs"
-        )
         .lean(),
       Lead.countDocuments(query),
       Lead.aggregate([
@@ -1028,83 +941,19 @@ export const getLeadsByCounselorId = async (req, res) => {
         { $group: { _id: "$status", count: { $sum: 1 } } },
       ]),
     ]);
- 
+
     res.json({
       success: true,
       total,
       data: leads,
       stats: statusStats,
-      totalPages: Math.ceil(total / parseInt(limit)),
+      totalPages: Math.ceil(total / limit),
       currentPage: parseInt(page),
     });
   } catch (err) {
     console.error("Error in getLeadsByCounselorId:", err);
-    res.status(500).json({ success: false, message: "Backend Error: " + err.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Backend Error: " + err.message });
   }
 };
- 
-
-// export const getLeadsByCounselorId = async (req, res) => {
-//   try {
-//     const {
-//       id,
-//       page = 1,
-//       limit = 30,
-//       searchTerm,
-//       status,
-//       fromDate,
-//       toDate,
-//     } = req.query;
-
-//     if (!id)
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Counselor ID is required" });
-
-//     const skip = (parseInt(page) - 1) * parseInt(limit);
-//     let query = { assignedTo: id };
-
-//     if (status) query.status = status;
-//     if (searchTerm) {
-//       query.$or = [
-//         { name: { $regex: searchTerm, $options: "i" } },
-//         { phone: { $regex: searchTerm, $options: "i" } },
-//         { city: { $regex: searchTerm, $options: "i" } },
-//       ];
-//     }
-
-//     if (fromDate || toDate) {
-//       query.createdAt = {};
-//       if (fromDate) query.createdAt.$gte = new Date(fromDate);
-//       if (toDate)
-//         query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
-//     }
-
-//     const [leads, total, statusStats] = await Promise.all([
-//       Lead.find(query)
-//         .sort({ createdAt: -1 })
-//         .skip(skip)
-//         .limit(parseInt(limit))
-//         .lean(),
-//       Lead.countDocuments(query),
-//       Lead.aggregate([
-//         { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
-//         { $group: { _id: "$status", count: { $sum: 1 } } },
-//       ]),
-//     ]);
-
-//     res.json({
-//       success: true,
-//       total,
-//       data: leads,
-//       stats: statusStats,
-//       totalPages: Math.ceil(total / limit),
-//       currentPage: parseInt(page),
-//     });
-//   } catch (err) {
-//     console.error("Error in getLeadsByCounselorId:", err);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Backend Error: " + err.message });
-//   }
-// };

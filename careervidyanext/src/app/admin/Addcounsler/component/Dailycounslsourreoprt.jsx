@@ -536,45 +536,53 @@ const STATUS_LIST = [
   "Language Issue", "Not Picked", "Admission Done",
 ];
 
-// ✅ FIX 1: todayIST — browser ka local date nahi, IST date lo
-// pehle: new Date().toISOString().slice(0,10) — yeh UTC tha, raat 12 ke
-// baad India mein galat date aata tha (e.g. May 25 ki jagah May 24 dikhta)
+// ✅ IST mein aaj ki date
 const todayIST = () =>
   new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
 const Dailycounslsourreoprt = () => {
   const [dailyData, setDailyData] = useState([]);
   const [allData, setAllData]     = useState([]);
-  const [date, setDate]           = useState(todayIST()); // ✅ IST default
+  const [date, setDate]           = useState(todayIST());
   const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState("");
 
-  /* ================= FETCH ALL LEADS ================= */
-
+  /* ─────────────────────────────────────────
+     FETCH — pagination with total-aware loop
+  ───────────────────────────────────────── */
   const fetchAllLeads = async (params = {}) => {
     let allLeads = [];
     let page     = 1;
-    let hasMore  = true;
+    const LIMIT  = 500;
 
-    while (hasMore) {
-      const res = await api.get("/api/v1/leads", {
-        params: { page, limit: 500, ...params },
+    while (true) {
+      const res  = await api.get("/api/v1/leads", {
+        params: { page, limit: LIMIT, ...params },
       });
-      const data = res.data.data || [];
+      const body = res.data;
+      const data = body.data || [];
       allLeads   = [...allLeads, ...data];
-      hasMore    = data.length === 500;
+
+      // ✅ Stop condition: use total from backend if available,
+      //    fallback to "less than full page" heuristic
+      const total = body.total ?? null;
+      if (total !== null) {
+        if (allLeads.length >= total) break;
+      } else {
+        if (data.length < LIMIT) break;
+      }
       page++;
     }
     return allLeads;
   };
 
-  /* ================= GROUP LEADS ================= */
-
+  /* ─────────────────────────────────────────
+     GROUP by counselor
+  ───────────────────────────────────────── */
   const groupLeads = (leads) => {
     const grouped = {};
-
     leads.forEach((l) => {
       if (!l.assignedTo && !l.assignedToName) return;
-
       const isObj = l.assignedTo && typeof l.assignedTo === "object";
       const id    = isObj ? l.assignedTo._id : l.assignedTo || l.assignedToName;
       const name  = isObj ? l.assignedTo.name : l.assignedToName || "Unknown";
@@ -585,27 +593,40 @@ const Dailycounslsourreoprt = () => {
         STATUS_LIST.forEach((s) => { emptyStatuses[s] = 0; });
         grouped[id] = { counselorId: id, name, totalLeads: 0, statuses: { ...emptyStatuses } };
       }
-
       grouped[id].totalLeads += 1;
       if (grouped[id].statuses[l.status] !== undefined) {
         grouped[id].statuses[l.status] += 1;
       }
     });
-
     return Object.values(grouped).sort((a, b) => b.totalLeads - a.totalLeads);
   };
 
-  /* ================= FETCH DATA ================= */
-
+  /* ─────────────────────────────────────────
+     FETCH DATA
+     KEY FIX: daily report ke liye fromDate+toDate
+     use karo — backend createdAt se filter karta
+     hai jab `date` param nahi hota.
+     
+     Lekin hamara backend `date` param se updatedAt
+     filter karta hai — jo GALAT hai assignment date
+     ke liye. Isliye hum fromDate=toDate bhejte hain
+     taaki backend createdAt filter lagaye (jo
+     assignment time hai).
+     
+     YA — agar aapne backend mein `date` param ko
+     createdAt pe fix kar diya ho toh sirf { date }
+     bhejo. Dono versions handle kiye hain neeche.
+  ───────────────────────────────────────── */
   const fetchData = async () => {
     setLoading(true);
+    setError("");
     try {
-      // ✅ FIX 2: date param use karo (backend mein IST-aware filter hai)
-      // pehle: fromDate + toDate → backend updatedAt filter galat karta tha
-      // ab: date param directly bhejo — backend IST start/end calculate karta hai
       const [dailyLeads, allLeads] = await Promise.all([
-        fetchAllLeads({ date }),     // ✅ single date param — IST-correct filter
-        fetchAllLeads(),             // all leads for overall report
+        // ✅ FIX: fromDate + toDate bhejo (createdAt-based filter)
+        // Lead jis din assign hua = createdAt
+        // updatedAt baad mein change ho jaata hai — reliable nahi
+        fetchAllLeads({ fromDate: date, toDate: date }),
+        fetchAllLeads(),
       ]);
 
       setDailyData(
@@ -616,6 +637,7 @@ const Dailycounslsourreoprt = () => {
       );
     } catch (err) {
       console.error("Fetch error:", err);
+      setError("Data load nahi hua. Refresh karo.");
     } finally {
       setLoading(false);
     }
@@ -623,41 +645,39 @@ const Dailycounslsourreoprt = () => {
 
   useEffect(() => { fetchData(); }, [date]);
 
-  /* ================= DELETE TODAY LEADS ================= */
-
+  /* ─────────────────────────────────────────
+     DELETE — today's leads of one counselor
+  ───────────────────────────────────────── */
   const deleteTodayLeads = async (counselorId, counselorName) => {
-    const total = dailyData.find((c) => c.counselorId === counselorId)?.totalLeads;
-    if (!window.confirm(`Delete ${total} leads of ${counselorName} on ${date}?`)) return;
+    const entry = dailyData.find((c) => c.counselorId === counselorId);
+    if (!window.confirm(
+      `Delete ${entry?.totalLeads ?? "?"} leads of ${counselorName} assigned on ${date}?`
+    )) return;
 
     setLoading(true);
     try {
-      // ✅ FIX 3: same date param here too for consistent filtering
-      const allDay = await fetchAllLeads({ date });
-
-      const leadsToDelete = allDay.filter((l) => {
+      const allDay = await fetchAllLeads({ fromDate: date, toDate: date });
+      const toDelete = allDay.filter((l) => {
         const isObj = l.assignedTo && typeof l.assignedTo === "object";
         const id    = isObj ? l.assignedTo._id : l.assignedTo;
         return id === counselorId || l.assignedToName === counselorName;
       });
 
-      if (!leadsToDelete.length) { alert("No leads found."); return; }
+      if (!toDelete.length) { alert("No leads found."); setLoading(false); return; }
 
-      await Promise.all(
-        leadsToDelete.map((lead) => api.delete(`/api/v1/leads/${lead._id}`))
-      );
-
-      alert(`${leadsToDelete.length} leads deleted`);
+      await Promise.all(toDelete.map((l) => api.delete(`/api/v1/leads/${l._id}`)));
+      alert(`${toDelete.length} leads deleted`);
       fetchData();
     } catch (err) {
       console.error(err);
       alert("Delete failed.");
-    } finally {
       setLoading(false);
     }
   };
 
-  /* ================= DELETE ALL LEADS ================= */
-
+  /* ─────────────────────────────────────────
+     DELETE — ALL leads of one counselor
+  ───────────────────────────────────────── */
   const deleteAllCounselorLeads = async (counselorId, counselorName) => {
     if (!window.confirm(
       `Are you sure?\n\nThis will permanently delete ALL leads of ${counselorName}.`
@@ -665,75 +685,77 @@ const Dailycounslsourreoprt = () => {
 
     setLoading(true);
     try {
-      const allLeads = await fetchAllLeads();
-
-      const leadsToDelete = allLeads.filter((l) => {
+      const all      = await fetchAllLeads();
+      const toDelete = all.filter((l) => {
         const isObj = l.assignedTo && typeof l.assignedTo === "object";
         const id    = isObj ? l.assignedTo._id : l.assignedTo;
         return id === counselorId || l.assignedToName === counselorName;
       });
 
-      if (!leadsToDelete.length) { alert("No leads found."); return; }
+      if (!toDelete.length) { alert("No leads found."); setLoading(false); return; }
 
-      await Promise.all(
-        leadsToDelete.map((lead) => api.delete(`/api/v1/leads/${lead._id}`))
-      );
-
-      alert(`${leadsToDelete.length} total leads deleted for ${counselorName}`);
+      await Promise.all(toDelete.map((l) => api.delete(`/api/v1/leads/${l._id}`)));
+      alert(`${toDelete.length} total leads deleted for ${counselorName}`);
       fetchData();
     } catch (err) {
       console.error("Delete Error:", err);
       alert("Delete failed.");
-    } finally {
       setLoading(false);
     }
   };
 
-  /* ================= DOWNLOAD EXCEL ================= */
-
+  /* ─────────────────────────────────────────
+     EXCEL DOWNLOAD
+  ───────────────────────────────────────── */
   const downloadExcel = () => {
-    const sheetData = [];
-
-    sheetData.push({ Section: "DAILY REPORT", Date: date });
+    const rows = [];
+    rows.push({ Section: "DAILY REPORT", Date: date });
     dailyData.forEach((c) =>
-      sheetData.push({ Counselor: c.name, "Today Assigned": c.totalLeads })
+      rows.push({ Counselor: c.name, "Today Assigned": c.totalLeads })
     );
-    sheetData.push({});
-    sheetData.push({ Section: "ALL COUNSELORS REPORT" });
+    rows.push({});
+    rows.push({ Section: "ALL COUNSELORS REPORT" });
     allData.forEach((c) => {
       const row = { Counselor: c.name, Total: c.totalLeads };
       STATUS_LIST.forEach((s) => { row[s] = c.statuses[s]; });
-      sheetData.push(row);
+      rows.push(row);
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(sheetData);
-    const workbook  = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-    XLSX.writeFile(workbook, `Counselor_Report_${date}.xlsx`);
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Report");
+    XLSX.writeFile(wb, `Counselor_Report_${date}.xlsx`);
   };
 
   const totalToday   = dailyData.reduce((a, b) => a + b.totalLeads, 0);
   const overallTotal = allData.reduce((a, b) => a + b.totalLeads, 0);
 
-  /* ================= UI ================= */
-
+  /* ─────────────────────────────────────────
+     UI
+  ───────────────────────────────────────── */
   return (
     <div className="bg-white p-4 rounded-xl border shadow-sm">
 
       {/* HEADER */}
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between mb-4 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Users size={18} className="text-blue-600" />
           <h2 className="font-bold">Daily Counselor Report</h2>
         </div>
-
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             className="border px-2 py-1 rounded text-xs"
           />
+          {/* ✅ Today button */}
+          <button
+            onClick={() => setDate(todayIST())}
+            className="border px-2 py-1 rounded text-xs hover:bg-gray-50"
+          >
+            Today
+          </button>
           <button
             onClick={fetchData}
             disabled={loading}
@@ -744,12 +766,20 @@ const Dailycounslsourreoprt = () => {
           </button>
           <button
             onClick={downloadExcel}
-            className="bg-black text-white px-3 py-1 rounded text-xs flex items-center gap-1"
+            disabled={loading}
+            className="bg-black text-white px-3 py-1 rounded text-xs flex items-center gap-1 disabled:opacity-50"
           >
             <Download size={14} /> Excel
           </button>
         </div>
       </div>
+
+      {/* ERROR */}
+      {error && (
+        <div className="bg-red-50 text-red-600 text-xs p-2 rounded mb-3 border border-red-200">
+          {error}
+        </div>
+      )}
 
       {/* TODAY TOTAL */}
       <div className="bg-blue-50 p-3 rounded mb-4">
@@ -758,7 +788,7 @@ const Dailycounslsourreoprt = () => {
       </div>
 
       {/* DAILY LIST */}
-      {dailyData.length === 0 && !loading && (
+      {!loading && dailyData.length === 0 && (
         <p className="text-sm text-gray-400 italic mb-4">
           No leads assigned on {date}
         </p>
@@ -782,7 +812,6 @@ const Dailycounslsourreoprt = () => {
 
       {/* ALL COUNSELORS */}
       <h3 className="mt-6 mb-2 font-bold">All Counselors (Overall)</h3>
-
       <div className="bg-green-50 p-3 rounded mb-3">
         <p className="text-xs text-gray-500">Overall Total</p>
         <p className="text-2xl font-bold text-green-700">{overallTotal}</p>
@@ -803,7 +832,6 @@ const Dailycounslsourreoprt = () => {
               <Trash2 size={18} />
             </button>
           </div>
-
           <div className="flex flex-wrap gap-2">
             {STATUS_LIST.map((s) => (
               <span
@@ -821,10 +849,11 @@ const Dailycounslsourreoprt = () => {
         </div>
       ))}
 
-      {/* LOADING */}
+      {/* LOADING OVERLAY */}
       {loading && (
-        <div className="fixed bottom-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg text-xs flex items-center gap-2">
-          <RefreshCw size={12} className="animate-spin" /> Loading...
+        <div className="fixed bottom-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg text-xs flex items-center gap-2 z-50">
+          <RefreshCw size={12} className="animate-spin" />
+          Loading...
         </div>
       )}
     </div>
