@@ -65,8 +65,7 @@ const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] 
   return result;
 };
 
-const LIST_FIELDS = "name slug category duration tag courseLogo.url createdAt";
-
+const LIST_FIELDS = "name slug category duration tag courseLogo.url createdAt specializations";
 // ======================================================
 // ✅ DB INDEXES — Ek baar chalenge, permanently fast
 // ======================================================
