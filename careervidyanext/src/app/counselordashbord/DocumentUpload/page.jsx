@@ -1,5 +1,3 @@
-
-
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
 import api from "@/utlis/api.js";
@@ -17,7 +15,25 @@ const fileIcon = (type) => {
   return "🖼️";
 };
 
-// ✅ localStorage se counselor info nikalo
+const isPreviewable = (fileType, fileName) => {
+  if (!fileType && !fileName) return false;
+  const ext = fileName?.split(".").pop()?.toLowerCase();
+  return (
+    fileType?.includes("image") ||
+    fileType?.includes("pdf") ||
+    ["jpg", "jpeg", "png", "webp", "pdf"].includes(ext)
+  );
+};
+
+const isPdf = (fileType, fileName) => {
+  return fileType?.includes("pdf") || fileName?.toLowerCase().endsWith(".pdf");
+};
+
+const isImage = (fileType, fileName) => {
+  const ext = fileName?.split(".").pop()?.toLowerCase();
+  return fileType?.includes("image") || ["jpg", "jpeg", "png", "webp"].includes(ext);
+};
+
 const getCounselorInfo = () => {
   try {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -30,7 +46,6 @@ const getCounselorInfo = () => {
   }
 };
 
-// ✅ Counselor-scoped API params builder
 const getCounselorParams = (extra = {}) => {
   const { name: counselorName } = getCounselorInfo();
   const params = { ...extra };
@@ -50,6 +65,8 @@ export default function CounselorPortal() {
   const [uploading, setUploading]     = useState(false);
   const [error, setError]             = useState("");
   const [success, setSuccess]         = useState("");
+  const [previewDoc, setPreviewDoc]   = useState(null);
+  const [pdfError, setPdfError]       = useState(false);
 
   const [allStudents, setAllStudents] = useState([]);
   const [listLoading, setListLoading] = useState(false);
@@ -59,7 +76,6 @@ export default function CounselorPortal() {
 
   useEffect(() => { fetchAllStudents(); }, []);
 
-  // ✅ FIXED: sirf is counselor ke students fetch karo
   const fetchAllStudents = async () => {
     setListLoading(true);
     try {
@@ -75,7 +91,7 @@ export default function CounselorPortal() {
   const reset = () => {
     setStep(1); setAadhar(""); setStudentName("");
     setAdmission(null); setDocs([]); setFiles([]);
-    setError(""); setSuccess("");
+    setError(""); setSuccess(""); setPreviewDoc(null); setPdfError(false);
     fetchAllStudents();
   };
 
@@ -86,7 +102,6 @@ export default function CounselorPortal() {
     setStep(2);
   };
 
-  // ✅ FIXED: search bhi sirf is counselor ke students mein
   const searchStudent = async () => {
     if (!aadhar.trim() || !studentName.trim()) {
       setError("Aadhar number aur student name dono bharo"); return;
@@ -97,13 +112,11 @@ export default function CounselorPortal() {
       const res = await api.get("/api/v1/ad", { params });
       const data = res.data;
       if (!data.success) throw new Error(data.message);
-
       const found = data.data.find(
         (a) =>
           a.adhraNumber?.toString().trim() === aadhar.trim() &&
           a.studentName?.toLowerCase().trim() === studentName.toLowerCase().trim()
       );
-
       if (!found) {
         setError("Koi student nahi mila. Aadhar number ya naam check karo.");
         setLoading(false); return;
@@ -117,7 +130,6 @@ export default function CounselorPortal() {
     setLoading(false);
   };
 
-  /* ── Drag & Drop ── */
   const onDrop = useCallback((e) => {
     e.preventDefault(); setDragging(false);
     addFiles(Array.from(e.dataTransfer.files));
@@ -136,7 +148,6 @@ export default function CounselorPortal() {
 
   const removeFile = (i) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
 
-  /* ── Upload ── */
   const uploadDocs = async () => {
     if (!files.length) { setError("Koi file select nahi ki"); return; }
     setUploading(true); setError(""); setSuccess("");
@@ -148,13 +159,18 @@ export default function CounselorPortal() {
       if (!data.success) throw new Error(data.message);
       setDocs(data.allDocuments || []);
       setFiles([]);
-      setSuccess(`✅ ${data.uploadedDocuments?.length || files.length} Your documents have been verified by the admin. The notification has been updated successfully.
- .`);
+      setSuccess(`✅ ${data.uploadedDocuments?.length || files.length} documents successfully uploaded.`);
       setStep(3);
     } catch (e) {
       setError(e.response?.data?.message || e.message);
     }
     setUploading(false);
+  };
+
+  const openPreview = (doc) => {
+    setPdfError(false);
+    setPreviewDoc(doc);
+    console.log("Preview fileUrl:", doc.fileUrl);
   };
 
   const summary = {
@@ -181,14 +197,167 @@ export default function CounselorPortal() {
 
   const filteredStudents = allStudents.filter((student) => {
     const s = getStudentDocStatus(student);
-    if (filterTab === "verified")       return s.type === "verified";
-    if (filterTab === "unverified")     return s.type === "unverified";
-    if (filterTab === "actionRequired") return s.type === "rejected";
+    if (filterTab === "verified")        return s.type === "verified";
+    if (filterTab === "unverified")      return s.type === "unverified";
+    if (filterTab === "actionRequired")  return s.type === "rejected";
     return true;
   });
 
+  /* ── Doc Item renderer ── */
+  const renderDocItem = (doc) => {
+    const sc         = statusColor[doc.status] || statusColor.pending;
+    const isRejected = doc.status === "rejected";
+    const canPreview = isPreviewable(doc.fileType, doc.fileName) && doc.fileUrl;
+
+    return (
+      <div
+        key={doc._id}
+        style={{
+          ...styles.docItem,
+          border:     isRejected ? "1.5px dashed #EF4444" : "1px solid #F1F5F9",
+          background: isRejected ? "#FFF5F5" : "#F8FAFC",
+        }}
+      >
+        <span style={styles.docFileIcon}>{fileIcon(doc.fileType)}</span>
+        <div style={styles.docInfo}>
+          <div style={{ ...styles.docName, fontWeight: isRejected ? "700" : "500" }}>
+            {doc.fileName} {isRejected && "⚠️"}
+          </div>
+          <div style={styles.docDate}>
+            {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString("hi-IN") : ""}
+          </div>
+          {doc.adminRemark && (
+            <div style={{ ...styles.remark, color: isRejected ? "#DC2626" : "#EF4444" }}>
+              <strong>Reason:</strong> {doc.adminRemark}
+            </div>
+          )}
+        </div>
+
+        {canPreview && (
+          <button onClick={() => openPreview(doc)} style={styles.previewBtn}>
+            👁 Preview
+          </button>
+        )}
+
+        <span style={{
+          ...styles.statusBadge,
+          background: sc.bg,
+          color:      sc.text,
+          border:     `1px solid ${sc.border}`,
+        }}>
+          {sc.label}
+        </span>
+      </div>
+    );
+  };
+
+  /* ── PDF Preview content ── */
+  const renderPdfPreview = (url) => {
+    if (pdfError) {
+      return (
+        <div style={{ textAlign: "center", padding: "30px 20px" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
+          <p style={{ color: "#64748B", fontSize: 14, marginBottom: 16 }}>
+            PDF directly preview nahi ho pa raha. Neeche options try karo:
+          </p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <a
+              href={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={styles.altBtn}
+            >
+              🔍 Google Docs mein dekho
+            </a>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={styles.altBtn}
+            >
+              ↗ New tab mein kholo
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <iframe
+        key={pdfError ? "error" : "normal"}
+        src={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
+        title="PDF Preview"
+        style={{ width: "100%", height: "70vh", border: "none", borderRadius: 8 }}
+        onError={() => setPdfError(true)}
+      />
+    );
+  };
+
   return (
     <div style={styles.page}>
+
+      {/* ── PREVIEW MODAL ── */}
+      {previewDoc && (
+        <div style={styles.modalOverlay} onClick={() => setPreviewDoc(null)}>
+          <div style={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+
+            {/* Modal Header */}
+            <div style={styles.modalHeader}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                <span style={{ fontSize: 18 }}>{fileIcon(previewDoc.fileType)}</span>
+                <span style={{ fontWeight: 600, fontSize: 13, color: "#1E293B", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {previewDoc.fileName}
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <a
+                  href={previewDoc.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={styles.modalDownloadSmall}
+                >
+                  ⬇ Download
+                </a>
+                <button onClick={() => setPreviewDoc(null)} style={styles.modalClose}>✕</button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div style={styles.modalBody}>
+              {isImage(previewDoc.fileType, previewDoc.fileName) ? (
+                <img
+                  src={previewDoc.fileUrl}
+                  alt={previewDoc.fileName}
+                  style={{ maxWidth: "100%", maxHeight: "75vh", borderRadius: 8, objectFit: "contain" }}
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    e.target.nextSibling.style.display = "block";
+                  }}
+                />
+              ) : isPdf(previewDoc.fileType, previewDoc.fileName) ? (
+                renderPdfPreview(previewDoc.fileUrl)
+              ) : (
+                <div style={{ textAlign: "center", padding: "40px 20px" }}>
+                  <div style={{ fontSize: 48, marginBottom: 12 }}>📎</div>
+                  <p style={{ color: "#94A3B8", fontSize: 14, marginBottom: 16 }}>
+                    Is file type ka preview available nahi hai
+                  </p>
+                  <a
+                    href={previewDoc.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={styles.altBtn}
+                  >
+                    ↗ File open karo
+                  </a>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerInner}>
@@ -234,8 +403,7 @@ export default function CounselorPortal() {
                 Attention Required: {rejectedDocs.length} Document(s) Verification Failed!
               </div>
               <div style={{ fontSize: 12, color: "#7F1D1D", marginTop: 4 }}>
-This student's document has been rejected during the admin verification process. Please check the remarks below and upload the correct document again.
-
+                Is student ka document admin verification mein reject hua hai. Neeche remarks check karo aur sahi document dobara upload karo.
               </div>
             </div>
           </div>
@@ -245,8 +413,8 @@ This student's document has been rejected during the admin verification process.
         {step === 1 && (
           <>
             <div style={styles.card}>
-              <h2 style={styles.cardTitle}>Find Student </h2>
-              <p style={styles.cardSub}>please find your student fill adhar number & Name </p>
+              <h2 style={styles.cardTitle}>Find Student</h2>
+              <p style={styles.cardSub}>Aadhar number aur student name fill karo</p>
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Aadhar Number *</label>
@@ -283,10 +451,10 @@ This student's document has been rejected during the admin verification process.
                 <h3 style={{ ...styles.sectionTitle, margin: 0 }}>Student Management Directory</h3>
                 <div style={styles.tabContainer}>
                   {[
-                    { id: "all",           label: `All (${allStudents.length})` },
-                    { id: "verified",      label: "Verified ✓" },
-                    { id: "unverified",    label: "Unverified / Pending" },
-                    { id: "actionRequired",label: "Action Required ⚠️" },
+                    { id: "all",            label: `All (${allStudents.length})` },
+                    { id: "verified",       label: "Verified ✓" },
+                    { id: "unverified",     label: "Unverified / Pending" },
+                    { id: "actionRequired", label: "Action Required ⚠️" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -310,7 +478,7 @@ This student's document has been rejected during the admin verification process.
                 </div>
               ) : filteredStudents.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>
-                  Is category student not founde 
+                  Is category mein koi student nahi mila
                 </div>
               ) : (
                 <div style={styles.tableWrapper}>
@@ -326,7 +494,7 @@ This student's document has been rejected during the admin verification process.
                     </thead>
                     <tbody>
                       {filteredStudents.map((student) => {
-                        const statusInfo   = getStudentDocStatus(student);
+                        const statusInfo    = getStudentDocStatus(student);
                         const rejectedCount = (student.documents || []).filter(
                           (d) => d.status === "rejected"
                         ).length;
@@ -396,48 +564,15 @@ This student's document has been rejected during the admin verification process.
 
             {docs.length > 0 && (
               <div style={styles.card}>
-                <h3 style={styles.sectionTitle}> allready  uploaded documents ({docs.length})</h3>
+                <h3 style={styles.sectionTitle}>Already Uploaded Documents ({docs.length})</h3>
                 <div style={styles.docList}>
-                  {docs.map((doc) => {
-                    const sc         = statusColor[doc.status] || statusColor.pending;
-                    const isRejected = doc.status === "rejected";
-                    return (
-                      <div
-                        key={doc._id}
-                        style={{
-                          ...styles.docItem,
-                          border:     isRejected ? "1.5px dashed #EF4444" : "1px solid #F1F5F9",
-                          background: isRejected ? "#FFF5F5" : "#F8FAFC",
-                        }}
-                      >
-                        <span style={styles.docFileIcon}>{fileIcon(doc.fileType)}</span>
-                        <div style={styles.docInfo}>
-                          <div style={{ ...styles.docName, fontWeight: isRejected ? "700" : "500" }}>
-                            {doc.fileName} {isRejected && "⚠️"}
-                          </div>
-                          <div style={styles.docDate}>
-                            {doc.uploadedAt
-                              ? new Date(doc.uploadedAt).toLocaleDateString("hi-IN")
-                              : ""}
-                          </div>
-                          {doc.adminRemark && (
-                            <div style={{ ...styles.remark, color: isRejected ? "#DC2626" : "#EF4444" }}>
-                              <strong>Reason:</strong> {doc.adminRemark}
-                            </div>
-                          )}
-                        </div>
-                        <span style={{ ...styles.statusBadge, background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}>
-                          {sc.label}
-                        </span>
-                      </div>
-                    );
-                  })}
+                  {docs.map((doc) => renderDocItem(doc))}
                 </div>
               </div>
             )}
 
             <div style={styles.card}>
-              <h3 style={styles.sectionTitle}>please Upload new  Documents  </h3>
+              <h3 style={styles.sectionTitle}>New Documents Upload Karo</h3>
               <div
                 style={{
                   ...styles.dropZone,
@@ -450,7 +585,7 @@ This student's document has been rejected during the admin verification process.
                 onClick={() => fileRef.current?.click()}
               >
                 <div style={styles.dropIcon}>📁</div>
-                <div style={styles.dropText}> upload files</div>
+                <div style={styles.dropText}>Files yahan drop karo ya click karo</div>
                 <div style={styles.dropSub}>PDF, DOC, DOCX, JPG, PNG, WEBP • Max 10MB each</div>
                 <input
                   ref={fileRef} type="file" multiple hidden
@@ -488,9 +623,10 @@ This student's document has been rejected during the admin verification process.
           <div style={styles.card}>
             <div style={styles.successHeader}>
               <div style={styles.successIcon}>✅</div>
-              <h2 style={styles.cardTitle}>Documents Upload !</h2>
-              <p style={styles.cardSub}>Your documents have been verified by the admin. The notification has been updated successfully.
- </p>
+              <h2 style={styles.cardTitle}>Documents Uploaded!</h2>
+              <p style={styles.cardSub}>
+                Aapke documents admin ko verification ke liye bhej diye gaye hain.
+              </p>
             </div>
 
             <div style={styles.summaryRow}>
@@ -508,21 +644,7 @@ This student's document has been rejected during the admin verification process.
             </div>
 
             <div style={styles.docList}>
-              {docs.map((doc) => {
-                const sc = statusColor[doc.status] || statusColor.pending;
-                return (
-                  <div key={doc._id} style={styles.docItem}>
-                    <span style={styles.docFileIcon}>{fileIcon(doc.fileType)}</span>
-                    <div style={styles.docInfo}>
-                      <div style={styles.docName}>{doc.fileName}</div>
-                      {doc.adminRemark && <div style={styles.remark}>💬 {doc.adminRemark}</div>}
-                    </div>
-                    <span style={{ ...styles.statusBadge, background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}>
-                      {sc.label}
-                    </span>
-                  </div>
-                );
-              })}
+              {docs.map((doc) => renderDocItem(doc))}
             </div>
 
             <button
@@ -577,6 +699,7 @@ const styles = {
   docDate:            { fontSize: 11, color: "#94A3B8", marginTop: 2 },
   remark:             { fontSize: 12, color: "#EF4444", marginTop: 3 },
   statusBadge:        { padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, flexShrink: 0, textAlign: "center", display: "inline-block" },
+  previewBtn:         { background: "#EEF2FF", color: "#6366F1", border: "1px solid #C7D2FE", borderRadius: 6, padding: "4px 10px", fontSize: 12, fontWeight: 500, cursor: "pointer", marginRight: 6, flexShrink: 0 },
   dropZone:           { border: "2px dashed", borderRadius: 12, padding: "40px 20px", textAlign: "center", cursor: "pointer", transition: "all 0.2s" },
   dropIcon:           { fontSize: 36, marginBottom: 8 },
   dropText:           { fontSize: 15, fontWeight: 600, color: "#374151", marginBottom: 4 },
@@ -605,4 +728,11 @@ const styles = {
   tdAction:           { padding: "14px 16px", verticalAlign: "middle", textAlign: "right" },
   rowActionBtn:       { background: "#6366F1", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 12, fontWeight: 500, cursor: "pointer" },
   inlineNotification: { display: "inline-flex", alignItems: "center", background: "#FEF2F2", color: "#EF4444", border: "1px solid #FCA5A5", borderRadius: 6, padding: "4px 8px", fontSize: 12 },
+  modalOverlay:       { position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 },
+  modalBox:           { background: "#fff", borderRadius: 16, width: "100%", maxWidth: 860, maxHeight: "92vh", overflow: "hidden", display: "flex", flexDirection: "column" },
+  modalHeader:        { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 20px", borderBottom: "1px solid #E5E7EB", gap: 12 },
+  modalClose:         { background: "#F1F5F9", border: "none", fontSize: 16, cursor: "pointer", color: "#64748B", lineHeight: 1, width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" },
+  modalDownloadSmall: { background: "#EEF2FF", color: "#6366F1", border: "1px solid #C7D2FE", borderRadius: 8, padding: "6px 12px", fontSize: 12, fontWeight: 500, textDecoration: "none", display: "inline-flex", alignItems: "center" },
+  modalBody:          { flex: 1, overflow: "auto", padding: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "#F8FAFC", minHeight: 300 },
+  altBtn:             { display: "inline-block", background: "#6366F1", color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer", textDecoration: "none", margin: 4 },
 };
