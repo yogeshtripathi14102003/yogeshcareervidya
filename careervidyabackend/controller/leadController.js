@@ -567,11 +567,11 @@ export const getLeads = async (req, res) => {
     }
 
     // ✅ Agar date nahi aaya toh purana fromDate/toDate createdAt filter chalega
-    if (!date && (fromDate || toDate)) {
-      query.createdAt = {};
-      if (fromDate) query.createdAt.$gte = new Date(fromDate);
-      if (toDate) query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
-    }
+   if (!date && (fromDate || toDate)) {
+  query.updatedAt = {};
+  if (fromDate) query.updatedAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+  if (toDate) query.updatedAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+}
 
     let leadsQuery = Lead.find(query)
       .populate("assignedTo", "name email")
