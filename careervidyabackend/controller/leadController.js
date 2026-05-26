@@ -567,17 +567,17 @@ export const getLeads = async (req, res) => {
     }
 
     // ✅ Agar date nahi aaya toh purana fromDate/toDate createdAt filter chalega
-   if (!date && (fromDate || toDate)) {
-  query.updatedAt = {};
-  if (fromDate) query.updatedAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
-  if (toDate) query.updatedAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+if (!date && (fromDate || toDate)) {
+  query.assignedAt = {};
+  if (fromDate) query.assignedAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+  if (toDate) query.assignedAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
 }
 
     let leadsQuery = Lead.find(query)
       .populate("assignedTo", "name email")
       .sort({ updatedAt: -1 }) // ✅ updatedAt se sort — latest updated pehle
       .select(
-        "name phone email course city status assignedTo assignedToName createdAt updatedAt referralName studentName branch universityName remark"
+        "name phone email course city status assignedTo assignedToName assignedAt  createdAt updatedAt referralName studentName branch universityName remark"
       );
 
     if (limit !== "all") {
@@ -870,7 +870,9 @@ export const assignSelectedLeads = async (req, res) => {
           $set: {
             assignedTo: counselor._id,
             assignedToName: counselor.name,
+             assignedAt: new Date(),
           },
+
         }
       );
     }
