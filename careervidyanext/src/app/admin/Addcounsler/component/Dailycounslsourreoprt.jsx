@@ -526,7 +526,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import api from "@/utlis/api.js";
+import api from "@/utlis/api.js"; // Note: fix typo in folder name if it's 'utils'
 import { Users, Download, Trash2, RefreshCw } from "lucide-react";
 import * as XLSX from "xlsx";
 
@@ -536,19 +536,19 @@ const STATUS_LIST = [
   "Language Issue", "Not Picked", "Admission Done",
 ];
 
-// ✅ IST mein aaj ki date
+// ✅ IST mein aaj ki date (YYYY-MM-DD format)
 const todayIST = () =>
   new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
 const Dailycounslsourreoprt = () => {
   const [dailyData, setDailyData] = useState([]);
-  const [allData, setAllData]     = useState([]);
-  const [date, setDate]           = useState(todayIST());
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState("");
+  const [allData, setAllData] = useState([]);
+  const [date, setDate] = useState(todayIST());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   /* ─────────────────────────────────────────
-     FETCH — pagination with total-aware loop
+      FETCH — pagination with total-aware loop
   ───────────────────────────────────────── */
   const fetchAllLeads = async (params = {}) => {
     let allLeads = [];
@@ -563,8 +563,6 @@ const Dailycounslsourreoprt = () => {
       const data = body.data || [];
       allLeads   = [...allLeads, ...data];
 
-      // ✅ Stop condition: use total from backend if available,
-      //    fallback to "less than full page" heuristic
       const total = body.total ?? null;
       if (total !== null) {
         if (allLeads.length >= total) break;
@@ -577,64 +575,53 @@ const Dailycounslsourreoprt = () => {
   };
 
   /* ─────────────────────────────────────────
-     GROUP by counselor
+      GROUP by counselor
   ───────────────────────────────────────── */
   const groupLeads = (leads) => {
     const grouped = {};
+    
     leads.forEach((l) => {
-      if (!l.assignedTo && !l.assignedToName) return;
-      const isObj = l.assignedTo && typeof l.assignedTo === "object";
-      const id    = isObj ? l.assignedTo._id : l.assignedTo || l.assignedToName;
-      const name  = isObj ? l.assignedTo.name : l.assignedToName || "Unknown";
-      if (!id) return;
+      // Robust checking for assigned counselor
+      const assigned = l.assignedTo;
+      const isObj = assigned && typeof assigned === "object";
+      
+      // Extract ID and Name safely
+      const id = isObj ? assigned._id : (assigned || l.assignedToName);
+      const name = isObj ? assigned.name : (l.assignedToName || "Unassigned / Unknown");
+
+      if (!id) return; // Skip if absolutely no counselor info
 
       if (!grouped[id]) {
         const emptyStatuses = {};
         STATUS_LIST.forEach((s) => { emptyStatuses[s] = 0; });
         grouped[id] = { counselorId: id, name, totalLeads: 0, statuses: { ...emptyStatuses } };
       }
+      
       grouped[id].totalLeads += 1;
       if (grouped[id].statuses[l.status] !== undefined) {
         grouped[id].statuses[l.status] += 1;
       }
     });
+    
     return Object.values(grouped).sort((a, b) => b.totalLeads - a.totalLeads);
   };
 
   /* ─────────────────────────────────────────
-     FETCH DATA
-     KEY FIX: daily report ke liye fromDate+toDate
-     use karo — backend createdAt se filter karta
-     hai jab `date` param nahi hota.
-     
-     Lekin hamara backend `date` param se updatedAt
-     filter karta hai — jo GALAT hai assignment date
-     ke liye. Isliye hum fromDate=toDate bhejte hain
-     taaki backend createdAt filter lagaye (jo
-     assignment time hai).
-     
-     YA — agar aapne backend mein `date` param ko
-     createdAt pe fix kar diya ho toh sirf { date }
-     bhejo. Dono versions handle kiye hain neeche.
+      FETCH DATA (Fixed Double Filtering)
   ───────────────────────────────────────── */
   const fetchData = async () => {
     setLoading(true);
     setError("");
     try {
       const [dailyLeads, allLeads] = await Promise.all([
-        // ✅ FIX: fromDate + toDate bhejo (createdAt-based filter)
-        // Lead jis din assign hua = createdAt
-        // updatedAt baad mein change ho jaata hai — reliable nahi
         fetchAllLeads({ fromDate: date, toDate: date }),
         fetchAllLeads(),
       ]);
 
-      setDailyData(
-        groupLeads(dailyLeads.filter((l) => l.assignedTo || l.assignedToName))
-      );
-      setAllData(
-        groupLeads(allLeads.filter((l) => l.assignedTo || l.assignedToName))
-      );
+      // ⚠️ FIX: .filter() hata diya kyunki groupLeads usey internal handle karta hai
+      setDailyData(groupLeads(dailyLeads));
+      setAllData(groupLeads(allLeads));
+      
     } catch (err) {
       console.error("Fetch error:", err);
       setError("Data load nahi hua. Refresh karo.");
@@ -643,10 +630,12 @@ const Dailycounslsourreoprt = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, [date]);
+  useEffect(() => { 
+    fetchData(); 
+  }, [date]);
 
   /* ─────────────────────────────────────────
-     DELETE — today's leads of one counselor
+      DELETE — today's leads of one counselor
   ───────────────────────────────────────── */
   const deleteTodayLeads = async (counselorId, counselorName) => {
     const entry = dailyData.find((c) => c.counselorId === counselorId);
@@ -676,7 +665,7 @@ const Dailycounslsourreoprt = () => {
   };
 
   /* ─────────────────────────────────────────
-     DELETE — ALL leads of one counselor
+      DELETE — ALL leads of one counselor
   ───────────────────────────────────────── */
   const deleteAllCounselorLeads = async (counselorId, counselorName) => {
     if (!window.confirm(
@@ -705,7 +694,7 @@ const Dailycounslsourreoprt = () => {
   };
 
   /* ─────────────────────────────────────────
-     EXCEL DOWNLOAD
+      EXCEL DOWNLOAD
   ───────────────────────────────────────── */
   const downloadExcel = () => {
     const rows = [];
@@ -730,12 +719,8 @@ const Dailycounslsourreoprt = () => {
   const totalToday   = dailyData.reduce((a, b) => a + b.totalLeads, 0);
   const overallTotal = allData.reduce((a, b) => a + b.totalLeads, 0);
 
-  /* ─────────────────────────────────────────
-     UI
-  ───────────────────────────────────────── */
   return (
     <div className="bg-white p-4 rounded-xl border shadow-sm">
-
       {/* HEADER */}
       <div className="flex justify-between mb-4 flex-wrap gap-2">
         <div className="flex items-center gap-2">
@@ -749,7 +734,6 @@ const Dailycounslsourreoprt = () => {
             onChange={(e) => setDate(e.target.value)}
             className="border px-2 py-1 rounded text-xs"
           />
-          {/* ✅ Today button */}
           <button
             onClick={() => setDate(todayIST())}
             className="border px-2 py-1 rounded text-xs hover:bg-gray-50"
@@ -774,7 +758,6 @@ const Dailycounslsourreoprt = () => {
         </div>
       </div>
 
-      {/* ERROR */}
       {error && (
         <div className="bg-red-50 text-red-600 text-xs p-2 rounded mb-3 border border-red-200">
           {error}
@@ -849,7 +832,6 @@ const Dailycounslsourreoprt = () => {
         </div>
       ))}
 
-      {/* LOADING OVERLAY */}
       {loading && (
         <div className="fixed bottom-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg text-xs flex items-center gap-2 z-50">
           <RefreshCw size={12} className="animate-spin" />

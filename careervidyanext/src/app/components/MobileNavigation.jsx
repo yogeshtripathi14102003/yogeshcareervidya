@@ -45,6 +45,7 @@ export default function MobileNavigation() {
       <div className="relative bg-white border-t border-gray-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+10px)] min-h-[70px] flex items-center justify-between">
         
         {/* Nav Items Container */}
+         
         <div className="flex justify-around w-full items-center">
           {navItems.map((item) => {
             const Icon = item.icon;

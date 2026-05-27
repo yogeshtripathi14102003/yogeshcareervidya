@@ -462,498 +462,498 @@
 // };
 
 
-import Lead from "../models/counselor/Lead.js";
-import Counselor from "../models/counselor/Counselor.js";
-import XLSX from "xlsx";
-import mongoose from "mongoose";
+  import Lead from "../models/counselor/Lead.js";
+  import Counselor from "../models/counselor/Counselor.js";
+  import XLSX from "xlsx";
+  import mongoose from "mongoose";
 
-/* =====================================================
-   COUNSELOR CRUD
-===================================================== */
+  /* =====================================================
+    COUNSELOR CRUD
+  ===================================================== */
 
-export const getCounselors = async (req, res) => {
-  try {
-    const counselors = await Counselor.find().sort({ createdAt: -1 });
-    res.json({
-      success: true,
-      data: counselors,
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const getCounselor = async (req, res) => {
-  try {
-    const counselor = await Counselor.findById(req.params.id);
-    if (!counselor) {
-      return res.status(404).json({ success: false, message: "Counselor not found" });
-    }
-    res.json({ success: true, data: counselor });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const createCounselor = async (req, res) => {
-  try {
-    const counselor = await Counselor.create(req.body);
-    res.json({ success: true, data: counselor });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const updateCounselor = async (req, res) => {
-  try {
-    const updated = await Counselor.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true, runValidators: true }
-    );
-    res.json({ success: true, data: updated });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const deleteCounselor = async (req, res) => {
-  try {
-    await Counselor.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Counselor deleted" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-/* =====================================================
-   LEADS
-===================================================== */
-
-export const getLeads = async (req, res) => {
-  try {
-    const {
-      page = 1,
-      limit,
-      searchTerm,
-      status,
-      fromDate,
-      toDate,
-      counselorId,
-      unassignedOnly,
-      date, // ✅ NEW: LeadsPage dashboard ke liye IST date filter
-    } = req.query;
-
-    let query = {};
-
-    if (status) query.status = status;
-    if (counselorId) query.assignedTo = counselorId;
-    if (unassignedOnly === "true") query.assignedTo = { $exists: false };
-
-    if (searchTerm) {
-      query.$or = [
-        { name: { $regex: searchTerm, $options: "i" } },
-        { phone: { $regex: searchTerm, $options: "i" } },
-        { city: { $regex: searchTerm, $options: "i" } },
-      ];
-    }
-
-    // ✅ LeadsPage dashboard: date param se updatedAt filter (IST → UTC convert)
-    // Example: "2025-05-25" → start: 2025-05-24T18:30:00Z, end: 2025-05-25T18:29:59Z
-    if (date) {
-      const startIST = new Date(`${date}T00:00:00+05:30`); // IST din ki shuruat
-      const endIST = new Date(`${date}T23:59:59.999+05:30`); // IST din ka ant
-      query.updatedAt = { $gte: startIST, $lte: endIST };
-    }
-
-    // ✅ Agar date nahi aaya toh purana fromDate/toDate createdAt filter chalega
- // Yeh createdAt pe hona chahiye daily assignment ke liye
-if (!date && (fromDate || toDate)) {
-  query.createdAt = {};  // ✅ createdAt — assignment date
-  if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
-  if (toDate)   query.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
-}
-
-    let leadsQuery = Lead.find(query)
-      .populate("assignedTo", "name email")
-      .sort({ updatedAt: -1 }) // ✅ updatedAt se sort — latest updated pehle
-      .select(
-        "name phone email course city status assignedTo assignedToName createdAt updatedAt referralName studentName branch universityName remark"
-      );
-
-    if (limit !== "all") {
-      const pageSize = parseInt(limit) || 40;
-      const skip = (parseInt(page) - 1) * pageSize;
-      leadsQuery = leadsQuery.skip(skip).limit(pageSize);
-    }
-
-    const [leads, total, statusStats] = await Promise.all([
-      leadsQuery.lean(),
-      Lead.countDocuments(query),
-      Lead.aggregate([
-        { $match: query },
-        { $group: { _id: "$status", count: { $sum: 1 } } },
-      ]),
-    ]);
-
-    const finalLimit =
-      limit === "all" ? total : parseInt(limit) || 40;
-
-    res.json({
-      success: true,
-      total,
-      data: leads,
-      stats: statusStats,
-      totalPages: Math.ceil(total / finalLimit) || 1,
-      currentPage: parseInt(page),
-    });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ success: false, message: "Error fetching leads: " + err.message });
-  }
-};
-
-export const getLead = async (req, res) => {
-  try {
-    if (!req.user || !req.user._id) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not authenticated" });
-    }
-
-    const counselorId = req.user._id;
-    const { page = 1, limit, searchTerm, status } = req.query;
-
-    let query = { assignedTo: counselorId };
-
-    if (status) query.status = status;
-
-    if (searchTerm) {
-      query.$or = [
-        { name: { $regex: searchTerm, $options: "i" } },
-        { phone: { $regex: searchTerm, $options: "i" } },
-      ];
-    }
-
-    let leadsQuery = Lead.find(query).sort({ createdAt: -1 }).lean();
-
-    let pageSize = 0;
-    if (limit === "all") {
-      pageSize = 0;
-    } else {
-      pageSize = parseInt(limit) || 30;
-      const skip = (parseInt(page) - 1) * pageSize;
-      leadsQuery = leadsQuery.skip(skip).limit(pageSize);
-    }
-
-    const [leads, total] = await Promise.all([
-      leadsQuery,
-      Lead.countDocuments(query),
-    ]);
-
-    const finalPageSize = limit === "all" ? total : pageSize;
-    const totalPages =
-      finalPageSize > 0 ? Math.ceil(total / finalPageSize) : 1;
-
-    res.json({
-      success: true,
-      total,
-      data: leads,
-      totalPages: totalPages || 1,
-      currentPage: parseInt(page),
-      count: leads.length,
-    });
-  } catch (err) {
-    console.error("Error in getLead (MyLeads):", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Server Error: " + err.message });
-  }
-};
-
-export const createLead = async (req, res) => {
-  try {
-    const lead = await Lead.create({
-      name: req.body.name,
-      phone: req.body.phone,
-      email: req.body.email,
-      course: req.body.course,
-      city: req.body.city,
-
-      referralName: req.body.referralName,
-      studentName: req.body.studentName,
-      referralMobile: req.body.referralMobile,
-      branch: req.body.branch,
-      universityName: req.body.universityName,
-
-      remark: req.body.remark,
-      action: req.body.action,
-
-      followUpDate: req.body.followUpDate,
-      reminderDate: req.body.reminderDate,
-      reminderTime: req.body.reminderTime,
-
-      followUpHistory: req.body.followUpHistory || [],
-
-      assignedTo: req.body.assignedTo || null,
-      assignedToName: req.body.assignedToName || "",
-    });
-
-    res.json({ success: true, data: lead });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const updateLead = async (req, res) => {
-  try {
-    const updated = await Lead.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true, runValidators: true }
-    );
-    res.json({ success: true, data: updated });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const deleteLead = async (req, res) => {
-  try {
-    await Lead.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Lead deleted" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const bulkDeleteLeads = async (req, res) => {
-  try {
-    const { status, counselorId } = req.query;
-
-    if (!status || !counselorId) {
-      return res.status(400).json({
-        success: false,
-        message: "Status and Counselor ID are required",
-      });
-    }
-
-    const result = await Lead.deleteMany({
-      status: status,
-      assignedTo: counselorId,
-    });
-
-    res.json({
-      success: true,
-      message: `${result.deletedCount} leads deleted successfully`,
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-/* =====================================================
-   UPLOAD EXCEL (Updated with new fields)
-===================================================== */
-
-export const uploadLeads = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "File required" });
-    }
-
-    const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
-    const sheet = XLSX.utils.sheet_to_json(
-      workbook.Sheets[workbook.SheetNames[0]]
-    );
-
-    const normalizeRow = (row) => {
-      const out = {};
-      for (const key of Object.keys(row)) {
-        out[key.trim().toLowerCase().replace(/\s+/g, "")] = row[key];
-      }
-      return out;
-    };
-
-    const get = (row, ...variants) => {
-      for (const v of variants) {
-        const key = v.trim().toLowerCase().replace(/\s+/g, "");
-        if (
-          row[key] !== undefined &&
-          row[key] !== null &&
-          String(row[key]).trim() !== ""
-        ) {
-          return String(row[key]).trim();
-        }
-      }
-      return "";
-    };
-
-    const leads = sheet
-      .map((rawRow) => {
-        const l = normalizeRow(rawRow);
-        return {
-          name: get(l, "name", "fullname", "full name", "studentname", "student name"),
-          phone: get(l, "phone", "phoneno", "phone no", "mobile", "mobileno", "mobile no", "contact", "contactno"),
-          email: get(l, "email", "emailid", "email id", "email address"),
-          course: get(l, "course", "program", "programme", "stream"),
-          city: get(l, "city", "location", "address", "district"),
-          referralName: get(l, "referralname", "referral name", "referral", "referredby", "referred by"),
-          studentName: get(l, "studentname", "student name", "student"),
-          referralMobile: get(l, "referralmobile", "referral mobile", "referralphone", "referral phone"),
-          branch: get(l, "branch", "centre", "center"),
-          universityName: get(l, "universityname", "university name", "university", "college", "collegename", "college name"),
-          remark: get(l, "remark", "remarks", "note", "notes", "comment", "comments"),
-          action: get(l, "action", "actions", "nextstep", "next step"),
-          status: "New",
-        };
-      })
-      .filter((l) => l.phone && l.phone.length >= 6);
-
-    if (!leads.length) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "No valid leads found. Check that your Excel has a 'phone' column with data.",
-      });
-    }
-
-    const inserted = await Lead.insertMany(leads, { ordered: false });
-    res.json({
-      success: true,
-      total: inserted.length,
-      skipped: leads.length - inserted.length,
-    });
-  } catch (err) {
-    if (err.name === "BulkWriteError") {
-      return res.json({
+  export const getCounselors = async (req, res) => {
+    try {
+      const counselors = await Counselor.find().sort({ createdAt: -1 });
+      res.json({
         success: true,
-        total: err.result?.nInserted || 0,
-        message: `Inserted with some duplicates skipped`,
+        data: counselors,
       });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+  };
 
-/* =====================================================
-   ASSIGN LEADS
-===================================================== */
-
-export const assignSelectedLeads = async (req, res) => {
-  try {
-    const { leadIds, assignments } = req.body;
-
-    if (!leadIds?.length || !assignments) {
-      return res.status(400).json({
-        success: false,
-        message: "leadIds & assignments required",
-      });
+  export const getCounselor = async (req, res) => {
+    try {
+      const counselor = await Counselor.findById(req.params.id);
+      if (!counselor) {
+        return res.status(404).json({ success: false, message: "Counselor not found" });
+      }
+      res.json({ success: true, data: counselor });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
+  };
 
-    let shuffled = [...leadIds].sort(() => Math.random() - 0.5);
+  export const createCounselor = async (req, res) => {
+    try {
+      const counselor = await Counselor.create(req.body);
+      res.json({ success: true, data: counselor });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
 
-    for (const [counselorId, count] of Object.entries(assignments)) {
-      if (!count || count <= 0) continue;
-
-      const counselor = await Counselor.findById(counselorId);
-      if (!counselor) continue;
-
-      const selected = shuffled.splice(0, count);
-      if (!selected.length) break;
-
-      await Lead.updateMany(
-        { _id: { $in: selected }, assignedTo: null },
-        {
-          $set: {
-            assignedTo: counselor._id,
-            assignedToName: counselor.name,
-          },
-        }
+  export const updateCounselor = async (req, res) => {
+    try {
+      const updated = await Counselor.findByIdAndUpdate(
+        req.params.id,
+        { $set: req.body },
+        { new: true, runValidators: true }
       );
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
+  };
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayAssigned = await Lead.countDocuments({
-      assignedTo: { $ne: null },
-      updatedAt: { $gte: today },
-    });
+  export const deleteCounselor = async (req, res) => {
+    try {
+      await Counselor.findByIdAndDelete(req.params.id);
+      res.json({ success: true, message: "Counselor deleted" });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
 
-    res.json({
-      success: true,
-      message: "Leads assigned successfully",
-      todayAssigned,
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  /* =====================================================
+    LEADS
+  ===================================================== */
+
+  export const getLeads = async (req, res) => {
+    try {
+      const {
+        page = 1,
+        limit,
+        searchTerm,
+        status,
+        fromDate,
+        toDate,
+        counselorId,
+        unassignedOnly,
+        date, // ✅ NEW: LeadsPage dashboard ke liye IST date filter
+      } = req.query;
+
+      let query = {};
+
+      if (status) query.status = status;
+      if (counselorId) query.assignedTo = counselorId;
+      if (unassignedOnly === "true") query.assignedTo = { $exists: false };
+
+      if (searchTerm) {
+        query.$or = [
+          { name: { $regex: searchTerm, $options: "i" } },
+          { phone: { $regex: searchTerm, $options: "i" } },
+          { city: { $regex: searchTerm, $options: "i" } },
+        ];
+      }
+
+      // ✅ LeadsPage dashboard: date param se updatedAt filter (IST → UTC convert)
+      // Example: "2025-05-25" → start: 2025-05-24T18:30:00Z, end: 2025-05-25T18:29:59Z
+      if (date) {
+        const startIST = new Date(`${date}T00:00:00+05:30`); // IST din ki shuruat
+        const endIST = new Date(`${date}T23:59:59.999+05:30`); // IST din ka ant
+        query.updatedAt = { $gte: startIST, $lte: endIST };
+      }
+
+      // ✅ Agar date nahi aaya toh purana fromDate/toDate createdAt filter chalega
+  // Yeh createdAt pe hona chahiye daily assignment ke liye
+  if (!date && (fromDate || toDate)) {
+    query.createdAt = {};  // ✅ createdAt — assignment date
+    if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+    if (toDate)   query.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
   }
-};
 
-export const getLeadsByCounselorId = async (req, res) => {
-  try {
-    const {
-      id,
-      page = 1,
-      limit = 30,
-      searchTerm,
-      status,
-      fromDate,
-      toDate,
-    } = req.query;
+      let leadsQuery = Lead.find(query)
+        .populate("assignedTo", "name email")
+        .sort({ updatedAt: -1 }) // ✅ updatedAt se sort — latest updated pehle
+        .select(
+          "name phone email course city status assignedTo assignedToName createdAt updatedAt referralName studentName branch universityName remark"
+        );
 
-    if (!id)
-      return res
-        .status(400)
-        .json({ success: false, message: "Counselor ID is required" });
+      if (limit !== "all") {
+        const pageSize = parseInt(limit) || 40;
+        const skip = (parseInt(page) - 1) * pageSize;
+        leadsQuery = leadsQuery.skip(skip).limit(pageSize);
+      }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    let query = { assignedTo: id };
+      const [leads, total, statusStats] = await Promise.all([
+        leadsQuery.lean(),
+        Lead.countDocuments(query),
+        Lead.aggregate([
+          { $match: query },
+          { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]),
+      ]);
 
-    if (status) query.status = status;
-    if (searchTerm) {
-      query.$or = [
-        { name: { $regex: searchTerm, $options: "i" } },
-        { phone: { $regex: searchTerm, $options: "i" } },
-        { city: { $regex: searchTerm, $options: "i" } },
-      ];
+      const finalLimit =
+        limit === "all" ? total : parseInt(limit) || 40;
+
+      res.json({
+        success: true,
+        total,
+        data: leads,
+        stats: statusStats,
+        totalPages: Math.ceil(total / finalLimit) || 1,
+        currentPage: parseInt(page),
+      });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ success: false, message: "Error fetching leads: " + err.message });
     }
+  };
 
-    if (fromDate || toDate) {
-      query.createdAt = {};
-      if (fromDate) query.createdAt.$gte = new Date(fromDate);
-      if (toDate)
-        query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+  export const getLead = async (req, res) => {
+    try {
+      if (!req.user || !req.user._id) {
+        return res
+          .status(401)
+          .json({ success: false, message: "User not authenticated" });
+      }
+
+      const counselorId = req.user._id;
+      const { page = 1, limit, searchTerm, status } = req.query;
+
+      let query = { assignedTo: counselorId };
+
+      if (status) query.status = status;
+
+      if (searchTerm) {
+        query.$or = [
+          { name: { $regex: searchTerm, $options: "i" } },
+          { phone: { $regex: searchTerm, $options: "i" } },
+        ];
+      }
+
+      let leadsQuery = Lead.find(query).sort({ createdAt: -1 }).lean();
+
+      let pageSize = 0;
+      if (limit === "all") {
+        pageSize = 0;
+      } else {
+        pageSize = parseInt(limit) || 30;
+        const skip = (parseInt(page) - 1) * pageSize;
+        leadsQuery = leadsQuery.skip(skip).limit(pageSize);
+      }
+
+      const [leads, total] = await Promise.all([
+        leadsQuery,
+        Lead.countDocuments(query),
+      ]);
+
+      const finalPageSize = limit === "all" ? total : pageSize;
+      const totalPages =
+        finalPageSize > 0 ? Math.ceil(total / finalPageSize) : 1;
+
+      res.json({
+        success: true,
+        total,
+        data: leads,
+        totalPages: totalPages || 1,
+        currentPage: parseInt(page),
+        count: leads.length,
+      });
+    } catch (err) {
+      console.error("Error in getLead (MyLeads):", err);
+      res
+        .status(500)
+        .json({ success: false, message: "Server Error: " + err.message });
     }
+  };
 
-    const [leads, total, statusStats] = await Promise.all([
-      Lead.find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit))
-        .lean(),
-      Lead.countDocuments(query),
-      Lead.aggregate([
-        { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
-        { $group: { _id: "$status", count: { $sum: 1 } } },
-      ]),
-    ]);
+  export const createLead = async (req, res) => {
+    try {
+      const lead = await Lead.create({
+        name: req.body.name,
+        phone: req.body.phone,
+        email: req.body.email,
+        course: req.body.course,
+        city: req.body.city,
 
-    res.json({
-      success: true,
-      total,
-      data: leads,
-      stats: statusStats,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-    });
-  } catch (err) {
-    console.error("Error in getLeadsByCounselorId:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Backend Error: " + err.message });
-  }
-};
+        referralName: req.body.referralName,
+        studentName: req.body.studentName,
+        referralMobile: req.body.referralMobile,
+        branch: req.body.branch,
+        universityName: req.body.universityName,
+
+        remark: req.body.remark,
+        action: req.body.action,
+
+        followUpDate: req.body.followUpDate,
+        reminderDate: req.body.reminderDate,
+        reminderTime: req.body.reminderTime,
+
+        followUpHistory: req.body.followUpHistory || [],
+
+        assignedTo: req.body.assignedTo || null,
+        assignedToName: req.body.assignedToName || "",
+      });
+
+      res.json({ success: true, data: lead });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
+
+  export const updateLead = async (req, res) => {
+    try {
+      const updated = await Lead.findByIdAndUpdate(
+        req.params.id,
+        { $set: req.body },
+        { new: true, runValidators: true }
+      );
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
+
+  export const deleteLead = async (req, res) => {
+    try {
+      await Lead.findByIdAndDelete(req.params.id);
+      res.json({ success: true, message: "Lead deleted" });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
+
+  export const bulkDeleteLeads = async (req, res) => {
+    try {
+      const { status, counselorId } = req.query;
+
+      if (!status || !counselorId) {
+        return res.status(400).json({
+          success: false,
+          message: "Status and Counselor ID are required",
+        });
+      }
+
+      const result = await Lead.deleteMany({
+        status: status,
+        assignedTo: counselorId,
+      });
+
+      res.json({
+        success: true,
+        message: `${result.deletedCount} leads deleted successfully`,
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
+
+  /* =====================================================
+    UPLOAD EXCEL (Updated with new fields)
+  ===================================================== */
+
+  export const uploadLeads = async (req, res) => {
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ success: false, message: "File required" });
+      }
+
+      const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+      const sheet = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]]
+      );
+
+      const normalizeRow = (row) => {
+        const out = {};
+        for (const key of Object.keys(row)) {
+          out[key.trim().toLowerCase().replace(/\s+/g, "")] = row[key];
+        }
+        return out;
+      };
+
+      const get = (row, ...variants) => {
+        for (const v of variants) {
+          const key = v.trim().toLowerCase().replace(/\s+/g, "");
+          if (
+            row[key] !== undefined &&
+            row[key] !== null &&
+            String(row[key]).trim() !== ""
+          ) {
+            return String(row[key]).trim();
+          }
+        }
+        return "";
+      };
+
+      const leads = sheet
+        .map((rawRow) => {
+          const l = normalizeRow(rawRow);
+          return {
+            name: get(l, "name", "fullname", "full name", "studentname", "student name"),
+            phone: get(l, "phone", "phoneno", "phone no", "mobile", "mobileno", "mobile no", "contact", "contactno"),
+            email: get(l, "email", "emailid", "email id", "email address"),
+            course: get(l, "course", "program", "programme", "stream"),
+            city: get(l, "city", "location", "address", "district"),
+            referralName: get(l, "referralname", "referral name", "referral", "referredby", "referred by"),
+            studentName: get(l, "studentname", "student name", "student"),
+            referralMobile: get(l, "referralmobile", "referral mobile", "referralphone", "referral phone"),
+            branch: get(l, "branch", "centre", "center"),
+            universityName: get(l, "universityname", "university name", "university", "college", "collegename", "college name"),
+            remark: get(l, "remark", "remarks", "note", "notes", "comment", "comments"),
+            action: get(l, "action", "actions", "nextstep", "next step"),
+            status: "New",
+          };
+        })
+        .filter((l) => l.phone && l.phone.length >= 6);
+
+      if (!leads.length) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "No valid leads found. Check that your Excel has a 'phone' column with data.",
+        });
+      }
+
+      const inserted = await Lead.insertMany(leads, { ordered: false });
+      res.json({
+        success: true,
+        total: inserted.length,
+        skipped: leads.length - inserted.length,
+      });
+    } catch (err) {
+      if (err.name === "BulkWriteError") {
+        return res.json({
+          success: true,
+          total: err.result?.nInserted || 0,
+          message: `Inserted with some duplicates skipped`,
+        });
+      }
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
+
+  /* =====================================================
+    ASSIGN LEADS
+  ===================================================== */
+
+  export const assignSelectedLeads = async (req, res) => {
+    try {
+      const { leadIds, assignments } = req.body;
+
+      if (!leadIds?.length || !assignments) {
+        return res.status(400).json({
+          success: false,
+          message: "leadIds & assignments required",
+        });
+      }
+
+      let shuffled = [...leadIds].sort(() => Math.random() - 0.5);
+
+      for (const [counselorId, count] of Object.entries(assignments)) {
+        if (!count || count <= 0) continue;
+
+        const counselor = await Counselor.findById(counselorId);
+        if (!counselor) continue;
+
+        const selected = shuffled.splice(0, count);
+        if (!selected.length) break;
+
+        await Lead.updateMany(
+          { _id: { $in: selected }, assignedTo: null },
+          {
+            $set: {
+              assignedTo: counselor._id,
+              assignedToName: counselor.name,
+            },
+          }
+        );
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayAssigned = await Lead.countDocuments({
+        assignedTo: { $ne: null },
+        updatedAt: { $gte: today },
+      });
+
+      res.json({
+        success: true,
+        message: "Leads assigned successfully",
+        todayAssigned,
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
+
+  export const getLeadsByCounselorId = async (req, res) => {
+    try {
+      const {
+        id,
+        page = 1,
+        limit = 30,
+        searchTerm,
+        status,
+        fromDate,
+        toDate,
+      } = req.query;
+
+      if (!id)
+        return res
+          .status(400)
+          .json({ success: false, message: "Counselor ID is required" });
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      let query = { assignedTo: id };
+
+      if (status) query.status = status;
+      if (searchTerm) {
+        query.$or = [
+          { name: { $regex: searchTerm, $options: "i" } },
+          { phone: { $regex: searchTerm, $options: "i" } },
+          { city: { $regex: searchTerm, $options: "i" } },
+        ];
+      }
+
+      if (fromDate || toDate) {
+        query.createdAt = {};
+        if (fromDate) query.createdAt.$gte = new Date(fromDate);
+        if (toDate)
+          query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+      }
+
+      const [leads, total, statusStats] = await Promise.all([
+        Lead.find(query)
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(parseInt(limit))
+          .lean(),
+        Lead.countDocuments(query),
+        Lead.aggregate([
+          { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
+          { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]),
+      ]);
+
+      res.json({
+        success: true,
+        total,
+        data: leads,
+        stats: statusStats,
+        totalPages: Math.ceil(total / limit),
+        currentPage: parseInt(page),
+      });
+    } catch (err) {
+      console.error("Error in getLeadsByCounselorId:", err);
+      res
+        .status(500)
+        .json({ success: false, message: "Backend Error: " + err.message });
+    }
+  };
