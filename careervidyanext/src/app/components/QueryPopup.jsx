@@ -1,9 +1,7 @@
-
-
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image"; // ✅ FIX: Image import added
+import Image from "next/image"; 
 import { X, Send } from "lucide-react";
 import api from "@/utlis/api";
 
@@ -96,50 +94,51 @@ export default function QueryPopup() {
   if (!showPopup) return null;
 
   return (
-    <div className=" fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-3 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white w-full max-w-3xl max-h-[80vh] overflow-y-auto rounded-2xl shadow-2xl flex flex-col md:flex-row relative animate-slideUpMobile md:animate-fadeIn">
+    <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-3 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white w-full max-w-3xl max-h-[90vh] md:max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl flex flex-col md:flex-row relative animate-slideUpMobile md:animate-fadeIn">
 
         {/* Close Button */}
         <button
           onClick={() => setShowPopup(false)}
-          className="  cursor-pointer  absolute top-3 right-3 z-[110] bg-white/90 md:bg-gray-100 w-9 h-9 flex items-center justify-center rounded-full shadow-md text-gray-500 hover:text-blue-600"
+          className="cursor-pointer absolute top-3 right-3 z-[110] bg-white/90 md:bg-gray-100 w-9 h-9 flex items-center justify-center rounded-full shadow-md text-gray-500 hover:text-blue-600 transition-colors"
         >
           <X size={20} />
         </button>
 
         {/* Left Panel */}
-        <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center">
-          <div className=" flex items-center justify-center  mb-3">
-            <img
-              src="/images/sss.webp"
-              alt="help"
-              className="w-25 h-25 object-contain"
-            />
+        <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center gap-4">
+          
+          {/* ✅ FIXED: Circular Image Container */}
+          <div className="flex items-center justify-center mb-1">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/80 shadow-lg bg-white/10">
+              <img
+                src="/images/sss.webp"
+                alt="help"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
-          <h3 className="text-base font-bold mb-2"> Kindly Share your query</h3>
-          {/* <p className="text-xs opacity-80">
-            We’re here to guide you at every step.
-          </p> */}
-   <ul className="flex flex-wrap gap-3 text-[12px] text-white font-bold">
-  <li className="flex items-center gap-2">
-    <span className="text-[18px]">🎯</span>
-    100% Free Career Counselling
-  </li>
-  <li className="flex items-center gap-2">
-    <span className="text-[18px]">💼</span>
-    100% Placement Assistance
-  </li>
-  <li className="flex items-center gap-2">
-    <span className="text-[18px]">🏦</span>
-    Education Loan Facility
-  </li>
-  <li className="flex items-center gap-2">
-    <span className="text-[18px]">🎓</span>
-    Scholarship (Varies)
-  </li>
-</ul>
 
+          <h3 className="text-base font-bold">Kindly Share your query</h3>
 
+          <ul className="flex flex-col gap-3 text-[12px] text-white font-medium text-left w-full px-2">
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">🎯</span>
+              <span>100% Free Career Counselling</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">💼</span>
+              <span>100% Placement Assistance</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">🏦</span>
+              <span>Education Loan Facility</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">🎓</span>
+              <span>Scholarship (Varies)</span>
+            </li>
+          </ul>
         </div>
 
         {/* Right Form */}
@@ -175,41 +174,35 @@ export default function QueryPopup() {
               className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
 
-<div className="relative">
-  <input
-    type="email"
-    name="email"
-    value={formData.email}
-    onChange={handleChange}
-    placeholder="Email"
-    required
-    className="w-full border rounded-lg p-2 pr-36 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-  />
+            <div className="relative">
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email"
+                required
+                className="w-full border rounded-lg p-2 pr-36 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white flex items-center gap-1">
+                ✓ We Do Not Spam
+              </span>
+            </div>
 
-  {/* Right badge inside input */}
-  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white flex items-center gap-1">
-    ✓ We Do Not Spam
-  </span>
-</div>
-
-
-<div className="relative">
-  <input
-    type="tel"
-    name="mobile"
-    value={formData.mobile}
-    onChange={handleChange}
-    placeholder="Mobile No"
-    required
-    className="w-full border rounded-lg p-2 pr-36 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-  />
-
-  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white flex items-center gap-1">
-    ✓  We Do Not Spam
-  </span>
-</div>
-
-
+            <div className="relative">
+              <input
+                type="tel"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder="Mobile No"
+                required
+                className="w-full border rounded-lg p-2 pr-36 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white flex items-center gap-1">
+                ✓ We Do Not Spam
+              </span>
+            </div>
 
             <select
               name="course"

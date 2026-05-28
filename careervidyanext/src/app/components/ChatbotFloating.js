@@ -244,6 +244,7 @@
 
 // const labelStyle = { display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "4px", marginTop: "10px", color: "#121111" };
 // const inputStyle = { width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #eee", background: "#f9f9f9", fontSize: "13px", outline: "none", appearance: "none" };
+
 "use client";
 
 import { useState, useEffect } from "react";

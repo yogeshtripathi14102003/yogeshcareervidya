@@ -18,11 +18,11 @@ const FloatingSelect = ({ label, name, value, onChange, options = [] }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px]"
+      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] bg-white text-slate-900 focus:outline-none"
     >
-      <option value="">Select</option>
+      <option value="" className="bg-white text-slate-900">Select</option>
       {options.map((opt, i) => (
-        <option key={i} value={opt}>
+        <option key={i} value={opt} className="bg-white text-slate-900">
           {opt}
         </option>
       ))}
@@ -49,11 +49,11 @@ const FloatingInput = ({
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] outline-none"
+      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] outline-none bg-white text-slate-900 focus:bg-white"
     />
     {showNoSpam && (
       <div className="flex justify-end -mt-0.5">
-        <span className="text-[9px] text-green-600 font-medium px-1 leading-none bg-white whitespace-nowrap uppercase tracking-tighter">
+        <span className="text-[9px] text-green-600 font-medium px-1 leading-none bg-white whitespace-nowrap uppercase tracking-tighter z-10">
           {noSpamText}
         </span>
       </div>
@@ -294,24 +294,24 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
   /* ===== RENDER ===== */
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex justify-center items-center z-[100]"
+      className="fixed inset-0 bg-black/60 flex justify-center items-center z-[9999] p-4"
       onClick={onClose}
     >
+      {/* Modal Width Changed to max-w-3xl for better layout spaced */}
       <div
-      //iske ander width change karni hai thodi
-        className="bg-white w-full max-w-2xl rounded-xl relative overflow-hidden"
-        style={{ maxHeight: "95vh" }}
+        className="bg-white text-slate-900 w-full max-w-3xl rounded-xl relative overflow-hidden shadow-2xl border border-slate-100"
+        style={{ maxHeight: "92vh" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
-        <button onClick={onClose} className="cursor-pointer absolute top-3 right-3 z-10">
-          <X />
+        <button onClick={onClose} className="cursor-pointer absolute top-4 right-4 z-20 text-slate-500 hover:text-slate-800 transition-colors">
+          <X size={20} />
         </button>
 
         {/* Header */}
-        <div className="px-6 pt-2 pb-0">
-          <div className="flex items-center gap-3 mb-3">
-            <Image src="/images/n12.png" alt="Career Vidya" width={85} height={42} />
+        <div className="px-6 pt-5 pb-2 bg-white">
+          <div className="flex items-center gap-4 mb-3">
+            <Image src="/images/n12.png" alt="Career Vidya" width={90} height={44} />
             <div>
               <p className="text-sm font-bold text-[#253b7a]">#VidyaHaiTohSuccessHai</p>
               <p className="text-[12px] text-gray-500">Student's Trusted Education Guidance Platform</p>
@@ -319,48 +319,48 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
           </div>
 
           {/* Trust badges */}
-        <div className=" overflow-x-auto selection:bg-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-    <div className="flex min-w-max gap-2 text-[11px] font-bold text-green-700">
-        <span>✅ No-Cost EMI Available</span>|
-        <span>🎓 Govt-Approved Universities</span>|
-        <span>💼 100% Placement Assistance</span>|
-        <span>📞 Free Expert Counselling</span>
-    </div>
-</div>
+          <div className="overflow-x-auto selection:bg-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-y border-slate-100 py-2 my-2">
+            <div className="flex min-w-max gap-3 text-[11px] font-bold text-green-700">
+              <span>✅ No-Cost EMI Available</span>|
+              <span>🎓 Govt-Approved Universities</span>|
+              <span>💼 100% Placement Assistance</span>|
+              <span>📞 Free Expert Counselling</span>
+            </div>
+          </div>
 
           {/* Tab Switcher */}
-          <div className="flex ">
+          {/* <div className="flex border-b border-slate-100 mt-2">
             <button
               type="button"
               onClick={() => setActiveTab("login")}
-              className={`pb-3 px-6 text-[12px] font-bold uppercase tracking-widest transition-all ${
+              className={`pb-2.5 px-6 text-[12px] font-bold uppercase tracking-widest transition-all ${
                 activeTab === "login"
-                  ? "text-[#0056b3] "
+                  ? "text-[#0056b3] border-b-2 border-[#0056b3]"
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              
+              Login
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("register")}
-              className={`pb-3 px-6 text-[12px] font-bold uppercase tracking-widest transition-all ${
+              className={`pb-2.5 px-6 text-[12px] font-bold uppercase tracking-widest transition-all ${
                 activeTab === "register"
-                  ? "text-[#0056b3] "
+                  ? "text-[#0056b3] border-b-2 border-[#0056b3]"
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              
+              Register
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Scrollable Body */}
-        <div className="overflow-y-auto px-6 py-5" style={{ maxHeight: "calc(95vh - 200px)" }}>
+        <div className="overflow-y-auto px-6 py-4 bg-white" style={{ maxHeight: "calc(92vh - 210px)" }}>
 
           {/* ============ LOGIN TAB ============ */}
           {activeTab === "login" && (
-            <div>
+            <div className="animate-fadeIn">
               {/* Login mode switcher */}
               <div className="flex border-b border-slate-100 mb-6">
                 {["email", "phone"].map((mode) => (
@@ -368,7 +368,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                     key={mode}
                     type="button"
                     onClick={() => !loginOtpSent && setLoginMode(mode)}
-                    className={`pb-3 pr-8 text-[11px] font-bold uppercase tracking-widest transition-all ${
+                    className={`pb-2 pr-8 text-[11px] font-bold uppercase tracking-widest transition-all ${
                       loginMode === mode
                         ? "text-[#0056b3] border-b-2 border-[#0056b3]"
                         : "text-slate-400 hover:text-slate-600"
@@ -386,7 +386,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                     {loginMode === "email" ? "Registered Email" : "Mobile Number"}
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#0056b3] transition-colors">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#0056b3] transition-colors">
                       {loginMode === "email" ? <Mail size={16} /> : <Phone size={16} />}
                     </div>
                     <input
@@ -396,14 +396,14 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                       onChange={(e) => setIdentifier(e.target.value)}
                       disabled={loginOtpSent}
                       required
-                      className="w-full bg-slate-50 border border-slate-200 p-3.5 pl-10 text-sm outline-none focus:border-[#0056b3] focus:bg-white transition-all placeholder:text-slate-300 disabled:opacity-70 rounded-md"
+                      className="w-full bg-white border border-slate-300 text-slate-900 p-3.5 pl-10 text-sm outline-none focus:border-[#0056b3] focus:bg-white transition-all placeholder:text-slate-400 disabled:opacity-70 rounded-md"
                     />
                   </div>
                 </div>
 
                 {/* OTP Input */}
                 {loginOtpSent && (
-                  <div>
+                  <div className="animate-fadeIn">
                     <div className="flex justify-between items-center mb-2 px-1">
                       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                         Verification Code
@@ -423,7 +423,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
                       required
-                      className="w-full bg-slate-50 border-2 border-blue-50 p-3.5 text-center text-xl tracking-[0.8em] font-black focus:border-[#0056b3] outline-none transition-all rounded-md"
+                      className="w-full bg-white border border-slate-300 text-slate-900 p-3.5 text-center text-xl tracking-[0.8em] font-black focus:border-[#0056b3] outline-none transition-all rounded-md"
                     />
                   </div>
                 )}
@@ -434,7 +434,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                     type="button"
                     onClick={handleLoginSendOtp}
                     disabled={loginLoading}
-                    className="cursor-pointer w-full bg-[#ff6b00] hover:bg-[#e66000] text-white p-4 font-bold text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all rounded disabled:opacity-70"
+                    className="cursor-pointer w-full bg-[#ff6b00] hover:bg-[#e66000] text-white p-3.5 font-bold text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all rounded dynamic-btn disabled:opacity-70"
                   >
                     {loginLoading ? "Requesting..." : "Send OTP"}
                     <ArrowRight size={14} />
@@ -443,7 +443,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                   <button
                     type="submit"
                     disabled={loginLoading}
-                    className="cursor-pointer w-full bg-slate-900 hover:bg-black text-white p-4 font-bold text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all rounded disabled:opacity-70"
+                    className="cursor-pointer w-full bg-slate-900 hover:bg-black text-white p-3.5 font-bold text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all rounded dynamic-btn disabled:opacity-70"
                   >
                     <Lock size={14} />
                     {loginLoading ? "Verifying..." : "Secure Login"}
@@ -451,7 +451,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                 )}
               </form>
 
-              <p className="text-center text-xs mt-4 text-[#000] font-bold">
+              <p className="text-center text-xs mt-5 text-slate-800 font-bold">
                 Don't have an account?{" "}
                 <button
                   type="button"
@@ -466,9 +466,9 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
 
           {/* ============ REGISTER TAB ============ */}
           {activeTab === "register" && (
-            <div>
-              <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+            <div className="animate-fadeIn">
+              <form onSubmit={handleRegisterSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FloatingInput
                     label="Name"
                     name="name"
@@ -481,15 +481,16 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                     value={formData.email}
                     onChange={handleChange}
                     showNoSpam
-                    noSpamText="✓ We Do Not Spam"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FloatingInput
                     label="Mobile Number"
                     name="mobileNumber"
                     value={formData.mobileNumber}
                     onChange={handleChange}
                     showNoSpam
-                    noSpamText="✓ We Do Not Spam"
                   />
                   <FloatingSelect
                     label="State"
@@ -500,7 +501,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FloatingSelect
                     label="City / District"
                     name="city"
@@ -517,7 +518,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FloatingSelect
                     label="Specialization"
                     name="branch"
@@ -534,7 +535,7 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FloatingInput
                     label="Date of Birth"
                     name="dob"
@@ -559,24 +560,26 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
                 />
 
                 {registerOtpSent && (
-                  <FloatingInput
-                    label="OTP"
-                    name="otp"
-                    value={formData.otp}
-                    onChange={handleChange}
-                  />
+                  <div className="animate-fadeIn">
+                    <FloatingInput
+                      label="OTP"
+                      name="otp"
+                      value={formData.otp}
+                      onChange={handleChange}
+                    />
+                  </div>
                 )}
 
-                <button className="cursor-pointer w-full bg-orange-500 text-white py-2 rounded font-bold">
+                <button className="cursor-pointer w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded font-bold transition-colors text-[13px] uppercase tracking-wider mt-2 shadow-sm">
                   {registerLoading
                     ? "Please wait..."
                     : registerOtpSent
-                    ? "Verify & Register"
-                    : "Submit"}
+                    ? "Verify & Register 🚀"
+                    : "Submit Form"}
                 </button>
               </form>
 
-              <p className="text-center text-xs mt-3 text-[#000] font-bold">
+              <p className="text-center text-xs mt-4 text-slate-800 font-bold">
                 Already have an account?{" "}
                 <button
                   type="button"
@@ -590,9 +593,9 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
           )}
 
           {/* Bottom trust badge */}
-          <p className="text-center text-[12px] text-gray-600 mt-4 bg-gray-100 px-2 py-1 rounded flex items-center justify-center gap-1">
-            <ShieldCheck size={13} className="text-gray-400" />
-            All your information is safe and secure with us.
+          <p className="text-center text-[11px] text-gray-500 mt-5 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 flex items-center justify-center gap-1.5">
+            <ShieldCheck size={14} className="text-emerald-600" />
+            All your information is safe and secure with Career Vidya encryption.
           </p>
         </div>
       </div>

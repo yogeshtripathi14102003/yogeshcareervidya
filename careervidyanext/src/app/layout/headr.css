@@ -8,7 +8,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
-  z-index: 500;
+  z-index: 10; /* ✅ 500 tha, 100 karo bas */
 }
 
 .header-inner {

@@ -1,8 +1,7 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
 import { Megaphone, ArrowUpRight } from "lucide-react";
-import api from "@/utlis/api.js"; // ✅ Your existing api.js
+import api from "@/utlis/api.js";
 
 export default function AnnouncementBar() {
   const [announcement, setAnnouncement] = useState({
@@ -11,7 +10,6 @@ export default function AnnouncementBar() {
     url: "#",
   });
 
-  // Fetch announcement from backend
   const fetchAnnouncement = async () => {
     try {
       const res = await api.get("/api/v1/notifications");
@@ -41,26 +39,43 @@ export default function AnnouncementBar() {
     }
   };
 
+  const AnnouncementContent = () => (
+    <div
+      onClick={handleAnnouncementClick}
+      className="flex items-center gap-3 pr-20 cursor-pointer shrink-0"
+    >
+      <span className="bg-gradient-to-r from-orange-600 to-amber-500 text-[10px] text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wider animate-pulse shrink-0">
+        New
+      </span>
+      <span className="hover:text-orange-300 transition-colors duration-200 whitespace-nowrap text-white font-medium text-xs md:text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+        {announcement.title}
+        {announcement.description && ` — ${announcement.description}`}
+      </span>
+      {announcement.url !== "#" && (
+        <ArrowUpRight className="w-4 h-4 text-orange-400 opacity-90 shrink-0" />
+      )}
+    </div>
+  );
+
   return (
-    /* 🌟 Fixed Background: Pure Black ki jagah Deep Navy Blue (#0f1e3d) se Royal Blue (#1e3a8a) ka elegant gradient transition */
     <div className="w-full bg-gradient-to-r from-[#0f1e3d] via-[#1e3a8a] to-[#0f1e3d] bg-[length:200%_auto] animate-gradient-shift h-11 md:h-12 flex items-center overflow-hidden border-b border-white/10 shadow-md relative select-none">
-      
-      {/* 🛠️ Perfect Single Text Marquee Animation */}
+
       <style jsx>{`
-        @keyframes single-marquee {
-          0% { transform: translateX(100%); }   
-          100% { transform: translateX(-100%); } 
+        @keyframes marquee-loop {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
         @keyframes gradient-shift {
           0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+          50%       { background-position: 100% 50%; }
         }
-        .marquee-wrapper {
-          display: inline-block;
+        .marquee-track {
+          display: flex;
           white-space: nowrap;
-          animation: single-marquee 25s linear infinite;
+          animation: marquee-loop 25s linear infinite;
+          will-change: transform;
         }
-        .marquee-wrapper:hover {
+        .marquee-track:hover {
           animation-play-state: paused;
         }
         .animate-gradient-shift {
@@ -68,7 +83,7 @@ export default function AnnouncementBar() {
         }
       `}</style>
 
-      {/* 🌟 Left Side: Badge background updated from pure dark black to Rich Dark Slate Blue (#172554) */}
+      {/* Left Badge */}
       <div className="flex items-center px-4 md:px-6 bg-[#172554] z-20 h-full shadow-[8px_0_15px_rgba(15,30,61,0.5)] border-r border-white/10 shrink-0">
         <div className="flex items-center gap-2 text-white font-bold text-sm md:text-base tracking-wide">
           <div className="relative flex h-2 w-2 mr-0.5">
@@ -82,21 +97,11 @@ export default function AnnouncementBar() {
         </div>
       </div>
 
-      {/* Center & Right: Clean Flow Container */}
-      <div className="flex-1 overflow-hidden relative h-full flex items-center">
-        <div 
-          onClick={handleAnnouncementClick}
-          className="marquee-wrapper cursor-pointer text-white font-medium text-xs md:text-sm lg:text-base drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
-        >
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="bg-gradient-to-r from-orange-600 to-amber-500 text-[10px] text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wider shadow-md animate-pulse shrink-0 mr-1">
-              New
-            </span>
-            <span className="hover:text-orange-300 transition-colors duration-200 whitespace-nowrap">
-              {announcement.title} {announcement.description && `— ${announcement.description}`}
-            </span>
-            {announcement.url !== "#" && <ArrowUpRight className="w-4 h-4 text-orange-400 opacity-90 shrink-0 inline ml-1" />}
-          </div>
+      {/* Marquee */}
+      <div className="flex-1 overflow-hidden h-full flex items-center">
+        <div className="marquee-track">
+          <AnnouncementContent />
+          <AnnouncementContent />
         </div>
       </div>
 
