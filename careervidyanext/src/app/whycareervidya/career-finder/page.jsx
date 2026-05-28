@@ -190,88 +190,96 @@ export default function CareerFinderPage() {
         {/* =========================================================
             SECTION 1: HERO BANNER DESIGN
             ========================================================= */}
-        <section className="max-w-7xl mx-auto px-4 pt-8 pb-16 font-sans">
-          <div className="bg-gradient-to-r from-blue-50 via-sky-50/50 to-blue-50/30 rounded-[2.5rem] p-8 md:p-14 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative overflow-hidden shadow-sm border border-sky-100/50">
-            
-            {/* Left Content Side */}
-            <div className="lg:col-span-7 space-y-6 max-w-xl">
-              <div>
-                <span className="inline-block bg-white text-[11px] font-bold text-blue-600 tracking-wider uppercase px-4 py-1.5 rounded-full shadow-sm border border-blue-100">
-                  Take Career Suitability Test
-                </span>
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-                Discover <span className="text-blue-600">Your Perfect</span> <br />
-                Career in <span className="text-blue-600 relative inline-block">
-                  25 Mins
-                  <span className="absolute bottom-1 left-0 w-full h-[3px] bg-blue-500 rounded-full opacity-60"></span>
-                </span>
-              </h1>
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans antialiased">
+      {/* Main Card Container */}
+      <div className="bg-[#dfebf4] rounded-[2rem] p-8 md:p-14 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative overflow-hidden shadow-2xl border-4 border-[#c15304]">
+        
+        {/* Left Content Column */}
+        <div className="lg:col-span-7 space-y-6 z-10">
+          <div>
+            <span className="inline-block bg-white text-[#1d4ed8] text-xs font-extrabold tracking-wider uppercase px-5 py-2 rounded-full shadow-sm">
+              Take Career Suitability Test
+            </span>
+          </div>
+          
+     <h1 className="text-4xl md:text-5xl lg:text-[2.5rem] font-black text-white tracking-tight leading-[1.15]">
+  <span className="text-[#0056B3]"> Shape Your Future</span> <br />
+   <span className="text-[#0056B3] relative inline-block">
+   Career in Just 25 Mins
+    <span className="absolute bottom-1 left-0 w-full h-[3px] bg-[#0056B3] rounded-full"></span>
+  </span>
+</h1>
 
-              <p className="text-slate-600 text-base md:text-lg leading-relaxed">
-                Make Smart Decisions with our Career Guidance Tools &amp; Expert Career Counselors.
-              </p>
+          <p className="text-slate-400 text-lg md:text-xl max-w-xl font-normal leading-relaxed">
+            Make Smart Decisions with our Career Guidance Tools &amp; Expert Career Counselors.
+          </p>
 
-              <button className="flex items-center gap-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold px-7 py-4 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5">
-                Get Started <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+          <div className="pt-2">
+            <button className=" cursor-pointer   inline-flex items-center gap-2.5 bg-[#c15304] hover:bg-[#c15304] text-white font-bold px-6 py-2 rounded-xl shadow-lg transition-all duration-300 group">
+              Get Started 
+              <span className="text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </button>
+          </div>
+        </div>
 
-            {/* Right Floating Badge Visuals Side */}
-            <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[400px] aspect-[4/3] sm:aspect-square bg-blue-600 rounded-3xl overflow-hidden shadow-xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop" 
-                  alt="Career Consultation Guidance"
-                  className="w-full h-full object-cover mix-blend-luminosity opacity-85 object-top"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 via-transparent to-transparent"></div>
-              </div>
-
-              {/* Floating Ratings Stack Over Image Container */}
-              <div className="absolute -left-4 sm:-left-12 top-4 space-y-3 max-w-[220px] drop-shadow-md">
-                {[
-                  { role: "Business Manager", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=100&auto=format&fit=crop" },
-                  { role: "Product Manager", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" },
-                  { role: "Marketing Expert", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop" },
-                  { role: "Human Resource Expert", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&auto=format&fit=crop" }
-                ].map((badge, i) => (
-                  <div 
-                    key={i} 
-                    className="bg-white p-2 rounded-xl flex items-center gap-2 border border-slate-100 transition-transform hover:scale-105"
-                    style={{ transform: `translateX(${i * 10}px)` }}
-                  >
-                    <img src={badge.img} className="w-8 h-8 rounded-lg object-cover" alt="" />
-                    <div className="text-[10px]">
-                      <p className="font-bold text-slate-800 leading-tight">{badge.role}</p>
-                      <div className="flex text-amber-400 mt-0.5">
-                        {[...Array(5)].map((_, idx) => <Star key={idx} className="w-2.5 h-2.5 fill-current" />)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* Right Visual Column */}
+        <div className="lg:col-span-5 relative flex justify-center lg:justify-end items-end h-full min-h-[350px] lg:min-h-[420px] z-10 mt-6 lg:mt-0">
+          
+          {/* Main Rounded Image Container */}
+          <div className="w-full max-w-[360px] aspect-[4/5] bg-[#e2e8f0] rounded-3xl overflow-hidden shadow-xl border border-slate-700/30 relative">
+            <img 
+              src="/images/n12.jpg" 
+              alt="Career Consultation Guidance"
+              className="w-full h-full object-cover object-top filter brightness-105"
+              onError={(e) => {
+                e.target.src = "/images/teti1.png"; // बैकअप फ़ॉर्मेट
+              }}
+            />
           </div>
 
-          {/* 3 Step Introductory Features Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 px-4">
+          {/* Floating Ratings Stack - Positioned exactly like the image */}
+          <div className="absolute left-0 lg:-left-6 top-6 space-y-2.5 max-w-[190px] drop-shadow-xl">
             {[
-              { num: "01", label: "Assessment", text: "Reflect upon your past experiences and future goals, and learn what makes you unique." },
-              { num: "02", label: "Career Options", text: "Find the path that's right for you based on your strengths, interests, and personality." },
-              { num: "03", label: "Library", text: "Explore over 1,000 careers and degrees. Learn who thrives in them and why." }
-            ].map((item, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-slate-400 font-bold text-sm tracking-wide">{item.num}</span>
-                  <h3 className="font-bold text-slate-900 text-base">{item.label}</h3>
+              { role: "Business Manager", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=100&auto=format&fit=crop" },
+              { role: "Product Manager", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" },
+              { role: "Marketing Expert", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop" },
+              { role: "HR Expert", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&auto=format&fit=crop" }
+            ].map((badge, i) => (
+              <div 
+                key={i} 
+                className="bg-white py-1.5 px-2.5 rounded-lg flex items-center gap-2 border border-slate-100 shadow-sm"
+              >
+                <img src={badge.img} className="w-6 h-6 rounded-md object-cover" alt="" />
+                <div className="min-w-0">
+                  <p className="font-extrabold text-slate-800 text-[10px] leading-tight truncate">{badge.role}</p>
+                  <div className="flex text-amber-400 text-[8px] mt-0.5 tracking-tighter">
+                    ★★★★★
+                  </div>
                 </div>
-                <p className="text-slate-500 text-sm leading-relaxed">{item.text}</p>
               </div>
             ))}
           </div>
-        </section>
+
+        </div>
+      </div>
+
+      {/* 3 Step Introductory Features Breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 px-4">
+        {[
+          { num: "01", label: "Assessment", text: "Reflect upon your past experiences and future goals, and learn what makes you unique." },
+          { num: "02", label: "Career Options", text: "Find the path that's right for you based on your strengths, interests, and personality." },
+          { num: "03", label: "Library", text: "Explore over 1,000 careers and degrees. Learn who thrives in them and why." }
+        ].map((item, index) => (
+          <div key={index} className="space-y-2 group">
+            <div className="flex items-baseline gap-2">
+              <span className="text-slate-400 font-bold text-sm tracking-wide group-hover:text-[#3b82f6] transition-colors">{item.num}</span>
+              <h3 className="font-bold text-slate-900 text-base">{item.label}</h3>
+            </div>
+            <p className="text-slate-500 text-sm leading-relaxed">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
 
         {/* =========================================================
             SECTION 2: PSYCHOMETRIC CAREER ASSESSMENTS GRID

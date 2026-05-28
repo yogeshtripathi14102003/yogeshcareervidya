@@ -184,6 +184,7 @@ export default function Header() {
                     <Link href="/course/bba-bachelor-of-business-administration" className="text-sm text-gray-600 hover:text-[#04458b] hover:pl-2 transition-all">Online BBA</Link>
                   </div>
                 </div>
+
                 <div className="bg-gray-50 p-4 rounded-xl">
                   <h4 className="text-[15px] font-bold mb-4 text-[#002D62]">Get in Touch</h4>
                   <div className="space-y-3">
@@ -258,6 +259,7 @@ export default function Header() {
                 </div>
               </div>
             </div>
+             <Link href="/career" onClick={() => setMenuOpen(false)}>Career </Link>
 
           </nav>
 

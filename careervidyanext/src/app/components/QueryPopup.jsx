@@ -22,7 +22,7 @@ export default function QueryPopup() {
 
   /* Popup delay */
   useEffect(() => {
-    const timer = setTimeout(() => setShowPopup(true), 4000);
+    const timer = setTimeout(() => setShowPopup(true), 2000);
     return () => clearTimeout(timer);
   }, []);
 

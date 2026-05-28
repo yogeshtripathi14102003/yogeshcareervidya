@@ -957,3 +957,92 @@
         .json({ success: false, message: "Backend Error: " + err.message });
     }
   };
+
+  export const getLeadsByCounselorId = async (req, res) => {
+  try {
+    const {
+      id,
+      page = 1,
+      limit = 30,
+      searchTerm,
+      status,
+      fromDate,
+      toDate,
+    } = req.query;
+
+    if (!id)
+      return res
+        .status(400)
+        .json({ success: false, message: "Counselor ID is required" });
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    let query = { assignedTo: id };
+
+    if (status) query.status = status;
+    if (searchTerm) {
+      query.$or = [
+        { name: { $regex: searchTerm, $options: "i" } },
+        { phone: { $regex: searchTerm, $options: "i" } },
+        { city: { $regex: searchTerm, $options: "i" } },
+      ];
+    }
+
+    if (fromDate || toDate) {
+      query.createdAt = {};
+      if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+      if (toDate)   query.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+    }
+
+    // ── Aaj ki shuruat (IST midnight → UTC) ──
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0); // server local time se, ya neeche IST hardcode
+
+    // IST ke liye safe version:
+    const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    const todayIST = new Date(nowIST);
+    todayIST.setHours(0, 0, 0, 0);
+    // IST midnight ko UTC mein convert
+    const todayStartUTC = new Date(todayIST.getTime() - (5.5 * 60 * 60 * 1000));
+
+    const [leads, total, statusStats, todayStats] = await Promise.all([
+      Lead.find(query)
+        .sort({ createdAt: -1 })
+        .skip(limit === "all" ? 0 : skip)
+        .limit(limit === "all" ? 0 : parseInt(limit))
+        .lean(),
+      Lead.countDocuments(query),
+
+      // Overall status counts (sabke liye, filter ignore karke counselor ke saare leads)
+      Lead.aggregate([
+        { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]),
+
+      // ── AAJ ke status changes (updatedAt >= aaj IST midnight) ──
+      Lead.aggregate([
+        {
+          $match: {
+            assignedTo: new mongoose.Types.ObjectId(id),
+            updatedAt: { $gte: todayStartUTC },
+          },
+        },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    res.json({
+      success: true,
+      total,
+      data: leads,
+      stats: statusStats,
+      todayStats,           // ← Frontend ko yeh chahiye tha
+      totalPages: Math.ceil(total / (limit === "all" ? total : parseInt(limit))) || 1,
+      currentPage: parseInt(page),
+    });
+  } catch (err) {
+    console.error("Error in getLeadsByCounselorId:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Backend Error: " + err.message });
+  }
+};

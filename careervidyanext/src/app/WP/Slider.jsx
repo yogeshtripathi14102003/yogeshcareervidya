@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState } from "react";
@@ -10,19 +8,20 @@ export default function CompactBannerSection() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative w-full flex justify-center">
+    <div className="relative w-full overflow-hidden">
       
       {/* Banner Image */}
       <img 
         src={backgroundImage} 
         alt="Banner" 
         className="
-          object-contain 
-          w-auto 
-          h-auto 
-          max-w-full 
-          max-h-[450px]     
-          md:max-h-[600px]  /* 🖥 desktop SAME */
+          w-full 
+          h-[250px]          /* 📱 mobile height */
+          sm:h-[350px] 
+          md:h-[500px]        /* 🖥 desktop height */
+          lg:h-[600px]        /* 🖥 badi screens ke liye max height */
+          object-cover        /* ⚡ Yeh side ke space ko khatam karega */
+          object-center       /* Image hamesha center se focus rahegi */
         " 
       />
 
@@ -30,10 +29,10 @@ export default function CompactBannerSection() {
       <div
         className="
           absolute 
-          bottom-2          /* 📱 mobile → thoda aur niche */
-          left-3
-          md:bottom-16      /* 🖥 desktop SAME */
-          md:left-5
+          bottom-4           /* 📱 mobile */
+          left-4
+          md:bottom-16       /* 🖥 desktop */
+          md:left-10
         "
       >
         <button
@@ -43,15 +42,15 @@ export default function CompactBannerSection() {
             bg-[#FFC107] 
             text-black 
             font-bold 
-            py-[6px]         /* 📱 mobile smaller height */
-            px-5             /* 📱 mobile smaller width */
-            md:py-3          /* 🖥 desktop SAME */
+            py-[6px] 
+            px-5 
+            md:py-3 
             md:px-10
-            rounded-lg       /* 📱 slightly compact look */
+            rounded-lg 
             hover:bg-[#FFB300] 
             transition 
             shadow-xl 
-            text-[10px]      /* 📱 mobile smaller text */
+            text-[10px] 
             md:text-sm
             uppercase 
             flex 
@@ -60,7 +59,7 @@ export default function CompactBannerSection() {
             tracking-wide
           "
         >
-          Apply Now <span className="ml-1 text-sm md:text-l">→</span>
+          Apply Now <span className="ml-1 text-sm md:text-lg">→</span>
         </button>
       </div>
 

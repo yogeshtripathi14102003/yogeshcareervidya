@@ -1,213 +1,236 @@
-"use client";
-import { useState, useRef, useCallback, useEffect } from "react";
-import api from "@/utlis/api.js";
+  "use client";
+  import { useState, useRef, useCallback, useEffect } from "react";
+  import api from "@/utlis/api.js";
 
-const statusColor = {
-  pending:  { bg: "#FFF8E1", text: "#F59E0B", border: "#FDE68A", label: "Pending" },
-  done:     { bg: "#ECFDF5", text: "#10B981", border: "#6EE7B7", label: "Approved ✓" },
-  rejected: { bg: "#FEF2F2", text: "#EF4444", border: "#FECACA", label: "Rejected ✗" },
-};
-
-const fileIcon = (type) => {
-  if (!type) return "📎";
-  if (type.includes("pdf")) return "📄";
-  if (type.includes("word") || type.includes("doc")) return "📝";
-  return "🖼️";
-};
-
-const isPreviewable = (fileType, fileName) => {
-  if (!fileType && !fileName) return false;
-  const ext = fileName?.split(".").pop()?.toLowerCase();
-  return (
-    fileType?.includes("image") ||
-    fileType?.includes("pdf") ||
-    ["jpg", "jpeg", "png", "webp", "pdf"].includes(ext)
-  );
-};
-
-const isPdf = (fileType, fileName) => {
-  return fileType?.includes("pdf") || fileName?.toLowerCase().endsWith(".pdf");
-};
-
-const isImage = (fileType, fileName) => {
-  const ext = fileName?.split(".").pop()?.toLowerCase();
-  return fileType?.includes("image") || ["jpg", "jpeg", "png", "webp"].includes(ext);
-};
-
-const getCounselorInfo = () => {
-  try {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    return {
-      id:   user._id || user.id || null,
-      name: user.name || user.counselorName || null,
-    };
-  } catch {
-    return { id: null, name: null };
-  }
-};
-
-const getCounselorParams = (extra = {}) => {
-  const { name: counselorName } = getCounselorInfo();
-  const params = { ...extra };
-  if (counselorName) params.counselorName = counselorName;
-  return params;
-};
-
-export default function CounselorPortal() {
-  const [step, setStep]               = useState(1);
-  const [aadhar, setAadhar]           = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [admission, setAdmission]     = useState(null);
-  const [docs, setDocs]               = useState([]);
-  const [files, setFiles]             = useState([]);
-  const [dragging, setDragging]       = useState(false);
-  const [loading, setLoading]         = useState(false);
-  const [uploading, setUploading]     = useState(false);
-  const [error, setError]             = useState("");
-  const [success, setSuccess]         = useState("");
-  const [previewDoc, setPreviewDoc]   = useState(null);
-  const [pdfError, setPdfError]       = useState(false);
-
-  const [allStudents, setAllStudents] = useState([]);
-  const [listLoading, setListLoading] = useState(false);
-  const [filterTab, setFilterTab]     = useState("all");
-
-  const fileRef = useRef();
-
-  useEffect(() => { fetchAllStudents(); }, []);
-
-  const fetchAllStudents = async () => {
-    setListLoading(true);
-    try {
-      const params = getCounselorParams({ limit: 5000 });
-      const res = await api.get("/api/v1/ad", { params });
-      if (res.data?.success) setAllStudents(res.data.data || []);
-    } catch (e) {
-      console.error("Error fetching student list:", e);
-    }
-    setListLoading(false);
+  const statusColor = {
+    pending:  { bg: "#FFF8E1", text: "#F59E0B", border: "#FDE68A", label: "Pending" },
+    done:     { bg: "#ECFDF5", text: "#10B981", border: "#6EE7B7", label: "Approved ✓" },
+    rejected: { bg: "#FEF2F2", text: "#EF4444", border: "#FECACA", label: "Rejected ✗" },
   };
 
-  const reset = () => {
-    setStep(1); setAadhar(""); setStudentName("");
-    setAdmission(null); setDocs([]); setFiles([]);
-    setError(""); setSuccess(""); setPreviewDoc(null); setPdfError(false);
-    fetchAllStudents();
+  const fileIcon = (type) => {
+    if (!type) return "📎";
+    if (type.includes("pdf")) return "📄";
+    if (type.includes("word") || type.includes("doc")) return "📝";
+    return "🖼️";
   };
 
-  const handleSelectStudent = (student) => {
-    setError(""); setSuccess("");
-    setAdmission(student);
-    setDocs(student.documents || []);
-    setStep(2);
-  };
-
-  const searchStudent = async () => {
-    if (!aadhar.trim() || !studentName.trim()) {
-      setError("Aadhar number aur student name dono bharo"); return;
-    }
-    setLoading(true); setError("");
-    try {
-      const params = getCounselorParams({ limit: 5000 });
-      const res = await api.get("/api/v1/ad", { params });
-      const data = res.data;
-      if (!data.success) throw new Error(data.message);
-      const found = data.data.find(
-        (a) =>
-          a.adhraNumber?.toString().trim() === aadhar.trim() &&
-          a.studentName?.toLowerCase().trim() === studentName.toLowerCase().trim()
-      );
-      if (!found) {
-        setError("Koi student nahi mila. Aadhar number ya naam check karo.");
-        setLoading(false); return;
-      }
-      setAdmission(found);
-      setDocs(found.documents || []);
-      setStep(2);
-    } catch (e) {
-      setError(e.response?.data?.message || e.message);
-    }
-    setLoading(false);
-  };
-
-  const onDrop = useCallback((e) => {
-    e.preventDefault(); setDragging(false);
-    addFiles(Array.from(e.dataTransfer.files));
-  }, []);
-
-  const addFiles = (newFiles) => {
-    const allowed = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "webp"];
-    const valid = newFiles.filter((f) =>
-      allowed.includes(f.name.split(".").pop().toLowerCase())
+  const isPreviewable = (fileType, fileName) => {
+    if (!fileType && !fileName) return false;
+    const ext = fileName?.split(".").pop()?.toLowerCase();
+    return (
+      fileType?.includes("image") ||
+      fileType?.includes("pdf") ||
+      ["jpg", "jpeg", "png", "webp", "pdf"].includes(ext)
     );
-    if (valid.length !== newFiles.length)
-      setError("Kuch files invalid hain — sirf PDF, DOC, JPG, PNG allowed");
-    else setError("");
-    setFiles((prev) => [...prev, ...valid]);
   };
 
-  const removeFile = (i) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
+  const isPdf = (fileType, fileName) => {
+    return fileType?.includes("pdf") || fileName?.toLowerCase().endsWith(".pdf");
+  };
 
-  const uploadDocs = async () => {
-    if (!files.length) { setError("Koi file select nahi ki"); return; }
-    setUploading(true); setError(""); setSuccess("");
-    const fd = new FormData();
-    files.forEach((f) => fd.append("documents", f));
+  const isImage = (fileType, fileName) => {
+    const ext = fileName?.split(".").pop()?.toLowerCase();
+    return fileType?.includes("image") || ["jpg", "jpeg", "png", "webp"].includes(ext);
+  };
+
+  const getCounselorInfo = () => {
     try {
-      const res = await api.post(`/api/v1/ad/${admission._id}/documents`, fd);
-      const data = res.data;
-      if (!data.success) throw new Error(data.message);
-      setDocs(data.allDocuments || []);
-      setFiles([]);
-      setSuccess(`✅ ${data.uploadedDocuments?.length || files.length} documents successfully uploaded.`);
-      setStep(3);
-    } catch (e) {
-      setError(e.response?.data?.message || e.message);
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return {
+        id:   user._id || user.id || null,
+        name: user.name || user.counselorName || null,
+      };
+    } catch {
+      return { id: null, name: null };
     }
-    setUploading(false);
   };
 
-  const openPreview = (doc) => {
-    setPdfError(false);
-    setPreviewDoc(doc);
-    console.log("Preview fileUrl:", doc.fileUrl);
+  const getCounselorParams = (extra = {}) => {
+    const { name: counselorName } = getCounselorInfo();
+    const params = { ...extra };
+    if (counselorName) params.counselorName = counselorName;
+    return params;
   };
 
-  const summary = {
-    total:    docs.length,
-    pending:  docs.filter((d) => d.status === "pending").length,
-    done:     docs.filter((d) => d.status === "done").length,
-    rejected: docs.filter((d) => d.status === "rejected").length,
-  };
+  export default function CounselorPortal() {
+    const [step, setStep]               = useState(1);
+    const [aadhar, setAadhar]           = useState("");
+    const [studentName, setStudentName] = useState("");
+    const [admission, setAdmission]     = useState(null);
+    const [docs, setDocs]               = useState([]);
+    const [files, setFiles]             = useState([]);
+    const [dragging, setDragging]       = useState(false);
+    const [loading, setLoading]         = useState(false);
+    const [uploading, setUploading]     = useState(false);
+    const [error, setError]             = useState("");
+    const [success, setSuccess]         = useState("");
+    const [previewDoc, setPreviewDoc]   = useState(null);
+    const [pdfError, setPdfError]       = useState(false);
 
-  const rejectedDocs = docs.filter((d) => d.status === "rejected");
+    const [allStudents, setAllStudents] = useState([]);
+    const [listLoading, setListLoading] = useState(false);
+    const [filterTab, setFilterTab]     = useState("all");
+    const [monthFilter, setMonthFilter] = useState("");
 
-  const getStudentDocStatus = (student) => {
-    const sDocs = student.documents || [];
-    if (sDocs.length === 0)
-      return { label: "No Docs", color: "#64748B", bg: "#F1F5F9", type: "unverified" };
-    if (sDocs.some((d) => d.status === "rejected"))
-      return { label: "Action Required ⚠️", color: "#EF4444", bg: "#FEF2F2", type: "rejected" };
-    if (sDocs.some((d) => d.status === "pending"))
-      return { label: "Pending Admin", color: "#F59E0B", bg: "#FFF8E1", type: "unverified" };
-    if (sDocs.every((d) => d.status === "done"))
-      return { label: "Verified ✓", color: "#10B981", bg: "#ECFDF5", type: "verified" };
-    return { label: "Partial", color: "#6366F1", bg: "#EEF2FF", type: "unverified" };
-  };
+    const fileRef = useRef();
 
-  const filteredStudents = allStudents.filter((student) => {
-    const s = getStudentDocStatus(student);
-    if (filterTab === "verified")        return s.type === "verified";
-    if (filterTab === "unverified")      return s.type === "unverified";
-    if (filterTab === "actionRequired")  return s.type === "rejected";
-    return true;
-  });
+    useEffect(() => { fetchAllStudents(); }, []);
 
-  /* ── Doc Item renderer ── */
-  const renderDocItem = (doc) => {
-    const sc         = statusColor[doc.status] || statusColor.pending;
-    const isRejected = doc.status === "rejected";
-    const canPreview = isPreviewable(doc.fileType, doc.fileName) && doc.fileUrl;
+    const fetchAllStudents = async () => {
+      setListLoading(true);
+      try {
+        const params = getCounselorParams({ limit: 5000 });
+        const res = await api.get("/api/v1/ad", { params });
+        if (res.data?.success) setAllStudents(res.data.data || []);
+      } catch (e) {
+        console.error("Error fetching student list:", e);
+      }
+      setListLoading(false);
+    };
+
+    const reset = () => {
+      setStep(1); setAadhar(""); setStudentName("");
+      setAdmission(null); setDocs([]); setFiles([]);
+      setError(""); setSuccess(""); setPreviewDoc(null); setPdfError(false);
+      fetchAllStudents();
+    };
+
+    const handleSelectStudent = (student) => {
+      setError(""); setSuccess("");
+      setAdmission(student);
+      setDocs(student.documents || []);
+      setStep(2);
+    };
+
+   const searchStudent = async () => {
+  if (!aadhar.trim() && !studentName.trim()) {
+    setError(" fill the  Aadhar number or name  ");
+    return;
+  }
+  setLoading(true); setError("");
+  try {
+    const params = getCounselorParams({ limit: 5000 });
+    const res = await api.get("/api/v1/ad", { params });
+    const data = res.data;
+    if (!data.success) throw new Error(data.message);
+
+    const found = data.data.find((a) => {
+      const aadharMatch = aadhar.trim()
+        ? a.adhraNumber?.toString().trim() === aadhar.trim()
+        : false;
+      const nameMatch = studentName.trim()
+        ? a.studentName?.toLowerCase().trim() === studentName.toLowerCase().trim()
+        : false;
+      return aadharMatch || nameMatch;
+    });
+
+    if (!found) {
+      setError("no student found in this record please  add currect information.");
+      setLoading(false); return;
+    }
+    setAdmission(found);
+    setDocs(found.documents || []);
+    setStep(2);
+  } catch (e) {
+    setError(e.response?.data?.message || e.message);
+  }
+  setLoading(false);
+};
+
+    const onDrop = useCallback((e) => {
+      e.preventDefault(); setDragging(false);
+      addFiles(Array.from(e.dataTransfer.files));
+    }, []);
+
+    const addFiles = (newFiles) => {
+      const allowed = ["pdf", "doc", "docx", "jpg", "jpeg", "png", "webp"];
+      const valid = newFiles.filter((f) =>
+        allowed.includes(f.name.split(".").pop().toLowerCase())
+      );
+      if (valid.length !== newFiles.length)
+        setError("Kuch files invalid hain — sirf PDF, DOC, JPG, PNG allowed");
+      else setError("");
+      setFiles((prev) => [...prev, ...valid]);
+    };
+
+    const removeFile = (i) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
+
+    const uploadDocs = async () => {
+      if (!files.length) { setError("Koi file select nahi ki"); return; }
+      setUploading(true); setError(""); setSuccess("");
+      const fd = new FormData();
+      files.forEach((f) => fd.append("documents", f));
+      try {
+        const res = await api.post(`/api/v1/ad/${admission._id}/documents`, fd);
+        const data = res.data;
+        if (!data.success) throw new Error(data.message);
+        setDocs(data.allDocuments || []);
+        setFiles([]);
+        setSuccess(`✅ ${data.uploadedDocuments?.length || files.length} documents successfully uploaded.`);
+        setStep(3);
+      } catch (e) {
+        setError(e.response?.data?.message || e.message);
+      }
+      setUploading(false);
+    };
+
+    const openPreview = (doc) => {
+      setPdfError(false);
+      setPreviewDoc(doc);
+      console.log("Preview fileUrl:", doc.fileUrl);
+    };
+
+    const summary = {
+      total:    docs.length,
+      pending:  docs.filter((d) => d.status === "pending").length,
+      done:     docs.filter((d) => d.status === "done").length,
+      rejected: docs.filter((d) => d.status === "rejected").length,
+    };
+
+    const rejectedDocs = docs.filter((d) => d.status === "rejected");
+
+    const getStudentDocStatus = (student) => {
+      const sDocs = student.documents || [];
+      if (sDocs.length === 0)
+        return { label: "No Docs", color: "#64748B", bg: "#F1F5F9", type: "unverified" };
+      if (sDocs.some((d) => d.status === "rejected"))
+        return { label: "Action Required ⚠️", color: "#EF4444", bg: "#FEF2F2", type: "rejected" };
+      if (sDocs.some((d) => d.status === "pending"))
+        return { label: "Pending Admin", color: "#F59E0B", bg: "#FFF8E1", type: "unverified" };
+      if (sDocs.every((d) => d.status === "done"))
+        return { label: "Verified ✓", color: "#10B981", bg: "#ECFDF5", type: "verified" };
+      return { label: "Partial", color: "#6366F1", bg: "#EEF2FF", type: "unverified" };
+    };
+
+    const filteredStudents = allStudents.filter((student) => {
+      const s = getStudentDocStatus(student);
+
+      // Tab filter
+      if (filterTab === "verified"       && s.type !== "verified")  return false;
+      if (filterTab === "unverified"     && s.type !== "unverified") return false;
+      if (filterTab === "actionRequired" && s.type !== "rejected")  return false;
+
+      // Month filter — koi bhi document us month mein upload hua ho
+      if (monthFilter) {
+        const studentDocs = student.documents || [];
+        const hasDocInMonth = studentDocs.some((d) => {
+          if (!d.uploadedAt) return false;
+          const date = new Date(d.uploadedAt);
+          const ym = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+          return ym === monthFilter;
+        });
+        if (!hasDocInMonth) return false;
+      }
+
+      return true;
+    });
+
+    /* ── Doc Item renderer ── */
+    const renderDocItem = (doc) => {
+      const sc         = statusColor[doc.status] || statusColor.pending;
+      const isRejected = doc.status === "rejected";
+      const canPreview = isPreviewable(doc.fileType, doc.fileName) && doc.fileUrl;
 
     return (
       <div
@@ -291,6 +314,17 @@ export default function CounselorPortal() {
         onError={() => setPdfError(true)}
       />
     );
+  };
+
+  // Helper: format "YYYY-MM" to "Month YYYY" for display
+  const formatMonthLabel = (ym) => {
+    if (!ym) return "";
+    const [y, m] = ym.split("-");
+    const monthNames = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+    return `${monthNames[parseInt(m, 10) - 1]} ${y}`;
   };
 
   return (
@@ -403,7 +437,7 @@ export default function CounselorPortal() {
                 Attention Required: {rejectedDocs.length} Document(s) Verification Failed!
               </div>
               <div style={{ fontSize: 12, color: "#7F1D1D", marginTop: 4 }}>
-                Is student ka document admin verification mein reject hua hai. Neeche remarks check karo aur sahi document dobara upload karo.
+                Your document has been rejected during the admin verification process. Please review the remarks below and re-upload the correct document.
               </div>
             </div>
           </div>
@@ -447,8 +481,75 @@ export default function CounselorPortal() {
             </div>
 
             <div style={styles.card}>
+              {/* List Header with Tabs + Month Filter */}
               <div style={styles.listHeaderStack}>
-                <h3 style={{ ...styles.sectionTitle, margin: 0 }}>Student Management Directory</h3>
+
+                {/* Top row: Title + Month Filter */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: 12 }}>
+                  <h3 style={{ ...styles.sectionTitle, margin: 0 }}>Student Management Directory</h3>
+
+                  {/* Month Filter */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#64748B", whiteSpace: "nowrap" }}>
+                      📅 Month:
+                    </label>
+                    <input
+                      type="month"
+                      value={monthFilter}
+                      onChange={(e) => setMonthFilter(e.target.value)}
+                      style={{
+                        padding: "5px 10px",
+                        borderRadius: 8,
+                        border: "1.5px solid #E5E7EB",
+                        fontSize: 13,
+                        color: "#374151",
+                        fontFamily: "inherit",
+                        outline: "none",
+                        cursor: "pointer",
+                        background: "#fff",
+                      }}
+                    />
+                    {monthFilter && (
+                      <button
+                        onClick={() => setMonthFilter("")}
+                        style={{
+                          background: "#FEE2E2",
+                          color: "#EF4444",
+                          border: "none",
+                          borderRadius: 6,
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          cursor: "pointer",
+                          fontWeight: 600,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        ✕ Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Active month badge */}
+                {monthFilter && (
+                  <div style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: "#EEF2FF",
+                    color: "#6366F1",
+                    border: "1px solid #C7D2FE",
+                    borderRadius: 20,
+                    padding: "4px 12px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}>
+                    📅 Showing: {formatMonthLabel(monthFilter)}
+                    &nbsp;·&nbsp; {filteredStudents.length} student{filteredStudents.length !== 1 ? "s" : ""}
+                  </div>
+                )}
+
+                {/* Tabs */}
                 <div style={styles.tabContainer}>
                   {[
                     { id: "all",            label: `All (${allStudents.length})` },
@@ -470,6 +571,7 @@ export default function CounselorPortal() {
                     </button>
                   ))}
                 </div>
+
               </div>
 
               {listLoading ? (
@@ -478,7 +580,9 @@ export default function CounselorPortal() {
                 </div>
               ) : filteredStudents.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>
-                  Is category mein koi student nahi mila
+                  {monthFilter
+                    ? `${formatMonthLabel(monthFilter)} mein koi student nahi mila`
+                    : "Is category mein koi student nahi mila"}
                 </div>
               ) : (
                 <div style={styles.tableWrapper}>
@@ -498,11 +602,37 @@ export default function CounselorPortal() {
                         const rejectedCount = (student.documents || []).filter(
                           (d) => d.status === "rejected"
                         ).length;
+
+                        // Docs uploaded in selected month (for month filter badge)
+                        const docsInMonth = monthFilter
+                          ? (student.documents || []).filter((d) => {
+                              if (!d.uploadedAt) return false;
+                              const date = new Date(d.uploadedAt);
+                              const ym = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+                              return ym === monthFilter;
+                            })
+                          : [];
+
                         return (
                           <tr key={student._id} style={styles.tr}>
                             <td style={styles.td}>
                               <div style={{ fontWeight: 600, color: "#1E293B" }}>{student.studentName}</div>
                               <div style={{ fontSize: 11, color: "#94A3B8" }}>Aadhar: [Protected]</div>
+                              {monthFilter && docsInMonth.length > 0 && (
+                                <div style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  marginTop: 4,
+                                  background: "#EEF2FF",
+                                  color: "#6366F1",
+                                  borderRadius: 4,
+                                  padding: "2px 6px",
+                                  fontSize: 10,
+                                  fontWeight: 600,
+                                }}>
+                                  📅 {docsInMonth.length} doc{docsInMonth.length !== 1 ? "s" : ""} this month
+                                </div>
+                              )}
                             </td>
                             <td style={styles.td}>
                               <div style={{ fontSize: 13, color: "#334155" }}>{student.course || "N/A"}</div>
@@ -715,8 +845,8 @@ const styles = {
   summaryVal:         { fontSize: 28, fontWeight: 800 },
   summaryLabel:       { fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2 },
   notificationBanner: { display: "flex", alignItems: "start", gap: 14, background: "#FEF2F2", border: "1.5px solid #FCA5A5", borderRadius: 12, padding: "16px", marginBottom: 20 },
-  listHeaderStack:    { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, marginBottom: 20 },
-  tabContainer:       { display: "flex", background: "#F1F5F9", padding: 4, borderRadius: 10, gap: 4 },
+  listHeaderStack:    { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12, marginBottom: 20 },
+  tabContainer:       { display: "flex", background: "#F1F5F9", padding: 4, borderRadius: 10, gap: 4, flexWrap: "wrap" },
   tabBtn:             { padding: "6px 12px", border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer", transition: "all 0.2s" },
   tableWrapper:       { overflowX: "auto", border: "1px solid #E2E8F0", borderRadius: 12 },
   table:              { width: "100%", borderCollapse: "collapse", textAlign: "left" },
