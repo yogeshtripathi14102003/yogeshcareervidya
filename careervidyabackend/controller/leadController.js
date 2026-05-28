@@ -893,70 +893,70 @@
     }
   };
 
-  export const getLeadsByCounselorId = async (req, res) => {
-    try {
-      const {
-        id,
-        page = 1,
-        limit = 30,
-        searchTerm,
-        status,
-        fromDate,
-        toDate,
-      } = req.query;
+  // export const getLeadsByCounselorId = async (req, res) => {
+  //   try {
+  //     const {
+  //       id,
+  //       page = 1,
+  //       limit = 30,
+  //       searchTerm,
+  //       status,
+  //       fromDate,
+  //       toDate,
+  //     } = req.query;
 
-      if (!id)
-        return res
-          .status(400)
-          .json({ success: false, message: "Counselor ID is required" });
+  //     if (!id)
+  //       return res
+  //         .status(400)
+  //         .json({ success: false, message: "Counselor ID is required" });
 
-      const skip = (parseInt(page) - 1) * parseInt(limit);
-      let query = { assignedTo: id };
+  //     const skip = (parseInt(page) - 1) * parseInt(limit);
+  //     let query = { assignedTo: id };
 
-      if (status) query.status = status;
-      if (searchTerm) {
-        query.$or = [
-          { name: { $regex: searchTerm, $options: "i" } },
-          { phone: { $regex: searchTerm, $options: "i" } },
-          { city: { $regex: searchTerm, $options: "i" } },
-        ];
-      }
+  //     if (status) query.status = status;
+  //     if (searchTerm) {
+  //       query.$or = [
+  //         { name: { $regex: searchTerm, $options: "i" } },
+  //         { phone: { $regex: searchTerm, $options: "i" } },
+  //         { city: { $regex: searchTerm, $options: "i" } },
+  //       ];
+  //     }
 
-      if (fromDate || toDate) {
-        query.createdAt = {};
-        if (fromDate) query.createdAt.$gte = new Date(fromDate);
-        if (toDate)
-          query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
-      }
+  //     if (fromDate || toDate) {
+  //       query.createdAt = {};
+  //       if (fromDate) query.createdAt.$gte = new Date(fromDate);
+  //       if (toDate)
+  //         query.createdAt.$lte = new Date(toDate + "T23:59:59.999Z");
+  //     }
 
-      const [leads, total, statusStats] = await Promise.all([
-        Lead.find(query)
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(parseInt(limit))
-          .lean(),
-        Lead.countDocuments(query),
-        Lead.aggregate([
-          { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
-          { $group: { _id: "$status", count: { $sum: 1 } } },
-        ]),
-      ]);
+  //     const [leads, total, statusStats] = await Promise.all([
+  //       Lead.find(query)
+  //         .sort({ createdAt: -1 })
+  //         .skip(skip)
+  //         .limit(parseInt(limit))
+  //         .lean(),
+  //       Lead.countDocuments(query),
+  //       Lead.aggregate([
+  //         { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
+  //         { $group: { _id: "$status", count: { $sum: 1 } } },
+  //       ]),
+  //     ]);
 
-      res.json({
-        success: true,
-        total,
-        data: leads,
-        stats: statusStats,
-        totalPages: Math.ceil(total / limit),
-        currentPage: parseInt(page),
-      });
-    } catch (err) {
-      console.error("Error in getLeadsByCounselorId:", err);
-      res
-        .status(500)
-        .json({ success: false, message: "Backend Error: " + err.message });
-    }
-  };
+  //     res.json({
+  //       success: true,
+  //       total,
+  //       data: leads,
+  //       stats: statusStats,
+  //       totalPages: Math.ceil(total / limit),
+  //       currentPage: parseInt(page),
+  //     });
+  //   } catch (err) {
+  //     console.error("Error in getLeadsByCounselorId:", err);
+  //     res
+  //       .status(500)
+  //       .json({ success: false, message: "Backend Error: " + err.message });
+  //   }
+  // };
 
   export const getLeadsByCounselorId = async (req, res) => {
   try {

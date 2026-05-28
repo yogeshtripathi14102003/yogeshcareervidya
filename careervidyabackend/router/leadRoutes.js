@@ -56,6 +56,7 @@ router.get("/counselor/:id", ctrl.getCounselor);
 router.post("/counselor", ctrl.createCounselor);
 router.put("/counselor/:id", ctrl.updateCounselor);
 router.delete("/counselor/:id", ctrl.deleteCounselor);
+
 /* ================== LEADS — STATIC ROUTES PEHLE ================== */
 // ✅ IMPORTANT: /leads/upload, /leads/bulk-delete, /leads/assign-selected
 // yeh sab /:id se PEHLE hone chahiye — warna Express "upload" ko ID samajh leta hai
