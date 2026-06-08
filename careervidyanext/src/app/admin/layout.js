@@ -112,7 +112,13 @@ const Layout = ({ children }) => {
     { href: "/admin/CounselorsReprt", label: "Counselor Report", icon: Lock},
     { href: "/admin/Adminremark", label: "Adminremark", icon: Lock},
     { href: "/admin/AdminDocumentcheck", label: "AdminDocumentcheck", icon: Lock},
-    { href: "/admin/DocumentDelete", label: "Document Delete", icon: Lock, id: "DocumentDelete" }
+    { href: "/admin/DocumentDelete", label: "Document Delete", icon: Lock, id: "DocumentDelete" },
+    { href: "/admin/empmanagement/upload", label: "Employee Upload", icon: Users, id: "employeeupload" },
+    { href: "/admin/empmanagement/dashbord", label: "Employee Dashboard", icon: Users, id: "dashbord" },
+    { href: "/admin/empmanagement/alerts", label: "Employee Alerts", icon: Users, id: "employeealerts" },
+    { href: "/admin/empmanagement/emp", label: "Employee List", icon: Users, id: "employeelist" },
+    {href: "/admin/slotsquery", label: "Slot Management", icon: Users, id: "slotmanagement" },
+
   ];
 
   const filteredMenu = menuItems.filter((item) => {

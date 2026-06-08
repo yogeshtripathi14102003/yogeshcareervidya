@@ -14,13 +14,19 @@
   margin: 0px auto;
 }
 
+/* Center Section for Button */
+.topheader-center {
+  display: flex;
+  align-items: center;
+}
+
 /* Right Side Wrapper */
 .topheader-right {
   display: flex;
   align-items: center;
 }
 
-/* 🛠️ ASLI FIX YAHAN HAI: Nav ke andar gap apply kiya */
+/* Nav ke andar gap */
 .top-nav-links {
   display: flex;
   align-items: center;
@@ -49,12 +55,165 @@
   margin: 0 -5px; /* Separator ko center mein rakhne ke liye */
 }
 
-/* Mobile Responsive */
+/* ─── ADDED: Get Free Career Counseling Button ─── */
+.cta-counseling-btn {
+  background: linear-gradient(135deg, #ff4e50, #f9d423);
+  color: #fff;
+  border: none;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 78, 80, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cta-counseling-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(255, 78, 80, 0.4);
+}
+
+/* ─── ADDED: Popup Modal Overlay ─── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999; /* Isko z-index sabse zyada diya hai taaki slider ya navbar ke upar dikhe */
+  animation: fadeInHeader 0.2s ease-out;
+}
+
+/* ─── ADDED: Popup Box ─── */
+.modal-content {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideUpHeader 0.3s ease-out;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #012347; /* Matching your theme dark blue */
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.modal-content p {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* Close Cross Button (X) */
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close-btn:hover {
+  color: #333;
+}
+
+/* Form Styles */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #012347; /* Focus hone par theme color */
+}
+
+/* Popup Submit Button */
+.modal-submit-btn {
+  background: #012347; /* Premium Theme Color */
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.modal-submit-btn:hover {
+  background: #023366;
+}
+
+/* Animations */
+@keyframes fadeInHeader {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpHeader {
+  from { transform: translateY(15px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Mobile Responsive Adjustments */
 @media (max-width: 768px) {
   .topheader-inner {
     padding: 8px 15px;
+    flex-direction: row; /* Don't stack vertically to keep header slim */
+    justify-content: space-between;
   }
   .top-nav-links {
-    gap: 15px; /* Mobile par space thoda kam auto-adjust */
+    gap: 12px; /* Mobile par links ka gap thoda tight kiya */
+  }
+  .cta-counseling-btn {
+    padding: 4px 10px;
+    font-size: 11px; /* Mobile par thoda chota taaki fit baithe */
+  }
+  .separator {
+    margin: 0 -2px;
   }
 }
