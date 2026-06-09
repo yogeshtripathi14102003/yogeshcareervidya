@@ -14,16 +14,32 @@ import {
 
 const router = express.Router();
 
-// ── User/Frontend routes ───────────────────────────────────────────────────────
-router.get("/available", getAvailableSlotsForUsers);  // Free slots for booking
-router.put("/book/:id",  bookSlotDirectly);           // Student books a slot
+// ── User / Frontend routes ─────────────────────────────────────────────────────
+// Returns slots where bookedSeats < totalSeats (seats still available)
+router.get("/available", getAvailableSlotsForUsers);
 
-// ── Admin routes ──────────────────────────────────────────────────────────────
-router.post("/add",                  addSlot);              // Add new slot with totalSeats
-router.get("/admin/all",             getAllSlotsForAdmin);   // All slots + grouped availability
-router.put("/admin/approve/:id",     approveSlot);          // Approve → auto email
-router.put("/admin/reject/:id",      rejectSlot);           // Reject → auto email + free slot
-router.put("/admin/update/:id",      updateSlotByAdmin);    // Manual edit
-router.delete("/admin/delete/:id",   deleteSlot);           // Delete slot
+// Student books a seat — increments bookedSeats, marks isBooked only when full
+router.put("/book/:id", bookSlotDirectly);
+
+// ── Admin routes ───────────────────────────────────────────────────────────────
+// Add new slot with date, time, totalSeats
+router.post("/add", addSlot);
+
+// Get all slots with remainingSeats info
+router.get("/admin/all", getAllSlotsForAdmin);
+
+// Approve booking → sends confirmation email
+// Body (optional): { bookingId } — if omitted, approves slot-level booking
+router.put("/admin/approve/:id", approveSlot);
+
+// Reject booking → frees seat + sends rejection email
+// Body: { bookingId (optional), rejectionReason (optional) }
+router.put("/admin/reject/:id", rejectSlot);
+
+// Manual slot edit (date, time, totalSeats) — bookedSeats/isBooked protected
+router.put("/admin/update/:id", updateSlotByAdmin);
+
+// Delete slot permanently
+router.delete("/admin/delete/:id", deleteSlot);
 
 export default router;
