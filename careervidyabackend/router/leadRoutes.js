@@ -60,7 +60,7 @@ router.delete("/counselor/:id", ctrl.deleteCounselor);
 /* ================== LEADS — STATIC ROUTES PEHLE ================== */
 // ✅ IMPORTANT: /leads/upload, /leads/bulk-delete, /leads/assign-selected
 // yeh sab /:id se PEHLE hone chahiye — warna Express "upload" ko ID samajh leta hai
-
+router.get("/daily-report", ctrl.getCounselorDailyReport)
 router.post("/leads/upload", upload.single("file"), ctrl.uploadLeads);
 router.post("/leads/assign-selected", ctrl.assignSelectedLeads);
 router.delete("/leads/bulk-delete", ctrl.bulkDeleteLeads);

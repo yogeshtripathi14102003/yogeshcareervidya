@@ -1048,3 +1048,76 @@
   }
 };
 
+
+/* =====================================================
+   🔥 NEW: COUNSELOR DAILY REMARKS & ACTIONS REPORT
+   (Pata chalega ki kal kis counselor ne kitne remark change kiye)
+===================================================== */
+export const getCounselorDailyReport = async (req, res) => {
+  try {
+    const { counselorId, targetDate } = req.query; // targetDate format: "2026-06-10" (Kal ki date)
+
+    if (!counselorId || !targetDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Counselor ID and targetDate (YYYY-MM-DD) are required",
+      });
+    }
+
+    // ─── IST Midnight to Next Day Midnight Range Calculation ───
+    const startIST = new Date(`${targetDate}T00:00:00+05:30`);
+    const endIST = new Date(`${targetDate}T23:59:59.999+05:30`);
+
+    // MongoDB Aggregation Pipeline: Yeh database level par history ko filter karega
+    const report = await Lead.aggregate([
+      {
+        $match: {
+          assignedTo: new mongoose.Types.ObjectId(counselorId),
+          // Unhi leads ko uthao jinki history mein targetDate ka koi record ho
+          "followUpHistory.date": { $gte: startIST, $lte: endIST }
+        }
+      },
+      {
+        // followUpHistory array ko rows mein todne ke liye taaki filtration sahi ho
+        $unwind: "$followUpHistory"
+      },
+      {
+        $match: {
+          // Sirf wahi history entries match karo jo us din ki hain
+          "followUpHistory.date": { $gte: startIST, $lte: endIST }
+        }
+      },
+      {
+        // Wapas data ko group karke clean format mein lane ke liye
+        $project: {
+          _id: 1,
+          leadName: "$name",
+          leadPhone: "$phone",
+          course: "$course",
+          city: "$city",
+          remarkAtThatTime: "$followUpHistory.remark",
+          statusAtThatTime: "$followUpHistory.status",
+          changedAt: "$followUpHistory.date"
+        }
+      },
+      {
+        // Latest changes pehle dikhein
+        $sort: { changedAt: -1 }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      date: targetDate,
+      counselorId,
+      totalRemarksChanged: report.length, // 🔥 Kal kul kitne remarks change hue uski ginti
+      data: report // 🔥 Un saare leads aur remarks ki list
+    });
+
+  } catch (err) {
+    res.status(500).json({ 
+      success: false, 
+      message: "Error generating daily report: " + err.message 
+    });
+  }
+};
