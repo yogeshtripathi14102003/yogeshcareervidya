@@ -195,7 +195,7 @@ const LeadsPage = () => {
 
         XLSX.writeFile(workbook, `Leads_${filterStatus || "All"}_${rangeLabel}.xlsx`);
       } else {
-        alert("Download ke liye koi data nahi mila!");
+        alert("No Data found to download !");
       }
     } catch (err) {
       console.error("Export error", err);
@@ -462,6 +462,7 @@ const LeadRow = ({ lead, onSave }) => {
   const [localStatus, setLocalStatus] = useState(lead.status);
   const [localRemark, setLocalRemark] = useState("");
   const [localDate, setLocalDate] = useState(formatForInput(lead.followUpDate));
+  
   const [showAdmission, setShowAdmission] = useState(false);
   const [savedRemark, setSavedRemark] = useState(lead.remark || "");
 

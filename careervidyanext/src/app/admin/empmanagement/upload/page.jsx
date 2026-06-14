@@ -410,7 +410,7 @@ export default function UploadPage() {
       const fd = new FormData();
       fd.append("file", file);
 
-      const res = await api.post("/api/proxy/api/v1/employees/upload", fd, {
+      const res = await api.post("/api/v1/employees/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

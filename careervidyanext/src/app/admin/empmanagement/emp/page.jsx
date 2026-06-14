@@ -296,7 +296,7 @@ export default function EmployeesPage() {
   const [saving,   setSaving]   = useState(false);
   const [err,      setErr]      = useState("");
 
-  const LIMIT = 10;
+  const LIMIT = 20;
 
   // ── Load ──────────────────────────────────────────────────────
   function load() {

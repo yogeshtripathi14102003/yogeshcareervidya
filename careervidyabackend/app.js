@@ -37,6 +37,7 @@ import ticketRouter from "./router/ticketRouter.js";
 import videoRoutes from "./router/videoRoutes.js";
 import employeeRouter from "./router/employeesRoutes.js";
 import slotRoutes from "./router/slotRoutes.js";
+import manageTeamroutes from "./router/manageTeamroutes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -89,6 +90,7 @@ app.use("/api/v1/tickat", ticketRouter);
 app.use("/api/v1/videos", videoRoutes);
 app.use("/api/v1/employees", employeeRouter);
 app.use("/api/v1/slot", slotRoutes);
+app.use("/api/v1/manage",manageTeamroutes);
 // Purani line ko isse replace karein:
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
   setHeaders: function (res, path, stat) {

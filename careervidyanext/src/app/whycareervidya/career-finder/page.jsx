@@ -228,7 +228,7 @@ export default function CareerFinderPage() {
           {/* Main Rounded Image Container */}
           <div className="w-full max-w-[360px] aspect-[4/5] bg-[#e2e8f0] rounded-3xl overflow-hidden shadow-xl border border-slate-700/30 relative">
             <img 
-              src="/images/n12.jpg" 
+              src="/images/y4.jpeg" 
               alt="Career Consultation Guidance"
               className="w-full h-full object-cover object-top filter brightness-105"
               onError={(e) => {
