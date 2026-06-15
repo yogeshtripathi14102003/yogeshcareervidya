@@ -113,6 +113,7 @@ const Layout = ({ children }) => {
     { href: "/admin/Adminremark", label: "Adminremark", icon: Lock},
     { href: "/admin/AdminDocumentcheck", label: "AdminDocumentcheck", icon: Lock},
     { href: "/admin/DocumentDelete", label: "Document Delete", icon: Lock, id: "DocumentDelete" },
+    {href: "/admin/DocReport", label: "DocReport", icon: Lock, id: "DocReport"},
     { href: "/admin/empmanagement/upload", label: "Employee Upload", icon: Users, id: "employeeupload" },
     { href: "/admin/empmanagement/dashbord", label: "Employee Dashboard", icon: Users, id: "dashbord" },
     { href: "/admin/empmanagement/alerts", label: "Employee Alerts", icon: Users, id: "employeealerts" },
