@@ -124,7 +124,7 @@ export default function HeroSliderClient({ initialBanners = [] }) {
 
   useEffect(() => {
     if (slides.length === 0) return;
-    const interval = setInterval(handleNext, 4000);
+    const interval = setInterval(handleNext, 6000);
     return () => clearInterval(interval);
   }, [handleNext, slides.length]);
 
