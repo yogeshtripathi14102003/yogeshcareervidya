@@ -17,18 +17,8 @@ const teamUploader = createLocalUploader({
   maxFiles: 1,
 });
 
-router.post(
-  "/add",
-  teamUploader.single("image"),
-  addTeamMember
-);
-
-router.put(
-  "/:id",
-  teamUploader.single("image"),
-  updateTeamMember
-);
-
+router.post("/add", teamUploader.single("image"), addTeamMember);
+router.put("/:id", teamUploader.single("image"), updateTeamMember);
 router.get("/", getAllTeamMembers);
 router.get("/:id", getSingleTeamMember);
 router.delete("/:id", deleteTeamMember);
