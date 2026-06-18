@@ -1,3 +1,130 @@
+// import express from "express";
+// import cors from "cors";
+// import helmet from "helmet";
+// import morgan from "morgan";
+// import path from "path";
+// import { fileURLToPath } from "url";
+// import connectDB from "./config/db.js";
+// import authRouter from "./router/AuthRouter.js";
+// import cookieParser from "cookie-parser";
+// import passport from "./config/passport.js";
+// import { seedDefaultAdmin } from "./seedAdmin.js";
+// import sessionMiddleware from "./config/session.js";
+// import bannerRouter from "./router/bannerRouter.js";
+// import teamRouter from "./router/teamRouter.js";
+// import ourstudentRouter from "./router/ourstudentRouter.js";
+// import NewslatterRouter from "./router/NewslatterRouter.js";
+// import courseRoutes from "./router/courseRoutes.js";
+// import universityRoutes from "./router/universityRoutes.js";
+// import getinTouchRouter from "./router/getInTouchRouter.js";
+// import applyRouter from "./router/applyRouter.js";
+// import addjobRouter from "./router/addjobRouter.js";
+// import reviewRouter from "./router/reviewRouter.js";
+
+// import visitorRoutes from "./router/visitorRoutes.js";
+// import compareRoutes from "./router/compareRoutes.js";
+// import blogRoutes from "./router/blogRoutes.js";
+// import offerRoutes from "./router/offerRoutes.js";
+// import StateDistrictRoutes from "./router/StateDistrictRoutes.js";
+// import notificationRoutes from "./router/notificationRoutes.js";
+// import admissionRoutes from "./router/admissionRoutes.js";
+// import specializationRoutes from "./router/specializationRoutes.js";
+// import counselorRoutes from "./router/counselorRoutes.js";
+// import leadRoutes from "./router/leadRoutes.js";
+// import leadAdmissionRoutes from "./router/leadAdmissionRoutes.js";
+// import admissionfessRoutes from "./router/admissionfessRoutes.js";
+// import ticketRouter from "./router/ticketRouter.js";
+// import videoRoutes from "./router/videoRoutes.js";
+// import employeeRouter from "./router/employeesRoutes.js";
+// import slotRoutes from "./router/slotRoutes.js";
+// import manageTeamroutes from "./router/manageTeamroutes.js";
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// const app = express();
+
+// app.set('trust proxy', 1);
+// // ✅ Middlewares
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cookieParser());
+// app.use(
+//   cors({
+//     origin: ["http://localhost:3000", "https://www.careervidya.in", "careervidya.in","https://careervidya.in","https://api.careervidya.in", "  http://192.168.1.49:3000",],
+//     credentials: true,
+//   })
+// );
+// app.use(helmet());
+// app.use(morgan("dev"));
+
+// // ✅ Session & Passport
+// app.use(sessionMiddleware);
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+// // ✅ Routes
+// app.use("/api/v1", authRouter);
+// app.use("/api/v1", teamRouter);
+// app.use("/api/v1/banner", bannerRouter);
+// app.use("/api/v1/ourstudent", ourstudentRouter);
+// app.use("/api/v1/", NewslatterRouter);
+// app.use("/api/v1", courseRoutes);
+// app.use("/api/v1/university", universityRoutes);
+// app.use("/api/v1/getintouch",getinTouchRouter);
+// app.use("/api/v1/resume", applyRouter);
+// app.use("/api/v1/addjob", addjobRouter);
+// app.use("/api/v1", reviewRouter);
+// // app.use("/api/v1",chatbotRoutes);
+// app.use("/api/v1/", visitorRoutes);
+// app.use("/api/v1/",compareRoutes)
+// app.use("/api/v1/",blogRoutes);
+// app.use("/api/v1/offer",offerRoutes);
+// app.use("/api/v1/",StateDistrictRoutes);
+// app.use("/api/v1/notifications",notificationRoutes);
+// app.use("/api/v1/admissions", admissionRoutes);
+// app.use("/api/v1/specializations", specializationRoutes);
+// app.use("/api/v1/counselor", counselorRoutes);
+// app.use("/api/v1",leadRoutes);
+// app.use("/api/v1/ad",leadAdmissionRoutes);
+// app.use("/api/v1/admissionfess", admissionfessRoutes);
+// app.use("/api/v1/tickat", ticketRouter);
+// app.use("/api/v1/videos", videoRoutes);
+// app.use("/api/v1/employees", employeeRouter);
+// app.use("/api/v1/slot", slotRoutes);
+// app.use("/api/v1/manage",manageTeamroutes);
+// // Purani line ko isse replace karein:
+// app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
+//   setHeaders: function (res, path, stat) {
+//     res.set('Access-Control-Allow-Origin', '*'); 
+//     res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+//     res.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   }
+// }));// ✅ Simple Ping Route
+// app.get("/ping", (req, res) => {
+//   res.send("pong 🏓");
+// });
+
+// // ✅ Error for unknown routes
+// app.use((req, res, next) => {
+//   res.status(404).json({ msg: "Route not found" });
+// });
+
+// // ✅ Start Server
+// const startServer = async () => {
+//   try {
+//     await connectDB();
+//     console.log("✅ DB Connected");
+//     await seedDefaultAdmin();
+//     console.log("✅ Seeding completed");
+//   } catch (err) {
+//     console.error("❌ Startup failed:", err);
+//     process.exit(1);
+//   }
+// };
+// startServer();
+
+// export default app;
+
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -20,7 +147,6 @@ import getinTouchRouter from "./router/getInTouchRouter.js";
 import applyRouter from "./router/applyRouter.js";
 import addjobRouter from "./router/addjobRouter.js";
 import reviewRouter from "./router/reviewRouter.js";
-
 import visitorRoutes from "./router/visitorRoutes.js";
 import compareRoutes from "./router/compareRoutes.js";
 import blogRoutes from "./router/blogRoutes.js";
@@ -38,30 +164,58 @@ import videoRoutes from "./router/videoRoutes.js";
 import employeeRouter from "./router/employeesRoutes.js";
 import slotRoutes from "./router/slotRoutes.js";
 import manageTeamroutes from "./router/manageTeamroutes.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
-app.set('trust proxy', 1);
-// ✅ Middlewares
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// ✅ FIX 1: helmet पहले, सही options के साथ
 app.use(
-  cors({
-    origin: ["http://localhost:3000", "https://www.careervidya.in", "careervidya.in","https://careervidya.in","https://api.careervidya.in", "  http://192.168.1.49:3000",],
-    credentials: true,
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // ✅ images block नहीं होंगी
+    crossOriginEmbedderPolicy: false,
   })
 );
-app.use(helmet());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://192.168.1.49:3000",
+      "https://careervidya.in",
+      "https://www.careervidya.in",
+      "https://api.careervidya.in",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(morgan("dev"));
 
-// ✅ Session & Passport
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Routes
+// ✅ FIX 2: uploads static — CORP header के साथ
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    next();
+  },
+  express.static(path.join(__dirname, "uploads"))
+);
+
+// ✅ Routes — कोई change नहीं
 app.use("/api/v1", authRouter);
 app.use("/api/v1", teamRouter);
 app.use("/api/v1/banner", bannerRouter);
@@ -69,46 +223,36 @@ app.use("/api/v1/ourstudent", ourstudentRouter);
 app.use("/api/v1/", NewslatterRouter);
 app.use("/api/v1", courseRoutes);
 app.use("/api/v1/university", universityRoutes);
-app.use("/api/v1/getintouch",getinTouchRouter);
+app.use("/api/v1/getintouch", getinTouchRouter);
 app.use("/api/v1/resume", applyRouter);
 app.use("/api/v1/addjob", addjobRouter);
 app.use("/api/v1", reviewRouter);
-// app.use("/api/v1",chatbotRoutes);
 app.use("/api/v1/", visitorRoutes);
-app.use("/api/v1/",compareRoutes)
-app.use("/api/v1/",blogRoutes);
-app.use("/api/v1/offer",offerRoutes);
-app.use("/api/v1/",StateDistrictRoutes);
-app.use("/api/v1/notifications",notificationRoutes);
+app.use("/api/v1/", compareRoutes);
+app.use("/api/v1/", blogRoutes);
+app.use("/api/v1/offer", offerRoutes);
+app.use("/api/v1/", StateDistrictRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/admissions", admissionRoutes);
 app.use("/api/v1/specializations", specializationRoutes);
 app.use("/api/v1/counselor", counselorRoutes);
-app.use("/api/v1",leadRoutes);
-app.use("/api/v1/ad",leadAdmissionRoutes);
+app.use("/api/v1", leadRoutes);
+app.use("/api/v1/ad", leadAdmissionRoutes);
 app.use("/api/v1/admissionfess", admissionfessRoutes);
 app.use("/api/v1/tickat", ticketRouter);
 app.use("/api/v1/videos", videoRoutes);
 app.use("/api/v1/employees", employeeRouter);
 app.use("/api/v1/slot", slotRoutes);
-app.use("/api/v1/manage",manageTeamroutes);
-// Purani line ko isse replace karein:
-app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
-  setHeaders: function (res, path, stat) {
-    res.set('Access-Control-Allow-Origin', '*'); 
-    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  }
-}));// ✅ Simple Ping Route
+app.use("/api/v1/manage", manageTeamroutes);
+
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");
 });
 
-// ✅ Error for unknown routes
 app.use((req, res, next) => {
   res.status(404).json({ msg: "Route not found" });
 });
 
-// ✅ Start Server
 const startServer = async () => {
   try {
     await connectDB();
@@ -120,6 +264,7 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
 startServer();
 
-export default app;
+export default app;
