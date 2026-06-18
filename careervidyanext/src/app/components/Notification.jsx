@@ -101,7 +101,7 @@ export default function AnnouncementBar() {
       <div className="flex-1 overflow-hidden h-full flex items-center">
         <div className="marquee-track">
           <AnnouncementContent />
-          <AnnouncementContent />
+          
         </div>
       </div>
 

@@ -105,7 +105,7 @@ export default function CourseOverview({ course }) {
       />
 
       <section className="w-full bg-white pt-10">
-        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-6">
+        <div className=" bg-[#dce6f7] py-2 rounded-[5px]  max-w-[1800px] lg:w-[90%] mx-auto px-6">
           {course.overview.map((item, i) => (
             <article
               key={i}
@@ -114,7 +114,7 @@ export default function CourseOverview({ course }) {
               }`}
             >
               {/* IMAGE SECTION - Standard img for 100% visibility */}
-              <div className="w-full lg:w-1/2">
+            <div className="w-full lg:w-1/2 rounded-xl bg-white shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
                 {item.image?.url ? (
                   <img
                     src={item.image.url}
@@ -147,7 +147,7 @@ export default function CourseOverview({ course }) {
                 <div className="flex gap-4 flex-wrap">
                   <button
                     onClick={handleSyllabusClick}
-                    className="bg-[#c15304] text-white px-8 py-3 rounded-xl font-bold transition-all hover:opacity-90 active:scale-95"
+                    className=" cursor-pointer   bg-[#c15304] text-white px-2 py-2 rounded-[5px] font-bold transition-all hover:opacity-90 active:scale-95"
                   >
                     Get Full Syllabus
                   </button>
@@ -155,9 +155,9 @@ export default function CourseOverview({ course }) {
                   {item.videoLink && (
                     <button
                       onClick={() => setSelectedVideo(item.videoLink)}
-                      className="flex items-center gap-2 font-bold text-[#002147] group"
+                      className=" cursor-pointer   bg-[#c15304] flex items-center gap-2 px-2 rounded-[5px] font-bold text-white group"
                     >
-                      <span className="group-hover:text-blue-600 transition-colors">▶ Watch Video</span>
+                      <span className="group-hover:text-blue-whaite transition-colors">▶ Watch Video</span>
                     </button>
                   )}
                 </div>

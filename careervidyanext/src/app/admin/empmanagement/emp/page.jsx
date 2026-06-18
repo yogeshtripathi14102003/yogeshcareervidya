@@ -274,7 +274,7 @@ import { useEffect, useState } from "react";
 // import { serverFetch } from "@/utlis/serverFetch.js";
 import api from "@/utlis/api.js"; // ✅ tumhara existing axios instance
 
-const DEPTS = ["Engineering","Product","Design","Marketing","Sales","HR","Finance","Operations","Legal","Support"];
+const DEPTS = ["Engineering","CC","Design","Marketing","Sales","HR","Finance","Operations","Legal","Support"];
 
 const EMPTY = {
   empId: "", name: "", email: "", phone: "", department: "",
@@ -296,7 +296,7 @@ export default function EmployeesPage() {
   const [saving,   setSaving]   = useState(false);
   const [err,      setErr]      = useState("");
 
-  const LIMIT = 20;
+  const LIMIT = 50;
 
   // ── Load ──────────────────────────────────────────────────────
   function load() {

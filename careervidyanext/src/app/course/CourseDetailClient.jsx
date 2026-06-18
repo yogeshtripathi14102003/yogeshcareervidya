@@ -44,6 +44,7 @@ export default function CourseDetailClient({ course }) {
       `}</style>
 
       <main className="min-h-screen bg-white">
+         {!skipDetailSignupSlugs.includes(course?.slug) && <Detailsignup />}
         {/* OVERVIEW SECTION */}
         {course?.overview?.length > 0 && <CourseOverview course={course} />}
 

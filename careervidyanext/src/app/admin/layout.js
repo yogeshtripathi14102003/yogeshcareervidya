@@ -91,6 +91,7 @@ const Layout = ({ children }) => {
     { href: "/admin/visitors", label: "Visitors", icon: Users },
     { href: "/admin/placestudent", label: "Placed Students", icon: Award },
     { href: "/admin/addteam", label: "Add Team", icon: Users },
+    {href:"/admin/manageteam", label: "ourteam", icon: Users},
     { href: "/admin/Getalluser", label: "All Students", icon: Users },
     { href: "/admin/bannerlist", label: "Banners", icon: ImageIcon },
     { href: "/admin/adduniversitydata", label: "Universities", icon: Users },

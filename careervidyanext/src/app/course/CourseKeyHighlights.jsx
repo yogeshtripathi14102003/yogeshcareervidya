@@ -87,7 +87,7 @@ export default function CourseKeyHighlights({ course }) {
                 {/* ✅ ENROLL BUTTON */}
                 <button
                   onClick={() => setShowSignup(true)}
-                  className="w-full mt-8 bg-[#c15304] hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
+                  className="w-full mt-8 bg-[#c15304] cursor-pointer text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
                 >
                   Enroll Now
                 </button>

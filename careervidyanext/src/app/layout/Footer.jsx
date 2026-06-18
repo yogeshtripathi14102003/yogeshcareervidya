@@ -111,6 +111,8 @@ export default function Footer() {
               <li><Link href="/Aboutus" className="hover:text-white transition">About Us</Link></li>
               <li><Link href="/contactus" className="hover:text-white transition">Contact Us</Link></li>
               <li><Link href="/career" className="hover:text-white transition">Careers</Link></li>
+               <li><Link href="/OurTeam" className="hover:text-white transition">OurTeam</Link></li>
+
               <li><Link href="/Blog" className="hover:text-white transition">Latest Blogs</Link></li>
             </ul>
           </div>
