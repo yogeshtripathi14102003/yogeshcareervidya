@@ -72,6 +72,7 @@ router.post("/leads", ctrl.createLead);
 router.get("/leads/:id", ctrl.getLead);
 router.put("/leads/:id", ctrl.updateLead);
 router.delete("/leads/:id", ctrl.deleteLead);
+router.post("/leads/transfer", ctrl.transferLeads);
 
 /* ================== COUNSELOR DASHBOARD ================== */
 
