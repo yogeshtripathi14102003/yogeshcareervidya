@@ -55,8 +55,8 @@ export default function ContactUs() {
             icon={<Phone size={36} />} 
             title="Call Us" 
             text="Have questions? Call our support team directly."
-            link="tel:+9112018447695" 
-            linkText="+91 120 1844 7695"
+            link="tel:+919289716667" 
+            linkText="+91 9289716667"
           />
           <ContactCard 
             icon={<Mail size={36} />} 

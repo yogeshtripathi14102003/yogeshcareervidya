@@ -19,9 +19,9 @@ export default function CareervidyaFormModal() {
     mobile: "",
     course: "",
     branch: "",
-    email: "not-provided@cv.com",
-    city: "Website Query",
-    message: "Interested in course details",
+    email: "This is  EQ leads ",
+    city: "NA",
+    message: "NA",
   });
 
   // Mobile detect
@@ -92,9 +92,9 @@ export default function CareervidyaFormModal() {
         mobile: "",
         course: "",
         branch: "",
-        email: "not-provided@cv.com",
-        city: "Website Query",
-        message: "Interested",
+        email: "This is  EQ leads ",
+        city: "NA",
+        message: "NA",
       });
       closeModal();
     } catch (err) {

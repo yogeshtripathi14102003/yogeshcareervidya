@@ -117,7 +117,7 @@ export default function ContactUsPage() {
                   <Mail className="text-blue-500" size={18} /> Info@careervidya.in
                 </li>
                 <li className="flex items-center gap-2">
-                  <Phone className="text-blue-500" size={18} /> +91 9289712364
+                  <Phone className="text-blue-500" size={18} /> +91 9289716667
                 </li>
               </ul>
             </div>

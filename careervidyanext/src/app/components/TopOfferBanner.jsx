@@ -77,7 +77,7 @@ export default function BottomOfferBanner() {
           {/* WhatsApp Direct Chat Link */}
           <div className="flex items-center gap-3">
             <a 
-              href="https://wa.me/9289712364" 
+              href="https://wa.me/9289716667" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="hover:scale-110 transition-transform cursor-pointer block"
@@ -112,7 +112,7 @@ export default function BottomOfferBanner() {
 
           {/* Direct Dial Telephone Link Action */}
           <a 
-            href="tel:+919289712364"
+            href="tel:+919289716667"
             className="flex-1 md:flex-none bg-[#111111] hover:bg-[#000000] text-white px-6 py-3 md:py-0 flex items-center justify-center gap-2 font-bold text-sm tracking-wide transition-colors text-yellow-400 cursor-pointer"
           >
             <Phone size={14} className="fill-current" />
