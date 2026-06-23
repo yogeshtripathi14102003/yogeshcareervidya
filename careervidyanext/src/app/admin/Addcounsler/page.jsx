@@ -23,7 +23,7 @@ import AdminTiket from "@/app/admin/Addcounsler/component/AdminTiket.jsx";
 import LeadDelete from "@/app/admin/Addcounsler/component/LeadDelete.jsx";
 import CounslerPerform from "@/app/admin/Addcounsler/component/CounslerPerform.jsx";
 import Dailycounslsourreoprt from "@/app/admin/Addcounsler/component/Dailycounslsourreoprt.jsx";
-
+import Transferleads from "@/app/admin/Addcounsler/component/Transferleads.jsx";
 /* ================= STATUS OPTIONS ================= */
 const STATUS_OPTIONS = ["active", "leave", "Inactive"];
 
@@ -53,7 +53,7 @@ const CounselorsListPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [dailyReportOpen, setDailyReportOpen] = useState(false);
-
+const [leadTransfer, setLeadTransfer] = useState(false);
   /* ================= LOGIN ================= */
   const handleLogin = (e) => {
     e.preventDefault();
@@ -296,7 +296,27 @@ const CounselorsListPage = () => {
             <AdminTiket />
           </div>
         </div>
+        
       )}
+
+    
+{leadTransfer && (
+  <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+    <div className="bg-white w-full max-w-5xl rounded-xl relative p-6 max-h-[90vh] overflow-y-auto">
+      <button
+        onClick={() => setLeadTransfer(false)}
+        className="absolute right-4 top-4 text-gray-500"
+      >
+        <X />
+      </button>
+
+      <h2 className="text-xl font-bold mb-4">Leads Transfer</h2>
+
+      <Transferleads />
+    </div>
+  </div>
+)}
+
       {deleteOpen && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
           <div className="bg-white w-full max-w-5xl rounded-xl relative p-6 max-h-[90vh] overflow-y-auto">
@@ -373,6 +393,12 @@ const CounselorsListPage = () => {
             >
               🎫 Tickets
             </button>
+            <button
+  onClick={() => setLeadTransfer(true)}
+  className="bg-cyan-600 text-white px-4 py-2 rounded"
+>
+  🔄 Transfer Leads
+</button>
             <button
               onClick={() => setDeleteOpen(true)}
               className="bg-red-600 text-white px-4 py-2 rounded"
