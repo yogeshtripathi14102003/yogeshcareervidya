@@ -1,3 +1,40 @@
+// import mongoose from "mongoose";
+
+// const getInTouchSchema = new mongoose.Schema(
+//   {
+//     name: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+//     city: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+//     email: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//       lowercase: true,
+//     },
+//     mobile: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+//     message: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+//   },
+//   { timestamps: true }
+// );
+
+// export default mongoose.model("GetInTouch", getInTouchSchema);
+
+
 import mongoose from "mongoose";
 
 const getInTouchSchema = new mongoose.Schema(
@@ -9,12 +46,20 @@ const getInTouchSchema = new mongoose.Schema(
     },
     city: {
       type: String,
-      required: true,
+      // required: true,
+      trim: true,
+    },
+    course: {
+      type: String,
+      trim: true,
+    },
+    branch: {
+      type: String,
       trim: true,
     },
     email: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
       lowercase: true,
     },
@@ -25,7 +70,7 @@ const getInTouchSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
     },
   },

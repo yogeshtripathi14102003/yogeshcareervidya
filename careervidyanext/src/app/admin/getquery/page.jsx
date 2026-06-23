@@ -275,7 +275,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -316,7 +315,8 @@ export default function GetInTouchTable() {
       q.name.toLowerCase().includes(term) ||
       q.email.toLowerCase().includes(term) ||
       q.mobile.toLowerCase().includes(term) ||
-      (q.course && q.course.toLowerCase().includes(term));
+      (q.course && q.course.toLowerCase().includes(term)) ||
+      (q.branch && q.branch.toLowerCase().includes(term));
 
     const matchesDate =
       (!fromDate || created >= new Date(fromDate)) &&
@@ -392,6 +392,7 @@ export default function GetInTouchTable() {
       Name: q.name,
       City: q.city,
       Course: q.course,
+      Branch: q.branch,
       Email: q.email,
       Mobile: q.mobile,
       Message: q.message,
@@ -426,7 +427,7 @@ export default function GetInTouchTable() {
         {/* Search */}
         <input
           type="text"
-          placeholder="🔍 Search name, email, mobile, course..."
+          placeholder="🔍 Search name, email, mobile, course, branch..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="border border-gray-300 rounded-md px-4 py-2 w-full lg:w-[30%]"
@@ -501,6 +502,7 @@ export default function GetInTouchTable() {
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">City</th>
                 <th className="px-4 py-3">Course</th>
+                <th className="px-4 py-3">Branch</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Mobile</th>
                 <th className="px-4 py-3">Message</th>
@@ -529,6 +531,7 @@ export default function GetInTouchTable() {
                   <td className="px-4 py-3">{q.name}</td>
                   <td className="px-4 py-3">{q.city}</td>
                   <td className="px-4 py-3">{q.course || "-"}</td>
+                  <td className="px-4 py-3">{q.branch || "-"}</td>
                   <td className="px-4 py-3">{q.email}</td>
                   <td className="px-4 py-3">{q.mobile}</td>
                   <td className="px-4 py-3">{q.message}</td>
