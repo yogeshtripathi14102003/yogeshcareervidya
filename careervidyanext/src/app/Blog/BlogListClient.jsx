@@ -64,7 +64,7 @@ export default function BlogListClient({ initialBlogs }) {
                     <Image src={blog.image?.url || "/placeholder.jpg"} alt={blog.title} fill className="object-cover" />
                   </div>
                   <div className="p-5">
-                    <Link href={`/Blog/${blog.slug}`}>
+                    <Link href={`/blog/${blog.slug}`}>
                       <h3 className="font-bold text-lg hover:text-blue-600">{blog.title}</h3>
                     </Link>
                     <p className="text-sm text-slate-500 mt-3">{blog.author?.name} | {new Date(blog.createdAt).toDateString()}</p>

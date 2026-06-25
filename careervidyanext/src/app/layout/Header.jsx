@@ -170,7 +170,7 @@ export default function Header() {
                   <h4 className="text-[15px] font-bold mb-4 text-[#002D62] border-b pb-2">Quick Links</h4>
                   <div className="flex flex-col gap-2">
                     <Link href="/career"    className="text-sm text-gray-600 hover:text-[#04458b] hover:pl-2 transition-all">Career Guidance</Link>
-                    <Link href="/Blog"      className="text-sm text-gray-600 hover:text-[#04458b] hover:pl-2 transition-all">Latest Blogs</Link>
+                    <Link href="/blog"      className="text-sm text-gray-600 hover:text-[#04458b] hover:pl-2 transition-all">Latest Blogs</Link>
                     <Link href="/contactus" className="text-sm text-gray-600 hover:text-[#04458b] hover:pl-2 transition-all">Contact Us</Link>
                     <Link href="/Aboutus"   className="text-sm text-gray-600 hover:text-[#04458b] hover:pl-2 transition-all">About Our Mission</Link>
                   </div>
@@ -267,7 +267,7 @@ export default function Header() {
           <div className="right-actions desktop-only">
 
             {/* Search */}
-            <Link href="/serarch" className="search-link">
+            <Link href="/search" className="search-link">
               <div className="main-search-bar">
                 <input
                   type="text"
@@ -360,7 +360,7 @@ export default function Header() {
               <Link href="/explore"    onClick={() => setMenuOpen(false)}>Explore Programs</Link>
               <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>Free Counselling</Link>
               <Link href="/topunivers" onClick={() => setMenuOpen(false)}>Top Universities</Link>
-              <Link href="/serarch"    onClick={() => setMenuOpen(false)}>Search Courses</Link>
+              <Link href="/search"    onClick={() => setMenuOpen(false)}>Search Courses</Link>
 
               {user?.role === "admin" ? (
                 <Link href="/admin" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>

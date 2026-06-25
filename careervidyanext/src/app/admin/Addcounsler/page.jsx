@@ -356,58 +356,58 @@ const [leadTransfer, setLeadTransfer] = useState(false);
           </div>
 
           {/* ================= BUTTONS ================= */}
-          <div className="flex gap-3 flex-wrap">
+          <div className="   flex gap-3 flex-wrap">
             <button
               onClick={() => setAdmissionOpen(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className=" cursor-pointer  bg-blue-600 text-white px-4 py-2 rounded"
             >
               📋 Admissions
             </button>
             <button
               onClick={() => setFeesOpen(true)}
-              className="bg-purple-600 text-white px-4 py-2 rounded"
+              className="  cursor-pointer bg-purple-600 text-white px-4 py-2 rounded"
             >
               💰 Fees
             </button>
             <button
               onClick={() => setReportOpen(true)}
-              className="bg-orange-500 text-white px-4 py-2 rounded"
+              className="  cursor-pointer bg-orange-500 text-white px-4 py-2 rounded"
             >
               <FileSpreadsheet size={18} /> Reports
             </button>
             <button
               onClick={() => setSchedulerOpen(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded"
+              className="  cursor-pointer bg-green-600 text-white px-4 py-2 rounded"
             >
               <Calendar size={18} /> Schedule
             </button>
             <button
               onClick={() => setAddOpen(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded"
+              className="  cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded"
             >
               <Plus size={18} /> Add
             </button>
             <button
               onClick={() => setTicketOpen(true)}
-              className="bg-teal-600 text-white px-4 py-2 rounded"
+              className="  cursor-pointer bg-teal-600 text-white px-4 py-2 rounded"
             >
               🎫 Tickets
             </button>
             <button
   onClick={() => setLeadTransfer(true)}
-  className="bg-cyan-600 text-white px-4 py-2 rounded"
+  className="  cursor-pointer  bg-cyan-600 text-white px-4 py-2 rounded"
 >
   🔄 Transfer Leads
 </button>
             <button
               onClick={() => setDeleteOpen(true)}
-              className="bg-red-600 text-white px-4 py-2 rounded"
+              className="  cursor-pointer bg-red-600 text-white px-4 py-2 rounded"
             >
               🗑️ Delete Leads
             </button>
             <button
               onClick={() => setPerformanceOpen(true)}
-              className="bg-yellow-500 text-white px-4 py-2 rounded"
+              className="  cursor-pointer bg-yellow-500 text-white px-4 py-2 rounded"
             >
               📊 Counselor Performance
             </button>
