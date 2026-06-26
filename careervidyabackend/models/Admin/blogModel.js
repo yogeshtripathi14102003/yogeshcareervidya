@@ -85,6 +85,7 @@ const blogSchema = new mongoose.Schema(
           "heading",
           "paragraph",
           "list",
+          "subheading",
           "number_list",
           "image",
           "video",
