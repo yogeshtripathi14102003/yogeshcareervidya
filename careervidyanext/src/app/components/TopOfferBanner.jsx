@@ -104,7 +104,7 @@ export default function BottomOfferBanner() {
 
           {/* Call Invitation Banner Tag */}
           <a
-            href="tel:+919289712364"
+            href="tel:+9289716667"
             className="flex-1 md:flex-none bg-[#111111] hover:bg-[#000000] text-white px-6 py-3 md:py-0 flex items-center justify-center gap-2 font-medium text-sm transition-colors border-r border-black/20 cursor-pointer"
           >
             <span>Call us now</span>
@@ -116,7 +116,7 @@ export default function BottomOfferBanner() {
             className="flex-1 md:flex-none bg-[#111111] hover:bg-[#000000] text-white px-6 py-3 md:py-0 flex items-center justify-center gap-2 font-bold text-sm tracking-wide transition-colors text-yellow-400 cursor-pointer"
           >
             <Phone size={14} className="fill-current" />
-            <span>9289712364</span>
+            <span>9289716667</span>
           </a>
 
         </div>

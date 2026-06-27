@@ -218,7 +218,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import api from "@/utlis/api.js";
 import { X } from "lucide-react";
 import Link from "next/link";
@@ -262,13 +262,29 @@ const CourseCard = ({ course, index }) => {
   );
 };
 
+// ✅ initialCourses should be fetched on the server (see CourseGridSection.jsx)
+// and passed in as a prop. That guarantees the very first HTML response
+// already contains real course cards — Google never sees a loading state.
+// If this component is ever rendered with no initialCourses, it still
+// works correctly; it just fetches on mount like before (graceful fallback).
+
 export default function CoursesClient({ initialCourses = [] }) {
   const [courses, setCourses] = useState(initialCourses);
   const [allCourses, setAllCourses] = useState([]);
   const [loading, setLoading] = useState(false);
+  // ✅ ADDED: popup previously had no loading/error feedback — it opened
+  // instantly with an empty grid while fetchAllCourses() was still in
+  // flight, with no indicator either way if the request failed.
+  const [popupLoading, setPopupLoading] = useState(false);
+  const [popupError, setPopupError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(24);
+
+  // ✅ Tracks whether this is the very first render with server-provided
+  // data, so we don't immediately re-fetch and discard what the server
+  // already gave us (which would also cause a brief flash/duplicate call).
+  const isFirstRun = useRef(true);
 
   const sidebarItems = [
     { key: "All", title: "All Courses" },
@@ -286,6 +302,16 @@ export default function CoursesClient({ initialCourses = [] }) {
   }, []);
 
   useEffect(() => {
+    // ✅ Skip the fetch on first mount if we already have server-provided
+    // courses for the default "All" category — avoids a redundant
+    // duplicate network call right after the page loads.
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      if (selectedCategory === "All" && initialCourses.length > 0) {
+        return;
+      }
+    }
+
     const fetchCourses = async () => {
       const page = 1;
       const limit = displayLimit;
@@ -319,6 +345,11 @@ export default function CoursesClient({ initialCourses = [] }) {
   }, [selectedCategory, displayLimit]);
 
   const fetchAllCourses = async () => {
+    // ✅ FIX: popup now shows a loading state while this request is in
+    // flight, and an error message if it fails — previously the popup
+    // opened instantly with an empty grid and no feedback either way.
+    setPopupLoading(true);
+    setPopupError(false);
     try {
       const url =
         selectedCategory === "All"
@@ -329,6 +360,9 @@ export default function CoursesClient({ initialCourses = [] }) {
       setAllCourses(res.data.courses || []);
     } catch (err) {
       console.error(err);
+      setPopupError(true);
+    } finally {
+      setPopupLoading(false);
     }
   };
 
@@ -341,19 +375,23 @@ export default function CoursesClient({ initialCourses = [] }) {
   }, [allCourses]);
 
   // JSON-LD Structured Data
+  // ✅ FIX: numberOfItems now matches itemListElement's actual count
+  // (visibleCourses.length, not the full courses.length) — a mismatch here
+  // triggers a "numberOfItems doesn't match itemListElement count" warning
+  // in Google's Rich Results Test.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Job-Oriented Professional Courses",
     description: "Browse PG, UG, Executive, and Doctorate online courses at CareerVidya",
-    numberOfItems: courses.length,
+    numberOfItems: visibleCourses.length,
     itemListElement: visibleCourses.map((course, i) => ({
       "@type": "ListItem",
       position: i + 1,
       item: {
         "@type": "Course",
         name: course.name,
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || ""}/course/${course.slug}`,
+        url: `https://careervidya.in/course/${course.slug}`,
         image: course.courseLogo?.url || "",
         provider: {
           "@type": "Organization",
@@ -374,11 +412,15 @@ export default function CoursesClient({ initialCourses = [] }) {
       <div className="w-full bg-white">
         <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 md:py-10">
 
-          {/* SEO HEADING */}
+          {/* ✅ Changed h1 → h2: this is a content SECTION on the homepage,
+              not the page itself. The page-level h1 should live once in
+              the homepage's hero/header area. Using h2 here prevents a
+              duplicate-H1 issue, which hurts Google's ability to tell
+              what the page is actually about. */}
           <header className="mb-6 md:mb-10 text-center">
-            <h1 className="text-xl md:text-3xl font-black text-[#0056B3] uppercase">
+            <h2 className="text-xl md:text-3xl font-black text-[#0056B3] uppercase">
               Job-Oriented Professional Courses
-            </h1>
+            </h2>
             <p className="mt-1 text-gray-500 text-[10px] md:text-sm italic">
               Empowering your future with CareerVidya
             </p>
@@ -451,11 +493,27 @@ export default function CoursesClient({ initialCourses = [] }) {
                 </div>
 
                 <div className="p-4 overflow-y-auto flex-1 bg-gray-50">
-                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    {sortedPopupCourses.map((course, index) => (
-                      <CourseCard key={course._id} course={course} index={index} />
-                    ))}
-                  </div>
+                  {/* ✅ ADDED: loading / error feedback so the popup never
+                      just shows a blank grid with no explanation. */}
+                  {popupLoading && (
+                    <div className="text-center text-[#0056B3] font-bold py-10">
+                      Loading courses...
+                    </div>
+                  )}
+
+                  {!popupLoading && popupError && (
+                    <div className="text-center text-red-600 font-bold py-10">
+                      Couldn't load courses. Please try again.
+                    </div>
+                  )}
+
+                  {!popupLoading && !popupError && (
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                      {sortedPopupCourses.map((course, index) => (
+                        <CourseCard key={course._id || index} course={course} index={index} />
+                      ))}
+                    </div>
+                  )}
                 </div>
 
               </div>
