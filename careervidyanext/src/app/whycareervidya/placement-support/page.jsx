@@ -41,7 +41,13 @@ const getFullUrl = (path) => {
 };
 
 // ─── Server fetch logos ───────────────────────────────────────────────────────
- 
+//
+// IMPORTANT: serverFetch() already parses the response body for you.
+// It returns { ok, status, data } — NOT a raw fetch Response object.
+// Do NOT call `.json()` on the result of serverFetch — that was the bug
+// causing "TypeError: a.json is not a function" in production.
+// Always read the parsed body from `res.data`.
+
 async function getLogos() {
   try {
     const res = await serverFetch("/api/v1/ourstudent", {
@@ -49,8 +55,8 @@ async function getLogos() {
     });
     if (!res.ok) return [];
 
-    const json = await res.json();
-    const data = json?.data || json || [];
+    // res.data is already parsed JSON — do NOT call res.json() here
+    const data = res.data?.data || res.data || [];
 
     const seen = new Set();
     const logos = [];

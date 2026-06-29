@@ -10,7 +10,7 @@ export default function BlogListClient({ initialBlogs }) {
   const [filteredBlogs, setFilteredBlogs] = useState(initialBlogs);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const blogsPerPage = 6;
+  const blogsPerPage = 9;
 
   const handleSearch = () => {
     const filtered = blogs.filter((blog) =>
