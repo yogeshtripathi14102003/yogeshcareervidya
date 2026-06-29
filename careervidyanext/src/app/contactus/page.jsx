@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React from "react";
@@ -43,26 +41,25 @@ export default function ContactUs() {
 
         {/* Contact Cards Section */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
-          {/* Card Component Structure (Simplified for readability) */}
-          <ContactCard 
-            icon={<MapPin size={36} />} 
-            title="Visit Us" 
+          <ContactCard
+            icon={<MapPin size={36} />}
+            title="Visit Us"
             text="H-160, Sector 63, H Block, BSI Building, Ground Floor, Office No. 7, Noida, Uttar Pradesh - 201305"
-            link="https://www.google.com/maps" 
+            link="https://maps.google.com/?cid=3481723661691813782"
             linkText="View on Google Maps →"
           />
-          <ContactCard 
-            icon={<Phone size={36} />} 
-            title="Call Us" 
+          <ContactCard
+            icon={<Phone size={36} />}
+            title="Call Us"
             text="Have questions? Call our support team directly."
-            link="tel:+919289716667" 
+            link="tel:+919289716667"
             linkText="+91 9289716667"
           />
-          <ContactCard 
-            icon={<Mail size={36} />} 
-            title="Contact Us" 
+          <ContactCard
+            icon={<Mail size={36} />}
+            title="Contact Us"
             text="Prefer writing? Drop an email and we’ll respond shortly."
-            link="mailto:contact@careervidya.in" 
+            link="mailto:contact@careervidya.in"
             linkText="contact@careervidya.in"
           />
         </section>
@@ -70,13 +67,14 @@ export default function ContactUs() {
         {/* Google Map */}
         <section className="w-full h-[400px] rounded-2xl overflow-hidden shadow-md mb-16">
           <iframe
-            title="Career Vidya Office Location in Noida"
-            src="https://www.google.com/maps/embed?..." // Yahan apna sahi embed link dalein
+            title="Career Vidya Office Location - H160 BSI Business Park, Sector 63, Noida"
+            src="https://www.google.com/maps?q=28.6251888,77.3777653&z=18&output=embed"
             width="100%"
             height="100%"
             style={{ border: 0 }}
-            allowFullScreen=""
+            allowFullScreen
             loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
           ></iframe>
         </section>
 
@@ -98,7 +96,9 @@ function ContactCard({ icon, title, text, link, linkText }) {
       </div>
       <h3 className="text-xl font-semibold text-[#0056A4] mb-3">{title}</h3>
       <p className="text-gray-700 leading-relaxed mb-4">{text}</p>
-      <Link href={link} className="text-[#FF6600] font-bold hover:underline">{linkText}</Link>
+      <Link href={link} className="text-[#FF6600] font-bold hover:underline">
+        {linkText}
+      </Link>
     </div>
   );
 }
