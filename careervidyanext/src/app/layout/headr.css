@@ -79,12 +79,29 @@
 }
 
 /* ================================================= */
-/* NAV — ABSOLUTELY CENTERED */
+/* NAV — CENTERED (FIXED: no `transform` here anymore) */
 /* ================================================= */
+/*
+  BUGFIX NOTE:
+  Previously this rule used `transform: translateX(-50%)` to center
+  the nav. Any `transform` on an ancestor creates a NEW containing
+  block for descendants that use `position: fixed` (per CSS spec).
+  Since `.mega-panel` inside `.mega-menu-wrap` relies on
+  `position: fixed` to span the FULL viewport width and sit right
+  below the header, having `transform` on `.nav-center` broke that:
+  the panel was being positioned relative to `.nav-center`'s box
+  instead of the viewport — causing the narrow, mis-placed dropdown
+  seen in the screenshots.
+
+  Fix: center `.nav-center` WITHOUT using `transform`, so `.mega-panel`
+  keeps the real viewport as its containing block.
+*/
 .nav-center {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
   display: flex;
   align-items: center;
   gap: 2px;
@@ -92,7 +109,8 @@
   white-space: nowrap;
 }
 
-.nav-center a {
+.nav-center > a,
+.nav-center > .mega-menu-wrap > a {
   text-decoration: none;
   color: #222;
   font-weight: 600;
@@ -105,7 +123,8 @@
   gap: 4px;
 }
 
-.nav-center a:hover {
+.nav-center > a:hover,
+.nav-center > .mega-menu-wrap > a:hover {
   color: #04458b;
   background: #f0f5ff;
 }
@@ -239,7 +258,7 @@
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   min-width: 170px;
-  z-index: 600;
+  z-index: 9999;
   overflow: hidden;
 }
 
@@ -278,25 +297,272 @@
 }
 
 /* ================================================= */
-/* MEGA MENU — shared dropdown base */
+/* MEGA MENU WRAP — the trigger item itself           */
 /* ================================================= */
 .mega-menu-wrap {
-  position: relative;
+  position: static; /* ← KEY: don't create a new containing block */
 }
-
 .mega-menu-wrap > a {
   display: flex;
   align-items: center;
   gap: 3px;
 }
+.mega-menu-wrap:hover .chevron-icon { transform: rotate(180deg); }
+.chevron-icon { transition: transform .25s ease; }
 
-/* chevron rotate on hover */
-.mega-menu-wrap:hover .chevron-icon {
-  transform: rotate(180deg);
+/* ================================================= */
+/* MEGA MENU PANEL — FIXED, FULL-WIDTH, VIEWPORT-    */
+/* ANCHORED so it never overflows left or right      */
+/* ================================================= */
+.mega-panel {
+  /* Position: fixed to viewport, just below header */
+  position: fixed;
+  top: 122px;           /* matches desktop header height */
+  left: 0;
+  right: 0;
+  width: 100%;
+
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 2px solid #e8e8e8;
+  box-shadow: 0 12px 40px rgba(0,0,0,.10);
+  z-index: 490;        /* below header but above page content */
+
+  /* Show/hide */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
+
+  /* Internal layout: max-width centered content */
+  display: flex;
+  justify-content: center;
 }
 
-.chevron-icon {
-  transition: transform 0.25s ease;
+/* Visible when parent .mega-menu-wrap is hovered */
+.mega-menu-wrap:hover .mega-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Inner container: max width + equal-col grid */
+.mega-panel-inner {
+  width: 100%;
+  max-width: 1200px;
+  padding: 32px 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  box-sizing: border-box;
+}
+
+/* "View All" row that spans all 3 columns */
+.mega-panel-footer {
+  grid-column: 1 / -1;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+.mega-panel-footer a {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #04458b;
+  text-decoration: none;
+}
+.mega-panel-footer a:hover { text-decoration: underline; }
+
+/* ── Column heading: dash + colored title ── */
+.mega-col-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.mega-col-heading-dash {
+  width: 20px;
+  height: 2px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.mega-col-heading h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ── Each menu row: icon chip + label ── */
+.mega-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #333;
+  transition: background .18s, color .18s, padding-left .18s;
+  cursor: pointer;
+}
+.mega-menu-item:hover {
+  background: #f0f5ff;
+  color: #04458b;
+  padding-left: 12px;
+}
+
+/* ── Icon chip ── */
+.mega-icon-chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.chip-blue    { background: #eff6ff; color: #2563eb; }
+.chip-emerald { background: #ecfdf5; color: #059669; }
+.chip-amber   { background: #fffbeb; color: #d97706; }
+.chip-indigo  { background: #eef2ff; color: #4f46e5; }
+.chip-rose    { background: #fff1f2; color: #e11d48; }
+.chip-purple  { background: #faf5ff; color: #7c3aed; }
+.chip-orange  { background: #fff7ed; color: #ea580c; }
+
+/* ── Stats 2×2 grid (Explore Programs – col 2) ── */
+.mega-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.mega-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px 8px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: transform .2s;
+}
+.mega-stat-card:hover { transform: scale(1.04); }
+.mega-stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.mega-stat-num   { font-size: 17px; font-weight: 900; color: #002D62; line-height: 1; }
+.mega-stat-label { font-size: 9px;  font-weight: 700; color: #6b7280; text-transform: uppercase; margin-top: 4px; letter-spacing: .5px; }
+
+/* ── Contact card (Free Counselling – col 3) ── */
+.mega-contact-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mega-contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.mega-contact-divider {
+  height: 1px;
+  background: #e5e7eb;
+}
+.mega-contact-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: #9ca3af;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.mega-contact-value {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111;
+}
+.mega-contact-note {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ── Award card ── */
+.mega-award-card {
+  background: linear-gradient(135deg,#fffbeb,#fff7ed);
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 16px;
+}
+.mega-award-badge {
+  display: inline-block;
+  background: linear-gradient(90deg,#f59e0b,#f97316);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.mega-award-title { font-size: 13.5px; font-weight: 600; color: #374151; line-height: 1.4; }
+.mega-award-sub   { font-size: 11px; color: #9ca3af; margin-top: 6px; }
+
+.mega-live-pill {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.mega-live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse-dot 1.5s infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.5; transform:scale(1.3); }
+}
+.mega-live-text { font-size: 10px; font-weight: 600; color: #4b5563; font-style: italic; }
+
+/* ── Career Finder pill ── */
+.mega-career-finder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 7px 14px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background .2s;
+}
+.mega-career-finder-btn:hover { background: #dbeafe; }
+.mega-career-finder-badge {
+  background: #2563eb;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
 }
 
 /* ================================================= */
@@ -463,7 +729,8 @@
 /* RESPONSIVE — nav font shrink on smaller desktop */
 /* ================================================= */
 @media (min-width: 1024px) and (max-width: 1200px) {
-  .nav-center a {
+  .nav-center > a,
+  .nav-center > .mega-menu-wrap > a {
     font-size: 12.5px;
     padding: 7px 7px;
   }
@@ -480,10 +747,12 @@
   .counselling-badge {
     display: none !important;
   }
+  .mega-panel-inner { padding: 28px 20px; gap: 28px; }
 }
 
 @media (min-width: 1200px) and (max-width: 1380px) {
-  .nav-center a {
+  .nav-center > a,
+  .nav-center > .mega-menu-wrap > a {
     font-size: 13px;
     padding: 7px 9px;
   }
@@ -493,15 +762,13 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-   ADD THIS TO headr.css (append at the end of the file)
-   Styles for the new mobile "Popular Courses" collapsible
+   Styles for the mobile "Popular Courses" collapsible
    section inside .mobile-nav-links. Colors, sizes, and
    spacing are matched exactly to your existing
    .mobile-nav-links a rules so it looks native, not bolted on.
+   (UNCHANGED — mobile view same rehne diya gaya hai)
    ══════════════════════════════════════════════════════════ */
 
-/* Trigger row — same look as a normal .mobile-nav-links a,
-   but it's a <button> so it needs its own base reset. */
 .mobile-collapsible-trigger {
   display: flex;
   align-items: center;
@@ -527,16 +794,12 @@
   padding-left: 18px;
 }
 
-/* Spacer/divider at the top of each collapsible panel — this is the
-   gap you asked for between the trigger row and the first item
-   (e.g. so "One Year Online MBA" isn't glued to the row above it). */
 .mobile-collapsible-divider {
   height: 8px;
   background: #fafbfd;
   border-bottom: 1px solid #f0f0f0;
 }
 
-/* Panel — indented sub-list, visually nested under the trigger */
 .mobile-collapsible-panel {
   display: flex;
   flex-direction: column;
