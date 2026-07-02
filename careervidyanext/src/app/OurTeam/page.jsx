@@ -1,3 +1,5 @@
+
+
 // "use client";
 // import React, { useState, useEffect } from "react";
 // import api from "@/utlis/api.js";
@@ -12,16 +14,33 @@
 //       try {
 //         const response = await api.get(`${API_ROUTE}/`);
 //         const incomingData = response.data;
+//         let rawList = [];
 //         if (Array.isArray(incomingData)) {
-//           setTeamList(incomingData);
+//           rawList = incomingData;
 //         } else if (incomingData && Array.isArray(incomingData.data)) {
-//           setTeamList(incomingData.data);
+//           rawList = incomingData.data;
 //         } else if (incomingData && typeof incomingData === "object") {
 //           const possibleArray = Object.values(incomingData).find((val) =>
 //             Array.isArray(val)
 //           );
-//           setTeamList(possibleArray || []);
+//           rawList = possibleArray || [];
 //         }
+
+//         // Purane (pehle add hue) members hamesha upar/first-2 me rahein,
+//         // naye add hone wale members hamesha neeche (grid) me jud jaayein.
+//         const sortedList = [...rawList].sort((a, b) => {
+//           // Agar createdAt field available hai to usi se sort karo
+//           if (a.createdAt && b.createdAt) {
+//             return new Date(a.createdAt) - new Date(b.createdAt);
+//           }
+//           // Warna MongoDB ka _id bhi creation time ke hisaab se sort ho jaata hai
+//           if (a._id && b._id) {
+//             return a._id.localeCompare(b._id);
+//           }
+//           return 0;
+//         });
+
+//         setTeamList(sortedList);
 //       } catch (error) {
 //         console.error("Error fetching team data:", error);
 //       }
@@ -124,7 +143,7 @@
 //                           height: isFirst2 ? "280px" : "180px",
 //                           borderRadius: isFirst2 ? "16px" : "50%",
 //                           objectFit: "cover",
-//                           objectPosition: "top",
+//                           objectPosition: "bottom",
 //                           boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
 //                           border: "4px solid #ffffff",
 //                           background: "#e5e7eb",
@@ -293,7 +312,7 @@
 //                                 height: "160px",
 //                                 borderRadius: "50%",
 //                                 objectFit: "cover",
-//                                 objectPosition: "top",
+//                                 objectPosition: "bottom",
 //                                 marginBottom: "16px",
 //                                 boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
 //                                 border: "4px solid #ffffff",
@@ -667,7 +686,7 @@ const TeamHomePage = () => {
                                 height: "160px",
                                 borderRadius: "50%",
                                 objectFit: "cover",
-                                objectPosition: "bottom",
+                                objectPosition: "center",
                                 marginBottom: "16px",
                                 boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
                                 border: "4px solid #ffffff",
