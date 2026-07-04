@@ -8,6 +8,7 @@ import {
   updateCourse,
   deleteCourse,
   getCoursesShort,
+  searchCourses,
 } from "../controller/courseController.js";
 
 const router = express.Router();
@@ -28,6 +29,8 @@ const courseUploads = upload.fields([
 
 // ✅ Static routes PEHLE — dynamic routes baad mein
 router.get("/short", getCoursesShort);            // ✅ /short pehle
+router.get("/search", searchCourses);              // 👈 add this — /search bhi static hai
+
 router.get("/course/slug/:slug", getCourseBySlug);       // ✅ slug pehle
 
 // ✅ CRUD routes

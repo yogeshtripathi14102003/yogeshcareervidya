@@ -410,3 +410,33 @@ export const getCoursesShort = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// ======================================================
+// SEARCH COURSES (for global search bar)
+// ======================================================
+export const searchCourses = async (req, res) => {
+  try {
+    const { query = "", limit = 50 } = req.query;
+
+    if (!query.trim()) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    // ✅ Same fields as list view + universities (already embedded, no populate needed)
+    const courses = await Course.find({
+      name: { $regex: query, $options: "i" },
+    })
+      .select("name slug category duration tag courseLogo.url createdAt specializations universities")
+      .limit(Math.min(Number(limit) || 50, 100))
+      .lean();
+
+    res.set("Cache-Control", "public, max-age=30");
+    res.status(200).json({
+      success: true,
+      data: courses,
+    });
+  } catch (error) {
+    console.error("searchCourses Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
