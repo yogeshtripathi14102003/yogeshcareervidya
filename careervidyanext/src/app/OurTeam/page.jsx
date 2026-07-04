@@ -378,7 +378,7 @@
 import React, { useState, useEffect } from "react";
 import api from "@/utlis/api.js";
 import Header from "@/app/layout/Header.jsx";
-
+import Footer from "@/app/layout/Footer.jsx";
 const TeamHomePage = () => {
   const [teamList, setTeamList] = useState([]);
   const API_ROUTE = "/api/v1/manage";
@@ -492,7 +492,7 @@ const TeamHomePage = () => {
             <div style={{ display: "flex", flexDirection: "column", gap: "70px" }}>
               {teamList.map((member, index) => {
                 const imgUrl = getImageUrl(member.image);
-                const isFirst2 = index < 2; // सिर्फ पहले 2 का side description
+                const isFirst2 = index < 3; // पहले 4 members का side description
                 const isEven = index % 2 === 0;
 
                 const imageBlock = (
@@ -517,7 +517,7 @@ const TeamHomePage = () => {
                           height: isFirst2 ? "280px" : "180px",
                           borderRadius: isFirst2 ? "16px" : "50%",
                           objectFit: "cover",
-                          objectPosition: "bottom",
+                          objectPosition: "top",
                           boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
                           border: "4px solid #ffffff",
                           background: "#e5e7eb",
@@ -661,7 +661,7 @@ const TeamHomePage = () => {
                       gap: "50px 30px",
                     }}
                   >
-                    {teamList.slice(2).map((member) => {
+                    {teamList.slice(3).map((member) => {
                       const imgUrl = getImageUrl(member.image);
                       return (
                         <div
@@ -682,24 +682,23 @@ const TeamHomePage = () => {
                                   "https://placehold.co/160x160?text=No+Photo";
                               }}
                               style={{
-                                width: "160px",
-                                height: "160px",
-                                borderRadius: "50%",
+                                width: "180px",
+                                height: "220px",
+                                borderRadius: "16px",
                                 objectFit: "cover",
-                                objectPosition: "center",
+                                objectPosition: "top",
                                 marginBottom: "16px",
                                 boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
                                 border: "4px solid #ffffff",
-                                outline: "2px solid #dbeafe",
                                 background: "#e5e7eb",
                               }}
                             />
                           ) : (
                             <div
                               style={{
-                                width: "160px",
-                                height: "160px",
-                                borderRadius: "50%",
+                                width: "180px",
+                                height: "220px",
+                                borderRadius: "16px",
                                 background: "#e5e7eb",
                                 display: "flex",
                                 alignItems: "center",
@@ -742,6 +741,7 @@ const TeamHomePage = () => {
           )}
         </section>
       </div>
+      <Footer />
     </>
   );
 };

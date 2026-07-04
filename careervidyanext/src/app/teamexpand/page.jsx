@@ -647,7 +647,7 @@ export default function TeamListingPage() {
       <Header />
 
       <section
-        className="relative bg-blue-700 h-80 flex items-center justify-center text-center overflow-hidden cursor-pointer"
+        className="relative bg-blue-300 h-80 flex items-center justify-center text-center overflow-hidden cursor-pointer"
         style={{ backgroundImage: "url('/images/counselor-banner-placeholder.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />

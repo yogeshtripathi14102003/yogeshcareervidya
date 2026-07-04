@@ -410,6 +410,8 @@ import "./headr.css";
 
 const POPULAR_COURSES = [
   { href: "/course/online-mba-1",                                 label: "Online MBA",          icon: GraduationCap, chip: "chip-blue"    },
+    { href: "/course/1-year-online-mba",                          label: " One Year Online MBA", icon: GraduationCap, chip: "chip-blue"    },
+
   { href: "/course/online-mca",                                   label: "Online MCA",          icon: BookOpen,      chip: "chip-emerald" },
   { href: "/course/bba-bachelor-of-business-administration",      label: "Online BBA",          icon: Briefcase,     chip: "chip-amber"   },
   { href: "/course/online-bca-bachelor-of-computer-applications", label: "Online BCA",          icon: BookOpen,      chip: "chip-indigo"  },

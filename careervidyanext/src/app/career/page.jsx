@@ -1,42 +1,28 @@
 import JobsClient from "@/app/career/JobsClient.jsx";
+import { serverFetch } from "@/utlis/serverFetch.js"; // 👈 adjust this path to wherever serverFetch.js actually lives
+
 export const dynamic = "force-dynamic"; // ✅ build error fix
 
 export const metadata = {
   title: "Career Opportunities at Careervidya | Join Our Team",
-  description: "Explore the latest job openings at Careervidya. Accelerate your career with us.",
+  description:
+    "Explore the latest job openings at Careervidya. Accelerate your career with us.",
   alternates: { canonical: "https://careervidya.in/career" },
 };
 
-// ✅ SAFE FETCH FUNCTION
+// ✅ Uses the shared serverFetch utility so error handling,
+// timeout, and env var checks are all centralized in one place.
 async function getJobs() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/addjob`,
-      {
-        cache: "no-store", // ✅ important
-      } 
-    );
+  const result = await serverFetch("/api/v1/addjob");
 
-    // ❌ API fail
-    if (!res.ok) {
-      console.error("API Error:", res.status);
-      return [];
-    }
-
-    // 👇 direct json nahi, pehle text
-    const text = await res.text();
-
-    try {
-      const data = JSON.parse(text);
-      return data.data || data.jobs || data || [];
-    } catch (err) {
-      console.error("JSON Parse Error:", text); // 👈 yaha HTML dikhega
-      return [];
-    }
-  } catch (error) {
-    console.error("Fetch Error:", error);
+  if (!result.ok) {
+    console.error("getJobs: failed to load jobs", result.status);
     return [];
   }
+
+  const data = result.data;
+  // Handles whichever shape the backend actually returns
+  return data?.data || data?.jobs || (Array.isArray(data) ? data : []);
 }
 
 export default async function JobsPage() {

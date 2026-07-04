@@ -1,3 +1,5 @@
+
+
 // "use client";
 
 // import { useRef } from "react";
@@ -56,6 +58,9 @@
 //   );
 
 //   // JSON-LD: Award structured data
+//   // NOTE: keep the wording/years here in sync with your actual award
+//   // certificates — structured data should match the real, verifiable
+//   // recognition exactly (e.g. official award name/category as issued).
 //   const jsonLd = {
 //     "@context": "https://schema.org",
 //     "@type": "Organization",
@@ -91,7 +96,7 @@
 //               <h2 className="text-2xl md:text-3xl font-extrabold text-[#0056B3]">
 //                 Where Real Stories Meet Honest Truth and Real Impact.
 //               </h2>
-//               <p className="text-base md:text-xl text-gray-700 text-justify">
+//               <p className="text-base md:text-xl text-gray-700 text-justify [hyphens:auto] [text-justify:inter-word]">
 //                 Career Vidya Is Proudly Recognized with The Prestigious Indian Business Award for Transforming Student Careers Through Expert Guidance and Online Education. From Simplifying Career Choices to Creating Success Stories, We Continue to Set New Benchmarks in Career Development.
 //                 With A Strong Network of Top Universities and Industry Experts, We Ensure Every Student Receives Personalized Guidance Tailored to Their Goals. Our Commitment Goes Beyond Admissions. We Focus on Long-Term Career Growth, Skill Development, And Real-World Opportunities. Thousands Of Learners Trust Career Vidya to Make Informed Decisions and Achieve Success with Confidence.
 //               </p>
@@ -133,6 +138,7 @@
 
 // export default IBASection;
 
+
 "use client";
 
 import { useRef } from "react";
@@ -169,6 +175,8 @@ const IBASection = () => {
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
+
+      // Text block slide-in (desktop only, same as before)
       mm.add("(min-width: 768px)", () => {
         gsap.fromTo(
           ".animate-left",
@@ -185,15 +193,44 @@ const IBASection = () => {
           }
         );
       });
+
+      // Images: one-by-one sequential reveal as user scrolls
+      // Each image gets its own trigger so they "wait their turn"
+      // instead of all animating together.
+      const cards = gsap.utils.toArray(".iba-card");
+
+      cards.forEach((card, index) => {
+        gsap.fromTo(
+          card,
+          {
+            y: 60,
+            opacity: 0,
+            scale: 0.92,
+          },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              end: "top 55%",
+              scrub: 0.6, // ties the reveal directly to scroll position
+              toggleActions: "play none none reverse",
+            },
+            delay: index * 0.15, // slight cascade so they don't feel identical
+          }
+        );
+      });
+
       return () => mm.revert();
     },
     { scope: containerRef }
   );
 
   // JSON-LD: Award structured data
-  // NOTE: keep the wording/years here in sync with your actual award
-  // certificates — structured data should match the real, verifiable
-  // recognition exactly (e.g. official award name/category as issued).
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -222,7 +259,6 @@ const IBASection = () => {
         aria-label="CareerVidya Indian Business Award Recognition"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-
           {/* LEFT CONTENT */}
           <div className="lg:col-span-4 text-center lg:text-left mt-6 lg:mt-14">
             <div className="animate-left space-y-4 px-2">
@@ -230,8 +266,17 @@ const IBASection = () => {
                 Where Real Stories Meet Honest Truth and Real Impact.
               </h2>
               <p className="text-base md:text-xl text-gray-700 text-justify [hyphens:auto] [text-justify:inter-word]">
-                Career Vidya Is Proudly Recognized with The Prestigious Indian Business Award for Transforming Student Careers Through Expert Guidance and Online Education. From Simplifying Career Choices to Creating Success Stories, We Continue to Set New Benchmarks in Career Development.
-                With A Strong Network of Top Universities and Industry Experts, We Ensure Every Student Receives Personalized Guidance Tailored to Their Goals. Our Commitment Goes Beyond Admissions. We Focus on Long-Term Career Growth, Skill Development, And Real-World Opportunities. Thousands Of Learners Trust Career Vidya to Make Informed Decisions and Achieve Success with Confidence.
+                Career Vidya Is Proudly Recognized with The Prestigious Indian
+                Business Award for Transforming Student Careers Through
+                Expert Guidance and Online Education. From Simplifying Career
+                Choices to Creating Success Stories, We Continue to Set New
+                Benchmarks in Career Development. With A Strong Network of
+                Top Universities and Industry Experts, We Ensure Every
+                Student Receives Personalized Guidance Tailored to Their
+                Goals. Our Commitment Goes Beyond Admissions. We Focus on
+                Long-Term Career Growth, Skill Development, And Real-World
+                Opportunities. Thousands Of Learners Trust Career Vidya to
+                Make Informed Decisions and Achieve Success with Confidence.
               </p>
             </div>
           </div>
@@ -242,12 +287,13 @@ const IBASection = () => {
               India's Leading Career Platform Awarded at IBA
             </h3>
 
-            {/* ALL SCREENS — 1 col mobile, 3 col desktop */}
+            {/* 1 col mobile (so images stack and reveal one-by-one naturally),
+                3 col desktop */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {staticBanners.map((item, index) => (
                 <div
                   key={item.id}
-                  className="h-64 md:h-80 rounded-xl overflow-hidden bg-white shadow-md"
+                  className="iba-card h-64 md:h-80 rounded-xl overflow-hidden bg-white shadow-md"
                 >
                   <Image
                     src={item.image}
@@ -262,7 +308,6 @@ const IBASection = () => {
               ))}
             </div>
           </div>
-
         </div>
       </section>
     </>
