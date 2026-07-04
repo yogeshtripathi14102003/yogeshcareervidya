@@ -497,7 +497,8 @@ const SearchContent = () => {
   const initialQuery = searchParams.get("q") || "";
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState([]); // universities
+  const [courseResults, setCourseResults] = useState([]); // courses (own collection, own slug)
   const [loading, setLoading] = useState(false);
   const [selectedApprovals, setSelectedApprovals] = useState([]);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -547,6 +548,7 @@ const SearchContent = () => {
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setSearchResults([]);
+      setCourseResults([]);
       setLoading(false);
       return;
     }
@@ -557,37 +559,29 @@ const SearchContent = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
+  // ✅ Both APIs fetched in parallel: university/search/all for universities,
+  // course/search for courses (this one has real slugs, no more _id fallback)
   const fetchResults = async (q) => {
     setLoading(true);
     try {
-      const res = await api.get(`/api/v1/university/search/all?query=${q}`);
-      // 🔍 TEMP DEBUG — remove after checking console output
-      console.log("SEARCH API RAW RESULT:", res.data.data);
-      if (res.data.data?.[0]?.courses?.[0]) {
-        console.log("FIRST COURSE OBJECT SHAPE:", res.data.data[0].courses[0]);
-      }
-      setSearchResults(res.data.data || []);
+      const [uniRes, courseRes] = await Promise.all([
+        api.get(`/api/v1/university/search/all?query=${q}`),
+        api.get(`/api/v1/course/search?query=${q}`),
+      ]);
+
+      setSearchResults(uniRes.data.data || []);
+      setCourseResults(courseRes.data.data || []);
     } catch {
       setSearchResults([]);
+      setCourseResults([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Universities column — just university-level filtering now
   const filteredResults = searchResults
     .map((result) => {
-      const { detectedFees } = getSmartFilters(searchQuery);
-      const matchedCourses =
-        result.courses?.filter((course) => {
-          const matchesCourseName = course.name
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase());
-          const matchesFee = detectedFees
-            ? (course.fees || course.minFees || 0) <= detectedFees
-            : true;
-          return matchesCourseName && matchesFee;
-        }) || [];
-
       if (selectedApprovals.length > 0) {
         const universityApprovals =
           result.approvals?.map((a) => a.name.toUpperCase()) || [];
@@ -600,11 +594,22 @@ const SearchContent = () => {
       const matchesUniversityName = result.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-      if (!matchesUniversityName && matchedCourses.length === 0) return null;
+      if (!matchesUniversityName) return null;
 
-      return { ...result, matchedCourses };
+      return result;
     })
     .filter(Boolean);
+
+  // Courses column — comes straight from /api/v1/course/search (real slugs)
+  const { detectedFees } = getSmartFilters(searchQuery);
+  const filteredCourses = courseResults.filter((course) => {
+    const matchesFee = detectedFees
+      ? (course.fees || course.minFees || 0) <= detectedFees
+      : true;
+    return matchesFee;
+  });
+
+  const totalResults = filteredResults.length + filteredCourses.length;
 
   return (
     <>
@@ -781,17 +786,17 @@ const SearchContent = () => {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
                   <p style={{ fontSize: 13, color: "#6B7280", margin: 0 }}>
                     Showing{" "}
-                    <strong style={{ color: "#111827" }}>{filteredResults.length}</strong>{" "}
+                    <strong style={{ color: "#111827" }}>{totalResults}</strong>{" "}
                     results for{" "}
                     <strong style={{ color: "#2563EB" }}>"{searchQuery}"</strong>
                   </p>
-                  {getSmartFilters(searchQuery).detectedFees && (
+                  {detectedFees && (
                     <span style={{
                       fontSize: 11, fontWeight: 700, color: "#065F46",
                       background: "#D1FAE5", border: "1px solid #A7F3D0",
                       padding: "4px 10px", borderRadius: 8,
                     }}>
-                      BUDGET ≤ ₹{getSmartFilters(searchQuery).detectedFees.toLocaleString()}
+                      BUDGET ≤ ₹{detectedFees.toLocaleString()}
                     </span>
                   )}
                 </div>
@@ -804,7 +809,7 @@ const SearchContent = () => {
                     ))}
                   </div>
 
-                ) : filteredResults.length > 0 ? (
+                ) : totalResults > 0 ? (
 
                   /* ── TWO COLUMN LAYOUT: Universities | Courses ── */
                   <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -814,129 +819,138 @@ const SearchContent = () => {
                       <p style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 12px 0" }}>
                         Universities
                       </p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                        {filteredResults.map((result, idx) => (
-                          <Link
-                            key={result._id}
-                            href={`/university/${result.slug || result._id}`}
-                            className="result-card card-enter"
-                            style={{
-                              textDecoration: "none",
-                              display: "block",
-                              background: "#fff", borderRadius: 16,
-                              border: "1px solid #E5E9F2", padding: "18px 20px",
-                              animationDelay: `${idx * 0.05}s`,
-                            }}
-                          >
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                              <div>
-                                <h2 style={{ fontSize: 16, fontWeight: 700, color: "#111827", margin: "0 0 3px 0" }}>
-                                  {result.name}
-                                </h2>
-                                <p style={{ fontSize: 13, color: "#6B7280", margin: 0, display: "flex", alignItems: "center", gap: 4 }}>
-                                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                  </svg>
-                                  {result.location || "India"}
-                                </p>
-                              </div>
-                              <span style={{
-                                fontSize: 10, fontWeight: 800, color: "#1D4ED8",
-                                background: "#EFF6FF", border: "1px solid #BFDBFE",
-                                padding: "3px 9px", borderRadius: 6, letterSpacing: "0.06em",
-                              }}>
-                                UNIVERSITY
-                              </span>
-                            </div>
 
-                            {/* Tags row */}
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                              {result.minFees && (
+                      {filteredResults.length === 0 ? (
+                        <div style={{
+                          background: "#fff", borderRadius: 16,
+                          border: "1.5px dashed #E5E9F2",
+                          padding: "40px 16px", textAlign: "center",
+                        }}>
+                          <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0 }}>
+                            No matching universities
+                          </p>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                          {filteredResults.map((result, idx) => (
+                            <Link
+                              key={result._id}
+                              href={`/university/${result.slug || result._id}`}
+                              className="result-card card-enter"
+                              style={{
+                                textDecoration: "none",
+                                display: "block",
+                                background: "#fff", borderRadius: 16,
+                                border: "1px solid #E5E9F2", padding: "18px 20px",
+                                animationDelay: `${idx * 0.05}s`,
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                                <div>
+                                  <h2 style={{ fontSize: 16, fontWeight: 700, color: "#111827", margin: "0 0 3px 0" }}>
+                                    {result.name}
+                                  </h2>
+                                  <p style={{ fontSize: 13, color: "#6B7280", margin: 0, display: "flex", alignItems: "center", gap: 4 }}>
+                                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    {result.location || "India"}
+                                  </p>
+                                </div>
                                 <span style={{
-                                  fontSize: 12, fontWeight: 600, color: "#065F46",
-                                  background: "#ECFDF5", border: "1px solid #A7F3D0",
-                                  padding: "3px 10px", borderRadius: 8,
+                                  fontSize: 10, fontWeight: 800, color: "#1D4ED8",
+                                  background: "#EFF6FF", border: "1px solid #BFDBFE",
+                                  padding: "3px 9px", borderRadius: 6, letterSpacing: "0.06em",
                                 }}>
-                                  ₹{result.minFees.toLocaleString()} min fees
+                                  UNIVERSITY
                                 </span>
-                              )}
-                              {result.approvals?.map((a, i) => (
-                                <span key={i} style={{
-                                  fontSize: 11, fontWeight: 700, color: "#374151",
-                                  background: "#F3F4F6", border: "1px solid #E5E7EB",
-                                  padding: "3px 9px", borderRadius: 6,
-                                }}>
-                                  {a.name}
-                                </span>
-                              ))}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
+                              </div>
+
+                              {/* Tags row */}
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                                {result.minFees && (
+                                  <span style={{
+                                    fontSize: 12, fontWeight: 600, color: "#065F46",
+                                    background: "#ECFDF5", border: "1px solid #A7F3D0",
+                                    padding: "3px 10px", borderRadius: 8,
+                                  }}>
+                                    ₹{result.minFees.toLocaleString()} min fees
+                                  </span>
+                                )}
+                                {result.approvals?.map((a, i) => (
+                                  <span key={i} style={{
+                                    fontSize: 11, fontWeight: 700, color: "#374151",
+                                    background: "#F3F4F6", border: "1px solid #E5E7EB",
+                                    padding: "3px 9px", borderRadius: 6,
+                                  }}>
+                                    {a.name}
+                                  </span>
+                                ))}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    {/* ── RIGHT: COURSES ── */}
+                    {/* ── RIGHT: COURSES (own collection, real slugs) ── */}
                     <div style={{ flex: "1 1 340px", minWidth: 280 }}>
                       <p style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 12px 0" }}>
                         Matching Courses
                       </p>
 
-                      {(() => {
-                        // Flatten all matched courses from every university into one list
-                        const allMatchedCourses = filteredResults.flatMap((result) =>
-                          (result.matchedCourses || []).map((course) => ({
-                            ...course,
-                            universityName: result.name,
-                            universitySlug: result.slug || result._id,
-                          }))
-                        );
-
-                        if (allMatchedCourses.length === 0) {
-                          return (
-                            <div style={{
-                              background: "#fff", borderRadius: 16,
-                              border: "1.5px dashed #E5E9F2",
-                              padding: "40px 16px", textAlign: "center",
-                            }}>
-                              <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0 }}>
-                                No matching courses
-                              </p>
-                            </div>
-                          );
-                        }
-
-                        return (
-                          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                            {allMatchedCourses.map((course, idx) => (
-                              <Link
-                                key={course._id || `${course.universitySlug}-${course.name}`}
-                                href={`/course/${course.slug || course._id}`}
-                                className="result-card card-enter"
-                                style={{
-                                  textDecoration: "none",
-                                  display: "block",
-                                  background: "#fff", borderRadius: 14,
-                                  border: "1px solid #E5E9F2", padding: "14px 16px",
-                                  animationDelay: `${idx * 0.05}s`,
-                                }}
-                              >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                                  <span style={{ fontSize: 13.5, fontWeight: 700, color: "#1F2937" }}>
-                                    {course.name}
-                                  </span>
+                      {filteredCourses.length === 0 ? (
+                        <div style={{
+                          background: "#fff", borderRadius: 16,
+                          border: "1.5px dashed #E5E9F2",
+                          padding: "40px 16px", textAlign: "center",
+                        }}>
+                          <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0 }}>
+                            No matching courses
+                          </p>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                          {filteredCourses.map((course, idx) => (
+                            <Link
+                              key={course._id}
+                              href={`/course/${course.slug}`}
+                              className="result-card card-enter"
+                              style={{
+                                textDecoration: "none",
+                                display: "block",
+                                background: "#fff", borderRadius: 14,
+                                border: "1px solid #E5E9F2", padding: "14px 16px",
+                                animationDelay: `${idx * 0.05}s`,
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                                <span style={{ fontSize: 13.5, fontWeight: 700, color: "#1F2937" }}>
+                                  {course.name}
+                                </span>
+                                {(course.fees || course.minFees) && (
                                   <span style={{ fontSize: 13, fontWeight: 700, color: "#2563EB" }}>
-                                    ₹{course.fees?.toLocaleString() || "On Request"}
+                                    ₹{(course.fees || course.minFees).toLocaleString()}
                                   </span>
-                                </div>
-                                <p style={{ fontSize: 11.5, color: "#9CA3AF", margin: 0 }}>
-                                  {course.universityName}
-                                </p>
-                              </Link>
-                            ))}
-                          </div>
-                        );
-                      })()}
+                                )}
+                              </div>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                                {course.category && (
+                                  <span style={{ fontSize: 11.5, color: "#9CA3AF" }}>
+                                    {course.category}
+                                  </span>
+                                )}
+                                {course.universities?.[0]?.name && (
+                                  <span style={{ fontSize: 11.5, color: "#9CA3AF" }}>
+                                    · {course.universities[0].name}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                   </div>
