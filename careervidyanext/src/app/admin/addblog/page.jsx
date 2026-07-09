@@ -282,9 +282,13 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "@/utlis/api";
 import { PlusCircle, Trash2, Upload } from "lucide-react";
+
+const STORAGE_KEY = "blogFormDraft"; // localStorage key jaha draft save hoga
+const FIELD_HISTORY_KEY = "blogFormFieldHistory"; // localStorage key jaha per-field suggestions save hoti hain
+const MAX_SUGGESTIONS_PER_FIELD = 8;
 
 const emptyBlock = () => ({
   type: "paragraph",
@@ -297,33 +301,111 @@ const emptyBlock = () => ({
   media: { caption: "" },
 });
 
+const emptyForm = () => ({
+  custom_id: "",
+  title: "",
+  category: "",
+  author: {
+    name: "",
+    experience: "",
+    specialization: "",
+    designation: "",
+    description: "",
+  },
+  content: [emptyBlock()],
+  faqs: [{ question: "", answer: "" }],
+  seo: {
+    meta_title: "",
+    meta_desc: "",
+    keywords: "",
+  },
+});
+
 export default function BlogForm() {
   const [loading, setLoading] = useState(false);
+  const [restoredNotice, setRestoredNotice] = useState(false);
   const [files, setFiles] = useState({
     coverImage: null,
     authorImage: null,
     contentMedia: {},
   });
 
-  const [formData, setFormData] = useState({
-    custom_id: "",
-    title: "",
-    category: "",
-    author: {
-      name: "",
-      experience: "",
-      specialization: "",
-      designation: "",
-      description: "",
-    },
-    content: [emptyBlock()],
-    faqs: [{ question: "", answer: "" }],
-    seo: {
-      meta_title: "",
-      meta_desc: "",
-      keywords: "",
-    },
+  // ─── per-field suggestion history (jaise browser ka native "saved values" dropdown) ───
+  const [fieldHistory, setFieldHistory] = useState(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      const saved = window.localStorage.getItem(FIELD_HISTORY_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch (err) {
+      return {};
+    }
   });
+
+  // Jab user field se bahar click kare (blur), uski value ko us field ki history me add karo
+  const rememberValue = (fieldKey, value) => {
+    if (!value || !String(value).trim()) return;
+    setFieldHistory((prev) => {
+      const existing = prev[fieldKey] || [];
+      const updated = [value, ...existing.filter((v) => v !== value)].slice(0, MAX_SUGGESTIONS_PER_FIELD);
+      const next = { ...prev, [fieldKey]: updated };
+      try {
+        window.localStorage.setItem(FIELD_HISTORY_KEY, JSON.stringify(next));
+      } catch (err) {
+        console.warn("Suggestion history save failed:", err);
+      }
+      return next;
+    });
+  };
+
+  // Har field ke liye <datalist> options nikalne ka helper
+  const suggestionsFor = (fieldKey) => fieldHistory[fieldKey] || [];
+
+  // Lazy init: pehle localStorage se draft padhne ki koshish karo,
+  // agar mile toh wahi use karo, warna empty form.
+  const [formData, setFormData] = useState(() => {
+    if (typeof window === "undefined") return emptyForm();
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (err) {
+      console.warn("Draft restore failed:", err);
+    }
+    return emptyForm();
+  });
+
+  // Mount ke baad check karo ki kya draft restore hua tha (banner dikhane ke liye)
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (saved) setRestoredNotice(true);
+    } catch (err) {
+      // ignore
+    }
+  }, []);
+
+  // Jab bhi formData change ho, debounce karke localStorage me save karo.
+  // (Files ko save nahi karte kyunki File objects serialize nahi ho sakte —
+  // sirf text fields ka draft bachta hai, images wapas select karni hongi.)
+  const saveTimeout = useRef(null);
+  useEffect(() => {
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(() => {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+      } catch (err) {
+        console.warn("Draft save failed:", err);
+      }
+    }, 400); // 400ms debounce taki har keystroke pe na likhe
+    return () => clearTimeout(saveTimeout.current);
+  }, [formData]);
+
+  const clearDraft = () => {
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch (err) {
+      // ignore
+    }
+  };
 
   /* ─── deep path setter ─── */
   const handleChange = (e, path) => {
@@ -426,6 +508,11 @@ export default function BlogForm() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Blog Created Successfully");
+      // Publish ho gaya toh draft ki ab zarurat nahi — clear kar do
+      clearDraft();
+      setFormData(emptyForm());
+      setFiles({ coverImage: null, authorImage: null, contentMedia: {} });
+      setRestoredNotice(false);
     } catch (err) {
       console.log(err);
       alert("Upload Failed");
@@ -434,28 +521,89 @@ export default function BlogForm() {
     setLoading(false);
   };
 
+  const handleClearDraft = () => {
+    if (!confirm("Saara draft data clear kar dein?")) return;
+    clearDraft();
+    setFormData(emptyForm());
+    setFiles({ coverImage: null, authorImage: null, contentMedia: {} });
+    setRestoredNotice(false);
+  };
+
   const inp =
     "border border-slate-300 p-2 rounded w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400";
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Blog Editor</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Blog Editor</h1>
+        <button
+          type="button"
+          onClick={handleClearDraft}
+          className="text-xs text-red-500 hover:text-red-700 border border-red-200 rounded px-3 py-1.5"
+        >
+          Clear Draft
+        </button>
+      </div>
+
+      {restoredNotice && (
+        <div className="text-sm bg-amber-50 border border-amber-200 text-amber-700 rounded px-3 py-2 flex items-center justify-between">
+          <span>Aapka pehle wala draft restore ho gaya hai.</span>
+          <button
+            type="button"
+            onClick={() => setRestoredNotice(false)}
+            className="text-amber-500 hover:text-amber-700 font-medium"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-10">
 
         {/* ── BASIC INFO ── */}
         <Section title="Basic Info">
           <Field label="Custom ID / Slug">
-            <input className={inp} placeholder="url-friendly-id" onChange={(e) => handleChange(e, ["custom_id"])} />
+            <input
+              className={inp}
+              placeholder="url-friendly-id"
+              value={formData.custom_id}
+              list="dl-custom_id"
+              onChange={(e) => handleChange(e, ["custom_id"])}
+              onBlur={(e) => rememberValue("custom_id", e.target.value)}
+            />
+            <datalist id="dl-custom_id">
+              {suggestionsFor("custom_id").map((v) => <option key={v} value={v} />)}
+            </datalist>
           </Field>
           <Field label="Title">
-            <input className={inp} placeholder="Blog title" onChange={(e) => handleChange(e, ["title"])} />
+            <input
+              className={inp}
+              placeholder="Blog title"
+              value={formData.title}
+              list="dl-title"
+              onChange={(e) => handleChange(e, ["title"])}
+              onBlur={(e) => rememberValue("title", e.target.value)}
+            />
+            <datalist id="dl-title">
+              {suggestionsFor("title").map((v) => <option key={v} value={v} />)}
+            </datalist>
           </Field>
           <Field label="Category">
-            <input className={inp} placeholder="e.g. Orthopaedics" onChange={(e) => handleChange(e, ["category"])} />
+            <input
+              className={inp}
+              placeholder="e.g. Orthopaedics"
+              value={formData.category}
+              list="dl-category"
+              onChange={(e) => handleChange(e, ["category"])}
+              onBlur={(e) => rememberValue("category", e.target.value)}
+            />
+            <datalist id="dl-category">
+              {suggestionsFor("category").map((v) => <option key={v} value={v} />)}
+            </datalist>
           </Field>
           <Field label="Cover Image">
             <input type="file" accept="image/*" onChange={(e) => setFiles({ ...files, coverImage: e.target.files[0] })} />
+            <span className="text-[11px] text-slate-400">Note: images draft me save nahi hoti, refresh ke baad dobara select karni hongi.</span>
           </Field>
         </Section>
 
@@ -463,19 +611,59 @@ export default function BlogForm() {
         <Section title="Author">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Name">
-              <input className={inp} placeholder="Author name" onChange={(e) => handleChange(e, ["author", "name"])} />
+              <input
+                className={inp}
+                placeholder="Author name"
+                value={formData.author.name}
+                list="dl-author_name"
+                onChange={(e) => handleChange(e, ["author", "name"])}
+                onBlur={(e) => rememberValue("author_name", e.target.value)}
+              />
+              <datalist id="dl-author_name">
+                {suggestionsFor("author_name").map((v) => <option key={v} value={v} />)}
+              </datalist>
             </Field>
             <Field label="Designation">
-              <input className={inp} placeholder="e.g. Senior Cardiologist" onChange={(e) => handleChange(e, ["author", "designation"])} />
+              <input
+                className={inp}
+                placeholder="e.g. Senior Cardiologist"
+                value={formData.author.designation}
+                list="dl-author_designation"
+                onChange={(e) => handleChange(e, ["author", "designation"])}
+                onBlur={(e) => rememberValue("author_designation", e.target.value)}
+              />
+              <datalist id="dl-author_designation">
+                {suggestionsFor("author_designation").map((v) => <option key={v} value={v} />)}
+              </datalist>
             </Field>
             <Field label="Specialization">
-              <input className={inp} placeholder="Area of expertise" onChange={(e) => handleChange(e, ["author", "specialization"])} />
+              <input
+                className={inp}
+                placeholder="Area of expertise"
+                value={formData.author.specialization}
+                list="dl-author_specialization"
+                onChange={(e) => handleChange(e, ["author", "specialization"])}
+                onBlur={(e) => rememberValue("author_specialization", e.target.value)}
+              />
+              <datalist id="dl-author_specialization">
+                {suggestionsFor("author_specialization").map((v) => <option key={v} value={v} />)}
+              </datalist>
             </Field>
             <Field label="Experience">
-              <input className={inp} placeholder="e.g. 10 years" onChange={(e) => handleChange(e, ["author", "experience"])} />
+              <input
+                className={inp}
+                placeholder="e.g. 10 years"
+                value={formData.author.experience}
+                list="dl-author_experience"
+                onChange={(e) => handleChange(e, ["author", "experience"])}
+                onBlur={(e) => rememberValue("author_experience", e.target.value)}
+              />
+              <datalist id="dl-author_experience">
+                {suggestionsFor("author_experience").map((v) => <option key={v} value={v} />)}
+              </datalist>
             </Field>
             <Field label="Bio / Description" className="col-span-2">
-              <textarea className={`${inp} min-h-[80px] resize-y`} placeholder="Short author bio" onChange={(e) => handleChange(e, ["author", "description"])} />
+              <textarea className={`${inp} min-h-[80px] resize-y`} placeholder="Short author bio" value={formData.author.description} onChange={(e) => handleChange(e, ["author", "description"])} />
             </Field>
             <Field label="Author Photo">
               <input type="file" accept="image/*" onChange={(e) => setFiles({ ...files, authorImage: e.target.files[0] })} />
@@ -561,7 +749,7 @@ export default function BlogForm() {
                 {block.type === "heading" && (
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Heading Text" className="col-span-2">
-                      <input className={inp} placeholder="Main heading" onChange={(e) => handleChange(e, ["content", i, "text"])} />
+                      <input className={inp} placeholder="Main heading" value={block.text} onChange={(e) => handleChange(e, ["content", i, "text"])} />
                     </Field>
                     <Field label="Level (H1–H6)">
                       <select className={inp} value={block.level} onChange={(e) => handleChange(e, ["content", i, "level"])}>
@@ -588,7 +776,7 @@ export default function BlogForm() {
                 {block.type === "subheading" && (
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Subheading Text" className="col-span-2">
-                      <input className={inp} placeholder="Subheading text" onChange={(e) => handleChange(e, ["content", i, "text"])} />
+                      <input className={inp} placeholder="Subheading text" value={block.text} onChange={(e) => handleChange(e, ["content", i, "text"])} />
                     </Field>
                     <Field label="Level (H3–H6)">
                       <select className={inp} value={block.level || 3} onChange={(e) => handleChange(e, ["content", i, "level"])}>
@@ -615,7 +803,7 @@ export default function BlogForm() {
                 {block.type === "paragraph" && (
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Text" className="col-span-2">
-                      <textarea className={`${inp} min-h-[100px] resize-y`} placeholder="Paragraph content" onChange={(e) => handleChange(e, ["content", i, "text"])} />
+                      <textarea className={`${inp} min-h-[100px] resize-y`} placeholder="Paragraph content" value={block.text} onChange={(e) => handleChange(e, ["content", i, "text"])} />
                     </Field>
                     <Field label="Alignment">
                       <select className={inp} value={block.align} onChange={(e) => handleChange(e, ["content", i, "align"])}>
@@ -641,6 +829,7 @@ export default function BlogForm() {
                       <textarea
                         className={`${inp} min-h-[100px] resize-y ${block.type === "code" ? "font-mono text-sm" : ""}`}
                         placeholder={block.type === "code" ? "// code here" : "Quote text"}
+                        value={block.text}
                         onChange={(e) => handleChange(e, ["content", i, "text"])}
                       />
                     </Field>
@@ -720,10 +909,10 @@ export default function BlogForm() {
                       )}
                     </Field>
                     <Field label="Caption">
-                      <textarea className={`${inp} min-h-[72px] resize-y`} placeholder="Image caption" onChange={(e) => handleChange(e, ["content", i, "media", "caption"])} />
+                      <textarea className={`${inp} min-h-[72px] resize-y`} placeholder="Image caption" value={block.media?.caption || ""} onChange={(e) => handleChange(e, ["content", i, "media", "caption"])} />
                     </Field>
                     <Field label="Alt Text">
-                      <input className={inp} placeholder="Describe the image" onChange={(e) => handleChange(e, ["content", i, "media", "alt"])} />
+                      <input className={inp} placeholder="Describe the image" value={block.media?.alt || ""} onChange={(e) => handleChange(e, ["content", i, "media", "alt"])} />
                     </Field>
                     <Field label="Alignment">
                       <select className={inp} value={block.align} onChange={(e) => handleChange(e, ["content", i, "align"])}>
@@ -739,10 +928,10 @@ export default function BlogForm() {
                 {block.type === "video" && (
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Video URL" className="col-span-2">
-                      <input className={inp} placeholder="https://youtube.com/..." onChange={(e) => handleChange(e, ["content", i, "media", "url"])} />
+                      <input className={inp} placeholder="https://youtube.com/..." value={block.media?.url || ""} onChange={(e) => handleChange(e, ["content", i, "media", "url"])} />
                     </Field>
                     <Field label="Caption">
-                      <input className={inp} placeholder="Video caption" onChange={(e) => handleChange(e, ["content", i, "media", "caption"])} />
+                      <input className={inp} placeholder="Video caption" value={block.media?.caption || ""} onChange={(e) => handleChange(e, ["content", i, "media", "caption"])} />
                     </Field>
                   </div>
                 )}
@@ -833,10 +1022,10 @@ export default function BlogForm() {
                   </button>
                 </div>
                 <Field label="Question">
-                  <input className={inp} placeholder="Enter question" onChange={(e) => handleChange(e, ["faqs", i, "question"])} />
+                  <input className={inp} placeholder="Enter question" value={faq.question} onChange={(e) => handleChange(e, ["faqs", i, "question"])} />
                 </Field>
                 <Field label="Answer">
-                  <textarea className={`${inp} min-h-[80px] resize-y`} placeholder="Enter answer" onChange={(e) => handleChange(e, ["faqs", i, "answer"])} />
+                  <textarea className={`${inp} min-h-[80px] resize-y`} placeholder="Enter answer" value={faq.answer} onChange={(e) => handleChange(e, ["faqs", i, "answer"])} />
                 </Field>
               </div>
             ))}
@@ -853,13 +1042,33 @@ export default function BlogForm() {
         {/* ── SEO ── */}
         <Section title="SEO">
           <Field label="Meta Title">
-            <input className={inp} placeholder="50–60 chars recommended" onChange={(e) => handleChange(e, ["seo", "meta_title"])} />
+            <input
+              className={inp}
+              placeholder="50–60 chars recommended"
+              value={formData.seo.meta_title}
+              list="dl-meta_title"
+              onChange={(e) => handleChange(e, ["seo", "meta_title"])}
+              onBlur={(e) => rememberValue("meta_title", e.target.value)}
+            />
+            <datalist id="dl-meta_title">
+              {suggestionsFor("meta_title").map((v) => <option key={v} value={v} />)}
+            </datalist>
           </Field>
           <Field label="Meta Description">
-            <textarea className={`${inp} min-h-[80px] resize-y`} placeholder="150–160 chars recommended" onChange={(e) => handleChange(e, ["seo", "meta_desc"])} />
+            <textarea className={`${inp} min-h-[80px] resize-y`} placeholder="150–160 chars recommended" value={formData.seo.meta_desc} onChange={(e) => handleChange(e, ["seo", "meta_desc"])} />
           </Field>
           <Field label="Keywords (comma-separated)">
-            <input className={inp} placeholder="keyword1, keyword2, keyword3" onChange={(e) => handleChange(e, ["seo", "keywords"])} />
+            <input
+              className={inp}
+              placeholder="keyword1, keyword2, keyword3"
+              value={formData.seo.keywords}
+              list="dl-keywords"
+              onChange={(e) => handleChange(e, ["seo", "keywords"])}
+              onBlur={(e) => rememberValue("keywords", e.target.value)}
+            />
+            <datalist id="dl-keywords">
+              {suggestionsFor("keywords").map((v) => <option key={v} value={v} />)}
+            </datalist>
           </Field>
         </Section>
 
