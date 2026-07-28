@@ -581,7 +581,7 @@ export default function Header() {
                     <ColHeading color="#b45309">Recognition</ColHeading>
                     <div className="mega-award-card">
                       <div className="mega-award-badge">AWARD 2025</div>
-                      <p className="mega-award-title">Winner: International Business Award 2025</p>
+                      <p className="mega-award-title">Winner: IBA 2025</p>
                       <p className="mega-award-sub">Empowering Careers Globally</p>
                     </div>
                     <div className="mega-live-pill">

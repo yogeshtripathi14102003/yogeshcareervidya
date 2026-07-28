@@ -299,8 +299,16 @@
 /* ================================================= */
 /* MEGA MENU WRAP — the trigger item itself           */
 /* ================================================= */
+/*
+  UPDATED:
+  Changed from `position: static` to `position: relative`.
+  The mega-panel below is no longer `position: fixed` spanning
+  the full viewport — it's now `position: absolute`, anchored
+  directly under THIS wrapper. So this wrapper must establish
+  the containing block for it.
+*/
 .mega-menu-wrap {
-  position: static; /* ← KEY: don't create a new containing block */
+  position: relative;
 }
 .mega-menu-wrap > a {
   display: flex;
@@ -311,21 +319,37 @@
 .chevron-icon { transition: transform .25s ease; }
 
 /* ================================================= */
-/* MEGA MENU PANEL — FIXED, FULL-WIDTH, VIEWPORT-    */
-/* ANCHORED so it never overflows left or right      */
+/* MEGA MENU PANEL — auto-sized to its own content,   */
+/* anchored under the trigger, NEVER cropped/overflow */
 /* ================================================= */
+/*
+  UPDATED (bugfix):
+  1) Previously `position: fixed; left:0; right:0; width:100%`
+     made the dropdown always cover the FULL screen width,
+     regardless of how much content it actually had.
+  2) Then a fixed `width: 720px` was used — better, but still
+     not "content-sized", and could get clipped by the viewport
+     edge on smaller desktop widths.
+
+  Fix: `position: absolute` relative to `.mega-menu-wrap`
+  (which is `position: relative`), with NO explicit width set.
+  An absolutely-positioned element with only `left` (or only
+  `right`) set shrink-wraps to its content by default — so the
+  panel is only ever as wide as it needs to be ("jitne me utna").
+  A `max-width` safety cap + per-column `minmax()` keeps it from
+  overflowing the viewport on any screen size, and each of the
+  3 triggers anchors its panel so it always stays fully visible
+  (left-aligned, centered, or right-aligned as appropriate).
+*/
 .mega-panel {
-  /* Position: fixed to viewport, just below header */
-  position: fixed;
-  top: 122px;           /* matches desktop header height */
-  left: 0;
-  right: 0;
-  width: 100%;
+  position: absolute;
+  top: calc(100% + 14px);
+  max-width: min(760px, 94vw);   /* ceiling only — real width = content */
 
   background: #fff;
-  border-top: 1px solid #e8e8e8;
-  border-bottom: 2px solid #e8e8e8;
-  box-shadow: 0 12px 40px rgba(0,0,0,.10);
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .10);
   z-index: 490;        /* below header but above page content */
 
   /* Show/hide */
@@ -334,9 +358,10 @@
   transform: translateY(-6px);
   transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
 
-  /* Internal layout: max-width centered content */
+  /* Internal layout */
   display: flex;
   justify-content: center;
+  overflow: hidden;     /* extra safety net against any content overflow */
 }
 
 /* Visible when parent .mega-menu-wrap is hovered */
@@ -346,14 +371,38 @@
   transform: translateY(0);
 }
 
-/* Inner container: max width + equal-col grid */
+/* 1st item ("Explore Programs") — leftmost trigger → anchor left */
+.nav-center > .mega-menu-wrap:nth-of-type(1) .mega-panel {
+  left: 0;
+}
+
+/* 2nd item ("Free Counselling") — sits near the center of the
+   nav → center the panel under its own trigger, regardless of
+   how wide the panel's content ends up being */
+.nav-center > .mega-menu-wrap:nth-of-type(2) .mega-panel {
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+}
+.nav-center > .mega-menu-wrap:nth-of-type(2):hover .mega-panel {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 3rd item ("Top Universities") — rightmost trigger → anchor
+   right, so it never runs off the right edge of the screen */
+.nav-center > .mega-menu-wrap:nth-of-type(3) .mega-panel {
+  left: auto;
+  right: 0;
+}
+
+/* Inner container: content grid — columns only take the space
+   they actually need (minmax), so the whole panel shrink-wraps */
 .mega-panel-inner {
-  width: 100%;
-  max-width: 1200px;
-  padding: 32px 24px;
+  width: max-content;
+  max-width: min(760px, 94vw);
+  padding: 28px 24px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
+  grid-template-columns: repeat(3, minmax(160px, 220px));
+  gap: 24px;
   box-sizing: border-box;
 }
 
@@ -747,7 +796,13 @@
   .counselling-badge {
     display: none !important;
   }
-  .mega-panel-inner { padding: 28px 20px; gap: 28px; }
+  .mega-panel { max-width: 92vw; }
+  .mega-panel-inner {
+    padding: 24px 18px;
+    gap: 18px;
+    max-width: 92vw;
+    grid-template-columns: repeat(3, minmax(140px, 190px));
+  }
 }
 
 @media (min-width: 1200px) and (max-width: 1380px) {
