@@ -163,13 +163,13 @@ export default function UniversityDetail({ initialData }) {
     const Eligibilityref = useRef(null);
     const approvelRef = useRef(null);
     const HeighlighRef = useRef(null);
-    const tabs = ["Overview", "Key Highlight", "Courses","Approvel", "Eligibility", "Feesstracture", "Admission Process", "Placement", "Review", "Faq"];
+    const tabs = ["Overview", "Key Highlight", "Courses","Approval", "Eligibility", "Feesstructure", "Admission Process", "Placement", "Review", "Faq"];
 
     const handleTabClick = (tab) => {
         const refMap = {
             "Overview": overviewRef, "Courses": coursesRef, "Admission Process": admissionRef,
-            "Key Highlight": certificateRef, "Placement": factsRef, "Feesstracture": feesRef,
-            "Eligibility": Eligibilityref, "Approvel": approvelRef,
+            "Key Highlight": certificateRef, "Placement": factsRef, "Feesstructure": feesRef,
+            "Eligibility": Eligibilityref, "Approvel": approvalRef,
         };
         if (refMap[tab]?.current) {
             refMap[tab].current.scrollIntoView({ behavior: "smooth", block: "start" });

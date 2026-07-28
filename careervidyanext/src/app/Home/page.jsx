@@ -20,6 +20,9 @@
 // import Notification from "../app/components/Notification";
 // import VideoSlider from "./components/VideoSlider";
 //  import CareervidyaFormModal from "./components/CareervidyaFormModal";
+
+
+
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import Slider from "../components/slider/page";
@@ -54,7 +57,6 @@ export default function Home() {
       <h1 className="sr-only">
         Best Courses & Career Guidance Platform | Career Vidya
       </h1>
-
       <Header />
       <Notification />
       <Slider />
