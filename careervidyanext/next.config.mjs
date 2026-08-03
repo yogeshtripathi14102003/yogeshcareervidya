@@ -95,7 +95,7 @@ const nextConfig = {
   },
 
   async rewrites() {
-    const apiUrl = process.env.API_URL || "https://api.careervidya.in";
+    const apiUrl = process.env.API_URL || "";
 
     return [
       // {

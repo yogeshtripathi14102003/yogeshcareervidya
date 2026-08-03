@@ -1,0 +1,543 @@
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
+import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
+import {
+  AlertCircle,
+  Send,
+  CheckCircle2,
+  Clock,
+  MessageSquare,
+  Tag,
+  Bell,
+  History,
+  Radio,
+  X,
+} from "lucide-react";
+
+export default function RaiseTicketPage() {
+  const { user } = useAuth();
+  const [formData, setFormData] = useState({
+    subject: "",
+    issue: "",
+    goals: "",
+    urgency: "Medium",
+  });
+  const [myTickets, setMyTickets] = useState([]);
+  const [globalMessages, setGlobalMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: "", msg: "" });
+  const [dismissedGlobal, setDismissedGlobal] = useState([]);
+  const [dismissedTicket, setDismissedTicket] = useState([]);
+
+  // ─── POPUP STATE (पूरा मैसेज देखने के लिए) ──────────────────────
+  const [selectedBroadcast, setSelectedBroadcast] = useState(null);
+
+  // user now comes from AuthContext (see useAuth() above)
+
+  // ─── Fetch tickets + global broadcasts ──────────────────────────
+  const fetchMyTickets = async (counselorId) => {
+    try {
+      if (!counselorId) return;
+      const res = await api.get(`/api/v1/tickat`);
+
+      if (res.data.success && Array.isArray(res.data.data)) {
+        const allTickets = res.data.data;
+
+        const filteredTickets = allTickets.filter((t) => {
+          const tId = t.counselorId?._id || t.counselor?._id || t.counselorId;
+          return tId === counselorId;
+        });
+        setMyTickets(filteredTickets);
+
+        // Ek se zyada tickets se global messages collect karne ke liye flatMap
+        const allGlobal = allTickets
+          .flatMap((t) => t.globalMessages || [])
+          .filter(
+            (msg, i, arr) =>
+              arr.findIndex((m) => (m._id || m.timestamp || m.sentAt) === (msg._id || msg.timestamp || msg.sentAt)) === i
+          )
+          .sort((a, b) => new Date(b.sentAt || b.timestamp) - new Date(a.sentAt || a.timestamp));
+
+        setGlobalMessages(allGlobal);
+      }
+    } catch (err) {
+      console.error("Error loading tickets:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (user?._id) fetchMyTickets(user._id);
+  }, [user]);
+
+  // ─── Ticket-specific notifications ──────────────────────────────
+  const ticketNotifications = useMemo(() => {
+    return myTickets
+      .filter((t) => t.adminMessages?.length > 0 && !dismissedTicket.includes(t._id))
+      .map((t) => ({
+        ticketId: t._id,
+        subject: t.subject,
+        lastMsg: t.adminMessages[t.adminMessages.length - 1],
+        totalReplies: t.adminMessages.length,
+      }));
+  }, [myTickets, dismissedTicket]);
+
+  // ─── Global broadcast notifications ─────────────────────────────
+  const visibleGlobal = useMemo(() => {
+    return globalMessages.filter((msg) => !dismissedGlobal.includes(msg._id || msg.timestamp || msg.sentAt));
+  }, [globalMessages, dismissedGlobal]);
+
+  // ─── Form handlers ───────────────────────────────────────────────
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!user?._id) {
+      setStatus({ type: "error", msg: "User session not found. Please log in again." });
+      return;
+    }
+    
+    setLoading(true);
+    setStatus({ type: "", msg: "" });
+
+    try {
+      const payload = {
+        subject: formData.subject,
+        counselorId: user._id,
+        description: {
+          issue: formData.issue,
+          goals: formData.goals || "",
+          urgency: formData.urgency
+        },
+        status: "Open"
+      };
+
+      const res = await api.post("/api/v1/tickat", payload);
+      
+      if (res.data.success || res.status === 200 || res.status === 201) {
+        setStatus({ type: "success", msg: "Ticket raised successfully!" });
+        setFormData({ subject: "", issue: "", goals: "", urgency: "Medium" });
+        await fetchMyTickets(user._id);
+      } else {
+        setStatus({ type: "error", msg: "Failed to create ticket. Try again." });
+      }
+    } catch (err) {
+      console.error("Submission Error Details:", err);
+      const backendError = err.response?.data?.message || err.response?.data?.error || err.message;
+      setStatus({
+        type: "error",
+        msg: `Submission Failed: ${backendError}`,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f9fafb] py-6 px-4 sm:px-6 relative">
+      <div className="max-w-6xl mx-auto space-y-4">
+
+        {/* 1. BROADCAST BANNER */}
+        {visibleGlobal.length > 0 && (
+          <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-amber-700 font-bold text-sm">
+                <Radio size={16} className="animate-pulse" />
+                Admin Broadcast <span className="text-[10px] text-amber-500 font-normal">(Click message to read full)</span>
+              </div>
+              <button
+                onClick={() =>
+                  setDismissedGlobal((prev) => [
+                    ...prev,
+                    ...visibleGlobal.map((m) => m._id || m.timestamp || m.sentAt),
+                  ])
+                }
+                className="text-amber-400 hover:text-amber-700"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+              {visibleGlobal.map((msg, idx) => {
+                const isNew = idx === 0;
+
+                return (
+                  <div
+                    key={msg._id || idx}
+                    onClick={() => setSelectedBroadcast(msg)}
+                    className="bg-white border border-amber-100 hover:border-amber-300 rounded-lg px-3 py-2 flex items-center justify-between gap-3 shadow-sm cursor-pointer transition-all hover:bg-amber-50/30"
+                    title="Click to expand"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {isNew && (
+                        <span className="bg-rose-600 text-white text-[11px] font-black px-2.5 py-1 rounded shadow-sm animate-pulse shrink-0 tracking-wider uppercase inline-flex items-center justify-center h-6">
+                          NEW
+                        </span>
+                      )}
+                      {/* truncate लगाने से लंबी लाइन कट जाएगी और स्क्रीन ख़राब नहीं होगी */}
+                      <p className="text-xs text-gray-700 font-medium truncate flex-1">
+                        {msg.message}
+                      </p>
+                    </div>
+                    
+                    <span className="text-[10px] text-amber-600 font-semibold whitespace-nowrap bg-amber-100/50 px-2 py-0.5 rounded shrink-0">
+                      {msg.sentAt || msg.timestamp ? new Date(msg.sentAt || msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just Now"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 2. TICKET-SPECIFIC REPLY BANNER */}
+        {ticketNotifications.length > 0 && (
+          <div className="w-full bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-indigo-700 font-bold text-sm">
+                <Bell size={16} className="animate-bounce" />
+                Admin replied on your tickets
+              </div>
+              <button
+                onClick={() =>
+                  setDismissedTicket((prev) => [
+                    ...prev,
+                    ...ticketNotifications.map((n) => n.ticketId),
+                  ])
+                }
+                className="text-indigo-300 hover:text-indigo-700"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            <div className="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+              {ticketNotifications.map((note) => (
+                <div
+                  key={note.ticketId}
+                  className="bg-white border border-indigo-100 rounded p-2.5 flex justify-between items-start gap-3"
+                >
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-[10px] font-bold text-indigo-400 uppercase truncate">
+                      Ticket: {note.subject}
+                    </span>
+                    <span className="text-xs text-gray-700 mt-0.5">
+                      {note.lastMsg?.message}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className="text-[9px] text-gray-400 whitespace-nowrap">
+                      {note.lastMsg?.sentAt ? new Date(note.lastMsg.sentAt).toLocaleTimeString() : ""}
+                    </span>
+                    <button
+                      onClick={() => setDismissedTicket((prev) => [...prev, note.ticketId])}
+                      className="text-[9px] text-indigo-300 hover:text-indigo-600"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* MAIN LAYOUT */}
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+
+          {/* FORM PANEL */}
+          <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden sticky top-6">
+            <div className="bg-indigo-600 p-4 text-white font-bold text-md flex items-center gap-2">
+              <MessageSquare size={18} />
+              Raise a Ticket
+            </div>
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+              {status.msg && (
+                <div
+                  className={`flex items-center gap-2 p-3 rounded text-xs font-medium border ${
+                    status.type === "success"
+                      ? "bg-green-50 text-green-700 border-green-100"
+                      : "bg-red-50 text-red-700 border-red-100"
+                  }`}
+                >
+                  {status.type === "success" ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+                  <span className="break-words">{status.msg}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  name="subject"
+                  required
+                  placeholder="Short title..."
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                  Urgency
+                </label>
+                <select
+                  name="urgency"
+                  value={formData.urgency}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
+                >
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                  <option value="Urgent">Urgent 🔥</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                  Explain your issue
+                </label>
+                <textarea
+                  name="issue"
+                  rows="4"
+                  required
+                  placeholder="Describe your request in detail..."
+                  value={formData.issue}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-md text-sm resize-none outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                  Goals (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="goals"
+                  placeholder="What is the expected outcome?"
+                  value={formData.goals}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded-md text-sm outline-none focus:ring-1 focus:ring-indigo-500 text-gray-800"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700 disabled:bg-gray-400 transition-all cursor-pointer shadow-sm"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-1 animate-pulse">Submitting...</span>
+                ) : (
+                  <>
+                    <Send size={15} />
+                    Submit Ticket
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* HISTORY PANEL */}
+          <div className="flex-1 w-full space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <Clock size={16} />
+                History ({myTickets.length})
+              </h2>
+              <button
+                onClick={() => user?._id && fetchMyTickets(user._id)}
+                className="text-xs text-indigo-500 hover:underline"
+              >
+                Refresh
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 overflow-y-auto max-h-[70vh] pr-2 custom-scrollbar">
+              {myTickets.length === 0 ? (
+                <div className="text-center py-20 bg-white border border-dashed rounded-xl text-gray-400 text-sm italic">
+                  No tickets found in your history
+                </div>
+              ) : (
+                myTickets.map((ticket) => {
+                  const parsedIssue = ticket.description?.issue || "No description provided";
+                  const parsedUrgency = ticket.description?.urgency || "Medium";
+
+                  return (
+                    <div
+                      key={ticket._id}
+                      className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+                    >
+                      <div
+                        className={`absolute left-0 top-0 bottom-0 w-1 ${
+                          ticket.status === "Resolved" ? "bg-green-500" : "bg-yellow-400"
+                        }`}
+                      />
+
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 text-indigo-500 mb-1">
+                            <Tag size={13} />
+                            <span className="text-[10px] font-bold uppercase tracking-tighter">
+                              ID: {ticket._id?.slice(-6)}
+                            </span>
+                          </div>
+                          <h3 className="font-bold text-gray-800 text-md">{ticket.subject}</h3>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                              ticket.status === "Resolved"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {ticket.status || "Open"}
+                          </span>
+                          <span
+                            className={`text-[9px] font-medium ${
+                              parsedUrgency === "Urgent" ? "text-red-500 animate-pulse" : "text-gray-400"
+                            }`}
+                          >
+                            Priority: {parsedUrgency}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-50 p-3 rounded-md mb-3 text-sm text-gray-600 border-l-2 border-gray-200 italic break-words">
+                        {parsedIssue}
+                      </div>
+
+                      {ticket.description?.goals && (
+                        <div className="text-xs text-gray-500 mb-3">
+                          <strong className="text-gray-700">Goals:</strong> {ticket.description.goals}
+                        </div>
+                      )}
+
+                      {ticket.adminMessages?.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-indigo-400 uppercase tracking-wide">
+                            <History size={12} />
+                            Admin replies ({ticket.adminMessages.length})
+                          </div>
+                          <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+                            {ticket.adminMessages.map((msg, idx) => (
+                              <div
+                                key={idx}
+                                className="bg-indigo-50 border border-indigo-100 p-3 rounded-lg flex gap-3 items-start"
+                              >
+                                <div className="bg-indigo-100 p-1.5 rounded-full text-indigo-600 shrink-0">
+                                  <MessageSquare size={13} />
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-xs text-indigo-900 font-medium break-words">
+                                    {msg.message}
+                                  </span>
+                                  <span className="text-[9px] text-gray-400 mt-1 uppercase">
+                                    {new Date(msg.sentAt || ticket.updatedAt).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <p className="text-[9px] text-gray-300 mt-3">
+                        Created: {new Date(ticket.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── 3. LIGHT POPUP MODAL (पूरा मैसेज दिखाने के लिए) ─── */}
+      {selectedBroadcast && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white border border-amber-200 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-scaleUp">
+            
+            {/* पॉपअप हेडर */}
+            <div className="bg-amber-50 border-b border-amber-100 px-5 py-4 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                <Radio size={16} className="text-amber-600 animate-pulse" />
+                Full Broadcast Message
+              </div>
+              <button
+                onClick={() => setSelectedBroadcast(null)}
+                className="bg-white hover:bg-gray-100 p-1.5 rounded-full border text-gray-400 hover:text-gray-700 transition-colors shadow-sm"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            {/* पॉपअप कंटेंट */}
+            <div className="p-6 space-y-4">
+              <div className="bg-gray-50/80 border rounded-xl p-4 max-h-60 overflow-y-auto custom-scrollbar">
+                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap break-words">
+                  {selectedBroadcast.message}
+                </p>
+              </div>
+              
+              <div className="flex justify-between items-center text-[11px] text-gray-400 font-medium bg-gray-50 px-3 py-2 rounded-lg border border-dashed">
+                <span>Sent Time:</span>
+                <span className="text-amber-700 font-bold">
+                  {selectedBroadcast.sentAt || selectedBroadcast.timestamp 
+                    ? new Date(selectedBroadcast.sentAt || selectedBroadcast.timestamp).toLocaleString() 
+                    : "Just Now"}
+                </span>
+              </div>
+            </div>
+
+            {/* पॉपअप फूटर */}
+            <div className="bg-gray-50 px-5 py-3 flex justify-end border-t">
+              <button
+                onClick={() => setSelectedBroadcast(null)}
+                className="px-4 py-1.5 bg-gray-800 hover:bg-gray-900 text-white rounded-lg text-xs font-semibold shadow transition-all cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ─── CUSTOM SCROLLBAR & POPUP ANIMATIONS ─── */}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleUp {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fadeIn { animation: fadeIn 0.2s ease-out forwards; }
+        .animate-scaleUp { animation: scaleUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+      `}</style>
+    </div>
+  );
+}

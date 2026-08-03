@@ -1,0 +1,1911 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerVidya - Vidya Hai To Success Hai</title>
+<style>
+  :root{
+    --navy:#0b1a3d;
+    --navy2:#101f4f;
+    --orange:#f26522;
+    --orange-dark:#d9541a;
+    --blue:#1e3fae;
+    --purple:#5b3fd6;
+    --teal:#0fae8f;
+    --ink:#0c1430;
+    --muted:#5b6480;
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --line:#e7e9f2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.5;
+  }
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 24px;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:12px 22px; border-radius:8px; font-weight:600; font-size:14px;
+    border:none; cursor:pointer; transition:.2s;
+  }
+  .btn-orange{background:var(--orange); color:#fff;}
+  .btn-orange:hover{background:var(--orange-dark);}
+  .btn-outline{background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.6);}
+  .btn-outline:hover{background:rgba(255,255,255,.12);}
+  .btn-navy{background:var(--navy); color:#fff;}
+  .btn-blue{background:var(--blue); color:#fff; width:100%; justify-content:center;}
+  .btn-purple{background:var(--purple); color:#fff; width:100%; justify-content:center;}
+
+  /* HEADER */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; background:#fff; border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:50;
+  }
+  .logo{font-size:22px; font-weight:800; color:var(--navy);}
+  .logo span{color:var(--orange);}
+  .tagline{font-size:11px; color:var(--orange); font-weight:600; margin-left:4px;}
+  nav ul{display:flex; gap:32px; font-size:14.5px; font-weight:500; color:#333;}
+  .header-right{display:flex; align-items:center; gap:20px;}
+  .contact-btn{background:var(--orange); color:#fff; padding:10px 20px; border-radius:8px; font-weight:600; font-size:14px;}
+
+  /* HERO */
+  .hero{
+    position:relative;
+    background:linear-gradient(120deg, #0a1638 0%, #12245c 55%, #1a2f7a 100%);
+    color:#fff; padding:70px 24px 50px; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 80% 20%, rgba(255,255,255,.06), transparent 40%);
+  }
+  .hero-inner{max-width:1200px; margin:0 auto; position:relative; z-index:2;}
+  .eyebrow{color:var(--orange); font-weight:700; font-size:12.5px; letter-spacing:1.5px; margin-bottom:14px;}
+  .hero h1{font-size:44px; font-weight:800; line-height:1.15; max-width:600px;}
+  .hero h1 em{color:var(--orange); font-style:normal;}
+  .hero p{color:#c7cbe0; max-width:480px; margin:18px 0 26px; font-size:15.5px;}
+  .hero-ctas{display:flex; gap:14px; margin-bottom:24px;}
+  .trust-row{display:flex; align-items:center; gap:10px; font-size:13.5px; color:#c7cbe0;}
+  .avatars{display:flex;}
+  .avatars div{width:28px; height:28px; border-radius:50%; border:2px solid #12245c; margin-left:-8px; background:linear-gradient(135deg,#ffb27a,#f26522);}
+  .avatars div:first-child{margin-left:0;}
+
+  .hero-cards{
+    position:absolute; right:24px; top:110px; display:flex; gap:16px; z-index:3;
+  }
+  .path-card{
+    background:#fff; color:var(--ink); border-radius:14px; padding:22px; width:230px;
+    box-shadow:0 20px 40px rgba(0,0,0,.25);
+  }
+  .path-card .tag{font-size:11px; font-weight:700; letter-spacing:.5px; margin-bottom:6px;}
+  .path-card.orange .tag{color:var(--orange);}
+  .path-card.blue .tag{color:var(--blue);}
+  .path-card h3{font-size:20px; margin-bottom:10px;}
+  .path-card ul{margin-bottom:16px;}
+  .path-card li{font-size:12.5px; color:var(--muted); padding:4px 0; display:flex; gap:6px; align-items:flex-start;}
+  .path-card li::before{content:"●"; font-size:6px; margin-top:6px; color:var(--orange);}
+  .path-card.blue li::before{color:var(--blue);}
+
+  /* STATS BAR */
+  .stats-bar{
+    background:#fff; margin:-30px auto 0; max-width:1100px; border-radius:16px;
+    box-shadow:0 10px 30px rgba(20,30,80,.08);
+    display:flex; justify-content:space-around; padding:26px 20px; position:relative; z-index:5;
+    flex-wrap:wrap; gap:16px;
+  }
+  .stat{text-align:center;}
+  .stat .num{font-size:20px; font-weight:800; color:var(--navy);}
+  .stat .lbl{font-size:12px; color:var(--muted);}
+
+  section{padding:60px 24px;}
+  .section-title{text-align:center; font-size:28px; font-weight:800; margin-bottom:8px;}
+  .section-title .accent{color:var(--purple);}
+  .section-sub{text-align:center; color:var(--muted); font-size:14.5px; margin-bottom:36px;}
+
+  /* LOOKING FOR TODAY */
+  .look-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:16px; max-width:1100px; margin:0 auto;}
+  .look-card{
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:24px 18px;
+    text-align:left; transition:.2s;
+  }
+  .look-card:hover{transform:translateY(-4px); box-shadow:0 12px 24px rgba(20,30,80,.08);}
+  .icon-circle{width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:14px;}
+  .look-card h4{font-size:15px; margin-bottom:6px;}
+  .look-card p{font-size:12.5px; color:var(--muted);}
+
+  /* AI ASSISTANT */
+  .ai-banner{
+    max-width:1152px; margin:0 auto; background:linear-gradient(120deg,#1c1350,#2c1f6e);
+    border-radius:20px; padding:36px 40px; color:#fff; display:flex; gap:40px; align-items:center; flex-wrap:wrap;
+  }
+  .ai-bot{width:90px; height:90px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #fff, #cfd6ff 60%, #8b93e8); flex-shrink:0; position:relative;}
+  .ai-bot::after{content:"🤖"; font-size:40px; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;}
+  .ai-content{flex:1; min-width:260px;}
+  .ai-tag{display:inline-block; background:rgba(255,255,255,.12); padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; margin-bottom:10px;}
+  .ai-content h3{font-size:24px; font-weight:800;}
+  .ai-content h3 span{color:#a78bfa;}
+  .ai-search{display:flex; gap:10px; margin:18px 0 14px; max-width:480px;}
+  .ai-search input{flex:1; padding:12px 16px; border-radius:8px; border:none; font-size:14px;}
+  .ai-search button{background:var(--purple); color:#fff; border:none; padding:0 20px; border-radius:8px; font-weight:600;}
+  .ai-chips{display:flex; gap:10px; flex-wrap:wrap;}
+  .ai-chips span{background:rgba(255,255,255,.1); padding:8px 14px; border-radius:20px; font-size:12px;}
+  .ai-suggest{background:rgba(255,255,255,.06); border-radius:12px; padding:20px; font-size:13px; min-width:220px;}
+  .ai-suggest h5{font-size:12px; color:#bcc2ff; margin-bottom:10px;}
+  .ai-suggest li{padding:5px 0; color:#dfe1ff;}
+
+  /* JOURNEY */
+  .journey{display:flex; justify-content:space-between; max-width:1100px; margin:0 auto; flex-wrap:wrap; gap:20px; text-align:center;}
+  .journey-step{flex:1; min-width:140px; position:relative;}
+  .journey-icon{width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:22px;}
+  .journey-step h4{font-size:14px; margin-bottom:6px;}
+  .journey-step p{font-size:12px; color:var(--muted);}
+
+  /* TWO COLUMN: JOBS + COURSES */
+  .two-col{display:grid; grid-template-columns:1.1fr 1.4fr; gap:24px; max-width:1200px; margin:0 auto;}
+  .panel{background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px;}
+  .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .panel-head h3{font-size:16px;}
+  .panel-head a{font-size:12.5px; color:var(--blue); font-weight:600;}
+  .job-card{border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:12px;}
+  .job-card h5{font-size:14px; margin-bottom:4px;}
+  .job-card .meta{font-size:11.5px; color:var(--muted); margin-bottom:8px;}
+  .job-card .tags{display:flex; gap:6px; margin-bottom:8px;}
+  .job-card .tags span{background:#f0f1f7; padding:2px 8px; border-radius:6px; font-size:10.5px;}
+  .job-card .salary{font-weight:700; font-size:13px; color:var(--navy); margin-bottom:8px;}
+  .job-card button{width:100%; padding:8px; font-size:12.5px;}
+
+  .course-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .course-card{border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .course-thumb{height:70px; background:linear-gradient(135deg,var(--blue),var(--purple)); position:relative;}
+  .course-thumb .badge{position:absolute; top:6px; left:6px; background:#fff; color:var(--navy); font-size:9px; font-weight:700; padding:2px 6px; border-radius:5px;}
+  .course-body{padding:10px;}
+  .course-body h6{font-size:12px; margin-bottom:6px; line-height:1.3;}
+  .course-meta{display:flex; justify-content:space-between; font-size:10.5px; color:var(--muted); margin-bottom:8px;}
+  .course-body button{width:100%; font-size:11px; padding:7px;}
+
+  /* COMPARE */
+  .compare{background:#fff; border-radius:20px; max-width:1200px; margin:0 auto; padding:32px; display:grid; grid-template-columns:0.9fr 1.6fr 0.9fr; gap:24px; align-items:center;}
+  .compare h3{font-size:24px; margin-bottom:10px;}
+  .compare p{color:var(--muted); font-size:13.5px; margin-bottom:18px;}
+  .compare-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .compare-table th{text-align:left; color:var(--muted); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--line);}
+  .compare-table td{padding:8px; border-bottom:1px solid var(--line);}
+  .compare-img{border-radius:14px; height:220px; background:linear-gradient(135deg,#e8ceb4,#c9a97e); background-image:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.1));}
+
+  /* TESTIMONIALS */
+  .testi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:1200px; margin:0 auto;}
+  .testi-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; display:flex; gap:12px;}
+  .testi-avatar{width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--orange),#ffb27a); flex-shrink:0;}
+  .testi-card h6{font-size:13px; margin-bottom:2px;}
+  .testi-card .role{font-size:11px; color:var(--muted); margin-bottom:4px;}
+  .testi-card p{font-size:12px; color:#444; margin-bottom:6px;}
+  .stars{color:#f5a623; font-size:11px;}
+  .video-card{background:linear-gradient(135deg,#1a2a55,#0c1430); border-radius:14px; display:flex; align-items:center; justify-content:center; position:relative; color:#fff; min-height:140px;}
+  .play-btn{width:50px; height:50px; border-radius:50%; background:#fff; color:var(--navy); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:8px;}
+
+  /* WHY CHOOSE */
+  .why-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; max-width:1200px; margin:0 auto;}
+  .why-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px 16px;}
+  .why-card .icon-circle{margin-bottom:12px;}
+  .why-card h6{font-size:13.5px; margin-bottom:4px;}
+  .why-card p{font-size:11.5px; color:var(--muted);}
+
+  /* CTA BANNER */
+  .cta-banner{
+    max-width:1200px; margin:0 auto; border-radius:20px; overflow:hidden; position:relative;
+    background:linear-gradient(120deg, #14213d, #3a2a55 60%, #b3593a);
+    padding:70px 40px; text-align:center; color:#fff;
+  }
+  .cta-banner h2{font-size:30px; font-weight:800; margin-bottom:22px; line-height:1.3;}
+  .cta-actions{display:flex; gap:14px; justify-content:center;}
+
+  /* FOOTER */
+  footer{background:var(--navy); color:#c7cbe0; padding:50px 24px 24px;}
+  .footer-grid{max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr 1.4fr; gap:24px;}
+  .footer-grid h5{color:#fff; font-size:14px; margin-bottom:14px;}
+  .footer-grid li{font-size:13px; margin-bottom:8px; color:#a9aec7;}
+  .foot-logo{font-size:20px; font-weight:800; color:#fff; margin-bottom:10px;}
+  .foot-logo span{color:var(--orange);}
+  .footer-grid p{font-size:12.5px; color:#8b91ad; margin-bottom:14px;}
+  .newsletter{display:flex; gap:8px;}
+  .newsletter input{flex:1; padding:10px; border-radius:6px; border:none; font-size:12.5px;}
+  .newsletter button{background:var(--purple); color:#fff; border:none; padding:0 16px; border-radius:6px; font-weight:600; font-size:12.5px;}
+  .socials{display:flex; gap:10px; margin-top:16px;}
+  .socials div{width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-size:13px;}
+  .foot-bottom{max-width:1200px; margin:30px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.08); display:flex; justify-content:space-between; font-size:12px; color:#7d84a3; flex-wrap:wrap; gap:10px;}
+
+  @media(max-width:1000px){
+    nav{display:none;}
+    .hero-cards{position:static; margin-top:30px; justify-content:center;}
+    .hero{padding-bottom:20px;}
+    .look-grid, .why-grid{grid-template-columns:repeat(2,1fr);}
+    .two-col, .compare{grid-template-columns:1fr;}
+    .course-grid{grid-template-columns:repeat(2,1fr);}
+    .testi-grid{grid-template-columns:repeat(2,1fr);}
+    .footer-grid{grid-template-columns:repeat(2,1fr);}
+    .stats-bar{margin-top:20px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex; align-items:baseline;">
+    <span class="logo">Career<span>Vidya</span></span>
+    <span class="tagline">VidyaHaiToSuccessHai</span>
+  </div>
+  <nav>
+    <ul>
+      <li>Courses ▾</li>
+      <li>Universities ▾</li>
+      <li>Counselling</li>
+      <li>Scholarships</li>
+      <li>Resources ▾</li>
+    </ul>
+  </nav>
+  <div class="header-right">
+    <a href="#" class="contact-btn">📞 Contact Us</a>
+  </div>
+</header>
+
+<section class="hero" style="padding-bottom:0;">
+  <div class="hero-inner">
+    <div class="eyebrow">CHOOSE YOUR PATH</div>
+    <h1>Every journey needs the <em>right</em> direction</h1>
+    <p>One platform, two powerful experiences. Choose the path that's right for you and take the next step towards your future.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-orange">For Professionals →</a>
+      <a href="#" class="btn btn-outline">For Students →</a>
+    </div>
+    <div class="trust-row">
+      <div class="avatars"><div></div><div></div><div></div></div>
+      50,000+ students already trust CareerVidya
+    </div>
+
+    <div class="hero-cards">
+      <div class="path-card orange">
+        <div class="tag">FOR PROFESSIONALS</div>
+        <h3>Career</h3>
+        <ul>
+          <li>Latest Job Openings</li>
+          <li>AI Job Recommendations</li>
+          <li>AI Resume Analysis</li>
+          <li>Placement Assistance</li>
+          <li>Career Growth Resources</li>
+        </ul>
+        <a href="#" class="btn btn-orange" style="width:100%; justify-content:center;">Go to Career →</a>
+      </div>
+      <div class="path-card blue">
+        <div class="tag">FOR STUDENTS</div>
+        <h3>Vidya</h3>
+        <ul>
+          <li>Explore courses, compare universities</li>
+          <li>Free Career Counselling</li>
+          <li>24×7 LMS Access</li>
+          <li>Free Coursera Certificate</li>
+          <li>No-Cost EMI Available</li>
+          <li>100% Job Assistance</li>
+        </ul>
+        <a href="#" class="btn btn-blue">Enter Vidya →</a>
+      </div>
+    </div>
+    <div style="height:90px;"></div>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat"><div class="num">50,000+</div><div class="lbl">Students Guided</div></div>
+  <div class="stat"><div class="num">500+</div><div class="lbl">Universities</div></div>
+  <div class="stat"><div class="num">10,000+</div><div class="lbl">Job Opportunities</div></div>
+  <div class="stat"><div class="num">100+</div><div class="lbl">Hiring Partners</div></div>
+  <div class="stat"><div class="num">4.8/5</div><div class="lbl">Student Rating</div></div>
+</div>
+
+<section>
+  <h2 class="section-title">What are you looking for today?</h2>
+  <p class="section-sub">Tell us where you are in your journey. We'll guide you from there.</p>
+  <div class="look-grid">
+    <div class="look-card">
+      <div class="icon-circle" style="background:#efe6ff; color:var(--purple);">🎓</div>
+      <h4>Find My Course</h4>
+      <p>Discover the right course that fits your goals.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e4f9f0; color:var(--teal);">🏢</div>
+      <h4>Compare Universities</h4>
+      <p>Compare fees, placements, approvals & more.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#ffe9dc; color:var(--orange);">💼</div>
+      <h4>Find a Job</h4>
+      <p>Explore jobs matching your skills & interest.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e6ecff; color:var(--blue);">🤖</div>
+      <h4>Get AI Career Guidance</h4>
+      <p>Let AI suggest the best path for your future.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e0faf6; color:var(--teal);">📄</div>
+      <h4>Improve My Resume</h4>
+      <p>AI-powered resume analysis & suggestions.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="ai-banner">
+    <div class="ai-bot"></div>
+    <div class="ai-content">
+      <div class="ai-tag">AI CAREER ASSISTANT</div>
+      <h3>Not sure what to study or where to work?<br><span>Ask CareerVidya AI.</span></h3>
+      <div class="ai-search">
+        <input type="text" placeholder="What do you want to become?">
+        <button>Ask Now ➤</button>
+      </div>
+      <div class="ai-chips">
+        <span>↻ Suggest Courses</span>
+        <span>🔍 Find Jobs</span>
+        <span>🏫 Best Universities</span>
+        <span>📊 Analyse My Resume</span>
+      </div>
+    </div>
+    <div class="ai-suggest">
+      <h5>TRY ASKING ABOUT</h5>
+      <ul>
+        <li>Which course is best for me?</li>
+        <li>What are the highest paying jobs?</li>
+        <li>Compare top universities for MBA</li>
+        <li>How can I improve my resume?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Your Career Journey, Simplified</h2>
+  <div style="height:20px;"></div>
+  <div class="journey">
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#efe6ff; color:var(--purple);">🧭</div>
+      <h4>01 Discover</h4>
+      <p>Explore career options and find your passion</p>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e4f9f0; color:var(--teal);">📖</div>
+      <h4>02 Learn</h4>
+      <p>Choose the right course and build the right skills</p>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#ffe9dc; color:var(--orange);">📈</div>
+      <h4>03 Build</h4>
+      <p>Enhance your skills & create a strong profile</p>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e6ecff; color:var(--blue);">✈️</div>
+      <h4>04 Apply</h4>
+      <p>Find the right opportunities</p>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e0faf6; color:var(--teal);">🏆</div>
+      <h4>05 Get Hired</h4>
+      <p>Land your dream job and grow your career</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head"><h3>🔥 Latest Job Opportunities</h3><a href="#">View all jobs →</a></div>
+      <div class="job-card">
+        <h5>Frontend Developer</h5>
+        <div class="meta">CareerVidya · Noida · Full Time</div>
+        <div class="tags"><span>React.js</span><span>Next.js</span></div>
+        <div class="salary">₹6 - 10 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+      <div class="job-card">
+        <h5>UI/UX Designer</h5>
+        <div class="meta">TechSolutions · Bangalore · Full Time</div>
+        <div class="tags"><span>Figma</span><span>UI/UX</span></div>
+        <div class="salary">₹5 - 8 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+      <div class="job-card">
+        <h5>Backend Developer</h5>
+        <div class="meta">InfoTech · Hyderabad · Full Time</div>
+        <div class="tags"><span>Node.js</span><span>MongoDB</span></div>
+        <div class="salary">₹7 - 12 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>📚 Trending Courses</h3><a href="#">View all courses →</a></div>
+      <div class="course-grid">
+        <div class="course-card">
+          <div class="course-thumb"><span class="badge">Most Popular</span></div>
+          <div class="course-body">
+            <h6>Full Stack Development</h6>
+            <div class="course-meta"><span>6 Months</span><span>⭐ 4.8</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"><span class="badge">High Demand</span></div>
+          <div class="course-body">
+            <h6>Data Science & AI with Python</h6>
+            <div class="course-meta"><span>6 Months</span><span>⭐ 4.9</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"></div>
+          <div class="course-body">
+            <h6>Digital Marketing Mastery</h6>
+            <div class="course-meta"><span>3 Months</span><span>⭐ 4.7</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"></div>
+          <div class="course-body">
+            <h6>Cloud Computing with AWS</h6>
+            <div class="course-meta"><span>4 Months</span><span>⭐ 4.8</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="compare">
+    <div>
+      <h3>Compare Before You Decide</h3>
+      <p>Compare top universities on fees, courses, placements & more. Make the right choice for your future.</p>
+      <a href="#" class="btn btn-navy">Compare Universities →</a>
+    </div>
+    <table class="compare-table">
+      <tr><th>University</th><th>Programs</th><th>Fees (Avg.)</th><th>Placement</th><th>Rating</th></tr>
+      <tr><td>Amity University</td><td>B.Tech, MBA, BBA</td><td>₹2.5–6 LPA</td><td>88%</td><td>⭐ 4.6</td></tr>
+      <tr><td>LPU</td><td>B.Tech, MBA, BCA</td><td>₹2–5 LPA</td><td>90%</td><td>⭐ 4.7</td></tr>
+      <tr><td>Chandigarh University</td><td>B.Tech, MBA, B.Sc</td><td>₹2.8–6.5 LPA</td><td>91%</td><td>⭐ 4.8</td></tr>
+      <tr><td>Sharda University</td><td>B.Tech, MBA, BBA</td><td>₹2.2–4.5 LPA</td><td>85%</td><td>⭐ 4.5</td></tr>
+    </table>
+    <div class="compare-img"></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Real Students. Real Careers. Real Results.</h2>
+  <div style="height:16px;"></div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Rahul Sharma</h6>
+        <div class="role">MBA Student → Business Analyst</div>
+        <div class="stars">★★★★★</div>
+        <p>CareerVidya helped me choose the right course and guided me throughout my journey.</p>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Priya Verma</h6>
+        <div class="role">BCA Graduate → Software Engineer</div>
+        <div class="stars">★★★★★</div>
+        <p>The AI career guidance and counselling changed the way I saw my future.</p>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Arjun Singh</h6>
+        <div class="role">B.Tech → Software Developer</div>
+        <div class="stars">★★★★☆</div>
+        <p>Got my dream job with a great package. Thank you CareerVidya!</p>
+      </div>
+    </div>
+    <div class="video-card">
+      <div style="text-align:center;">
+        <div class="play-btn">▶</div>
+        <div style="font-size:12px;">Watch More Success Stories<br>Video Testimonials</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Why Choose <span class="accent">CareerVidya</span>?</h2>
+  <div style="height:16px;"></div>
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="icon-circle" style="background:#e6ecff; color:var(--blue);">👤</div>
+      <h6>Expert Counsellors</h6>
+      <p>Personalised guidance from industry experts</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#efe6ff; color:var(--purple);">💡</div>
+      <h6>AI-Powered Tools</h6>
+      <p>Smart recommendations for your better future</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#e4f9f0; color:var(--teal);">💼</div>
+      <h6>100% Job Assistance</h6>
+      <p>Resume, interview & placement support</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#e6ecff; color:var(--blue);">🎧</div>
+      <h6>24×7 Support</h6>
+      <p>We're here for you, anytime, anywhere</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#ffe9dc; color:var(--orange);">🛡️</div>
+      <h6>Trusted by Thousands</h6>
+      <p>50,000+ students trust CareerVidya</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="cta-banner">
+    <h2>Your Career Doesn't Need Guesswork.<br>It Needs the Right Direction.</h2>
+    <div class="cta-actions">
+      <a href="#" class="btn btn-orange">Find My Career Path →</a>
+      <a href="#" class="btn btn-outline">Talk to a Counsellor →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="foot-logo">Career<span>Vidya</span></div>
+      <p>Your trusted partner in career guidance, education and job opportunities.</p>
+      <div class="socials"><div>f</div><div>in</div><div>ig</div><div>yt</div></div>
+    </div>
+    <div>
+      <h5>Explore</h5>
+      <ul>
+        <li>Courses</li><li>Universities</li><li>Jobs</li><li>Counselling</li><li>Scholarships</li>
+      </ul>
+    </div>
+    <div>
+      <h5>Resources</h5>
+      <ul>
+        <li>Blogs</li><li>Career Guidance</li><li>Resume Builder</li><li>Interview Tips</li><li>Student Login</li>
+      </ul>
+    </div>
+    <div>
+      <h5>Company</h5>
+      <ul>
+        <li>About Us</li><li>Contact Us</li><li>Privacy Policy</li><li>Terms & Conditions</li><li>Careers</li>
+      </ul>
+    </div>
+    <div>
+      <h5>Subscribe to our Newsletter</h5>
+      <p>Get the latest updates on courses, jobs and career tips.</p>
+      <div class="newsletter">
+        <input type="email" placeholder="Enter your email">
+        <button>Subscribe</button>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div>© 2026 CareerVidya. All rights reserved.</div>
+    <div style="display:flex; gap:16px;"><span>Sitemap</span><span>Privacy</span><span>Terms</span></div>
+  </div>
+</footer>
+
+</body>
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerVidya - Vidya Hai To Success Hai</title>
+<style>
+  :root{
+    --navy:#0b1a3d;
+    --orange:#f26522;
+    --orange-dark:#d9541a;
+    --blue:#1e3fae;
+    --purple:#5b3fd6;
+    --teal:#0fae8f;
+    --ink:#0c1430;
+    --muted:#5b6480;
+    --bg:#f6f7fb;
+    --line:#e7e9f2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.5;
+  }
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 24px;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 22px; border-radius:8px; font-weight:600; font-size:14px;
+    border:none; cursor:pointer; transition:.2s; white-space:nowrap;
+  }
+  .btn-orange{background:var(--orange); color:#fff;}
+  .btn-orange:hover{background:var(--orange-dark);}
+  .btn-navy{background:var(--navy); color:#fff;}
+  .btn-outline-navy{background:transparent; color:var(--navy); border:1.5px solid var(--navy);}
+  .btn-blue{background:var(--blue); color:#fff; width:100%;}
+  .btn-purple{background:var(--purple); color:#fff; width:100%;}
+  .btn-block{width:100%;}
+
+  /* HEADER */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; background:#fff; border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:100; flex-wrap:wrap; gap:12px;
+  }
+  .logo{font-size:22px; font-weight:800; color:var(--navy);}
+  .logo span{color:var(--orange);}
+  .tagline{font-size:11px; color:var(--orange); font-weight:600; margin-left:4px;}
+  nav ul{display:flex; gap:28px; font-size:14.5px; font-weight:500; color:#333; flex-wrap:wrap;}
+  .contact-btn{background:var(--orange); color:#fff; padding:10px 20px; border-radius:8px; font-weight:600; font-size:14px;}
+  .menu-toggle{display:none; background:none; border:none; font-size:22px; cursor:pointer; color:var(--navy);}
+
+  /* HERO */
+  .hero{
+    position:relative; overflow:hidden;
+    background:
+      linear-gradient(120deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.75) 45%, rgba(255,240,225,.55) 100%),
+      radial-gradient(circle at 15% 30%, #dbe6ff 0%, transparent 45%),
+      radial-gradient(circle at 85% 70%, #ffe4c9 0%, transparent 45%),
+      #eef1fb;
+    padding:56px 24px 40px; text-align:center;
+  }
+  .eyebrow{color:var(--orange); font-weight:700; font-size:12.5px; letter-spacing:1.5px; margin-bottom:10px;}
+  .hero h1{font-size:clamp(26px,4vw,40px); font-weight:800; line-height:1.25; max-width:720px; margin:0 auto; color:var(--ink);}
+  .hero h1 em{color:var(--blue); font-style:normal;}
+  .hero p{color:var(--muted); max-width:520px; margin:16px auto 0; font-size:15px;}
+
+  .path-wrap{
+    position:relative; max-width:900px; margin:40px auto 0;
+    display:flex; gap:20px; justify-content:center; flex-wrap:wrap;
+  }
+  .path-card{
+    background:#fff; border-radius:16px; padding:26px; width:100%; max-width:320px;
+    box-shadow:0 20px 40px rgba(20,30,80,.10); text-align:left; flex:1; min-width:260px;
+  }
+  .path-card .tag{font-size:11px; font-weight:700; letter-spacing:.5px; margin-bottom:6px;}
+  .path-card.orange .tag{color:var(--orange);}
+  .path-card.blue .tag{color:var(--blue);}
+  .path-card h3{font-size:22px; margin-bottom:10px;}
+  .path-card ul{margin-bottom:18px;}
+  .path-card li{font-size:12.5px; color:var(--muted); padding:4px 0; display:flex; gap:6px; align-items:flex-start;}
+  .path-card li::before{content:"●"; font-size:6px; margin-top:6px; color:var(--orange); flex-shrink:0;}
+  .path-card.blue li::before{color:var(--blue);}
+  .center-badge{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:76px; height:76px; border-radius:50%; background:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px;
+    box-shadow:0 10px 24px rgba(20,30,80,.18); text-align:center; z-index:5; color:var(--navy);
+  }
+  .center-badge span{color:var(--orange);}
+  @media(max-width:760px){ .center-badge{ display:none; } }
+
+  /* STATS BAR */
+  .stats-bar{
+    background:#fff; max-width:1100px; margin:34px auto 0; border-radius:16px;
+    box-shadow:0 10px 30px rgba(20,30,80,.06);
+    display:flex; justify-content:space-around; padding:22px 20px;
+    flex-wrap:wrap; gap:16px; text-align:center;
+  }
+  .stat .num{font-size:19px; font-weight:800; color:var(--navy);}
+  .stat .lbl{font-size:11.5px; color:var(--muted);}
+
+  section{padding:56px 24px;}
+  .section-title{text-align:center; font-size:clamp(20px,3vw,28px); font-weight:800; margin-bottom:8px;}
+  .section-title .accent{color:var(--blue);}
+  .section-sub{text-align:center; color:var(--muted); font-size:14.5px; margin-bottom:32px;}
+
+  /* LOOKING FOR TODAY */
+  .look-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px;
+    max-width:1100px; margin:0 auto;
+  }
+  .look-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 18px; transition:.2s;}
+  .look-card:hover{transform:translateY(-4px); box-shadow:0 12px 24px rgba(20,30,80,.08);}
+  .icon-circle{width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:14px;}
+  .look-card h4{font-size:14.5px; margin-bottom:6px;}
+  .look-card p{font-size:12px; color:var(--muted);}
+
+  /* AI ASSISTANT */
+  .ai-banner{
+    max-width:1152px; margin:0 auto; background:linear-gradient(120deg,#131233,#241857 60%,#3a1f6e);
+    border-radius:20px; padding:36px 40px; color:#fff;
+    display:flex; gap:30px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  }
+  .ai-content{flex:1; min-width:260px;}
+  .ai-tag{display:inline-block; background:rgba(255,255,255,.12); padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; margin-bottom:10px;}
+  .ai-content h3{font-size:clamp(18px,2.4vw,24px); font-weight:800;}
+  .ai-content h3 span{color:#7fa8ff;}
+  .ai-search{display:flex; gap:10px; margin:18px 0 14px; max-width:460px; flex-wrap:wrap;}
+  .ai-search input{flex:1; min-width:180px; padding:12px 16px; border-radius:8px; border:none; font-size:14px;}
+  .ai-search button{background:var(--blue); color:#fff; border:none; padding:0 20px; border-radius:8px; font-weight:600;}
+  .ai-chips{display:flex; gap:10px; flex-wrap:wrap;}
+  .ai-chips span{background:rgba(255,255,255,.1); padding:8px 14px; border-radius:20px; font-size:12px;}
+  .ai-bot-wrap{display:flex; align-items:center; gap:14px; flex-shrink:0;}
+  .ai-bubble{background:#fff; color:var(--ink); padding:10px 14px; border-radius:12px; font-size:11.5px; max-width:150px;}
+  .ai-bot{width:90px; height:90px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #fff, #cfd6ff 60%, #8b93e8); position:relative; flex-shrink:0;}
+  .ai-bot::after{content:"🤖"; font-size:38px; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;}
+
+  /* JOURNEY */
+  .journey{
+    display:flex; justify-content:space-between; max-width:1100px; margin:0 auto;
+    flex-wrap:wrap; gap:24px; text-align:center;
+  }
+  .journey-step{flex:1; min-width:130px;}
+  .journey-icon{width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:20px;}
+  .journey-step h4{font-size:13.5px; margin-bottom:6px;}
+  .journey-step p{font-size:11.5px; color:var(--muted);}
+
+  /* TWO COLUMN: JOBS + COURSES */
+  .two-col{display:grid; grid-template-columns:1.1fr 1.5fr; gap:24px; max-width:1200px; margin:0 auto;}
+  .panel{background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px;}
+  .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .panel-head h3{font-size:16px;}
+  .panel-head a{font-size:12.5px; color:var(--blue); font-weight:600;}
+  .job-card{border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:12px;}
+  .job-card h5{font-size:14px; margin-bottom:4px;}
+  .job-card .meta{font-size:11.5px; color:var(--muted); margin-bottom:8px;}
+  .job-card .tags{display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;}
+  .job-card .tags span{background:#f0f1f7; padding:2px 8px; border-radius:6px; font-size:10.5px;}
+  .job-card .salary{font-weight:700; font-size:13px; color:var(--navy); margin-bottom:8px;}
+  .job-card button{width:100%; padding:8px; font-size:12.5px;}
+
+  .course-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:14px;}
+  .course-card{border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .course-thumb{height:70px; background:linear-gradient(135deg,var(--blue),var(--purple)); position:relative;}
+  .course-thumb .badge{position:absolute; top:6px; left:6px; background:#fff; color:var(--navy); font-size:9px; font-weight:700; padding:2px 6px; border-radius:5px;}
+  .course-body{padding:10px;}
+  .course-body h6{font-size:12px; margin-bottom:6px; line-height:1.3;}
+  .course-meta{display:flex; justify-content:space-between; font-size:10.5px; color:var(--muted); margin-bottom:8px;}
+  .course-body button{width:100%; font-size:11px; padding:7px;}
+
+  /* COMPARE */
+  .compare{
+    background:#fff; border-radius:20px; max-width:1200px; margin:0 auto; padding:32px;
+    display:grid; grid-template-columns:0.9fr 1.6fr 0.9fr; gap:24px; align-items:center;
+  }
+  .compare h3{font-size:22px; margin-bottom:10px;}
+  .compare p{color:var(--muted); font-size:13.5px; margin-bottom:18px;}
+  .compare-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .compare-table th{text-align:left; color:var(--muted); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--line);}
+  .compare-table td{padding:8px; border-bottom:1px solid var(--line);}
+  .compare-img{border-radius:14px; height:220px; background:linear-gradient(135deg,#e8ceb4,#c9a97e);}
+
+  /* TESTIMONIALS */
+  .testi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; max-width:1200px; margin:0 auto;}
+  .testi-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; display:flex; gap:12px;}
+  .testi-avatar{width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--orange),#ffb27a); flex-shrink:0;}
+  .testi-card h6{font-size:13px; margin-bottom:2px;}
+  .testi-card .role{font-size:11px; color:var(--muted); margin-bottom:4px;}
+  .testi-card p{font-size:12px; color:#444; margin-bottom:6px;}
+  .stars{color:#f5a623; font-size:11px;}
+  .video-card{
+    background:linear-gradient(135deg,#1a2a55,#0c1430); border-radius:14px;
+    display:flex; align-items:center; justify-content:center; color:#fff; min-height:140px;
+  }
+  .play-btn{width:50px; height:50px; border-radius:50%; background:#fff; color:var(--navy); display:flex; align-items:center; justify-content:center; font-size:18px; margin:0 auto 8px;}
+
+  /* WHY CHOOSE */
+  .why-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; max-width:1200px; margin:0 auto;}
+  .why-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px 16px;}
+  .why-card h6{font-size:13.5px; margin-bottom:4px;}
+  .why-card p{font-size:11.5px; color:var(--muted);}
+
+  /* CTA BANNER */
+  .cta-banner{
+    max-width:1200px; margin:0 auto; border-radius:20px; overflow:hidden;
+    background:linear-gradient(120deg, #14213d, #3a2a55 60%, #b3593a);
+    padding:60px 30px; text-align:center; color:#fff;
+  }
+  .cta-banner h2{font-size:clamp(20px,3vw,30px); font-weight:800; margin-bottom:22px; line-height:1.3;}
+  .cta-actions{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+
+  /* FOOTER */
+  footer{background:var(--navy); color:#c7cbe0; padding:50px 24px 24px;}
+  .footer-grid{
+    max-width:1200px; margin:0 auto;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:28px;
+  }
+  .footer-grid h5{color:#fff; font-size:14px; margin-bottom:14px;}
+  .footer-grid li{font-size:13px; margin-bottom:8px; color:#a9aec7;}
+  .foot-logo{font-size:20px; font-weight:800; color:#fff; margin-bottom:10px;}
+  .foot-logo span{color:var(--orange);}
+  .footer-grid p{font-size:12.5px; color:#8b91ad; margin-bottom:14px;}
+  .newsletter{display:flex; gap:8px; flex-wrap:wrap;}
+  .newsletter input{flex:1; min-width:120px; padding:10px; border-radius:6px; border:none; font-size:12.5px;}
+  .newsletter button{background:var(--purple); color:#fff; border:none; padding:0 16px; border-radius:6px; font-weight:600; font-size:12.5px;}
+  .socials{display:flex; gap:10px; margin-top:16px;}
+  .socials div{width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-size:13px;}
+  .foot-bottom{
+    max-width:1200px; margin:30px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.08);
+    display:flex; justify-content:space-between; font-size:12px; color:#7d84a3; flex-wrap:wrap; gap:10px;
+  }
+
+  /* RESPONSIVE BREAKPOINTS */
+  @media(max-width:900px){
+    nav ul{display:none;}
+    .menu-toggle{display:block;}
+    .two-col{grid-template-columns:1fr;}
+    .compare{grid-template-columns:1fr; text-align:center;}
+    .compare-table{font-size:11px;}
+  }
+  @media(max-width:600px){
+    section{padding:40px 16px;}
+    .path-wrap{flex-direction:column; align-items:center;}
+    .path-card{max-width:100%;}
+    .stats-bar{padding:18px 12px;}
+    .stat{flex:1 1 40%;}
+    .ai-banner{padding:26px 22px; flex-direction:column; text-align:center;}
+    .ai-search{justify-content:center;}
+    .ai-chips{justify-content:center;}
+    .journey{flex-direction:column; align-items:flex-start; text-align:left;}
+    .journey-step{display:flex; align-items:flex-start; gap:14px; text-align:left; width:100%;}
+    .journey-icon{margin:0;}
+    .cta-actions{flex-direction:column;}
+    .cta-actions .btn{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex; align-items:baseline;">
+    <span class="logo">Career<span>Vidya</span></span>
+    <span class="tagline">VidyaHaiToSuccessHai</span>
+  </div>
+  <nav>
+    <ul>
+      <li>Courses ▾</li>
+      <li>Universities ▾</li>
+      <li>Counselling</li>
+      <li>Scholarships</li>
+      <li>Resources</li>
+    </ul>
+  </nav>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <a href="#" class="contact-btn">📞 Contact Us</a>
+    <button class="menu-toggle">☰</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">CHOOSE YOUR PATH</div>
+  <h1>Every journey needs the <em>right</em> direction</h1>
+  <p>One platform, two powerful experiences. Choose the path that's right for you and take the next step towards your future.</p>
+
+  <div class="path-wrap">
+    <div class="path-card orange">
+      <div class="tag">FOR PROFESSIONALS</div>
+      <h3>Career</h3>
+      <p style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">Find the right opportunities, connect with top employers and take the next step in your career.</p>
+      <ul>
+        <li>Latest Job Openings</li>
+        <li>AI Job Recommendations</li>
+        <li>AI Course Suggestions</li>
+        <li>AI Resume Analysis</li>
+        <li>Placement Assistance</li>
+      </ul>
+      <a href="#" class="btn btn-orange btn-block">Go to Career →</a>
+    </div>
+
+    <div class="center-badge">Career<br><span>Vidya</span></div>
+
+    <div class="path-card blue">
+      <div class="tag">FOR STUDENTS</div>
+      <h3>Vidya</h3>
+      <p style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">Explore courses, compare universities, get expert guidance and build your dream career.</p>
+      <ul>
+        <li>Free Career Counselling</li>
+        <li>24×7 LMS Access</li>
+        <li>Free Coursera Certificate</li>
+        <li>No-Cost EMI Available</li>
+        <li>100% Job Assistance</li>
+      </ul>
+      <a href="#" class="btn btn-blue">Enter Vidya →</a>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="num">50,000+</div><div class="lbl">Students Guided</div></div>
+    <div class="stat"><div class="num">500+</div><div class="lbl">Universities</div></div>
+    <div class="stat"><div class="num">10,000+</div><div class="lbl">Job Opportunities</div></div>
+    <div class="stat"><div class="num">100+</div><div class="lbl">Hiring Partners</div></div>
+    <div class="stat"><div class="num">4.8/5</div><div class="lbl">Student Rating</div></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">What are you looking for today?</h2>
+  <p class="section-sub">Tell us where you are in your journey. We'll guide you from there.</p>
+  <div class="look-grid">
+    <div class="look-card">
+      <div class="icon-circle" style="background:#efe6ff; color:var(--purple);">🎓</div>
+      <h4>Find My Course</h4>
+      <p>Discover the right course that fits your goals.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e4f9f0; color:var(--teal);">🏢</div>
+      <h4>Compare Universities</h4>
+      <p>Compare fees, placements, approvals & more.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#ffe9dc; color:var(--orange);">💼</div>
+      <h4>Find a Job</h4>
+      <p>Explore jobs matching your skills & interest.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e6ecff; color:var(--blue);">🤖</div>
+      <h4>Get AI Career Guidance</h4>
+      <p>Let AI suggest the best path for your future.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e0faf6; color:var(--teal);">📄</div>
+      <h4>Improve My Resume</h4>
+      <p>AI-powered resume analysis & suggestions.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="ai-banner">
+    <div class="ai-content">
+      <div class="ai-tag">AI CAREER ASSISTANT</div>
+      <h3>Not sure what to study or where to work?<br><span>Ask CareerVidya AI.</span></h3>
+      <div class="ai-search">
+        <input type="text" placeholder="What do you want to become?">
+        <button>Ask Now ➤</button>
+      </div>
+      <div class="ai-chips">
+        <span>↻ Suggest Courses</span>
+        <span>🔍 Find Jobs</span>
+        <span>🏫 Best Universities</span>
+        <span>📊 Analyse My Resume</span>
+      </div>
+    </div>
+    <div class="ai-bot-wrap">
+      <div class="ai-bubble">Hi! I'm CareerVidya AI. I can help you find the best courses, jobs & career path.</div>
+      <div class="ai-bot"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Your Career Journey, Simplified</h2>
+  <div style="height:16px;"></div>
+  <div class="journey">
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#efe6ff; color:var(--purple);">🧭</div>
+      <div><h4>01 Discover</h4><p>Explore career options and find your passion</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e4f9f0; color:var(--teal);">📖</div>
+      <div><h4>02 Learn</h4><p>Choose the right course and build the right skills</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#ffe9dc; color:var(--orange);">📈</div>
+      <div><h4>03 Build</h4><p>Enhance your skills & create a strong profile</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e6ecff; color:var(--blue);">✈️</div>
+      <div><h4>04 Apply</h4><p>Find the right opportunities</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e0faf6; color:var(--teal);">🏆</div>
+      <div><h4>05 Get Hired</h4><p>Land your dream job and grow your career</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head"><h3>🔥 Latest Job Opportunities</h3><a href="#">View all jobs →</a></div>
+      <div class="job-card">
+        <h5>Frontend Developer</h5>
+        <div class="meta">CareerVidya · Noida · Full Time</div>
+        <div class="tags"><span>React.js</span><span>Next.js</span></div>
+        <div class="salary">₹6 - 10 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+      <div class="job-card">
+        <h5>UI/UX Designer</h5>
+        <div class="meta">TechSolutions · Bangalore · Full Time</div>
+        <div class="tags"><span>Figma</span><span>UI/UX</span></div>
+        <div class="salary">₹5 - 8 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+      <div class="job-card">
+        <h5>Backend Developer</h5>
+        <div class="meta">InfoTech · Hyderabad · Full Time</div>
+        <div class="tags"><span>Node.js</span><span>MongoDB</span></div>
+        <div class="salary">₹7 - 12 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>📚 Trending Courses</h3><a href="#">View all courses →</a></div>
+      <div class="course-grid">
+        <div class="course-card">
+          <div class="course-thumb"><span class="badge">Most Popular</span></div>
+          <div class="course-body">
+            <h6>Full Stack Development</h6>
+            <div class="course-meta"><span>6 Months</span><span>⭐ 4.8</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"><span class="badge">High Demand</span></div>
+          <div class="course-body">
+            <h6>Data Science & AI with Python</h6>
+            <div class="course-meta"><span>6 Months</span><span>⭐ 4.9</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"></div>
+          <div class="course-body">
+            <h6>Digital Marketing Mastery</h6>
+            <div class="course-meta"><span>3 Months</span><span>⭐ 4.7</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"></div>
+          <div class="course-body">
+            <h6>Cloud Computing with AWS</h6>
+            <div class="course-meta"><span>4 Months</span><span>⭐ 4.8</span></div>
+            <button class="btn btn-purple">Explore Course</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="compare">
+    <div>
+      <h3>Compare Before You Decide</h3>
+      <p>Compare top universities on fees, courses, placements & more. Make the right choice for your future.</p>
+      <a href="#" class="btn btn-navy">Compare Universities →</a>
+    </div>
+    <table class="compare-table">
+      <tr><th>University</th><th>Programs</th><th>Fees (Avg.)</th><th>Placement</th><th>Rating</th></tr>
+      <tr><td>Amity University</td><td>B.Tech, MBA, BBA</td><td>₹2.5–6 LPA</td><td>88%</td><td>⭐ 4.6</td></tr>
+      <tr><td>LPU</td><td>B.Tech, MBA, BCA</td><td>₹2–5 LPA</td><td>90%</td><td>⭐ 4.7</td></tr>
+      <tr><td>Chandigarh University</td><td>B.Tech, MBA, B.Sc</td><td>₹2.8–6.5 LPA</td><td>91%</td><td>⭐ 4.8</td></tr>
+      <tr><td>Sharda University</td><td>B.Tech, MBA, BBA</td><td>₹2.2–4.5 LPA</td><td>85%</td><td>⭐ 4.5</td></tr>
+    </table>
+    <div class="compare-img"></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Real Students. Real Careers. Real Results.</h2>
+  <div style="height:16px;"></div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Rahul Sharma</h6>
+        <div class="role">MBA Student → Business Analyst</div>
+        <div class="stars">★★★★★</div>
+        <p>CareerVidya helped me choose the right course and guided me throughout my journey.</p>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Priya Verma</h6>
+        <div class="role">BCA Graduate → Software Engineer</div>
+        <div class="stars">★★★★★</div>
+        <p>The AI career guidance and counselling changed the way I saw my future.</p>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Arjun Singh</h6>
+        <div class="role">B.Tech → Software Developer</div>
+        <div class="stars">★★★★☆</div>
+        <p>Got my dream job with a great package. Thank you CareerVidya!</p>
+      </div>
+    </div>
+    <div class="video-card">
+      <div style="text-align:center;">
+        <div class="play-btn">▶</div>
+        <div style="font-size:12px;">Watch More Success Stories<br>Video Testimonials</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Why Choose <span class="accent">CareerVidya</span>?</h2>
+  <div style="height:16px;"></div>
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="icon-circle" style="background:#e6ecff; color:var(--blue);">👤</div>
+      <h6>Expert Counsellors</h6>
+      <p>Personalised guidance from industry experts</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#efe6ff; color:var(--purple);">💡</div>
+      <h6>AI-Powered Tools</h6>
+      <p>Smart recommendations for your better future</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#e4f9f0; color:var(--teal);">💼</div>
+      <h6>100% Job Assistance</h6>
+      <p>Resume, interview & placement support</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#e6ecff; color:var(--blue);">🎧</div>
+      <h6>24×7 Support</h6>
+      <p>We're here for you, anytime, anywhere</p>
+    </div>
+    <div class="why-card">
+      <div class="icon-circle" style="background:#ffe9dc; color:var(--orange);">🛡️</div>
+      <h6>Trusted by Thousands</h6>
+      <p>50,000+ students trust CareerVidya</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="cta-banner">
+    <h2>Your Career Doesn't Need Guesswork.<br>It Needs the Right Direction.</h2>
+    <div class="cta-actions">
+      <a href="#" class="btn btn-orange">Find My Career Path →</a>
+      <a href="#" class="btn btn-outline-navy" style="border-color:#fff; color:#fff;">Talk to a Counsellor →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="foot-logo">Career<span>Vidya</span></div>
+      <p>Your trusted partner in career guidance, education and job opportunities.</p>
+      <div class="socials"><div>f</div><div>in</div><div>ig</div><div>yt</div></div>
+    </div>
+    <div>
+      <h5>Explore</h5>
+      <ul><li>Courses</li><li>Universities</li><li>Jobs</li><li>Counselling</li><li>Scholarships</li></ul>
+    </div>
+    <div>
+      <h5>Resources</h5>
+      <ul><li>Blogs</li><li>Career Guidance</li><li>Resume Builder</li><li>Interview Tips</li><li>Student Login</li></ul>
+    </div>
+    <div>
+      <h5>Company</h5>
+      <ul><li>About Us</li><li>Contact Us</li><li>Privacy Policy</li><li>Terms & Conditions</li><li>Careers</li></ul>
+    </div>
+    <div>
+      <h5>Subscribe to our Newsletter</h5>
+      <p>Get the latest updates on courses, jobs and career tips.</p>
+      <div class="newsletter">
+        <input type="email" placeholder="Enter your email">
+        <button>Subscribe</button>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div>© 2026 CareerVidya. All rights reserved.</div>
+    <div style="display:flex; gap:16px;"><span>Sitemap</span><span>Privacy</span><span>Terms</span></div>
+  </div>
+</footer>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerVidya - Vidya Hai To Success Hai</title>
+<style>
+  :root{
+    --navy:#0b1a3d;
+    --orange:#f26522;
+    --orange-dark:#d9541a;
+    --blue:#1e3fae;
+    --purple:#5b3fd6;
+    --teal:#0fae8f;
+    --ink:#0c1430;
+    --muted:#5b6480;
+    --bg:#f6f7fb;
+    --line:#e7e9f2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.5;
+    overflow-x:hidden;
+  }
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  img{max-width:100%; display:block;}
+  button{font-family:inherit;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 22px; border-radius:8px; font-weight:600; font-size:14px;
+    border:none; cursor:pointer; transition:.2s; white-space:nowrap;
+  }
+  .btn-orange{background:var(--orange); color:#fff;}
+  .btn-orange:hover{background:var(--orange-dark);}
+  .btn-navy{background:var(--navy); color:#fff;}
+  .btn-blue{background:var(--blue); color:#fff; width:100%;}
+  .btn-purple{background:var(--purple); color:#fff; width:100%;}
+
+  /* HEADER */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px; background:#fff; border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:100; flex-wrap:wrap; gap:12px;
+  }
+  .logo{font-size:22px; font-weight:800; color:var(--navy); line-height:1;}
+  .logo span{color:var(--orange);}
+  .logo-block{display:flex; flex-direction:column;}
+  .tagline{font-size:10.5px; color:var(--orange); font-weight:600;}
+  nav ul{display:flex; gap:26px; font-size:14.5px; font-weight:500; color:#333; flex-wrap:wrap;}
+  .header-right{display:flex; align-items:center; gap:14px;}
+  .contact-btn{background:var(--orange); color:#fff; padding:9px 18px; border-radius:8px; font-weight:600; font-size:13.5px;}
+  .user-icon{
+    width:36px; height:36px; border-radius:50%; background:#eef1fb; color:var(--navy);
+    display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+  }
+  .menu-toggle{display:none; background:none; border:none; font-size:22px; cursor:pointer; color:var(--navy);}
+
+  /* HERO */
+  .hero{
+    position:relative; overflow:hidden; padding:50px 24px 40px;
+    background:
+      linear-gradient(100deg, rgba(255,255,255,.95) 0%, rgba(255,255,255,.82) 38%, rgba(255,255,255,.35) 62%, rgba(30,40,80,.15) 100%),
+      linear-gradient(120deg, #dbe6ff 0%, #eef1fb 40%, #ffe4c9 100%);
+  }
+  .hero-inner{max-width:1200px; margin:0 auto; position:relative; z-index:2;}
+  .eyebrow{color:var(--orange); font-weight:700; font-size:12.5px; letter-spacing:1.5px; margin-bottom:12px;}
+  .hero h1{font-size:clamp(26px,4vw,40px); font-weight:800; line-height:1.25; max-width:480px; color:var(--ink);}
+  .hero h1 em{color:var(--orange); font-style:normal;}
+  .hero p{color:var(--muted); max-width:400px; margin:16px 0 20px; font-size:14.5px;}
+  .pill-row{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
+  .pill{
+    background:#fff; border-radius:24px; padding:9px 16px; font-size:12.5px; font-weight:600;
+    box-shadow:0 4px 12px rgba(20,30,80,.08); display:flex; align-items:center; gap:6px;
+  }
+  .trust-row{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted);}
+  .avatars{display:flex;}
+  .avatars div{width:28px; height:28px; border-radius:50%; border:2px solid #fff; margin-left:-8px; background:linear-gradient(135deg,#ffb27a,#f26522);}
+  .avatars div:first-child{margin-left:0;}
+
+  .path-row{
+    position:relative; margin-top:36px; display:flex; gap:20px; justify-content:center; flex-wrap:wrap;
+  }
+  .path-card{
+    background:#fffdf9; border-radius:16px; padding:24px; width:100%; max-width:300px;
+    box-shadow:0 20px 40px rgba(20,30,80,.12); text-align:left; flex:1; min-width:250px;
+  }
+  .path-card .icon-badge{
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:18px; margin-bottom:10px;
+  }
+  .path-card.orange .icon-badge{background:#ffe4d1; color:var(--orange);}
+  .path-card.blue .icon-badge{background:#dbe6ff; color:var(--blue);}
+  .path-card .tag{font-size:11px; font-weight:700; letter-spacing:.5px; margin-bottom:4px;}
+  .path-card.orange .tag{color:var(--orange);}
+  .path-card.blue .tag{color:var(--blue);}
+  .path-card h3{font-size:21px; margin-bottom:8px;}
+  .path-card .desc{font-size:12px; color:var(--muted); margin-bottom:14px;}
+  .path-card ul{margin-bottom:16px;}
+  .path-card li{font-size:12px; color:var(--muted); padding:3px 0; display:flex; gap:6px; align-items:flex-start;}
+  .path-card li::before{content:"●"; font-size:6px; margin-top:6px; color:var(--orange); flex-shrink:0;}
+  .path-card.blue li::before{color:var(--blue);}
+  .path-card .btn{width:100%;}
+  .center-badge{
+    position:absolute; top:0; left:50%; transform:translate(-50%,20px);
+    width:80px; height:80px; border-radius:50%; background:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px;
+    box-shadow:0 10px 24px rgba(20,30,80,.2); text-align:center; z-index:5; color:var(--navy);
+  }
+  .center-badge span{color:var(--orange);}
+  @media(max-width:760px){ .center-badge{ display:none; } }
+
+  /* STATS BAR */
+  .stats-bar{
+    background:#fff; max-width:1100px; margin:34px auto 0; border-radius:16px;
+    box-shadow:0 10px 30px rgba(20,30,80,.06);
+    display:flex; justify-content:space-around; padding:22px 20px;
+    flex-wrap:wrap; gap:16px; text-align:center; position:relative; z-index:3;
+  }
+  .stat .num{font-size:19px; font-weight:800; color:var(--navy);}
+  .stat .lbl{font-size:11.5px; color:var(--muted);}
+
+  section{padding:56px 24px;}
+  .section-title{text-align:center; font-size:clamp(20px,3vw,28px); font-weight:800; margin-bottom:8px;}
+  .section-title .accent{color:var(--blue);}
+  .section-sub{text-align:center; color:var(--muted); font-size:14.5px; margin-bottom:32px;}
+
+  /* LOOKING FOR TODAY */
+  .look-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px;
+    max-width:1100px; margin:0 auto;
+  }
+  .look-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 18px; transition:.2s;}
+  .look-card:hover{transform:translateY(-4px); box-shadow:0 12px 24px rgba(20,30,80,.08);}
+  .icon-circle{width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:14px;}
+  .look-card h4{font-size:14.5px; margin-bottom:6px;}
+  .look-card p{font-size:12px; color:var(--muted);}
+
+  /* AI ASSISTANT */
+  .ai-banner{
+    max-width:1152px; margin:0 auto; background:linear-gradient(120deg,#131233,#241857 60%,#3a1f6e);
+    border-radius:20px; padding:36px 40px; color:#fff;
+    display:flex; gap:30px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  }
+  .ai-bot-wrap{flex-shrink:0;}
+  .ai-bot{width:90px; height:90px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #fff, #cfd6ff 60%, #8b93e8); position:relative;}
+  .ai-bot::after{content:"🤖"; font-size:38px; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;}
+  .ai-content{flex:1; min-width:260px;}
+  .ai-tag{display:inline-block; background:rgba(255,255,255,.12); padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; margin-bottom:10px;}
+  .ai-content h3{font-size:clamp(18px,2.4vw,24px); font-weight:800;}
+  .ai-content h3 span{color:#a78bfa;}
+  .ai-search{display:flex; gap:10px; margin:18px 0 14px; max-width:460px; flex-wrap:wrap;}
+  .ai-search input{flex:1; min-width:180px; padding:12px 16px; border-radius:8px; border:none; font-size:14px;}
+  .ai-search button{background:var(--purple); color:#fff; border:none; padding:0 20px; border-radius:8px; font-weight:600;}
+  .ai-chips{display:flex; gap:10px; flex-wrap:wrap;}
+  .ai-chips span{background:rgba(255,255,255,.1); padding:8px 14px; border-radius:20px; font-size:12px;}
+  .ai-suggest{background:rgba(255,255,255,.06); border-radius:12px; padding:20px; font-size:13px; min-width:220px;}
+  .ai-suggest h5{font-size:12px; color:#bcc2ff; margin-bottom:10px;}
+  .ai-suggest li{padding:5px 0; color:#dfe1ff;}
+
+  /* JOURNEY */
+  .journey{
+    display:flex; justify-content:space-between; max-width:1100px; margin:0 auto;
+    flex-wrap:wrap; gap:24px; text-align:center;
+  }
+  .journey-step{flex:1; min-width:130px;}
+  .journey-icon{width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:20px;}
+  .journey-step h4{font-size:13.5px; margin-bottom:6px;}
+  .journey-step p{font-size:11.5px; color:var(--muted);}
+
+  /* THREE COLUMN: JOBS + COURSES + UNIVERSITIES */
+  .three-col{display:grid; grid-template-columns:1fr 1.3fr 0.9fr; gap:20px; max-width:1200px; margin:0 auto;}
+  .panel{background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px;}
+  .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+  .panel-head h3{font-size:15px;}
+  .panel-head a{font-size:12px; color:var(--blue); font-weight:600;}
+  .job-card{border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:12px;}
+  .job-card h5{font-size:14px; margin-bottom:4px;}
+  .job-card .meta{font-size:11.5px; color:var(--muted); margin-bottom:8px;}
+  .job-card .tags{display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;}
+  .job-card .tags span{background:#f0f1f7; padding:2px 8px; border-radius:6px; font-size:10.5px;}
+  .job-card .salary{font-weight:700; font-size:13px; color:var(--navy); margin-bottom:8px;}
+  .job-card button{width:100%; padding:8px; font-size:12.5px;}
+
+  .course-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px;}
+  .course-card{border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .course-thumb{height:60px; background:linear-gradient(135deg,var(--blue),var(--purple)); position:relative;}
+  .course-thumb .badge{position:absolute; top:6px; left:6px; background:#fff; color:var(--navy); font-size:9px; font-weight:700; padding:2px 6px; border-radius:5px;}
+  .course-body{padding:10px;}
+  .course-body h6{font-size:11.5px; margin-bottom:6px; line-height:1.3;}
+  .course-meta{display:flex; justify-content:space-between; font-size:10px; color:var(--muted); margin-bottom:8px;}
+  .course-body button{width:100%; font-size:10.5px; padding:7px;}
+
+  .uni-row{display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .uni-row:last-of-type{border-bottom:none;}
+  .uni-logo{width:34px; height:34px; border-radius:8px; background:#eef1fb; flex-shrink:0;}
+  .uni-row h6{font-size:12.5px; margin-bottom:2px;}
+  .uni-row .meta{font-size:10.5px; color:var(--muted);}
+  .uni-row .rate{font-size:11px; font-weight:700; color:var(--navy); white-space:nowrap;}
+
+  /* COMPARE */
+  .compare{
+    background:#fff; border-radius:20px; max-width:1200px; margin:0 auto; padding:32px;
+    display:grid; grid-template-columns:0.9fr 1fr 1.5fr; gap:24px; align-items:center;
+  }
+  .compare h3{font-size:22px; margin-bottom:10px;}
+  .compare p{color:var(--muted); font-size:13.5px; margin-bottom:18px;}
+  .compare-img{border-radius:14px; height:220px; background:linear-gradient(135deg,#e8ceb4,#c9a97e);}
+  .compare-table{width:100%; border-collapse:collapse; font-size:12px;}
+  .compare-table th{text-align:left; color:var(--muted); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--line);}
+  .compare-table td{padding:8px; border-bottom:1px solid var(--line);}
+
+  /* TESTIMONIALS */
+  .testi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; max-width:1200px; margin:0 auto;}
+  .testi-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; display:flex; gap:12px;}
+  .testi-avatar{width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--orange),#ffb27a); flex-shrink:0;}
+  .testi-card h6{font-size:13px; margin-bottom:2px;}
+  .testi-card .role{font-size:11px; color:var(--muted); margin-bottom:4px;}
+  .testi-card p{font-size:12px; color:#444; margin-bottom:6px;}
+  .stars{color:#f5a623; font-size:11px;}
+  .video-card{
+    background:linear-gradient(135deg,#7b7ff2,#4a3fc0); border-radius:14px;
+    display:flex; align-items:center; justify-content:center; color:#fff; min-height:140px;
+  }
+  .play-btn{width:50px; height:50px; border-radius:50%; background:#fff; color:var(--navy); display:flex; align-items:center; justify-content:center; font-size:18px; margin:0 auto 8px;}
+
+  /* PARTNER LOGOS */
+  .partners{display:flex; justify-content:center; align-items:center; gap:44px; flex-wrap:wrap; max-width:1100px; margin:0 auto;}
+  .partners span{font-size:20px; font-weight:700; color:#8a90ab; opacity:.8;}
+
+  /* CTA BANNER */
+  .cta-banner{
+    max-width:1200px; margin:0 auto; border-radius:20px; overflow:hidden;
+    background:linear-gradient(120deg, #14213d, #3a2a55 55%, #b3593a);
+    padding:50px 40px; color:#fff;
+    display:grid; grid-template-columns:1.3fr 1fr; gap:30px; align-items:center;
+  }
+  .cta-banner h2{font-size:clamp(20px,2.6vw,28px); font-weight:800; margin-bottom:22px; line-height:1.3;}
+  .cta-actions{display:flex; gap:14px; flex-wrap:wrap;}
+  .cta-actions .btn-outline{background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.6);}
+  .cta-features{display:flex; flex-direction:column; gap:14px;}
+  .cta-feature{display:flex; align-items:center; gap:12px; font-size:12.5px;}
+  .cta-feature .fi{width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .cta-feature small{display:block; color:#c7cbe0; font-size:11px;}
+
+  /* FOOTER */
+  footer{background:var(--navy); color:#c7cbe0; padding:50px 24px 24px;}
+  .footer-grid{
+    max-width:1200px; margin:0 auto;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:28px;
+  }
+  .footer-grid h5{color:#fff; font-size:14px; margin-bottom:14px;}
+  .footer-grid li{font-size:13px; margin-bottom:8px; color:#a9aec7;}
+  .foot-logo{font-size:20px; font-weight:800; color:#fff; margin-bottom:10px;}
+  .foot-logo span{color:var(--orange);}
+  .footer-grid p{font-size:12.5px; color:#8b91ad; margin-bottom:14px;}
+  .newsletter{display:flex; gap:8px; flex-wrap:wrap;}
+  .newsletter input{flex:1; min-width:120px; padding:10px; border-radius:6px; border:none; font-size:12.5px;}
+  .newsletter button{background:var(--purple); color:#fff; border:none; padding:0 16px; border-radius:6px; font-weight:600; font-size:12.5px;}
+  .socials{display:flex; gap:10px; margin-top:16px;}
+  .socials div{width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-size:13px;}
+  .foot-bottom{
+    max-width:1200px; margin:30px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.08);
+    display:flex; justify-content:space-between; font-size:12px; color:#7d84a3; flex-wrap:wrap; gap:10px;
+  }
+
+  /* RESPONSIVE BREAKPOINTS */
+  @media(max-width:1000px){
+    .three-col{grid-template-columns:1fr; }
+    .compare{grid-template-columns:1fr; text-align:center;}
+    .cta-banner{grid-template-columns:1fr;}
+  }
+  @media(max-width:900px){
+    nav ul{display:none;}
+    .menu-toggle{display:block;}
+  }
+  @media(max-width:760px){
+    .hero{padding-top:36px;}
+    .hero h1{max-width:100%;}
+    .hero p{max-width:100%;}
+    .path-row{flex-direction:column; align-items:center; margin-top:24px;}
+    .path-card{max-width:100%;}
+  }
+  @media(max-width:600px){
+    section{padding:40px 16px;}
+    .stats-bar{padding:18px 12px;}
+    .stat{flex:1 1 40%;}
+    .ai-banner{padding:26px 22px; flex-direction:column; text-align:center;}
+    .ai-search{justify-content:center;}
+    .ai-chips{justify-content:center;}
+    .journey{flex-direction:column; align-items:flex-start; text-align:left;}
+    .journey-step{display:flex; align-items:flex-start; gap:14px; text-align:left; width:100%;}
+    .journey-icon{margin:0;}
+    .cta-actions{flex-direction:column;}
+    .cta-actions .btn{width:100%;}
+    .partners{gap:24px;}
+    .partners span{font-size:16px;}
+    .pill-row{justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <span class="logo">Career<span>Vidya</span></span>
+    <span class="tagline">VidyaHaiToSuccessHai</span>
+  </div>
+  <nav>
+    <ul>
+      <li>Courses ▾</li>
+      <li>Universities ▾</li>
+      <li>Counselling</li>
+      <li>Scholarships</li>
+      <li>Resources ▾</li>
+    </ul>
+  </nav>
+  <div class="header-right">
+    <a href="#" class="contact-btn">📞 Contact Us</a>
+    <div class="user-icon">👤</div>
+    <button class="menu-toggle">☰</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">CHOOSE YOUR PATH</div>
+    <h1>Every journey needs the <em>right</em> direction</h1>
+    <p>One platform. Two powerful experiences. Choose the path that's right for you and take the next step towards your future.</p>
+    <div class="pill-row">
+      <div class="pill">🧭 Explore</div>
+      <div class="pill">📖 Learn</div>
+      <div class="pill">🏆 Achieve</div>
+    </div>
+    <div class="trust-row">
+      <div class="avatars"><div></div><div></div><div></div></div>
+      50,000+ students already trust CareerVidya
+    </div>
+
+    <div class="path-row">
+      <div class="center-badge">Career<br><span>Vidya</span></div>
+      <div class="path-card orange">
+        <div class="icon-badge">💼</div>
+        <div class="tag">FOR PROFESSIONALS</div>
+        <h3>Career</h3>
+        <p class="desc">Find the right opportunities, connect with top employers and take the next step in your career.</p>
+        <ul>
+          <li>Latest Job Openings</li>
+          <li>AI Job Recommendations</li>
+          <li>AI Resume Analysis</li>
+          <li>Placement Assistance</li>
+          <li>Career Growth Resources</li>
+        </ul>
+        <a href="#" class="btn btn-orange">Go to Career →</a>
+      </div>
+      <div class="path-card blue">
+        <div class="icon-badge">🎓</div>
+        <div class="tag">FOR STUDENTS</div>
+        <h3>Vidya</h3>
+        <p class="desc">Explore courses, compare universities, get expert guidance and build your dream career.</p>
+        <ul>
+          <li>Free Career Counselling</li>
+          <li>24×7 LMS Access</li>
+          <li>Free Coursera Certificate</li>
+          <li>No-Cost EMI Available</li>
+          <li>100% Job Assistance</li>
+        </ul>
+        <a href="#" class="btn btn-blue">Enter Vidya →</a>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat"><div class="num">50,000+</div><div class="lbl">Students Guided</div></div>
+      <div class="stat"><div class="num">500+</div><div class="lbl">Universities</div></div>
+      <div class="stat"><div class="num">10,000+</div><div class="lbl">Job Opportunities</div></div>
+      <div class="stat"><div class="num">100+</div><div class="lbl">Hiring Partners</div></div>
+      <div class="stat"><div class="num">4.8/5</div><div class="lbl">Student Rating</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">What are you looking for today?</h2>
+  <p class="section-sub">Tell us where you are in your journey. We'll guide you from there.</p>
+  <div class="look-grid">
+    <div class="look-card">
+      <div class="icon-circle" style="background:#efe6ff; color:var(--purple);">🎓</div>
+      <h4>Find My Course</h4>
+      <p>Discover the right course that fits your goals.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e4f9f0; color:var(--teal);">🏢</div>
+      <h4>Compare Universities</h4>
+      <p>Compare fees, placements, approvals & more.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#ffe9dc; color:var(--orange);">💼</div>
+      <h4>Find a Job</h4>
+      <p>Explore jobs matching your skills & interest.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e6ecff; color:var(--blue);">🤖</div>
+      <h4>Get AI Career Guidance</h4>
+      <p>Let AI suggest the best path for your future.</p>
+    </div>
+    <div class="look-card">
+      <div class="icon-circle" style="background:#e0faf6; color:var(--teal);">📄</div>
+      <h4>Improve My Resume</h4>
+      <p>AI-powered resume analysis & suggestions.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="ai-banner">
+    <div class="ai-bot-wrap"><div class="ai-bot"></div></div>
+    <div class="ai-content">
+      <div class="ai-tag">AI CAREER ASSISTANT</div>
+      <h3>Not sure what to study or where to work?<br><span>Ask CareerVidya AI.</span></h3>
+      <div class="ai-search">
+        <input type="text" placeholder="What do you want to become?">
+        <button>Ask Now ➤</button>
+      </div>
+      <div class="ai-chips">
+        <span>↻ Suggest Courses</span>
+        <span>🔍 Find Jobs</span>
+        <span>🏫 Best Universities</span>
+        <span>📊 Analyse My Resume</span>
+      </div>
+    </div>
+    <div class="ai-suggest">
+      <h5>POPULAR QUESTIONS</h5>
+      <ul>
+        <li>› Which course is best for me?</li>
+        <li>› What are the highest paying jobs?</li>
+        <li>› Compare top universities for MBA</li>
+        <li>› How can I improve my resume?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Your Career Journey, Simplified</h2>
+  <div style="height:16px;"></div>
+  <div class="journey">
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#efe6ff; color:var(--purple);">🧭</div>
+      <div><h4>01 Discover</h4><p>Explore career options and find your passion</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e4f9f0; color:var(--teal);">📖</div>
+      <div><h4>02 Learn</h4><p>Choose the right course and build the right skills</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#ffe9dc; color:var(--orange);">📈</div>
+      <div><h4>03 Build</h4><p>Enhance your skills & create a strong profile</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e6ecff; color:var(--blue);">✈️</div>
+      <div><h4>04 Apply</h4><p>Find the right opportunities</p></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-icon" style="background:#e0faf6; color:var(--teal);">🏆</div>
+      <div><h4>05 Get Hired</h4><p>Land your dream job and grow your career</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="three-col">
+    <div class="panel">
+      <div class="panel-head"><h3>🔥 Latest Job Opportunities</h3><a href="#">View all jobs →</a></div>
+      <div class="job-card">
+        <h5>Frontend Developer</h5>
+        <div class="meta">CareerVidya · Noida · Full Time</div>
+        <div class="tags"><span>React.js</span><span>Next.js</span></div>
+        <div class="salary">₹6 - 10 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+      <div class="job-card">
+        <h5>UI/UX Designer</h5>
+        <div class="meta">TechSolutions · Bangalore · Full Time</div>
+        <div class="tags"><span>Figma</span><span>UI/UX</span></div>
+        <div class="salary">₹5 - 8 LPA</div>
+        <button class="btn btn-purple">Apply Now</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>📚 Trending Courses</h3><a href="#">View all courses →</a></div>
+      <div class="course-grid">
+        <div class="course-card">
+          <div class="course-thumb"><span class="badge">Most Popular</span></div>
+          <div class="course-body">
+            <h6>Full Stack Development</h6>
+            <div class="course-meta"><span>6 Months</span><span>⭐ 4.8</span></div>
+            <button class="btn btn-purple">Explore</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"><span class="badge">High Demand</span></div>
+          <div class="course-body">
+            <h6>Data Science & AI</h6>
+            <div class="course-meta"><span>6 Months</span><span>⭐ 4.9</span></div>
+            <button class="btn btn-purple">Explore</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"></div>
+          <div class="course-body">
+            <h6>Digital Marketing</h6>
+            <div class="course-meta"><span>3 Months</span><span>⭐ 4.7</span></div>
+            <button class="btn btn-purple">Explore</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-thumb"></div>
+          <div class="course-body">
+            <h6>Cloud Computing AWS</h6>
+            <div class="course-meta"><span>4 Months</span><span>⭐ 4.8</span></div>
+            <button class="btn btn-purple">Explore</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>🏫 Top Universities</h3><a href="#">Compare all →</a></div>
+      <div class="uni-row">
+        <div class="uni-logo"></div>
+        <div style="flex:1;"><h6>Amity University</h6><div class="meta">B.Tech, MBA, BBA</div></div>
+        <div class="rate">₹2.5-6 LPA<br>⭐ 4.6</div>
+      </div>
+      <div class="uni-row">
+        <div class="uni-logo"></div>
+        <div style="flex:1;"><h6>LPU</h6><div class="meta">B.Tech, MBA, BCA</div></div>
+        <div class="rate">₹2-5 LPA<br>⭐ 4.7</div>
+      </div>
+      <div class="uni-row">
+        <div class="uni-logo"></div>
+        <div style="flex:1;"><h6>Chandigarh University</h6><div class="meta">B.Tech, MBA, B.Sc</div></div>
+        <div class="rate">₹2.8-6.5 LPA<br>⭐ 4.8</div>
+      </div>
+      <div class="uni-row">
+        <div class="uni-logo"></div>
+        <div style="flex:1;"><h6>Sharda University</h6><div class="meta">B.Tech, MBA, BBA</div></div>
+        <div class="rate">₹2.2-4.5 LPA<br>⭐ 4.5</div>
+      </div>
+      <div style="height:12px;"></div>
+      <a href="#" class="btn btn-purple">Compare Universities</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="compare">
+    <div>
+      <h3>Compare Before You Decide</h3>
+      <p>Compare top universities on fees, courses, placements & more. Make the right choice for your future.</p>
+      <a href="#" class="btn btn-navy">Compare Universities →</a>
+    </div>
+    <div class="compare-img"></div>
+    <table class="compare-table">
+      <tr><th>University</th><th>Programs</th><th>Fees</th><th>Placement</th><th>Rating</th></tr>
+      <tr><td>Amity University</td><td>B.Tech, MBA, BBA</td><td>₹2.5–6 LPA</td><td>88%</td><td>⭐ 4.6</td></tr>
+      <tr><td>LPU</td><td>B.Tech, MBA, BCA</td><td>₹2–5 LPA</td><td>90%</td><td>⭐ 4.7</td></tr>
+      <tr><td>Chandigarh University</td><td>B.Tech, MBA, B.Sc</td><td>₹2.8–6.5 LPA</td><td>91%</td><td>⭐ 4.8</td></tr>
+      <tr><td>Sharda University</td><td>B.Tech, MBA, BBA</td><td>₹2.2–4.5 LPA</td><td>85%</td><td>⭐ 4.5</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Real Students. Real Careers. Real Results.</h2>
+  <div style="height:16px;"></div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Rahul Sharma</h6>
+        <div class="role">MBA Student → Business Analyst</div>
+        <div class="stars">★★★★★</div>
+        <p>CareerVidya helped me choose the right course and guided me throughout my journey.</p>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Priya Verma</h6>
+        <div class="role">BCA Graduate → Software Engineer</div>
+        <div class="stars">★★★★★</div>
+        <p>The AI career guidance and counselling changed the way I saw my future.</p>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar"></div>
+      <div>
+        <h6>Arjun Singh</h6>
+        <div class="role">B.Tech → Software Developer</div>
+        <div class="stars">★★★★☆</div>
+        <p>Got my dream job with a great package. Thank you CareerVidya!</p>
+      </div>
+    </div>
+    <div class="video-card">
+      <div style="text-align:center;">
+        <div class="play-btn">▶</div>
+        <div style="font-size:12px;">Watch More Success Stories<br>Video Testimonials</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Trusted by Students. Recognized by Partners.</h2>
+  <div style="height:24px;"></div>
+  <div class="partners">
+    <span>Google</span>
+    <span>Microsoft</span>
+    <span>aws</span>
+    <span>IBM</span>
+    <span>TCS</span>
+    <span>Infosys</span>
+    <span>Wipro</span>
+    <span>Accenture</span>
+  </div>
+</section>
+
+<section>
+  <div class="cta-banner">
+    <div>
+      <h2>Your Career Doesn't Need Guesswork.<br>It Needs the Right Direction.</h2>
+      <div class="cta-actions">
+        <a href="#" class="btn btn-orange">Find My Career Path →</a>
+        <a href="#" class="btn btn-outline">Talk to a Counsellor →</a>
+      </div>
+    </div>
+    <div class="cta-features">
+      <div class="cta-feature"><div class="fi">🧭</div><div>100% Guidance<small>Personalized career direction</small></div></div>
+      <div class="cta-feature"><div class="fi">🎧</div><div>24×7 Support<small>We're here anytime</small></div></div>
+      <div class="cta-feature"><div class="fi">✅</div><div>100% Free<small>No hidden charges</small></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="foot-logo">Career<span>Vidya</span></div>
+      <p>Your trusted partner in career guidance, education and job opportunities.</p>
+      <div class="socials"><div>f</div><div>ig</div><div>in</div><div>yt</div></div>
+    </div>
+    <div>
+      <h5>Explore</h5>
+      <ul><li>Courses</li><li>Universities</li><li>Jobs</li><li>Counselling</li><li>Scholarships</li></ul>
+    </div>
+    <div>
+      <h5>Resources</h5>
+      <ul><li>Blogs</li><li>Career Guidance</li><li>Resume Builder</li><li>Interview Tips</li><li>Student Login</li></ul>
+    </div>
+    <div>
+      <h5>Company</h5>
+      <ul><li>About Us</li><li>Contact Us</li><li>Privacy Policy</li><li>Terms & Conditions</li><li>Careers</li></ul>
+    </div>
+    <div>
+      <h5>Subscribe to our Newsletter</h5>
+      <p>Get the latest updates on courses, jobs and career tips.</p>
+      <div class="newsletter">
+        <input type="email" placeholder="Enter your email">
+        <button>Subscribe</button>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div>© 2026 CareerVidya. All rights reserved.</div>
+    <div style="display:flex; gap:16px;"><span>Sitemap</span><span>Privacy</span><span>Terms</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,833 @@
+/* ================================================= */
+/* GLOBAL HEADER */
+/* ================================================= */
+.header-container {
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50; /* ✅ 500 tha, 100 karo bas */
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 16px;
+  height: 64px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .header-inner {
+    height: 76px;
+    padding: 0 24px;
+  }
+}
+
+/* ================================================= */
+/* VISIBILITY HELPERS */
+/* ================================================= */
+.desktop-only { display: none !important; }
+.mobile-only  { display: flex  !important; }
+
+@media (min-width: 1024px) {
+  .desktop-only { display: flex !important; }
+  .mobile-only  { display: none !important; }
+}
+
+/* ================================================= */
+/* LOGO */
+/* ================================================= */
+.logo-wrapper {
+  flex-shrink: 0;
+  z-index: 2;
+  text-decoration: none;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-img {
+  width: 90px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.counselling-badge {
+  width: 72px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .logo-img        { width: 110px; }
+  .counselling-badge { width: 80px; }
+}
+
+@media (max-width: 767px) {
+  .counselling-badge { display: none !important; }
+}
+
+/* ================================================= */
+/* NAV — CENTERED (FIXED: no `transform` here anymore) */
+/* ================================================= */
+/*
+  BUGFIX NOTE:
+  Previously this rule used `transform: translateX(-50%)` to center
+  the nav. Any `transform` on an ancestor creates a NEW containing
+  block for descendants that use `position: fixed` (per CSS spec).
+  Since `.mega-panel` inside `.mega-menu-wrap` relies on
+  `position: fixed` to span the FULL viewport width and sit right
+  below the header, having `transform` on `.nav-center` broke that:
+  the panel was being positioned relative to `.nav-center`'s box
+  instead of the viewport — causing the narrow, mis-placed dropdown
+  seen in the screenshots.
+
+  Fix: center `.nav-center` WITHOUT using `transform`, so `.mega-panel`
+  keeps the real viewport as its containing block.
+*/
+.nav-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.nav-center > a,
+.nav-center > .mega-menu-wrap > a {
+  text-decoration: none;
+  color: #222;
+  font-weight: 600;
+  font-size: 13.5px;
+  padding: 8px 11px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-center > a:hover,
+.nav-center > .mega-menu-wrap > a:hover {
+  color: #04458b;
+  background: #f0f5ff;
+}
+
+/* ================================================= */
+/* RIGHT ACTIONS (SEARCH + SIGNUP/USER) */
+/* ================================================= */
+.right-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+/* Search bar */
+.search-link {
+  text-decoration: none;
+  color: #333;
+  flex-shrink: 0;
+}
+
+.main-search-bar {
+  cursor: pointer;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  width: 170px;
+  height: 38px;
+  padding: 0 4px 0 14px;
+  position: relative;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: width 0.3s ease, border-color 0.2s;
+}
+
+.main-search-bar:hover {
+  width: 200px;
+  border-color: #bbb;
+}
+
+.main-search-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 12.5px;
+  background: transparent;
+  color: #444;
+  cursor: pointer;
+}
+
+.main-search-input::placeholder {
+  color: #aaa;
+}
+
+.search-icon-btn {
+  background: #c15304;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  position: absolute;
+  right: 3px;
+  transition: background 0.2s;
+}
+
+.search-icon-btn:hover {
+  background: #a34203;
+}
+
+/* Signup button */
+.btn1-primary {
+  cursor: pointer;
+  background: transparent;
+  border: 1.5px solid #c15304;
+  border-radius: 6px;
+  padding: 7px 18px;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #04458b;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.btn1-primary:hover {
+  background: #c15304;
+  color: #fff;
+}
+
+/* ================================================= */
+/* USER DROPDOWN */
+/* ================================================= */
+.user-dropdown-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.user-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 5px 12px 5px 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #222;
+  white-space: nowrap;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.user-dropdown-trigger:hover {
+  border-color: #bbb;
+  background: #f8f8f8;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  min-width: 170px;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 11px 16px;
+  font-size: 13.5px;
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f5f8ff;
+  color: #04458b;
+}
+
+.logout-btn-dropdown {
+  display: block;
+  width: 100%;
+  padding: 11px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #c15304;
+  background: none;
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.logout-btn-dropdown:hover {
+  background: #fff5f0;
+}
+
+/* ================================================= */
+/* MEGA MENU WRAP — the trigger item itself           */
+/* ================================================= */
+.mega-menu-wrap {
+  position: static; /* ← KEY: don't create a new containing block */
+}
+.mega-menu-wrap > a {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.mega-menu-wrap:hover .chevron-icon { transform: rotate(180deg); }
+.chevron-icon { transition: transform .25s ease; }
+
+/* ================================================= */
+/* MEGA MENU PANEL — FIXED, FULL-WIDTH, VIEWPORT-    */
+/* ANCHORED so it never overflows left or right      */
+/* ================================================= */
+.mega-panel {
+  /* Position: fixed to viewport, just below header */
+  position: fixed;
+  top: 122px;           /* matches desktop header height */
+  left: 0;
+  right: 0;
+  width: 100%;
+
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 2px solid #e8e8e8;
+  box-shadow: 0 12px 40px rgba(0,0,0,.10);
+  z-index: 490;        /* below header but above page content */
+
+  /* Show/hide */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
+
+  /* Internal layout: max-width centered content */
+  display: flex;
+  justify-content: center;
+}
+
+/* Visible when parent .mega-menu-wrap is hovered */
+.mega-menu-wrap:hover .mega-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Inner container: max width + equal-col grid */
+.mega-panel-inner {
+  width: 100%;
+  max-width: 1200px;
+  padding: 32px 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  box-sizing: border-box;
+}
+
+/* "View All" row that spans all 3 columns */
+.mega-panel-footer {
+  grid-column: 1 / -1;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+.mega-panel-footer a {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #04458b;
+  text-decoration: none;
+}
+.mega-panel-footer a:hover { text-decoration: underline; }
+
+/* ── Column heading: dash + colored title ── */
+.mega-col-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.mega-col-heading-dash {
+  width: 20px;
+  height: 2px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.mega-col-heading h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ── Each menu row: icon chip + label ── */
+.mega-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #333;
+  transition: background .18s, color .18s, padding-left .18s;
+  cursor: pointer;
+}
+.mega-menu-item:hover {
+  background: #f0f5ff;
+  color: #04458b;
+  padding-left: 12px;
+}
+
+/* ── Icon chip ── */
+.mega-icon-chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.chip-blue    { background: #eff6ff; color: #2563eb; }
+.chip-emerald { background: #ecfdf5; color: #059669; }
+.chip-amber   { background: #fffbeb; color: #d97706; }
+.chip-indigo  { background: #eef2ff; color: #4f46e5; }
+.chip-rose    { background: #fff1f2; color: #e11d48; }
+.chip-purple  { background: #faf5ff; color: #7c3aed; }
+.chip-orange  { background: #fff7ed; color: #ea580c; }
+
+/* ── Stats 2×2 grid (Explore Programs – col 2) ── */
+.mega-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.mega-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px 8px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: transform .2s;
+}
+.mega-stat-card:hover { transform: scale(1.04); }
+.mega-stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.mega-stat-num   { font-size: 17px; font-weight: 900; color: #002D62; line-height: 1; }
+.mega-stat-label { font-size: 9px;  font-weight: 700; color: #6b7280; text-transform: uppercase; margin-top: 4px; letter-spacing: .5px; }
+
+/* ── Contact card (Free Counselling – col 3) ── */
+.mega-contact-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mega-contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.mega-contact-divider {
+  height: 1px;
+  background: #e5e7eb;
+}
+.mega-contact-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: #9ca3af;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.mega-contact-value {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111;
+}
+.mega-contact-note {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ── Award card ── */
+.mega-award-card {
+  background: linear-gradient(135deg,#fffbeb,#fff7ed);
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 16px;
+}
+.mega-award-badge {
+  display: inline-block;
+  background: linear-gradient(90deg,#f59e0b,#f97316);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.mega-award-title { font-size: 13.5px; font-weight: 600; color: #374151; line-height: 1.4; }
+.mega-award-sub   { font-size: 11px; color: #9ca3af; margin-top: 6px; }
+
+.mega-live-pill {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.mega-live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse-dot 1.5s infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.5; transform:scale(1.3); }
+}
+.mega-live-text { font-size: 10px; font-weight: 600; color: #4b5563; font-style: italic; }
+
+/* ── Career Finder pill ── */
+.mega-career-finder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 7px 14px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background .2s;
+}
+.mega-career-finder-btn:hover { background: #dbeafe; }
+.mega-career-finder-badge {
+  background: #2563eb;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+/* ================================================= */
+/* MOBILE ACTIONS */
+/* ================================================= */
+.mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+  text-decoration: none;
+}
+
+.mobile-signup-btn {
+  background: #c15304;
+  color: #fff;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menu-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  color: #222;
+}
+
+/* ================================================= */
+/* MOBILE SIDEBAR */
+/* ================================================= */
+.mobile-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 9998;
+}
+
+.mobile-sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-sidebar {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 300px;
+  max-width: 85vw;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 9999;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.mobile-sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #002D62;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.mobile-nav-links a {
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  padding: 14px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s, color 0.2s, padding-left 0.2s;
+  border-radius: 0;
+}
+
+.mobile-nav-links a:hover {
+  background: #f5f8ff;
+  color: #04458b;
+  padding-left: 18px;
+}
+
+.mobile-logout-btn {
+  margin-top: 20px;
+  background: none;
+  color: #c15304;
+  border: 1.5px solid #c15304;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  width: 100%;
+}
+
+.mobile-logout-btn:hover {
+  background: #c15304;
+  color: #fff;
+}
+
+.mobile-sidebar-signup {
+  margin-top: auto;
+  background: #04458b;
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+
+.mobile-sidebar-signup:hover {
+  background: #033470;
+}
+
+@media (min-width: 1024px) {
+  .mobile-sidebar,
+  .mobile-sidebar-overlay {
+    display: none !important;
+  }
+}
+
+/* ================================================= */
+/* RESPONSIVE — nav font shrink on smaller desktop */
+/* ================================================= */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .nav-center > a,
+  .nav-center > .mega-menu-wrap > a {
+    font-size: 12.5px;
+    padding: 7px 7px;
+  }
+  .main-search-bar {
+    width: 140px;
+  }
+  .main-search-bar:hover {
+    width: 170px;
+  }
+  .btn1-primary {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+  .counselling-badge {
+    display: none !important;
+  }
+  .mega-panel-inner { padding: 28px 20px; gap: 28px; }
+}
+
+@media (min-width: 1200px) and (max-width: 1380px) {
+  .nav-center > a,
+  .nav-center > .mega-menu-wrap > a {
+    font-size: 13px;
+    padding: 7px 9px;
+  }
+  .main-search-bar {
+    width: 155px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Styles for the mobile "Popular Courses" collapsible
+   section inside .mobile-nav-links. Colors, sizes, and
+   spacing are matched exactly to your existing
+   .mobile-nav-links a rules so it looks native, not bolted on.
+   (UNCHANGED — mobile view same rehne diya gaya hai)
+   ══════════════════════════════════════════════════════════ */
+
+.mobile-collapsible-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  font-family: inherit;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  padding: 14px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+
+.mobile-collapsible-trigger:hover {
+  background: #f5f8ff;
+  color: #04458b;
+  padding-left: 18px;
+}
+
+.mobile-collapsible-divider {
+  height: 8px;
+  background: #fafbfd;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-collapsible-panel {
+  display: flex;
+  flex-direction: column;
+  background: #fafbfd;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-collapsible-panel a {
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+  padding: 12px 12px 12px 28px; /* extra left indent to show nesting */
+  border-bottom: 1px solid #f3f3f3;
+  transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+
+.mobile-collapsible-panel a:last-child {
+  border-bottom: none;
+}
+
+.mobile-collapsible-panel a:hover {
+  background: #f5f8ff;
+  color: #04458b;
+  padding-left: 32px;
+}
+
+.mobile-collapsible-panel .mobile-view-all {
+  font-weight: 700;
+  color: #04458b;
+}
