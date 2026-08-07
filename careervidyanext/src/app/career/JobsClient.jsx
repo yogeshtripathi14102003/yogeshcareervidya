@@ -235,6 +235,10 @@ export default function JobsClient({ initialJobs }) {
     "Digital Marketing",
     "Software Testing",
     "IT Support",
+    "UI/UX Design",
+    "Graphics Design",
+    "seo executive",
+    "Team Lead",
   ];
 
   // 👇 Ensures experience always shows with "years" next to the number,

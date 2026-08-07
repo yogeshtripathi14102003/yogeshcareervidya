@@ -15,6 +15,7 @@ const DETAIL_PAGE_LIMIT = 60;
 let globalUniversitiesCache = null;
 
 const PRIORITY_UNIS = [
+  "vikrant-university",
   "op-jindal-global-online",
   "gla-online",
   "dy-patil-university-online-mumbai",

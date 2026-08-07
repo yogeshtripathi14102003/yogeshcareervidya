@@ -146,7 +146,7 @@ export default function JobDetailPage() {
             {job?.requirements?.length > 0 && (
               <>
                 <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-                  KRAs
+                  Benefits & Perks
                 </h2>
 
                 <ul className="list-disc ml-6 space-y-2 text-gray-600 text-[15px] md:text-[16px] leading-relaxed">

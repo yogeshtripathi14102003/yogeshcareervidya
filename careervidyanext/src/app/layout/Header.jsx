@@ -692,6 +692,7 @@ export default function Header() {
 
             <Link href="/career">CAREER</Link>
 
+
           </nav>
 
           {/* ── DESKTOP RIGHT: SEARCH + SIGNUP / USER ── */}

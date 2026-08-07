@@ -1,5 +1,4 @@
 
-
 // import { Geist, Geist_Mono } from "next/font/google";
 // import "./globals.css";
 // import AutoLogout from "../app/components/AutoLogout.js";
@@ -7,7 +6,6 @@
 // import CopyProtection from "./components/CopyProtection";
 // // import MobileNavigation from "./components/MobileNavigation";
 // import ChatbotFloating from "./components/ChatbotFloating";
-
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -142,6 +140,7 @@
 //     </html>
 //   );
 // }
+
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
