@@ -30,9 +30,8 @@
 // router.delete("/students/:id", authMiddleware, deleteStudent);
 // // Example route definition
 // router.get("/students/:id", authMiddleware, getStudentById);
-
-
 // export default router;
+
 
 import express from "express";
 import authMiddleware from "../middelware/authMiddleware.js";
