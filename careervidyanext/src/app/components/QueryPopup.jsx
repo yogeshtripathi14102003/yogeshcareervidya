@@ -1,309 +1,3 @@
-// "use client";
-
-// import { useState, useEffect } from "react";
-// import Image from "next/image"; 
-// import { X, Send } from "lucide-react";
-// import api from "@/utlis/api";
-
-// export default function QueryPopup() {
-//   const [showPopup, setShowPopup] = useState(false);
-//   const [courses, setCourses] = useState([]);
-//   const [specializations, setSpecializations] = useState([]);
-
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     email: "",
-//     mobile: "",
-//     city: "",
-//     course: "",
-//     branch: "",
-//     message: "",
-//   });
-
-//   /* Popup delay */
-//   useEffect(() => {
-//     const timer = setTimeout(() => setShowPopup(true), 2000);
-//     return () => clearTimeout(timer);
-//   }, []);
-
-//   /* Fetch courses safely from backend */
-//   useEffect(() => {
-//     const fetchCourses = async () => {
-//       try {
-//         const res = await api.get("/api/v1/course");
-
-//         const courseArray =
-//           Array.isArray(res.data)
-//             ? res.data
-//             : Array.isArray(res.data?.data)
-//             ? res.data.data
-//             : Array.isArray(res.data?.courses)
-//             ? res.data.courses
-//             : [];
-
-//         setCourses(courseArray);
-//       } catch (err) {
-//         console.error("Course fetch error", err);
-//         setCourses([]);
-//       }
-//     };
-
-//     fetchCourses();
-//   }, []);
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-
-//     if (name === "course") {
-//       const selected = courses.find((c) => c.name === value);
-
-//       setSpecializations(selected?.specializations || []);
-
-//       setFormData((prev) => ({
-//         ...prev,
-//         course: value,
-//         branch: "",
-//       }));
-//       return;
-//     }
-
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await api.post("/api/v1/getintouch", formData);
-//       alert("✅ Query submitted successfully!");
-//       setFormData({
-//         name: "",
-//         email: "",
-//         mobile: "",
-//         city: "",
-//         course: "",
-//         branch: "",
-//         message: "",
-//       });
-//       setShowPopup(false);
-//     } catch (err) {
-//       console.error(err);
-//       alert("❌ Something went wrong!");
-//     }
-//   };
-
-//   if (!showPopup) return null;
-
-//   return (
-//     <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-3 backdrop-blur-sm overflow-y-auto">
-//       <div className="bg-white w-full max-w-3xl max-h-[90vh] md:max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl flex flex-col md:flex-row relative animate-slideUpMobile md:animate-fadeIn">
-
-//         {/* Close Button */}
-//         <button
-//           onClick={() => setShowPopup(false)}
-//           className="cursor-pointer absolute top-3 right-3 z-[110] bg-white/90 md:bg-gray-100 w-9 h-9 flex items-center justify-center rounded-full shadow-md text-gray-500 hover:text-blue-600 transition-colors"
-//         >
-//           <X size={20} />
-//         </button>
-
-//         {/* Left Panel */}
-//         <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center gap-4">
-          
-//           {/* ✅ FIXED: Circular Image Container */}
-//           <div className="flex items-center justify-center mb-1">
-//             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/80 shadow-lg bg-white/10">
-//               <img
-//                 src="/images/sss.webp"
-//                 alt="help"
-//                 className="w-full h-full object-cover"
-//               />
-//             </div>
-//           </div>
-
-//           <h3 className="text-base font-bold">Kindly Share your query</h3>
-
-//           <ul className="flex flex-col gap-3 text-[12px] text-white font-medium text-left w-full px-2">
-//             <li className="flex items-center gap-2">
-//               <span className="text-[18px]">🎯</span>
-//               <span>100% Free Career Counselling</span>
-//             </li>
-//             <li className="flex items-center gap-2">
-//               <span className="text-[18px]">💼</span>
-//               <span>100% Placement Assistance</span>
-//             </li>
-//             <li className="flex items-center gap-2">
-//               <span className="text-[18px]">🏦</span>
-//               <span>Education Loan Facility</span>
-//             </li>
-//             <li className="flex items-center gap-2">
-//               <span className="text-[18px]">🎓</span>
-//               <span>Scholarship (Varies)</span>
-//             </li>
-//           </ul>
-//         </div>
-
-//         {/* Right Form */}
-//         <div className="w-full md:w-2/3 p-4 md:p-6 text-gray-900">
-//           <div className="flex items-center gap-3 mb-3">
-//             <Image
-//               src="/images/n12.png"
-//               alt="Career Vidya"
-//               width={85}
-//               height={42}
-//             />
-//             <div>
-//               <p className="text-sm font-bold text-[#253b7a]">
-//                 #VidyaHaiTohSuccessHai
-//               </p>
-//               <p className="text-[12px] text-gray-500">
-//                 Student's Trusted Education Guidance Platform
-//               </p>
-//             </div>
-//           </div>
-
-//           <form
-//             onSubmit={handleSubmit}
-//             className="grid grid-cols-1 md:grid-cols-2 gap-3"
-//           >
-//             <input
-//               type="text"
-//               name="name"
-//               value={formData.name}
-//               onChange={handleChange}
-//               placeholder="Your Name"
-//               required
-//               className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-//             />
-
-//             <div className="relative">
-//               <input
-//                 type="email"
-//                 name="email"
-//                 value={formData.email}
-//                 onChange={handleChange}
-//                 placeholder="Email"
-//                 required
-//                 className="w-full border rounded-lg p-2 pr-36 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-//               />
-//               <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white flex items-center gap-1">
-//                 ✓ We Do Not Spam
-//               </span>
-//             </div>
-
-//             <div className="relative">
-//               <input
-//                 type="tel"
-//                 name="mobile"
-//                 value={formData.mobile}
-//                 onChange={handleChange}
-//                 placeholder="Mobile No"
-//                 required
-//                 className="w-full border rounded-lg p-2 pr-36 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-//               />
-//               <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-green-600 border border-green-500 rounded-full px-2 py-[2px] bg-white flex items-center gap-1">
-//                 ✓ We Do Not Spam
-//               </span>
-//             </div>
-
-//             <select
-//               name="course"
-//               value={formData.course}
-//               onChange={handleChange}
-//               required
-//               className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
-//             >
-//               <option value="">Course</option>
-//               {courses.map((course) => (
-//                 <option key={course._id} value={course.name}>
-//                   {course.name}
-//                 </option>
-//               ))}
-//             </select>
-
-//             <select
-//               name="branch"
-//               value={formData.branch}
-//               onChange={handleChange}
-//               required
-//               disabled={!specializations.length}
-//               className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
-//             >
-//               <option value="">Branch</option>
-//               {specializations.map((sp, i) => (
-//                 <option key={i} value={sp}>
-//                   {sp}
-//                 </option>
-//               ))}
-//             </select>
-
-//             <input
-//               type="text"
-//               name="city"
-//               value={formData.city}
-//               onChange={handleChange}
-//               placeholder="City"
-//               required
-//               className="border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-//             />
-
-//             <textarea
-//               name="message"
-//               value={formData.message}
-//               onChange={handleChange}
-//               placeholder="How can we help you?"
-//               required
-//               rows="2"
-//               className="md:col-span-2 border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-//             />
-
-//             <div className="md:col-span-2">
-//               <button
-//                 type="submit"
-//                 className="w-full bg-[#05347f] text-white py-2.5 rounded-lg font-semibold hover:bg-blue-800 flex items-center justify-center gap-2"
-//               >
-//                 <span>Send Message</span>
-//                 <Send size={16} />
-//               </button>
-//               <p className="text-center text-[10px] text-gray-600 mt-2">
-//                 🔒 All your information is safe and secure with us.
-//               </p>
-//             </div>
-//           </form>
-//         </div>
-//       </div>
-
-//       <style jsx>{`
-//         @keyframes fadeIn {
-//           from {
-//             opacity: 0;
-//             transform: scale(0.95);
-//           }
-//           to {
-//             opacity: 1;
-//             transform: scale(1);
-//           }
-//         }
-//         @keyframes slideUpMobile {
-//           from {
-//             opacity: 0;
-//             transform: translateY(30%);
-//           }
-//           to {
-//             opacity: 1;
-//             transform: translateY(0);
-//           }
-//         }
-//         .animate-fadeIn {
-//           animation: fadeIn 0.3s ease-out forwards;
-//         }
-//         .animate-slideUpMobile {
-//           animation: slideUpMobile 0.4s ease-out forwards;
-//         }
-//       `}</style>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -411,10 +105,10 @@ export default function QueryPopup() {
           <X size={20} />
         </button>
 
-        {/* ONLY Left Panel with Tiranga Theme */}
-        <div className="bg-gradient-to-b from-[#FF671F] via-[#ffffff] to-[#046A38] text-slate-900 w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center gap-4 border-r md:border-r-0 border-slate-200">
+        {/* Left Panel */}
+        <div className="bg-[#05347f] text-white w-full md:w-1/3 p-6 flex flex-col justify-center items-center text-center gap-4">
           
-          {/* Circular Image Container */}
+          {/* ✅ FIXED: Circular Image Container */}
           <div className="flex items-center justify-center mb-1">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/80 shadow-lg bg-white/10">
               <img
@@ -425,31 +119,29 @@ export default function QueryPopup() {
             </div>
           </div>
 
-          <h3 className="text-base font-bold text-[#000080]">Kindly Share your query</h3>
+          <h3 className="text-base font-bold">Kindly Share your query</h3>
 
-          <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm w-full">
-            <ul className="flex flex-col gap-3 text-[12px] text-slate-900 font-semibold text-left w-full px-1">
-              <li className="flex items-center gap-2">
-                <span className="text-[18px]">🎯</span>
-                <span>100% Free Career Counselling</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[18px]">💼</span>
-                <span>100% Placement Assistance</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[18px]">🏦</span>
-                <span>Education Loan Facility</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[18px]">🎓</span>
-                <span>Scholarship (Varies)</span>
-              </li>
-            </ul>
-          </div>
+          <ul className="flex flex-col gap-3 text-[12px] text-white font-medium text-left w-full px-2">
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">🎯</span>
+              <span>100% Free Career Counselling</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">💼</span>
+              <span>100% Placement Assistance</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">🏦</span>
+              <span>Education Loan Facility</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[18px]">🎓</span>
+              <span>Scholarship (Varies)</span>
+            </li>
+          </ul>
         </div>
 
-        {/* Right Form (Unchanged Original Styling) */}
+        {/* Right Form */}
         <div className="w-full md:w-2/3 p-4 md:p-6 text-gray-900">
           <div className="flex items-center gap-3 mb-3">
             <Image

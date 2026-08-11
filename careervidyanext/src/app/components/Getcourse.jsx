@@ -550,6 +550,7 @@ const CourseCard = ({ course, index }) => {
   const specialRedirectCourses = [
     "btech-for-working-professional",
     "mtech-for-working-professionals",
+    "diploma-for-working-professionals",
   ];
 
   // Only these two courses will redirect to

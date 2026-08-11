@@ -399,40 +399,43 @@ const SCHEDULES = [
   "Intensive Campus Contact Programmes",
 ];
 
+
 const FAQS = [
   {
-    q: "Who is eligible to apply?",
-    a: "The Continuing Education Programme is available to any working professional employed by a) government bodies, b) public sector undertakings, c) private sector companies, d) industry, or e) a registered business establishment — provided they meet the eligibility criteria of their selected programme.",
+    q: "Who can apply for the Continuing Education Programme?",
+    a: "The Continuing Education Programme is open to working professionals employed by government organizations, public sector undertakings, private companies, industries, or registered business establishments, subject to meeting the eligibility requirements of the programme they wish to pursue.",
   },
   {
-    q: "Can I continue to work while I am enrolled?",
-    a: "Yes — the Continuing Education Programme has been developed for the sole purpose of allowing working professionals to continue working while obtaining an education.",
+    q: "Can I continue working while pursuing the programme?",
+    a: "Yes. The Continuing Education Programme is specifically designed for working professionals, allowing them to continue their employment while pursuing their academic studies and enhancing their professional qualifications.",
   },
   {
-    q: "What programmes can be pursued through this scheme?",
-    a: "Examples include Polytechnic Diploma, B. Tech, M. Tech, MBA, MCA and Lateral Entry (Diploma & B. Tech).",
+    q: "Which programmes are available under the Continuing Education Scheme?",
+    a: "Working professionals can pursue programmes such as Polytechnic Diploma, B. Tech, M. Tech, MBA, MCA, and Lateral Entry programmes in Diploma and B. Tech, subject to the applicable eligibility criteria.",
   },
   {
-    q: "What documentation do I need to submit to enroll?",
-    a: "An application with your previous academic records, plus proof of employment — a No Objection Certificate / Employment Certificate / Appointment Letter — along with a self-declaration of your current employment status.",
+    q: "What documents are required for admission?",
+    a: "Applicants are required to submit their previous academic records along with valid proof of employment, such as a No Objection Certificate (NOC), Employment Certificate, or Appointment Letter. A self-declaration confirming their current employment status may also be required.",
   },
   {
-    q: "What if I stop working while admitted to the programme?",
-    a: "A student who discontinues employment after admission may continue the programme, subject to approval by the University and fulfillment of all academic requirements.",
+    q: "Can I continue the programme if I leave my job after admission?",
+    a: "Yes. A student who leaves or discontinues employment after admission may be permitted to continue the programme, subject to approval from the University and fulfillment of all applicable academic requirements.",
   },
   {
-    q: "Do you offer evening / weekend classes?",
-    a: "Yes — the University offers weekend, evening and holiday classes, a hybrid learning model, and intensive campus contact programmes.",
+    q: "Are evening and weekend classes available?",
+    a: "Yes. To support the needs of working professionals, the University provides flexible learning options that may include evening classes, weekend and holiday classes, a hybrid learning model, and intensive campus contact programmes.",
   },
   {
-    q: "Is work experience required for admission?",
-    a: "A minimum of one year full-time / regular working experience is required.",
+    q: "Is prior work experience required for admission?",
+    a: "Yes. Applicants are required to have a minimum of one year of full-time or regular work experience to be eligible for admission under the Continuing Education Programme.",
   },
   {
-    q: "Is this programme approved by the university & governing authorities?",
-    a: "Yes — the programme is valid under current regulations set by the University and the appropriate statutory authorities, inclusive of all approvals required for each individual programme.",
+    q: "Is the programme approved by the University and relevant authorities?",
+    a: "The programmes are offered in accordance with the applicable regulations and requirements of the University and relevant statutory and regulatory authorities. The necessary approvals, recognitions, and permissions are applicable to each individual programme before its commencement.",
   },
 ];
+
+
 
 export default function ContinuingEducationContent() {
   const [openFaq, setOpenFaq] = useState(0);
