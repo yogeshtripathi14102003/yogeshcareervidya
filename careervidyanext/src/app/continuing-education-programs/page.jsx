@@ -470,11 +470,8 @@ export default function ContinuingEducationContent() {
         <section className="max-w-7xl mx-auto px-6 py-12">
           <div className="border-l-4 border-amber-500 bg-white p-6 rounded-r-xl border-y border-r border-slate-200 shadow-sm">
             <p className="text-slate-700 text-base md:text-lg leading-relaxed font-medium">
-              At Vikrant University, we feel that academic success is part of being successful
-              in your profession. The Continuing Education Scheme for Working Professionals lets
-              you continue your studies without losing your present professional obligations —
-              learn new things, improve your qualifications, and secure your career while you
-              stay employed.
+            Academic success plays an important role in building a strong and successful professional career. The Continuing Education Programme for Working Professionals is designed to help individuals pursue higher education while continuing to meet their existing professional responsibilities. It provides an opportunity to enhance knowledge, develop new skills, improve academic qualifications, and stay competitive in today’s evolving professional environment. With flexible learning options, working professionals can continue their education without having to leave their jobs, allowing them to learn, grow, and progress in their careers while maintaining a balance between work and education.
+
             </p>
           </div>
         </section>
@@ -504,9 +501,8 @@ export default function ContinuingEducationContent() {
               ))}
             </ol>
             <p className="text-xs text-slate-500 mt-4 leading-relaxed">
-              Note: all of the above programmes are subject to obtaining relevant approvals,
-              recognitions and permissions of the applicable statutory and regulatory bodies
-              prior to commencement.
+             **Note:** The availability of these programmes is subject to the necessary approvals, recognitions, and permissions from the relevant statutory and regulatory authorities. Each programme will be offered only after fulfilling the applicable academic, legal, and regulatory requirements.
+
             </p>
           </div>
           <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-md relative bg-slate-100 min-h-[350px]">
@@ -605,9 +601,8 @@ export default function ContinuingEducationContent() {
               Industry Sponsorship
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Vikrant University fosters collaboration between industry, corporations, the
-              government, and other institutions through defined partnerships and MoUs that support
-              the sponsorship of employees for training and education.
+           The University promotes strong collaboration with industries, corporate organizations, government bodies, and other professional institutions through structured partnerships and Memorandums of Understanding (MoUs). These collaborations help create opportunities for employee training, professional development, skill enhancement, and continuing education, enabling working professionals to strengthen their knowledge and advance their careers while continuing their employment.
+
             </p>
           </div>
           <div className="border-t-4 border-[#08131F] bg-white border border-slate-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">

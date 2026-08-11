@@ -8,7 +8,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 40px; /* Header ki height thodi kam rakhi hai padding se */
+  padding: 4px 40px; /* Height kam ki: 8px se 4px */
   background: #02264c;
   width: 100%;
   margin: 0px auto;
@@ -37,7 +37,7 @@
 .top-link {
   text-decoration: none;
   color: #ffffff !important; /* Force white color */
-  font-size: 13px;
+  font-size: 12px; /* Thoda chota kiya */
   font-weight: 500;
   transition: all 0.3s ease;
   opacity: 0.9;
@@ -51,7 +51,7 @@
 /* Pipe Separator Styling */
 .separator {
   color: rgba(255, 255, 255, 0.3);
-  font-size: 12px;
+  font-size: 11px;
   margin: 0 -5px; /* Separator ko center mein rakhne ke liye */
 }
 
@@ -60,10 +60,10 @@
   background: linear-gradient(135deg, #ff4e50, #f9d423);
   color: #fff;
   border: none;
-  padding: 5px 14px;
-  font-size: 12px;
+  padding: 4px 12px; /* Height kam ki */
+  font-size: 11px; /* Thoda chota kiya */
   font-weight: 600;
-  border-radius: 20px;
+  border-radius: 18px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(255, 78, 80, 0.2);
   transition: all 0.3s ease;
@@ -202,7 +202,7 @@
 /* Mobile Responsive Adjustments */
 @media (max-width: 768px) {
   .topheader-inner {
-    padding: 8px 15px;
+    padding: 4px 15px;
     flex-direction: row; /* Don't stack vertically to keep header slim */
     justify-content: space-between;
   }
@@ -210,8 +210,8 @@
     gap: 12px; /* Mobile par links ka gap thoda tight kiya */
   }
   .cta-counseling-btn {
-    padding: 4px 10px;
-    font-size: 11px; /* Mobile par thoda chota taaki fit baithe */
+    padding: 3px 9px;
+    font-size: 10px; /* Mobile par thoda chota taaki fit baithe */
   }
   .separator {
     margin: 0 -2px;
