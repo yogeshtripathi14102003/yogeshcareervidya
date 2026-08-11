@@ -543,8 +543,8 @@ const globalCoursesCache = {};
 const CourseCard = ({ course, index }) => {
   const isClickable = index < 35;
 
-  // First 2 courses will have TRENDING label
-  const isTrending = index < 2;
+  // First 3 courses will have TRENDING label
+  const isTrending = index < 3;
 
   // Special redirect courses
   const specialRedirectCourses = [
