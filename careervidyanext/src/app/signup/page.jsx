@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import api from "@/utlis/api";
+import { useAuth } from "@/context/AuthContext.jsx";
+import { trackEvent } from "@/utlis/analytics.js";
 import { X, ArrowRight, Mail, Phone, Lock, ShieldCheck } from "lucide-react";
 
 /* ================= FLOATING SELECT ================= */
@@ -65,6 +66,7 @@ const FloatingInput = ({
 const AuthModal = ({ onClose, defaultTab = "login" }) => {
   const [activeTab, setActiveTab] = useState(defaultTab); // "login" | "register"
   const router = useRouter();
+  const { login } = useAuth();
 
   /* ===== LOGIN STATE ===== */
   const [loginMode, setLoginMode] = useState("email");
@@ -215,13 +217,21 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
     if (!formData.otp) return alert("Enter OTP");
     try {
       setRegisterLoading(true);
-      await api.post("/api/v1/verify-otp", {
+      const res = await api.post("/api/v1/verify-otp", {
         ...formData,
         emailOrPhone: formData.email || formData.mobileNumber,
         purpose: "register",
       });
+
+      const { accessToken, student } = res.data;
+      if (accessToken && student) {
+        login({ accessToken, user: student, role: student.role });
+        trackEvent("register_click", { method: "otp" });
+      }
+
       alert("Registration Successful");
       onClose?.();
+      window.location.href = "/user";
     } catch {
       alert("Invalid OTP");
     } finally {
@@ -265,24 +275,12 @@ const AuthModal = ({ onClose, defaultTab = "login" }) => {
       });
       const { accessToken, student } = res.data;
       const role = student.role;
-      const tokenKey = (role === "admin" || role === "subadmin") ? "admintoken" : "usertoken";
-      localStorage.setItem(tokenKey, accessToken);
-      localStorage.setItem("user", JSON.stringify(student));
-      localStorage.setItem("accessToken", accessToken);
-      const isLocal = window.location.hostname === "localhost";
-      const cookieOptions = {
-        expires: 7,
-        path: "/",
-        secure: !isLocal,
-        domain: isLocal ? undefined : ".careervidya.in",
-        sameSite: "lax",
-      };
-      Cookies.set("userRole", role, cookieOptions);
-      Cookies.set(tokenKey, accessToken, cookieOptions);
+      login({ accessToken, user: student, role });
+      trackEvent("login_click", { method: "otp" });
       setTimeout(() => {
         const targetPath = (role === "admin" || role === "subadmin") ? "/admin" : "/user";
         window.location.href = targetPath;
-      }, 200);
+      }, 150);
     } catch (error) {
       console.error("Verification Error:", error);
       alert(error.response?.data?.msg || "Invalid OTP. Please try again.");

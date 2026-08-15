@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 
 import {
   User, Mail, Phone, MapPin, BookOpen, School,
@@ -42,6 +43,7 @@ dob: "",
 const StudentAdmission = ({ lead, onClose }) => {
 
   /* ================= STATE ================= */
+  const { user: authUser } = useAuth();
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -54,10 +56,7 @@ const StudentAdmission = ({ lead, onClose }) => {
 
   /* ================= AUTO FILL INITIAL DATA ================= */
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const counselor = storedUser
-      ? JSON.parse(storedUser)?.name || ""
-      : "";
+    const counselor = authUser?.name || "";
 
     if (lead) {
       setFormData(prev => ({
@@ -75,7 +74,7 @@ const StudentAdmission = ({ lead, onClose }) => {
         counselorName: counselor,
       }));
     }
-  }, [lead]);
+  }, [lead, authUser]);
 
   /* ================= FETCH FEES ================= */
   useEffect(() => {
@@ -170,14 +169,13 @@ const StudentAdmission = ({ lead, onClose }) => {
 
   /* ================= RESET ================= */
   const resetForm = () => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
     setFormData({
       ...initialState,
       studentName: lead?.name || "",
       email: lead?.email || "",
       phone: lead?.phone || "",
       city: lead?.city || "",
-      counselorName: storedUser?.name || "",
+      counselorName: authUser?.name || "",
     });
     setCourses([]);
     setBranches([]);

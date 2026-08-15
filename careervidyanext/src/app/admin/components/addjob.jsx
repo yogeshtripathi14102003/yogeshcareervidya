@@ -18,10 +18,6 @@ export default function Addjob({ onAdd, onEdit, initialData, onClose }) {
     "Digital Marketing",
     "Software Testing",
     "IT Support",
-    "UI/UX Design",
-    "Graphics Design",
-    "seo executive",
-    "Team Lead",
   ];
 
   const [formData, setFormData] = useState({

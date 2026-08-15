@@ -14,6 +14,7 @@ import {
   X,
   Lock,
   IdCard,
+  Users,
 } from "lucide-react";
 
 const EditCounselor = ({ counselorId, onClose, onSuccess }) => {
@@ -29,6 +30,7 @@ const EditCounselor = ({ counselorId, onClose, onSuccess }) => {
     userid: "",
     password: "",
     status: "active",
+    leadLimit: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -55,6 +57,7 @@ const EditCounselor = ({ counselorId, onClose, onSuccess }) => {
             userid: c.userid || "",
             password: "",
             status: c.status || "active",
+            leadLimit: c.leadLimit ?? "",
           });
         }
       } catch (err) {
@@ -124,6 +127,16 @@ const EditCounselor = ({ counselorId, onClose, onSuccess }) => {
             <Input icon={Briefcase} label="Aadhaar" name="aadhar" value={formData.aadhar} onChange={handleChange} />
             <Input icon={Calendar} label="DOB" name="dob" type="date" value={formData.dob} onChange={handleChange} />
             <Input icon={Calendar} label="Date of Joining" name="doj" type="date" value={formData.doj} onChange={handleChange} />
+            <Input
+              icon={Users}
+              label="Max Auto-Assigned Leads"
+              name="leadLimit"
+              type="number"
+              min="0"
+              value={formData.leadLimit}
+              onChange={handleChange}
+              placeholder="Leave blank for unlimited"
+            />
 
             <div className="flex flex-col">
               <label className="text-xs font-bold text-gray-600 uppercase mb-1">Status</label>

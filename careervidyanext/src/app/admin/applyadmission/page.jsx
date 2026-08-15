@@ -21,10 +21,7 @@ export default function AdminAdmissionsPage() {
   const fetchAdmissions = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await api.get("/api/v1/admissions", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/api/v1/admissions");
       setAdmissions(res.data?.data || []);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -45,7 +42,6 @@ export default function AdminAdmissionsPage() {
 
     try {
       setIsUpdating(true);
-      const token = localStorage.getItem("token");
       
       const payload = {
         status: newStatus, 
@@ -54,8 +50,7 @@ export default function AdminAdmissionsPage() {
 
       const res = await api.patch(
         `/api/v1/admissions/${adm._id}/verify`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        payload
       );
 
       if (res.data?.success || res.status === 200) {

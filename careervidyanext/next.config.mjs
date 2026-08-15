@@ -62,6 +62,14 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "/dgiqwmopv/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.careervidya.in",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
 
@@ -89,13 +97,27 @@ const nextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com data:",
+              "img-src 'self' data: blob: https://res.cloudinary.com https://api.careervidya.in https://images.unsplash.com https://upload.wikimedia.org",
+              "connect-src 'self' https://api.careervidya.in wss://api.careervidya.in",
+              "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "object-src 'none'",
+            ].join("; "),
+          },
         ],
       },
     ];
   },
 
   async rewrites() {
-    const apiUrl = process.env.API_URL || " https://api.careervidya.in ";
+    const apiUrl = process.env.API_URL || "https://api.careervidya.in"; // Default to localhost if not set
 
     return [
       // {

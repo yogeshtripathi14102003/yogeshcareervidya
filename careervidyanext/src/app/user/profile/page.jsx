@@ -14,8 +14,8 @@ export default function UserProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       const token =
-        localStorage.getItem("usertoken") ||
-        Cookies.get("usertoken");
+        localStorage.getItem("accessToken") ||
+        Cookies.get("accessToken");
 
       if (!token) {
         router.replace("/login");

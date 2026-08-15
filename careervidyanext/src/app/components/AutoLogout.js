@@ -1,86 +1,37 @@
-
-
-// "use client";
-
-// import { useEffect } from "react";
-
-// export default function AutoLogout() {
-//   useEffect(() => {
-//     let timer;
-
-//     const logoutNow = () => {
-//       localStorage.removeItem("admintoken");
-
-//       document.cookie = "admintoken=; Max-Age=0";
-
-//       window.location.href = "/login";
-//     };
-
-//     const resetTimer = () => {
-//       clearTimeout(timer);
-//       timer = setTimeout(logoutNow, 15 * 60 * 1000); // 15 min
-//     };
-
-//     window.addEventListener("mousemove", resetTimer);
-//     window.addEventListener("keydown", resetTimer);
-//     window.addEventListener("click", resetTimer);
-//     window.addEventListener("scroll", resetTimer);
-
-//     resetTimer();
-
-//     return () => {
-//       window.removeEventListener("mousemove", resetTimer);
-//       window.removeEventListener("keydown", resetTimer);
-//       window.removeEventListener("click", resetTimer);
-//       window.removeEventListener("scroll", resetTimer);
-//     };
-//   }, []);
-
-//   return null;
-// }
-
-
-
 "use client";
 
 import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext.jsx";
 
-export default function AutoLogout({ type = "user" }) {
-  // type can be "admin" or "user"
+// Logs the user out after a period of inactivity, for any authenticated role.
+// Delegates to AuthContext.logout() so ALL session data (token, user, role,
+// cookies) is cleared consistently — and cross-tab logout kicks in for free
+// because logout() clears "accessToken" from localStorage, which the
+// AuthContext in every other open tab is already listening for.
+const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutes
+
+export default function AutoLogout() {
+  const { isAuthenticated, logout } = useAuth();
+
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     let timer;
-
-    const logoutNow = () => {
-      if (type === "admin") {
-        localStorage.removeItem("admintoken");
-        document.cookie = "admintoken=; Max-Age=0";
-        window.location.href = "/login";
-      } else {
-        localStorage.removeItem("usertoken");
-        document.cookie = "usertoken=; Max-Age=0";
-        window.location.href = "/"; // or your user login route
-      }
-    };
-
+    const doLogout = () => logout({ redirectTo: "/login?reason=inactivity" });
     const resetTimer = () => {
       clearTimeout(timer);
-      timer = setTimeout(logoutNow, 15 * 60 * 1000); // 15 minutes
+      timer = setTimeout(doLogout, INACTIVITY_LIMIT_MS);
     };
 
-    window.addEventListener("mousemove", resetTimer);
-    window.addEventListener("keydown", resetTimer);
-    window.addEventListener("click", resetTimer);
-    window.addEventListener("scroll", resetTimer);
-
+    const events = ["mousemove", "keydown", "click", "scroll"];
+    events.forEach((ev) => window.addEventListener(ev, resetTimer));
     resetTimer();
 
     return () => {
-      window.removeEventListener("mousemove", resetTimer);
-      window.removeEventListener("keydown", resetTimer);
-      window.removeEventListener("click", resetTimer);
-      window.removeEventListener("scroll", resetTimer);
+      clearTimeout(timer);
+      events.forEach((ev) => window.removeEventListener(ev, resetTimer));
     };
-  }, [type]);
+  }, [isAuthenticated, logout]);
 
   return null;
 }

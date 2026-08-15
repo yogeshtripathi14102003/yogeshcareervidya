@@ -14,6 +14,7 @@ import {
   Save,
   Lock,
   IdCard,
+  Users,
 } from "lucide-react";
 
 const AddCounselor = () => {
@@ -29,6 +30,7 @@ const AddCounselor = () => {
     doj: "",
     userid: "",
     password: "",
+    leadLimit: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -54,6 +56,7 @@ const AddCounselor = () => {
       doj: "",
       userid: "",
       password: "",
+      leadLimit: "",
     });
     setMessage("");
     setError("");
@@ -117,6 +120,16 @@ const AddCounselor = () => {
               <Input icon={Briefcase} label="Aadhaar" name="aadhar" value={formData.aadhar} onChange={handleChange} placeholder="123456789012" />
               <Input icon={Calendar} label="DOB" name="dob" type="date" value={formData.dob} onChange={handleChange} />
               <Input icon={Calendar} label="DOJ" name="doj" type="date" value={formData.doj} onChange={handleChange} />
+              <Input
+                icon={Users}
+                label="Max Auto-Assigned Leads"
+                name="leadLimit"
+                type="number"
+                min="0"
+                value={formData.leadLimit}
+                onChange={handleChange}
+                placeholder="Leave blank for unlimited"
+              />
 
               <div className="sm:col-span-2">
                 <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1 block ml-1">

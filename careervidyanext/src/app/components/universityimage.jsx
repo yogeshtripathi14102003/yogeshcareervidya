@@ -15,7 +15,6 @@ const DETAIL_PAGE_LIMIT = 60;
 let globalUniversitiesCache = null;
 
 const PRIORITY_UNIS = [
-  "vikrant-university",
   "op-jindal-global-online",
   "gla-online",
   "dy-patil-university-online-mumbai",
@@ -128,9 +127,9 @@ export default function UniversitiesPage() {
 
           {/* Heading — h2 → h1 fix */}
           <div className="mb-10 text-left">
-            <h1 className="text-2xl md:text-4xl font-bold text-[#0056B3] leading-tight">
+            <h2 className="text-2xl md:text-4xl font-bold text-[#0056B3] leading-tight">
               Explore over 100 online universities & Compare on 30+ factors
-            </h1>
+            </h2>
             <div className="w-14 h-1 bg-[#0056B3] mt-3 rounded-full"></div>
           </div>
 

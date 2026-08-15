@@ -6,7 +6,7 @@ import Signup from "@/app/signup/page.jsx";
 /* ================= LOGIN CHECK ================= */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
-  return !!localStorage.getItem("usertoken"); 
+  return !!localStorage.getItem("accessToken"); 
 };
 
 /* ================= PDF DOWNLOAD WITH NAME ================= */

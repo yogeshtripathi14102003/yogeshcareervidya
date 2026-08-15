@@ -14,10 +14,7 @@ export default function CourseApplyPage() {
 
   const fetchCourses = async () => {
     try {
-      const token = localStorage.getItem("usertoken");
-      const res = await api.get("/api/v1/students/applied-courses", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/api/v1/students/applied-courses");
       setCourses(res.data.courses || []);
     } catch (err) {
       console.error(err);

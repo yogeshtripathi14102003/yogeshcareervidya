@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 import { 
   Save, Target, Award, BarChart3, TrendingUp, Users, CheckCircle, AlertCircle
 } from "lucide-react";
@@ -30,15 +31,13 @@ const STATUS_LIST = [
 const LeadsPage = () => {
   const [leads, setLeads] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentUser, setCurrentUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [activeStatus, setActiveStatus] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(""); // YYYY-MM format
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) setCurrentUser(user);
     fetchData();
   }, []);
 

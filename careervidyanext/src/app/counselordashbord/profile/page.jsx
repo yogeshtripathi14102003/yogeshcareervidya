@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext.jsx";
 import {
   User, Mail, Phone, LogOut, LayoutDashboard,
   Users, CreditCard, MapPin, CalendarDays, Hash, Briefcase, ChevronLeft
@@ -9,20 +10,10 @@ import {
 
 const CounselorProfile = () => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (!savedUser) {
-      router.push("/login");
-    } else {
-      setUser(JSON.parse(savedUser));
-    }
-  }, [router]);
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/login");
+    logout({ redirectTo: "/Counslerlogin" });
   };
 
   if (!user) return (

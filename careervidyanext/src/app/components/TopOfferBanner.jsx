@@ -6,7 +6,7 @@
 
 // const isLoggedIn = () => {
 //   if (typeof window === "undefined") return false;
-//   return !!localStorage.getItem("usertoken"); 
+//   return !!localStorage.getItem("accessToken"); 
 // };
 
 // export default function BottomOfferBanner() {
@@ -82,6 +82,9 @@
 //               rel="noopener noreferrer" 
 //               className="hover:scale-110 transition-transform cursor-pointer block"
 //             >
+//               {/* Intentionally a plain <img>: a 20px external WhatsApp icon from
+//                   Wikimedia. Not worth adding another remotePatterns entry for —
+//                   negligible optimization gain at this size. */}
 //               <img 
 //                 src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
 //                 className="w-5 h-5" 
@@ -125,6 +128,7 @@
 //     </div>
 //   );
 // }
+
 
 
 "use client";

@@ -14,8 +14,11 @@
 //   return <UniversityDetail initialUniversities={list} />;
 // }
 
+
 import UniversityDetail from "@/app/university/UniversityDetail.jsx";
 import { serverFetch } from "@/utlis/serverFetch";
+
+export const dynamic = "force-dynamic";
 
 async function getUniversities() {
   const { ok, data } = await serverFetch("/api/v1/university", {
@@ -29,9 +32,11 @@ async function getUniversities() {
 // ✅ This listing page had no metadata at all before — it was inheriting
 // the generic root layout title/description for every visit.
 export const metadata = {
-  title: "Top Online Universities in India | CareerVidya",
+  title: "Top Online Universities & Courses in India | CareerVidya",
+
   description:
-    "Browse UGC-approved online universities in India. Compare fees, courses, accreditation, and admission process before you apply.",
+    "Explore top UGC-recognized online universities and degree programs in India. Compare MBA, MCA, BBA, BCA, M.Com, and other online courses, fees, eligibility, and career options for students and working professionals.",
+
   alternates: {
     canonical: "https://careervidya.in/university",
   },

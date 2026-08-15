@@ -122,12 +122,14 @@
           <div key={idx} className="bg-white rounded-[30px] border border-blue-50 shadow-sm overflow-hidden flex flex-col h-full hover:shadow-lg transition-all duration-300">
             {/* Illustration Area */}
             <div className="p-3">
-              <div className="bg-[#f1f5f9] rounded-[22px] border border-gray-50 aspect-[1.5/1] flex items-center justify-center overflow-hidden">
+              <div className="bg-[#f1f5f9] rounded-[22px] border border-gray-50 aspect-[1.5/1] flex items-center justify-center overflow-hidden relative">
                 {/* Standard HTML img tag for simplicity */}
-                <img 
+                <Image 
                   src={item.img} 
                   alt="illustration" 
-                  className="w-full h-full object-cover opacity-90 transition-opacity hover:opacity-100" 
+                  fill
+                  sizes="(min-width: 1024px) 25vw, 50vw"
+                  className="object-cover opacity-90 transition-opacity hover:opacity-100" 
                 />
               </div>
             </div>

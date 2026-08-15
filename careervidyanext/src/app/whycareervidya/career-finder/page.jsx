@@ -227,13 +227,12 @@ export default function CareerFinderPage() {
           
           {/* Main Rounded Image Container */}
           <div className="w-full max-w-[360px] aspect-[4/5] bg-[#e2e8f0] rounded-3xl overflow-hidden shadow-xl border border-slate-700/30 relative">
-            <img 
+            <Image 
               src="/images/y4.jpeg" 
               alt="Career Consultation Guidance"
-              className="w-full h-full object-cover object-top filter brightness-105"
-              onError={(e) => {
-                e.target.src = "/images/teti1.png"; // बैकअप फ़ॉर्मेट
-              }}
+              fill
+              sizes="(min-width: 1024px) 360px, 90vw"
+              className="object-cover object-top filter brightness-105"
             />
           </div>
 
@@ -249,7 +248,7 @@ export default function CareerFinderPage() {
                 key={i} 
                 className="bg-white py-1.5 px-2.5 rounded-lg flex items-center gap-2 border border-slate-100 shadow-sm"
               >
-                <img src={badge.img} className="w-6 h-6 rounded-md object-cover" alt="" />
+                <Image src={badge.img} width={24} height={24} className="w-6 h-6 rounded-md object-cover" alt="" />
                 <div className="min-w-0">
                   <p className="font-extrabold text-slate-800 text-[10px] leading-tight truncate">{badge.role}</p>
                   <div className="flex text-amber-400 text-[8px] mt-0.5 tracking-tighter">
@@ -430,8 +429,8 @@ export default function CareerFinderPage() {
                 key={idx} 
                 className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row gap-5 items-start sm:items-center shadow-sm hover:border-slate-200 transition-all"
               >
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 shadow-inner">
-                  <img src={stage.img} className="w-full h-full object-cover" alt={stage.title} />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 shadow-inner relative">
+                  <Image src={stage.img} fill sizes="96px" className="object-cover" alt={stage.title} />
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="font-extrabold text-slate-900 text-lg">

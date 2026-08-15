@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import api from "@/utlis/api";
 import { Sparkles, GraduationCap, CheckCircle2 } from "lucide-react";
 
@@ -271,13 +272,13 @@ export default function OnlineMBAPannerCU({ image = "/images/cu_building.jpg" })
           {/* Accreditation Logos with White Background */}
           <div className="flex flex-wrap gap-3 mt-4">
             <div className="bg-white p-2 rounded-lg shadow-md border border-gray-200">
-              <img src="/images/n2.png" alt="QS Ranking" className="h-7 md:h-10 object-contain" />
+              <Image src="/images/n2.png" alt="QS Ranking" width={150} height={64} className="h-7 md:h-10 w-auto object-contain" />
             </div>
             <div className="bg-white p-2 rounded-lg shadow-md border border-gray-200">
-              <img src="/images/n3.png" alt="UGC Approved" className="h-7 md:h-10 object-contain" />
+              <Image src="/images/n3.png" alt="UGC Approved" width={150} height={64} className="h-7 md:h-10 w-auto object-contain" />
             </div>
             <div className="bg-white p-2 rounded-lg shadow-md border border-gray-200">
-              <img src="/images/AICTE.png" alt="AICTE Approved" className="h-7 md:h-10 object-contain" />
+              <Image src="/images/AICTE.png" alt="AICTE Approved" width={1200} height={900} className="h-7 md:h-10 w-auto object-contain" />
             </div>
           </div>
         </div>
@@ -296,6 +297,7 @@ export default function OnlineMBAPannerCU({ image = "/images/cu_building.jpg" })
 // "use client";
 // import { useState, useEffect } from "react";
 // import Link from "next/link";
+// import Image from "next/image";
 // import api from "@/utlis/api";
 // import { Sparkles, GraduationCap, CheckCircle2 } from "lucide-react";
 

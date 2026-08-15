@@ -21,8 +21,6 @@
 // import VideoSlider from "./components/VideoSlider";
 //  import CareervidyaFormModal from "./components/CareervidyaFormModal";
 
-
-
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import Slider from "../components/slider/page";
@@ -43,6 +41,11 @@ import ChatbotFloating from "../components/ChatbotFloating";
 import SocialSidebar from "../components/SocialSidebar";
 import Notification from "../components/Notification";
 
+// ✅ Forces this page to render on every request (SSR) instead of being
+// pre-rendered at build time. Needed because HeroSlider/LogoSlider fetch
+// data from the DB via API_URL — that data isn't available/ready at
+// build time, so static generation was failing the whole build.
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Career Vidya | Best Courses & Career Guidance Platform",

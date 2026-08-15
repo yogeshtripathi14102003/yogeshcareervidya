@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Copy } from "lucide-react";
 import GetAdmissionForm from "@/app/user/component/Getadmissionfrom.jsx";
 
@@ -62,9 +63,11 @@ export default function DashboardPage() {
     >
       {/* Icon Container - Isse saare icons same size aur shadow wale banenge */}
       <div className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-md border border-gray-50 group-hover:shadow-lg transition-shadow">
-        <img 
+        <Image 
           src={social.img} 
           alt={social.name} 
+          width={60}
+          height={60}
           className="w-7 h-7 object-contain" // Icon ka size yahan se control hoga
         />
       </div>

@@ -65,7 +65,7 @@ export default function AdmissionProcess({ slug }) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 bg-gray-50 p-5 rounded-xl border border-gray-100">
         <div className="w-full md:flex-[2]"> {/* Isse left side ko zyada jagah milegi */}
           {admission.admissionSubHeading && (
-            <p className="text-xl text-gray-700 font-semibold mb-1">
+            <p className="text-xl text-blue-700 font-semibold mb-1">
               {admission.admissionSubHeading}
             </p>
           )}

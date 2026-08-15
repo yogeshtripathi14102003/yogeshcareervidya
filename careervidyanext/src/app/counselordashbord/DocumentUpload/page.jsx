@@ -1,6 +1,7 @@
 "use client";
   import { useState, useRef, useCallback, useEffect } from "react";
   import api from "@/utlis/api.js";
+  import { useAuth } from "@/context/AuthContext.jsx";
 
   const statusColor = {
     pending:  { bg: "#FFF8E1", text: "#F59E0B", border: "#FDE68A", label: "Pending" },
@@ -35,15 +36,10 @@
   };
 
   const getCounselorInfo = () => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      return {
-        id:   user._id || user.id || null,
-        name: user.name || user.counselorName || null,
-      };
-    } catch {
-      return { id: null, name: null };
-    }
+    return {
+      id:   authUser?._id || null,
+      name: authUser?.name || null,
+    };
   };
 
   const getCounselorParams = (extra = {}) => {
@@ -54,6 +50,7 @@
   };
 
   export default function CounselorPortal() {
+    const { user: authUser } = useAuth();
     const [step, setStep]               = useState(1);
     const [aadhar, setAadhar]           = useState("");
     const [studentName, setStudentName] = useState("");

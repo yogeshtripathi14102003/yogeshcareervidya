@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   GraduationCap,
   User,
   BookOpen,
   LogOut,
-  Loader2,
   Wallet,
   Search,
   Video,
@@ -18,57 +17,41 @@ import {
   X, // Close icon ke liye
 } from "lucide-react";
 import Link from "next/link";
-import Cookies from "js-cookie";
-import api from "@/utlis/api";
 
 import Header from "@/app/layout/Header.jsx";
 import Footer from "@/app/layout/Footer.jsx";
+import { useAuth } from "@/context/AuthContext.jsx";
+import RoleGuard from "@/app/components/RoleGuard.jsx";
+import StudentNotificationBell from "@/app/user/components/StudentNotificationBell.jsx";
+import { disconnectSocket } from "@/utlis/socket.js";
 
 const PRIMARY = "#2563eb";
 
 export default function UserLayout({ children }) {
-  const [userData, setUserData] = useState(null);
+  return (
+    <RoleGuard allow={["user"]}>
+      <UserShell>{children}</UserShell>
+    </RoleGuard>
+  );
+}
+
+function UserShell({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
+  const { user: userData, logout } = useAuth();
 
   // Route change hone par mobile sidebar ko band karne ke liye
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("usertoken");
-    if (!token) {
-      router.replace("/login");
-      return;
-    }
-
-    api
-      .get("/api/v1/students/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setUserData(res.data.student))
-      .catch(() => handleLogout());
-  }, []);
-
- const handleLogout = () => {
-  localStorage.removeItem("usertoken");
-  localStorage.removeItem("user"); // ✅ yeh add karo
-  localStorage.removeItem("token");
-  Cookies.remove("usertoken", { path: "/" });
-  
-  window.dispatchEvent(new Event("storage")); // ✅ Header ko notify karo
-  
-  window.location.href = "/"; // ✅ router.replace ki jagah hard redirect
-};
+  const handleLogout = () => {
+    disconnectSocket();
+    logout({ redirectTo: "/" });
+  };
 
   if (!userData) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-white">
-        <Loader2 className="animate-spin" style={{ color: PRIMARY }} />
-      </div>
-    );
+    return null; // RoleGuard already renders the loading/verifying state
   }
 
   return (
@@ -84,6 +67,9 @@ export default function UserLayout({ children }) {
       {/* TOP HEADER */}
      <div className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md shadow-sm">
   <Header />
+  <div className="border-t bg-white px-4 py-1.5 flex justify-end">
+    <StudentNotificationBell />
+  </div>
 </div>
 
       <div className="flex flex-1 relative">
@@ -145,7 +131,7 @@ export default function UserLayout({ children }) {
               <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow-sm shadow-emerald-200">EARN</span>
             </div>
 
-            <SidebarLink href="#" icon={<MessageSquare size={20} />} label="Q&A Panel" />
+            <SidebarLink href="/user/qa" icon={<MessageSquare size={20} />} label="Q&A Panel" active={pathname?.startsWith("/user/qa")} />
             <SidebarLink href="#" icon={<Ticket size={20} />} label="Raise a ticket" />
           </nav>
 

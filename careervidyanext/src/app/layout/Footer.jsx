@@ -65,7 +65,7 @@ export default function Footer() {
     if (!email) { setMessage("Please enter your email"); return; }
     setLoading(true);
     try {
-      const res = await fetch("https://api.careervidya.in/api/v1/subscribe", {
+      const res = await fetch("/api/v1/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -111,7 +111,7 @@ export default function Footer() {
               <li><Link href="/Aboutus" className="hover:text-white transition">About Us</Link></li>
               <li><Link href="/contactus" className="hover:text-white transition">Contact Us</Link></li>
               <li><Link href="/career" className="hover:text-white transition">Careers</Link></li>
-               {/* <li><Link href="/OurTeam" className="hover:text-white transition">OurTeam</Link></li> */}
+               <li><Link href="/OurTeam" className="hover:text-white transition">OurTeam</Link></li>
 
               <li><Link href="/blog" className="hover:text-white transition">Latest Blogs</Link></li>
             </ul>

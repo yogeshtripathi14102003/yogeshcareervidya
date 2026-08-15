@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 import { Search, Loader2, CheckCircle, AlertCircle, Info, XCircle } from "lucide-react"; // XCircle add kiya rejected ke liye
 
 export default function StatusPage() {
-  const [email, setEmail] = useState("");
+  const { user } = useAuth();
+  const [email, setEmail] = useState(user?.email || "");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,7 +34,7 @@ export default function StatusPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 font-sans">
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Admission Status</h1>
-        <p className="text-gray-600 mt-2 text-sm">Please enter your registered email address below.</p>
+        <p className="text-gray-600 mt-2 text-sm">Check the status of an application you submitted with your account email.</p>
       </div>
 
       <div className="w-full max-w-md bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -48,6 +50,9 @@ export default function StatusPage() {
             />
             <Search className="absolute left-3 top-3.5 text-gray-400" size={18} />
           </div>
+          <p className="text-[11px] text-gray-400 -mt-2">
+            For your privacy, you can only check status for your own registered email.
+          </p>
           <button
             type="submit"
             disabled={loading}

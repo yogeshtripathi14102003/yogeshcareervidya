@@ -5,8 +5,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Cookies from "js-cookie"; 
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
+import { trackEvent } from "@/utlis/analytics.js";
 import { ArrowRight, Mail, Phone, Lock, ShieldCheck } from "lucide-react";
 
 const LoginPage = () => {
@@ -17,6 +18,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const { login } = useAuth();
 
   /* ================= SEND OTP (Original Logic) ================= */
   const handleSendOtp = async () => {
@@ -56,27 +58,17 @@ const LoginPage = () => {
       const { accessToken, student } = res.data;
       const role = student.role;
 
-      const tokenKey = (role === "admin" || role === "subadmin") ? "admintoken" : "usertoken";
-      localStorage.setItem(tokenKey, accessToken);
-      localStorage.setItem("user", JSON.stringify(student));
-      localStorage.setItem("accessToken", accessToken);
+      login({ accessToken, user: student, role });
+      trackEvent("login_click", { method: "otp" });
 
-      const isLocal = window.location.hostname === "localhost";
-      const cookieOptions = { 
-        expires: 7, 
-        path: "/", 
-        secure: !isLocal, 
-        domain: isLocal ? undefined : ".careervidya.in",
-        sameSite: 'lax'
-      };
-
-      Cookies.set("userRole", role, cookieOptions);
-      Cookies.set(tokenKey, accessToken, cookieOptions);
+      const params = new URLSearchParams(window.location.search);
+      const redirectParam = params.get("redirect");
+      const defaultPath = (role === "admin" || role === "subadmin") ? "/admin" : "/user";
+      const targetPath = redirectParam && redirectParam.startsWith("/") ? redirectParam : defaultPath;
 
       setTimeout(() => {
-        const targetPath = (role === "admin" || role === "subadmin") ? "/admin" : "/user";
         window.location.href = targetPath;
-      }, 200); 
+      }, 150);
 
     } catch (error) {
       console.error("Verification Error:", error);

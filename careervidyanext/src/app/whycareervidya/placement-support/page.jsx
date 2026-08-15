@@ -6,7 +6,22 @@ import Header from "@/app/layout/Header.jsx";
 import Studentimageslider from "@/app/components/Studentimageslider.jsx";
 import TestimonialsSlider from "@/app/components/TestimonialsSlider.jsx";
 import Getintuch from "@/app/components/getintuch.jsx"
+
+export const dynamic = "force-dynamic";
 ;import { serverFetch } from "@/utlis/serverFetch";
+
+export const metadata = {
+  title: "Placement Support",
+  description:
+    "See how CareerVidya helps students land top placements — highest and average packages, hiring partners, and real student success stories.",
+  alternates: { canonical: "/whycareervidya/placement-support" },
+  openGraph: {
+    title: "Placement Support | CareerVidya",
+    description: "See how CareerVidya helps students land top placements after their online degree.",
+    url: "/whycareervidya/placement-support",
+    type: "website",
+  },
+};
 
 // ─── Static Data ──────────────────────────────────────────────────────────────
 

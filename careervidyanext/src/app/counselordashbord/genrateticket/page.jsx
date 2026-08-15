@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 import {
   AlertCircle,
   Send,
@@ -16,7 +17,7 @@ import {
 } from "lucide-react";
 
 export default function RaiseTicketPage() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     subject: "",
     issue: "",
@@ -33,13 +34,7 @@ export default function RaiseTicketPage() {
   // ─── POPUP STATE (पूरा मैसेज देखने के लिए) ──────────────────────
   const [selectedBroadcast, setSelectedBroadcast] = useState(null);
 
-  // ─── Load user from localStorage ────────────────────────────────
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  // user now comes from AuthContext (see useAuth() above)
 
   // ─── Fetch tickets + global broadcasts ──────────────────────────
   const fetchMyTickets = async (counselorId) => {

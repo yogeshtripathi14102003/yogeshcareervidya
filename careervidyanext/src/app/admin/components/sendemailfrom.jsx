@@ -1,51 +1,31 @@
+// src/app/admin/components/sendemailfrom.jsx
+
 "use client";
 
 import { useState } from "react";
 import api from "@/utlis/api";
 
-export default function SendEmailModal({ app, onClose, onUpdated }) {
-  const [status, setStatus] = useState(app?.status || "Pending");
+export default function SendEmailModal({ app, onClose }) {
+  // FIX: Use optional chaining (app?.status) to prevent error if app is undefined
+  const [status, setStatus] = useState(app?.status || "Pending"); 
   const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const sendEmail = async () => {
-    if (!app?._id || !app?.email) {
-      alert("Application data missing, modal ko dobara open karo.");
-      return;
-    }
+    const res = await api.patch(`/api/v1/resume/${app?._id}/status`, {
+      status,
+      description,
+    });
 
-    setLoading(true);
-    try {
-      // 1) Status DB me update
-      await api.patch(`/api/v1/resume/${app._id}/status`, { status });
+    alert(res.data?.message || "Status updated!");
 
-      // 2) Email bhejo
-      const res = await api.post("/api/send-email", {
-        email: app.email,
-        status,
-        description,
-      });
-
-      alert(res?.data?.message || "Email Sent!");
-
-      onUpdated?.(); // parent list refresh
-      onClose();
-    } catch (error) {
-      console.log("Send Email Error:", error.response?.data || error);
-      alert(
-        error.response?.data?.message ||
-          "Failed to send email. Check console."
-      );
-    } finally {
-      setLoading(false);
-    }
+    onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg w-[400px]">
         <h2 className="text-xl font-semibold mb-4">
-          Send Email to {app?.name} ({app?.email})
+          Send Email to {app?.name} {/* Use optional chaining here too */}
         </h2>
 
         {/* Status Dropdown */}
@@ -77,20 +57,19 @@ export default function SendEmailModal({ app, onClose, onUpdated }) {
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-400 text-white rounded"
-            disabled={loading}
           >
             Cancel
           </button>
 
           <button
             onClick={sendEmail}
-            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            {loading ? "Sending..." : "Send Email"}
+            Send Email
           </button>
         </div>
       </div>
     </div>
   );
 }
+

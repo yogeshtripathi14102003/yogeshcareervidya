@@ -24,6 +24,7 @@ import LeadDelete from "@/app/admin/Addcounsler/component/LeadDelete.jsx";
 import CounslerPerform from "@/app/admin/Addcounsler/component/CounslerPerform.jsx";
 import Dailycounslsourreoprt from "@/app/admin/Addcounsler/component/Dailycounslsourreoprt.jsx";
 import Transferleads from "@/app/admin/Addcounsler/component/Transferleads.jsx";
+import TeamLeadManager from "@/app/admin/Addcounsler/component/TeamLeadManager.jsx";
 /* ================= STATUS OPTIONS ================= */
 const STATUS_OPTIONS = ["active", "leave", "Inactive"];
 
@@ -54,6 +55,7 @@ const CounselorsListPage = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [dailyReportOpen, setDailyReportOpen] = useState(false);
 const [leadTransfer, setLeadTransfer] = useState(false);
+  const [teamLeadOpen, setTeamLeadOpen] = useState(false);
   /* ================= LOGIN ================= */
   const handleLogin = (e) => {
     e.preventDefault();
@@ -317,6 +319,14 @@ const [leadTransfer, setLeadTransfer] = useState(false);
   </div>
 )}
 
+{teamLeadOpen && (
+  <TeamLeadManager
+    counselors={counselors}
+    onClose={() => setTeamLeadOpen(false)}
+    onChanged={fetchCounselors}
+  />
+)}
+
       {deleteOpen && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
           <div className="bg-white w-full max-w-5xl rounded-xl relative p-6 max-h-[90vh] overflow-y-auto">
@@ -398,6 +408,12 @@ const [leadTransfer, setLeadTransfer] = useState(false);
   className="  cursor-pointer  bg-cyan-600 text-white px-4 py-2 rounded"
 >
   🔄 Transfer Leads
+</button>
+            <button
+  onClick={() => setTeamLeadOpen(true)}
+  className="  cursor-pointer  bg-amber-500 text-white px-4 py-2 rounded"
+>
+  ⭐ Team Leads
 </button>
             <button
               onClick={() => setDeleteOpen(true)}

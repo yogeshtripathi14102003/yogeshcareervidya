@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 
 import {
   User,
@@ -59,6 +60,7 @@ const initialState = {
 
 export default function StudentAdmission({ lead, onClose }) {
   /* ================= STATE ================= */
+  const { user: authUser } = useAuth();
 
   const [formData, setFormData] = useState(initialState);
 
@@ -75,15 +77,13 @@ export default function StudentAdmission({ lead, onClose }) {
   /* ================= AUTO COUNSELOR ================= */
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (user?.name) {
+    if (authUser?.name) {
       setFormData((prev) => ({
         ...prev,
-        counselorName: user.name,
+        counselorName: authUser.name,
       }));
     }
-  }, []);
+  }, [authUser]);
 
   /* ================= FETCH FEES ================= */
 
@@ -201,11 +201,9 @@ export default function StudentAdmission({ lead, onClose }) {
   /* ================= RESET ================= */
 
   const resetForm = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
     setFormData({
       ...initialState,
-      counselorName: user?.name || "",
+      counselorName: authUser?.name || "",
     });
 
     setCourses([]);

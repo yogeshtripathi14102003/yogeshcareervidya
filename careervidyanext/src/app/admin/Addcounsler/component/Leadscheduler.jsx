@@ -54,6 +54,7 @@ const SkeletonRow = () => (
 /* ── Main ───────────────────────────────────────────────────────────────────── */
 const LeadScheduler = () => {
   const [file, setFile]                       = useState(null);
+  const [autoAssignUpload, setAutoAssignUpload] = useState(false);
   const [leads, setLeads]                     = useState([]);
   const [assignedLeads, setAssignedLeads]     = useState([]);
   const [counselors, setCounselors]           = useState([]);
@@ -125,9 +126,13 @@ const LeadScheduler = () => {
     try {
       const form = new FormData();
       form.append("file", file);
+      form.append("autoAssign", autoAssignUpload ? "true" : "false");
       const res = await api.post("/api/v1/leads/upload", form);
       const { total = 0, skipped = 0 } = res.data || {};
-      toast(`${total} leads uploaded${skipped ? `, ${skipped} skipped` : ""}`, "success");
+      toast(
+        `${total} leads uploaded${skipped ? `, ${skipped} skipped` : ""}${autoAssignUpload ? " and auto-assigned" : " (not assigned — assign manually or use Auto-Assign Unassigned Leads)"}`,
+        "success"
+      );
       fetchLeads();
       setFile(null);
       const inp = document.getElementById("lead-file-input");
@@ -243,11 +248,19 @@ const LeadScheduler = () => {
             <input id="lead-file-input" type="file" accept=".xls,.xlsx" onChange={(e) => setFile(e.target.files[0])} className="text-sm" />
             {file && <p className="text-xs text-indigo-500 mt-1 font-semibold">📄 {file.name} ({(file.size / 1024).toFixed(1)} KB)</p>}
           </div>
+          <label className="flex items-center gap-1.5 text-xs text-gray-600 font-medium select-none cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoAssignUpload}
+              onChange={(e) => setAutoAssignUpload(e.target.checked)}
+            />
+            Auto-assign these leads now
+          </label>
           <button onClick={uploadExcel} disabled={loading || !file}
             className="bg-indigo-600 text-white px-6 py-2 rounded flex gap-2 font-bold hover:bg-indigo-700 disabled:opacity-50 items-center">
             {loading ? <Loader2 className="animate-spin" size={18} /> : <Upload size={18} />} Upload Excel
           </button>
-          <p className="text-[10px] text-gray-400 w-full">✅ Blank fields (city, email, course etc.) are OK — only phone is required</p>
+          <p className="text-[10px] text-gray-400 w-full">✅ Blank fields (city, email, course etc.) are OK — only phone is required. Uploaded leads are left unassigned by default — check "Auto-assign" above to run the assignment engine on them immediately.</p>
         </div>
 
         {/* Assignment Counts — skeleton while counselors load */}

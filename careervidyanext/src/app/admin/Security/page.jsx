@@ -33,6 +33,9 @@ const PERMISSIONS_LIST = [
   { id: "AdminDocumentcheck", label: "Document Check" },
   { id: "DocumentDelete", label: "Document Delete" },
   {id: "DocReport", label: "DocReport"},
+  { id: "LeadAnalytics", label: "Lead Analytics" },
+  {id: "slotsquery", label: "Slot Management"},
+  {id: "CRM", label: "CRM"},
 ];
 
 export default function GiveAccessPage() {

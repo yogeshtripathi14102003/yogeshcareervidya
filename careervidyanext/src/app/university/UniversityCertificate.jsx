@@ -75,6 +75,11 @@ const RecognitionSection = ({ slug }) => {
                 {/* Right Column: Certificate Image */}
                 <div style={styles.imageColumn}>
                     {certificateImage ? (
+                        // Intentionally a plain <img>: this is an admin-uploaded
+                        // certificate scan with unknown/varying aspect ratio per
+                        // university, and no fixed-size container. next/image
+                        // needs either explicit dimensions or a fill parent —
+                        // neither is safe to assume here without visual QA.
                         <img src={certificateImage} alt="Sample Certificate" style={styles.certificateImage} />
                     ) : (
                         <div style={styles.noImagePlaceholder}>

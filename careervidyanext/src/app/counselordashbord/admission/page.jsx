@@ -4,9 +4,11 @@
 
 import React, { useState, useEffect } from "react";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 import { Users, Search, Loader2, Download, Phone } from "lucide-react";
 
 const CounselorAdmissions = () => {
+  const { user: authUser } = useAuth();
   const [admissions, setAdmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,15 +18,13 @@ const CounselorAdmissions = () => {
 
   /* ================= FETCH USER ================= */
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-    if (user?.name) {
-      setCounselorName(user.name);
-      fetchAdmissions(user.name);
-    } else {
+    if (authUser?.name) {
+      setCounselorName(authUser.name);
+      fetchAdmissions(authUser.name);
+    } else if (authUser) {
       setLoading(false);
     }
-  }, []);
+  }, [authUser]);
 
   /* ================= FETCH ADMISSIONS ================= */
   const fetchAdmissions = async (name) => {

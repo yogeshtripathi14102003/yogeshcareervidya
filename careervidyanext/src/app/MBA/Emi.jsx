@@ -1,10 +1,11 @@
 import React from 'react';
+import Image from 'next/image';
 
 // Data for EMI partner logos
 const emiPartners = [
-  { id: 1, src: '/images/Eduvanz.png', alt: 'Eduvanz Logo' },
-  { id: 2, src: '/images/LiquiLoans.png', alt: 'LiquiLoans Logo' },
-  { id: 3, src: '/images/GreyQuest.png', alt: 'GreyQuest Logo' },
+  { id: 1, src: '/images/Eduvanz.png', alt: 'Eduvanz Logo', width: 1280, height: 413 },
+  { id: 2, src: '/images/LiquiLoans.png', alt: 'LiquiLoans Logo', width: 3106, height: 760 },
+  { id: 3, src: '/images/GreyQuest.png', alt: 'GreyQuest Logo', width: 410, height: 84 },
 ];
 
 const AdmissionFee = () => {
@@ -31,10 +32,12 @@ const AdmissionFee = () => {
             <div className="flex flex-wrap items-center space-x-6">
               {emiPartners.map(partner => (
                 <div key={partner.id} className="h-8 md:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity">
-                  <img 
-                    src={partner.src} 
-                    alt={partner.alt} 
-                    className="max-h-full max-w-full object-contain"
+                  <Image
+                    src={partner.src}
+                    alt={partner.alt}
+                    width={partner.width}
+                    height={partner.height}
+                    className="max-h-full max-w-full w-auto h-full object-contain"
                   />
                 </div>
               ))}
@@ -53,13 +56,13 @@ const AdmissionFee = () => {
               
               {/* Internet Banking */}
               <div className="flex flex-col items-center w-24 text-center">
-                <img src="/images/credit.png" alt="Internet Banking" className="w-12 h-12 mb-2" />
+                <Image src="/images/credit.png" alt="Internet Banking" width={225} height={131} className="w-12 h-12 object-contain mb-2" />
                 <p className="text-sm text-gray-700">Internet Banking</p>
               </div>
 
               {/* Credit/Debit Card */}
               <div className="flex flex-col items-center w-24 text-center">
-                <img src="/images/bank.png" alt="Credit/Debit Card" className="w-12 h-12 mb-2" />
+                <Image src="/images/bank.png" alt="Credit/Debit Card" width={148} height={148} className="w-12 h-12 object-contain mb-2" />
                 <p className="text-sm text-gray-700">Credit/Debit Card</p>
               </div>
             </div>

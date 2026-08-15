@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 import {
   Bell,
   Phone,
@@ -37,26 +37,12 @@ const formatDate = (date) =>
 /* ================= COMPONENT ================= */
 
 const MyReminders = () => {
-  const router = useRouter();
+  const { user } = useAuth();
 
-  const [user, setUser] = useState(null);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
-
-  /* ================= AUTH ================= */
-  useEffect(() => {
-    const saved = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-
-    if (!saved || !token) {
-      router.push("/login");
-      return;
-    }
-
-    setUser(JSON.parse(saved));
-  }, [router]);
 
   /* ================= FETCH REMINDERS ================= */
   useEffect(() => {
@@ -65,7 +51,10 @@ const MyReminders = () => {
 
   const fetchMyReminders = async () => {
     try {
-      const res = await api.get("/api/v1/leads/my");
+      // /leads/my doesn't exist on the backend — this used to 404 silently
+      // on every load. The real "my leads" endpoint is /counselor-leads,
+      // which now self-scopes to the logged-in counselor automatically.
+      const res = await api.get("/api/v1/counselor-leads");
 
       if (res.data.success) {
         const withReminder = res.data.data.filter(
@@ -75,7 +64,6 @@ const MyReminders = () => {
       }
     } catch (err) {
       console.log("Reminder Fetch Error", err);
-      if (err.response?.status === 401) router.push("/login");
     } finally {
       setLoading(false);
     }

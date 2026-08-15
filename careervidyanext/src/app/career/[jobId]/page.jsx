@@ -1,164 +1,73 @@
-"use client";
+import { notFound } from "next/navigation";
+import { serverFetch } from "@/utlis/serverFetch";
+import JobDetailClient from "@/app/career/JobDetailClient.jsx";
 
-import Link from "next/link";
-import Header from "@/app/layout/Header";
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import api  from "@/utlis/api.js"; // ✅ axios instance
+async function getJobData(jobId) {
+  const { ok, data } = await serverFetch(`/api/v1/addjob/${jobId}`, {
+    next: { revalidate: 120 },
+  });
+  if (!ok) return null;
+  return data?.data || null;
+}
 
-export default function JobDetailPage() {
-  const { jobId } = useParams();
-  const router = useRouter();
+export async function generateMetadata({ params }) {
+  const { jobId } = await params;
+  const job = await getJobData(jobId);
 
-  const [job, setJob] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] =("");
-
-  /* ================= FETCH JOB ================= */
-  useEffect(() => {
-    async function fetchJob() {
-      try {
-        const res = await api.get(`/api/v1/addjob/${jobId}`); // ✅ updated
-        setJob(res.data.data);
-      } catch (err) {
-        if (err.response?.status === 404) {
-          setError("Job not found");
-        } else {
-          setError("Something went wrong");
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (jobId) fetchJob();
-  }, [jobId]);
-
-  /* ================= LOADING ================= */
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <div className="h-screen flex items-center justify-center text-xl font-semibold">
-          Loading...
-        </div>
-      </>
-    );
+  if (!job) {
+    return {
+      title: "Job Not Found",
+      robots: { index: false, follow: true },
+    };
   }
 
-  /* ================= ERROR ================= */
-  if (error) {
-    return (
-      <>
-        <Header />
-        <div className="h-screen flex items-center justify-center text-red-600 text-lg">
-          {error}
-        </div>
-      </>
-    );
-  }
+  const title = `${job.title} — Careers at CareerVidya`;
+  const description =
+    job.description?.slice(0, 155) ||
+    `${job.title} opening at CareerVidya, ${job.location || ""}.`;
 
-  /* ================= UI ================= */
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `https://careervidya.in/career/${jobId}`,
+    },
+    openGraph: { title, description, type: "website" },
+  };
+}
+
+export default async function JobDetailPage({ params }) {
+  const { jobId } = await params;
+  const job = await getJobData(jobId);
+
+  if (!job) return notFound();
+
   return (
     <>
-      <Header />
-
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-
-        {/* Modal */}
-        <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden relative">
-
-          {/* Close Button */}
-          <button
-            onClick={() => router.push("/career")}
-            className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white w-9 h-9 rounded-full flex items-center justify-center text-lg"
-          >
-            ✕
-          </button>
-
-          {/* Header */}
-          <div className="bg-[#2B6CB0] text-white px-8 py-7">
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-wide">
-              {job?.title || "Job Title"}
-            </h1>
-
-            <div className="flex flex-wrap gap-6 mt-4 text-sm md:text-base opacity-90">
-              <span className="flex items-center gap-2">
-                👨‍💼 {job?.experience || "1-3 Years"}
-              </span>
-
-              <span className="flex items-center gap-2">
-                📍 {job?.location || "Noida"}
-              </span>
-
-              <span className="flex items-center gap-2">
-                💼 Full Time
-              </span>
-            </div>
-          </div>
-
-          {/* Body */}
-          <div className="px-8 py-6 max-h-[70vh] overflow-y-auto text-gray-700">
-
-            {/* Top Info + Apply Button */}
-            <div className="flex justify-between items-start flex-wrap gap-4 mb-6">
-
-              <div className="space-y-2 text-[15px] md:text-[16px] leading-relaxed">
-                <p>
-                  <span className="font-semibold text-gray-900">Company:</span>{" "}
-                  {job?.company || "Career Vidya Edu-Tech Private.Limited."}
-                </p>
-
-                <p>
-                  <span className="font-semibold text-gray-900">Role:</span>{" "}
-                  {job?.title}
-                </p>
-
-                <p>
-                  <span className="font-semibold text-gray-900">Location:</span>{" "}
-                  {job?.location}
-                </p>
-
-                <p>
-                  <span className="font-semibold text-gray-900">Experience:</span>{" "}
-                  {job?.experience}
-                </p>
-              </div>
-
-              {/* Apply Button */}
-              <Link href="/applynow">
-                <button className="bg-[#2B6CB0] hover:bg-[#1E4E8C] text-white px-6 py-3 rounded-lg text-sm md:text-base font-medium shadow">
-                  Apply for this Job
-                </button>
-              </Link>
-            </div>
-
-            {/* Description */}
-            <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-              Job Description
-            </h2>
-            <p className="text-gray-600 text-[15px] md:text-[16px] leading-relaxed mb-5">
-              {job?.description}
-            </p>
-
-            {/* KRAs */}
-            {job?.requirements?.length > 0 && (
-              <>
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-                  Benefits & Perks
-                </h2>
-
-                <ul className="list-disc ml-6 space-y-2 text-gray-600 text-[15px] md:text-[16px] leading-relaxed">
-                  {job.requirements.map((req, index) => (
-                    <li key={index}>{req}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "JobPosting",
+            title: job.title,
+            description: job.description,
+            datePosted: job.createdAt,
+            employmentType: "FULL_TIME",
+            hiringOrganization: {
+              "@type": "Organization",
+              name: "Career Vidya Edu-Tech Private Limited",
+            },
+            jobLocation: job.location
+              ? {
+                  "@type": "Place",
+                  address: { "@type": "PostalAddress", addressLocality: job.location },
+                }
+              : undefined,
+          }),
+        }}
+      />
+      <JobDetailClient job={job} />
     </>
   );
 }

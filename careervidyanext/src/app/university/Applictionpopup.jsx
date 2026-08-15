@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import api from "@/utlis/api";
 import { useRouter } from "next/navigation"; // Dashboard redirect ke liye
 
@@ -152,7 +153,7 @@ const AuthModal = ({ onClose, universityName }) => {
         {/* HEADER */}
         <div className="p-4 border-b border-gray-100 flex items-center">
           <div className="w-1/4">
-             <img src="/images/n12.png" alt="Career Vidya" className="max-h-12 w-auto" />
+             <Image src="/images/n12.png" alt="Career Vidya" width={4500} height={4500} className="max-h-12 w-auto object-contain" />
           </div>
           <div className="w-2/4 text-center">
              <h2 className="text-[#05347f] font-bold text-lg leading-tight">#VidyaHaiTohSuccessHai</h2>

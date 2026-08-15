@@ -133,7 +133,7 @@ const Signup = ({ onClose, selectedUnis = [] }) => {
         const res = await api.post("/api/v1/verify-otp", { ...formData, emailOrPhone: formData.email || formData.mobileNumber, purpose: "register" });
         
         // Token save karna mat bhulna agar API de raha hai
-        if(res.data.token) localStorage.setItem("usertoken", res.data.token);
+        if(res.data.token) localStorage.setItem("accessToken", res.data.token);
 
         alert("Registration Successful");
         

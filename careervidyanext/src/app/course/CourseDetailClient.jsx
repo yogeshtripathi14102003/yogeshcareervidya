@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import Image from "next/image";
 import Header from "@/app/layout/Header.jsx";
 import Footer from "@/app/layout/Footer.jsx";
+import { startCourseView, endCourseView } from "@/utlis/analytics.js";
 import Detailsignup from "@/app/course/Detailsignup.jsx";
 import Getintuch from "@/app/components/getintuch.jsx";
 import Offerdcourse from "@/app/course/Offerdcourse.jsx";
@@ -19,6 +21,14 @@ import Studentimageslider from "@/app/components/Studentimageslider.jsx";
 // import LogoSlider from "@/app/components/LogoSlider.jsx";
 
 export default function CourseDetailClient({ course }) {
+  useEffect(() => {
+    startCourseView({ courseId: course?._id, courseSlug: course?.slug });
+    return () => {
+      endCourseView();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [course?._id]);
+
   const skipUniversityCompSlugs = [
     "mtech-master-of-technology",
     "btech-bachelors-of-technology",
@@ -82,7 +92,7 @@ export default function CourseDetailClient({ course }) {
                     {item.image?.url && (
                       <div className="w-full lg:w-1/2 group">
                         <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
-                          <img src={item.image.url} alt="Why Choose Us" className="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-105" />
+                          <Image src={item.image.url} alt="Why Choose Us" fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-contain p-4 transition-transform duration-700 group-hover:scale-105" />
                         </div>
                       </div>
                     )}

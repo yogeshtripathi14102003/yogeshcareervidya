@@ -16,7 +16,7 @@ export default function Page() {
   const router = useRouter();
 
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("admintoken") : "";
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : "";
 
   useEffect(() => {
     fetchBanners();

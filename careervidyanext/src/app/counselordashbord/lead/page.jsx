@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import api from "@/utlis/api.js";
+import { useAuth } from "@/context/AuthContext.jsx";
 import * as XLSX from "xlsx";
 import { FaWhatsapp, FaFileExcel, FaPhoneAlt, FaUserAlt } from "react-icons/fa";
 import StudentAdmission from "@/app/counselordashbord/components/StudentAdmission.jsx";
+import LeadTimelineModal from "@/app/counselordashbord/components/LeadTimelineModal.jsx";
 import {
   Search, X, Save,
   ChevronLeft, ChevronRight, MapPin, BookOpen, Smartphone, Calendar,
@@ -80,6 +82,7 @@ const STATUS_COLORS = {
 };
 
 const LeadsPage = () => {
+  const { user: authUser } = useAuth();
   const [leads, setLeads] = useState([]);
   const [totalLeads, setTotalLeads] = useState(0);
   const [stats, setStats] = useState([]);
@@ -101,8 +104,7 @@ const LeadsPage = () => {
   const fetchMyLeads = useCallback(async () => {
     setLoading(true);
     try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      const counselorId = storedUser?._id || storedUser?.id;
+      const counselorId = authUser?._id;
       if (!counselorId) return;
 
       const params = {
@@ -130,7 +132,7 @@ const LeadsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchTerm, filterStatus, appliedFrom, appliedTo]);
+  }, [currentPage, searchTerm, filterStatus, appliedFrom, appliedTo, authUser]);
 
   useEffect(() => {
     fetchMyLeads();
@@ -155,8 +157,7 @@ const LeadsPage = () => {
   const handleExportExcel = async () => {
     setLoading(true);
     try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      const counselorId = storedUser?._id || storedUser?.id;
+      const counselorId = authUser?._id;
 
       const params = {
         id: counselorId,
@@ -464,6 +465,7 @@ const LeadRow = ({ lead, onSave }) => {
   const [localDate, setLocalDate] = useState(formatForInput(lead.followUpDate));
   
   const [showAdmission, setShowAdmission] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
   const [savedRemark, setSavedRemark] = useState(lead.remark || "");
 
   const phoneNumber = lead.phone || lead.mobile || lead.contactNo;
@@ -536,6 +538,17 @@ const LeadRow = ({ lead, onSave }) => {
                 </>
               )}
             </div>
+            {lead.source && (
+              <span
+                className="text-[9px] font-bold uppercase tracking-wide w-fit px-1.5 py-0.5 rounded-full"
+                style={{
+                  background: lead.source.startsWith("Website") ? "#e0f2fe" : lead.source === "Manual Upload" || lead.source === "Imported Lead" ? "#f1f5f9" : "#fef3c7",
+                  color: lead.source.startsWith("Website") ? "#0369a1" : lead.source === "Manual Upload" || lead.source === "Imported Lead" ? "#475569" : "#92400e",
+                }}
+              >
+                {lead.source}
+              </span>
+            )}
           </div>
         </td>
 
@@ -617,9 +630,21 @@ const LeadRow = ({ lead, onSave }) => {
             >
               View
             </button>
+            <button
+              onClick={() => setShowTimeline(true)}
+              title="Activity Timeline"
+              className="bg-indigo-500 text-white px-3 py-1.5 rounded-md font-bold active:scale-90 shadow-sm"
+            >
+              <Clock size={13} />
+            </button>
           </div>
         </td>
       </tr>
+
+      {/* Activity Timeline Modal */}
+      {showTimeline && (
+        <LeadTimelineModal leadId={lead._id} onClose={() => setShowTimeline(false)} />
+      )}
 
       {/* Student Admission Modal */}
       {showAdmission && (
