@@ -105,13 +105,18 @@
 
 import mongoose from "mongoose";
 import Ticket from "../models/counselor/Ticket.js";
+import { getViewableCounselorIds } from "../utilities/teamScope.js";
 
 // ─────────────────────────────────────────────────────────────────
 // 1. CREATE
 // ─────────────────────────────────────────────────────────────────
 export const createTicket = async (req, res) => {
   try {
-    const newTicket = new Ticket(req.body);
+    const payload = { ...req.body };
+    if (req.user?.role === "counselor") {
+      payload.counselorId = req.user._id; // never trust a client-supplied counselorId
+    }
+    const newTicket = new Ticket(payload);
     const savedTicket = await newTicket.save();
     res.status(201).json({ success: true, data: savedTicket });
   } catch (error) {
@@ -127,9 +132,17 @@ export const createTicket = async (req, res) => {
 export const getAllTickets = async (req, res) => {
   try {
     const { counselorId } = req.query;
+    const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
 
-    // Counselor dashboard: filter by counselorId
-    const filter = counselorId ? { counselorId: new mongoose.Types.ObjectId(counselorId) } : {};
+    let filter = {};
+    if (isStaffAdmin) {
+      if (counselorId) filter.counselorId = new mongoose.Types.ObjectId(counselorId);
+    } else {
+      // A counselor (or Team Lead) can only ever see their own scope — the
+      // counselorId query param is only honored for admin/subadmin callers.
+      const viewableIds = await getViewableCounselorIds(req.user);
+      filter.counselorId = { $in: viewableIds.map((id) => new mongoose.Types.ObjectId(id)) };
+    }
 
     const tickets = await Ticket.find(filter)
       .populate('userId counselorId', 'name email')
@@ -149,6 +162,17 @@ export const getTicketById = async (req, res) => {
     const ticket = await Ticket.findById(req.params.id)
       .populate('userId counselorId');
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+
+    // A counselor may open their own ticket, or (if a Team Lead) a team
+    // member's ticket — view only.
+    if (req.user?.role === "counselor") {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      const ownerId = String(ticket.counselorId?._id || ticket.counselorId);
+      if (!viewableIds.includes(ownerId)) {
+        return res.status(403).json({ success: false, message: "Access denied" });
+      }
+    }
+
     res.status(200).json({ success: true, data: ticket });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -160,12 +184,28 @@ export const getTicketById = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────
 export const updateTicket = async (req, res) => {
   try {
+    const existing = await Ticket.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: "Ticket not found" });
+
+    if (
+      req.user?.role === "counselor" &&
+      String(existing.counselorId) !== String(req.user._id)
+    ) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const updates = { ...req.body };
+    if (req.user?.role === "counselor") {
+      // A counselor can update ticket content, but never reassign ownership.
+      delete updates.counselorId;
+      delete updates.userId;
+    }
+
     const updatedTicket = await Ticket.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updates },
       { new: true, runValidators: true }
     );
-    if (!updatedTicket) return res.status(404).json({ message: "Ticket not found" });
     res.status(200).json({ success: true, data: updatedTicket });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });

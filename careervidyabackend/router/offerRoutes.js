@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createContent,
   getAllContent,
@@ -9,19 +11,16 @@ import {
 } from "../controller/OfferController.js";
 
 const router = express.Router();
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
-// ===== CREATE =====
-router.post("/", createContent); // create offer / subsidy / brochure
+// Public — offers/subsidies/brochures are shown to site visitors
+router.get("/", getAllContent);
+router.get("/type/:type", getByType);
+router.get("/:id", getContentById);
 
-// ===== READ =====
-router.get("/", getAllContent);              // get all content
-router.get("/type/:type", getByType);        // get content by type (offer | subsidy | brochure)
-router.get("/:id", getContentById);          // get content by ID
-
-// ===== UPDATE =====
-router.put("/:id", updateContent);           // update content by ID
-
-// ===== DELETE =====
-router.delete("/:id", deleteContent);        // delete content by ID
+// Admin only
+router.post("/", adminOnly, createContent);
+router.put("/:id", adminOnly, updateContent);
+router.delete("/:id", adminOnly, deleteContent);
 
 export default router;

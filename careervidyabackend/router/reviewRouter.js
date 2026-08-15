@@ -1,27 +1,6 @@
-// import express from "express";
-// import {
-//   submitReview,
-//   getReviewsByCounsellor,
-//   adminDeleteReview,
-// } from "../controller/reviewController.js";
-
-
-
-// const router = express.Router();
-
-// /* ✅ GUEST + LOGIN DONO */
-// router.post("/review", submitReview);
-
-// /* PUBLIC */
-// router.get("/review/:id", getReviewsByCounsellor);
-
-// /* ADMIN */
-// router.delete("/admin/review/:id",  adminDeleteReview);
-
-// export default router;
-
-
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   submitReview,
   getReviewsByCounsellor,
@@ -30,13 +9,16 @@ import {
 
 const router = express.Router();
 
-/* GUEST + LOGIN */
+/* Public — guests and logged-in users can both submit/view reviews */
 router.post("/review", submitReview);
-
-/* GET BY COUNSELLOR ID */
 router.get("/review/:id", getReviewsByCounsellor);
 
-/* ADMIN DELETE */
-router.delete("/admin/review/:id", adminDeleteReview);
+/* Admin only */
+router.delete(
+  "/admin/review/:id",
+  authMiddleware,
+  requireRole(["admin", "subadmin"]),
+  adminDeleteReview
+);
 
 export default router;

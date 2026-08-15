@@ -1,10 +1,15 @@
 import express from 'express';
 import multer from 'multer';
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import { getAll, getById, create, update, remove, toggleActive, getAlerts, getStats } from '../controller/employeeController.js';
 import { uploadBulk, downloadTemplate } from '../controller/uploadController.js';
 import { employeeCreateRules, employeeUpdateRules } from '../middelware/validate.js';
 
 const router = express.Router();
+
+// Internal HR data (PAN/DOB/salary-adjacent) — admin only, everywhere
+router.use(authMiddleware, requireRole(["admin"]));
 
 const upload = multer({
   storage: multer.memoryStorage(),

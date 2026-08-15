@@ -1,41 +1,35 @@
-
-
 import express from 'express';
-import { 
-  createTicket, 
-  getAllTickets, 
-  getTicketById, 
-  updateTicket, 
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
+import {
+  createTicket,
+  getAllTickets,
+  getTicketById,
+  updateTicket,
   deleteTicket,
   sendAdminMessage,
   broadcastToAll,
   resolveTicket,
-  getBroadcasts,     
-  deleteBroadcast 
-
+  getBroadcasts,
+  deleteBroadcast,
 } from '../controller/ticketController.js';
 
 const router = express.Router();
 
-// ── Standard CRUD ────────────────────────────────────────────────
-router.post('/',     createTicket);   // new ticket banao
-router.get('/',      getAllTickets);  // ?counselorId=xxx → filter | no param → sab
-router.get('/notify-all', getBroadcasts);          // 👈 नया रूट: सारे ब्रॉडकास्ट गेट करने के लिए
-router.delete('/notify-all/:id', deleteBroadcast);
-router.get('/:id',   getTicketById);
-router.put('/:id',   updateTicket);
-router.delete('/:id', deleteTicket);
+// Internal support-ticket system — counselors + admins only, never public
+const staff = [authMiddleware, requireRole(["admin", "subadmin", "counselor"])];
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
-// ── Admin Action Routes ──────────────────────────────────────────
+router.post('/', ...staff, createTicket);
+router.get('/', ...staff, getAllTickets);
+router.get('/notify-all', ...adminOnly, getBroadcasts);
+router.delete('/notify-all/:id', ...adminOnly, deleteBroadcast);
+router.get('/:id', ...staff, getTicketById);
+router.put('/:id', ...staff, updateTicket);
+router.delete('/:id', ...adminOnly, deleteTicket);
 
-// Ticket-specific reply — sirf us counselor ko dikhega
-router.patch('/:ticketId/notify', sendAdminMessage);
-
-// Broadcast — sabhi counselors ko ek saath message
-// NOTE: yeh route '/:id' se pehle hona chahiye warna conflict hoga
-router.post('/notify-all', broadcastToAll);
-
-// Resolve ticket
-router.put('/:ticketId/resolve', resolveTicket);
+router.patch('/:ticketId/notify', ...adminOnly, sendAdminMessage);
+router.post('/notify-all', ...adminOnly, broadcastToAll);
+router.put('/:ticketId/resolve', ...staff, resolveTicket);
 
 export default router;

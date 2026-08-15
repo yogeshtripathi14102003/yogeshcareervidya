@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   bulkUploadStatesDistricts,
   getAllStates,
@@ -7,8 +9,16 @@ import {
 
 const router = express.Router();
 
-router.post("/bulk-upload", bulkUploadStatesDistricts);
+// Public — used by address/location dropdowns across forms
 router.get("/states", getAllStates);
 router.get("/districts/:state", getDistrictsByState);
+
+// Admin only
+router.post(
+  "/bulk-upload",
+  authMiddleware,
+  requireRole(["admin", "subadmin"]),
+  bulkUploadStatesDistricts
+);
 
 export default router;

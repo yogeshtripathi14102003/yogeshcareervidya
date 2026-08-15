@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createTeamMember,
   getAllTeamMembers,
@@ -10,20 +12,15 @@ import createUploader from "../multer.js";
 
 const router = express.Router();
 const upload = createUploader({ folder: "team" });
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
-// ✅ Create new member
-router.post("/team", upload.single("image"), createTeamMember);
-
-// ✅ Get all members
+// Public — displayed on the "Our Team" page
 router.get("/team", getAllTeamMembers);
-
-// ✅ Get single member by ID
 router.get("/team/:id", getTeamMemberById);
 
-// ✅ Update member
-router.put("/team/:id", upload.single("image"), updateTeamMember);
-
-// ✅ Delete member
-router.delete("/team/:id", deleteTeamMember);
+// Admin only
+router.post("/team", adminOnly, upload.single("image"), createTeamMember);
+router.put("/team/:id", adminOnly, upload.single("image"), updateTeamMember);
+router.delete("/team/:id", adminOnly, deleteTeamMember);
 
 export default router;

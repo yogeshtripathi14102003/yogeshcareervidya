@@ -1,85 +1,51 @@
-// import express from "express";
-// import {
-//   addSubscriber,
-//   listSubscribers,
-//   sendNewsLetter,
-//   unSubscribe,
-// } from "../controller/NewslatterControllert.js";
-// // import authMiddleware from "../middelware/authMiddleware.js";
-// import {
-//   requirePermissions,
-//   requireRole,
-// } from "../middelware/roleMiddleware.js";
-
-// import { PERMISSIONS } from "../constant/permission.js";
-
-// const adminNewsletterRouter = express.Router();
-
-// adminNewsletterRouter.post("/subscribe", addSubscriber);
-// adminNewsletterRouter.post("/unsubscribe", unSubscribe);
-
-// // admin only
-// adminNewsletterRouter.get(
-//   "/subscribers",
-
-//   requireRole(["admin", "subadmin"]),
-//   requirePermissions(PERMISSIONS.MANAGE_NEWSLETTER),
-//   listSubscribers
-// );
-
-// adminNewsletterRouter.post(
-//   "/send",
- 
-//   requireRole(["admin", "subadmin"]),
-//   requirePermissions(PERMISSIONS.MANAGE_NEWSLETTER),
-//   sendNewsLetter
-// );
-
-// export default adminNewsletterRouter;
-
-
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import {
+  requirePermissions,
+  requireRole,
+} from "../middelware/roleMiddleware.js";
+import { PERMISSIONS } from "../constant/permission.js";
+import { publicApiLimiter } from "../middelware/rateLimiter.js";
 import {
   addSubscriber,
-  listSubscribers,
-  sendNewsLetter,
+  confirmSubscription,
   unSubscribe,
-  getNewsletterLogs
+  unsubscribeByToken,
+  listSubscribers,
+  exportSubscribers,
+  deleteSubscriber,
+  getNewsletterLogs,
+  getCampaignDeliveries,
+  sendNewsLetter,
+  trackOpen,
+  trackClick,
+  getNewsletterAnalytics,
 } from "../controller/NewslatterControllert.js";
 
-// import {
-//   requirePermissions,
-//   requireRole,
-// } from "../middelware/roleMiddleware.js";
-
-// import { PERMISSIONS } from "../constant/permission.js";
-
 const adminNewsletterRouter = express.Router();
+const adminOnly = [
+  authMiddleware,
+  requireRole(["admin", "subadmin"]),
+  requirePermissions(PERMISSIONS.MANAGE_NEWSLETTER),
+];
 
-adminNewsletterRouter.post("/subscribe", addSubscriber);
-adminNewsletterRouter.post("/unsubscribe", unSubscribe);
+// ---- Public — visitors subscribe/unsubscribe ----
+adminNewsletterRouter.post("/subscribe", publicApiLimiter, addSubscriber);
+adminNewsletterRouter.post("/unsubscribe", publicApiLimiter, unSubscribe);
 
-// admin only
-adminNewsletterRouter.get(
-  "/subscribers",
-  // requireRole(["admin", "subadmin"]),
-  // requirePermissions(PERMISSIONS.MANAGE_NEWSLETTER),
-  listSubscribers
-);
+// ---- Public — hit directly by email clients / links in emails, no auth possible here ----
+adminNewsletterRouter.get("/newsletter/confirm/:token", publicApiLimiter, confirmSubscription);
+adminNewsletterRouter.get("/newsletter/unsubscribe/:token", publicApiLimiter, unsubscribeByToken);
+adminNewsletterRouter.get("/newsletter/track/open/:token", publicApiLimiter, trackOpen);
+adminNewsletterRouter.get("/newsletter/track/click/:token", publicApiLimiter, trackClick);
 
-// NEW ROUTE ADDED (FIX)
-adminNewsletterRouter.get(
-  "/logs",
-  // requireRole(["admin", "subadmin"]),
-  // requirePermissions(PERMISSIONS.MANAGE_NEWSLETTER),
-  getNewsletterLogs
-);
-
-adminNewsletterRouter.post(
-  "/send",
-  // requireRole(["admin", "subadmin"]),
-  // requirePermissions(PERMISSIONS.MANAGE_NEWSLETTER),
-  sendNewsLetter
-);
+// ---- Admin only ----
+adminNewsletterRouter.get("/subscribers", ...adminOnly, listSubscribers);
+adminNewsletterRouter.get("/subscribers/export", ...adminOnly, exportSubscribers);
+adminNewsletterRouter.delete("/subscribers/:id", ...adminOnly, deleteSubscriber);
+adminNewsletterRouter.get("/logs", ...adminOnly, getNewsletterLogs);
+adminNewsletterRouter.get("/logs/:id/deliveries", ...adminOnly, getCampaignDeliveries);
+adminNewsletterRouter.post("/send", ...adminOnly, sendNewsLetter);
+adminNewsletterRouter.get("/newsletter/analytics", ...adminOnly, getNewsletterAnalytics);
 
 export default adminNewsletterRouter;

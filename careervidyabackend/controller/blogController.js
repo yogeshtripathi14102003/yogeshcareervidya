@@ -274,17 +274,41 @@ export const updateBlog = async (req, res) => {
 
 /* ================= GET ALL BLOGS ================= */
 
+// List-view only needs these fields, not the full rich-text content array —
+// keeps the /blog payload light regardless of how long individual posts are.
+const LIST_FIELDS = "title slug image author category createdAt updatedAt reads is_verified";
+
 export const getAllBlogs = async (req, res) => {
 
   try {
 
-    const blogs = await BlogModel.find()
-      .sort({ createdAt: -1 })
-      .lean();
+    const { page, limit, search, category } = req.query;
+
+    const filter = {};
+    if (search?.trim()) filter.title = { $regex: search.trim(), $options: "i" };
+    if (category?.trim()) filter.category = category.trim();
+
+    // Backward compatible: if no page/limit is given, behave exactly as
+    // before (return everything) so nothing already calling this without
+    // pagination params breaks.
+    let query = BlogModel.find(filter).select(LIST_FIELDS).sort({ createdAt: -1 }).lean();
+
+    let totalPages;
+    let total;
+    if (page || limit) {
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const pageSize = Math.min(50, parseInt(limit) || 9);
+      total = await BlogModel.countDocuments(filter);
+      totalPages = Math.ceil(total / pageSize);
+      query = query.skip((pageNum - 1) * pageSize).limit(pageSize);
+    }
+
+    const blogs = await query;
 
     res.json({
       success: true,
       data: blogs,
+      ...(total !== undefined && { total, totalPages }),
     });
 
   } catch (error) {

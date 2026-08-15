@@ -97,6 +97,15 @@ const studentSchema = new mongoose.Schema(
     oauthId: {
       type: String,
     },
+
+    // Was previously written by authMiddleware.js but never declared here —
+    // Mongoose's default strict mode silently drops undeclared fields on
+    // write, so admin/subadmin inactivity auto-logout has never actually
+    // worked. See authMiddleware.js.
+    lastActivity: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

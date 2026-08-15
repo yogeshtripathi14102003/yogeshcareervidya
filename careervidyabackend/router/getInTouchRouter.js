@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createGetInTouch,
   getAllGetInTouch,
@@ -6,14 +8,13 @@ import {
 } from "../controller/getInTouchController.js";
 
 const router = express.Router();
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
-// POST → create new entry
+// Public — contact form submission
 router.post("/", createGetInTouch);
 
-// GET → get all entries
-router.get("/", getAllGetInTouch);
-
-// DELETE → delete one
-router.delete("/:id", deleteGetInTouch);
+// Admin only
+router.get("/", adminOnly, getAllGetInTouch);
+router.delete("/:id", adminOnly, deleteGetInTouch);
 
 export default router;

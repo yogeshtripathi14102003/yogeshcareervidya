@@ -1,17 +1,21 @@
 import express from "express";
 import createUploader from "../multer.js";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createCourse,
   getCourses,
   getCourseBySlug,
   getCourseById,
   updateCourse,
+  updateCourseUniversities,
   deleteCourse,
   getCoursesShort,
   searchCourses,
 } from "../controller/courseController.js";
 
 const router = express.Router();
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
 const upload = createUploader({
   folder: "courses",
@@ -27,19 +31,17 @@ const courseUploads = upload.fields([
   { name: "syllabusPdf", maxCount: 2 },
 ]);
 
-// ✅ Static routes PEHLE — dynamic routes baad mein
-router.get("/short", getCoursesShort);            // ✅ /short pehle
-router.get("/course/search", searchCourses);              // 👈 add this — /search bhi static hai
-
-router.get("/course/slug/:slug", getCourseBySlug);       // ✅ slug pehle
-
-// ✅ CRUD routes
-router.post("/course", courseUploads, createCourse);
+// Public — static routes before dynamic
+router.get("/short", getCoursesShort);
+router.get("/course/search", searchCourses);
+router.get("/course/slug/:slug", getCourseBySlug);
 router.get("/course", getCourses);
-
-// ✅ ID routes sabse baad
 router.get("/course/:id", getCourseById);
-router.put("/course/:id", courseUploads, updateCourse);
-router.delete("/course/:id", deleteCourse);
+
+// Admin only
+router.post("/course", adminOnly, courseUploads, createCourse);
+router.put("/course/:id", adminOnly, courseUploads, updateCourse);
+router.put("/course/:id/universities", adminOnly, updateCourseUniversities);
+router.delete("/course/:id", adminOnly, deleteCourse);
 
 export default router;

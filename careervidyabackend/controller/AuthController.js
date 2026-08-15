@@ -3,6 +3,8 @@
 
 import mongoose from "mongoose";
 import Student from "../models/user/AuthModel.js";
+import Counselor from "../models/counselor/Counselor.js";
+import Admission from "../models/Admin/Admission.js";
 import VerificationModel from "../models/user/verificationModel.js";
 import {
   generateAccessToken,
@@ -12,6 +14,13 @@ import {
 import { generateOTP, hashOTP } from "../utilities/otpUtils.js";
 import { getOTPTemplate, getWelcomeTemplate } from "../utilities/emailTemplates.js";
 import { notificationQueue } from "../utilities/emailQueue.js";
+import { findAssignedLeadByContact } from "../utilities/leadMatching.js";
+import RealtimeNotification from "../models/counselor/RealtimeNotification.js";
+import { getSecurityConfig } from "../utilities/securityConfig.js";
+import { notifyCounselor } from "../utilities/notifyCounselor.js";
+import Lead from "../models/counselor/Lead.js";
+import { autoAssignLead, getAssignmentConfig } from "../utilities/leadAssignmentEngine.js";
+import { ADMITTED_STATUS, LOST_STATUSES } from "../constant/leadStatus.js";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -134,10 +143,38 @@ export const verifyOTP = async (req, res) => {
       if (student)
         return res.status(400).json({ msg: "User already exists." });
 
+      // SECURITY: never spread the raw request body into the document.
+      // Fields like role/permissions/isSystemAdmin must never be settable
+      // by the person registering — only these profile fields are.
+      const {
+        name,
+        state,
+        city,
+        addresses,
+        course,
+        branch,
+        specialization,
+        dob,
+        subsidyCoupon,
+        description,
+        gender,
+      } = userData;
+
       student = await Student.create({
-        ...userData,
+        name,
+        state,
+        city,
+        addresses,
+        course,
+        branch,
+        specialization,
+        dob,
+        subsidyCoupon,
+        description,
+        gender,
         email: emailOrPhone.includes("@") ? emailOrPhone : userData.email,
         mobileNumber: !emailOrPhone.includes("@") ? emailOrPhone : userData.mobileNumber,
+        // role intentionally omitted — schema default ("user") always applies here
       });
 
       // Welcome email — fire and forget via queue
@@ -149,19 +186,41 @@ export const verifyOTP = async (req, res) => {
           html: getWelcomeTemplate(student.name),
         }).catch((err) => console.error("Welcome email queue error:", err));
       }
+
+      // Also create the CRM lead this registration represents — best
+      // effort, must never block/break registration itself.
+      createLeadFromRegistration(student).catch((err) =>
+        console.error("createLeadFromRegistration failed:", err.message)
+      );
     }
 
     if (!student)
       return res.status(404).json({ msg: "Account not found." });
 
-    const accessToken = generateAccessToken(student._id);
-    const refreshToken = generateRefreshToken(student._id);
+    const accessToken = generateAccessToken(student._id, student.role);
+    const refreshToken = generateRefreshToken(student._id, student.role);
 
     res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
     const studentData = student.toObject();
     delete studentData.password;
     delete studentData.__v;
+
+    // Module 6: "Existing Lead Logged In" — if this student's email/phone
+    // matches a Lead already assigned to a counselor, let them know.
+    if (purpose === "login") {
+      findAssignedLeadByContact({ email: student.email, phone: student.mobileNumber })
+        .then((lead) => {
+          if (!lead) return;
+          notifyCounselor(lead.assignedTo, {
+            type: "lead_logged_in",
+            title: "Lead Logged In",
+            message: `${lead.name || student.name}${lead.course ? ` (${lead.course})` : ""} just logged into their account.`,
+            lead: lead._id,
+          });
+        })
+        .catch((err) => console.error("Lead-match on login failed:", err.message));
+    }
 
     return res.status(200).json({
       msg: purpose === "register" ? "Registration successful" : "Login successful",
@@ -172,6 +231,61 @@ export const verifyOTP = async (req, res) => {
   } catch (error) {
     console.error("Verify OTP Error:", error);
     return res.status(500).json({ msg: "Verification failed" });
+  }
+};
+
+const createLeadFromRegistration = async (student) => {
+  // Dedup: don't create a second open lead if this person already has one
+  // (e.g. they'd already submitted a contact-form inquiry before signing up).
+  const existing = await Lead.findOne({
+    $or: [
+      ...(student.email ? [{ email: student.email }] : []),
+      ...(student.mobileNumber ? [{ phone: student.mobileNumber }] : []),
+    ],
+    status: { $nin: [ADMITTED_STATUS, ...LOST_STATUSES] },
+  });
+  if (existing) return;
+
+  let assignedTo = null;
+  let assignedToName = "";
+
+  const config = await getAssignmentConfig();
+  if (config.autoAssignOnCreate) {
+    const assignment = await autoAssignLead({
+      state: student.state,
+      city: student.city,
+      course: student.course,
+      universityName: student.branch,
+      leadScore: 0,
+    });
+    if (assignment) {
+      assignedTo = assignment.counselorId;
+      assignedToName = assignment.counselorName;
+    }
+  }
+
+  const lead = await Lead.create({
+    name: student.name,
+    phone: student.mobileNumber,
+    email: student.email,
+    course: student.course,
+    city: student.city,
+    state: student.state,
+    universityName: student.branch,
+    source: "Website Registration",
+    status: "New",
+    assignedTo,
+    assignedToName,
+    assignedAt: assignedTo ? new Date() : null,
+  });
+
+  if (assignedTo) {
+    notifyCounselor(assignedTo, {
+      type: "lead_assigned",
+      title: "New Lead Assigned",
+      message: `${student.name} just registered on the website and has been assigned to you.`,
+      lead: lead._id,
+    });
   }
 };
 
@@ -188,6 +302,33 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(401).json({ msg: "Invalid refresh token" });
     }
 
+    if (decoded.role === "counselor") {
+      const counselor = await Counselor.findById(decoded.id).select("status lastActivity").lean();
+      if (!counselor) {
+        return res.status(401).json({ msg: "User not found" });
+      }
+      if (counselor.status && counselor.status !== "active") {
+        res.clearCookie("refreshToken", clearCookieOptions);
+        return res.status(403).json({ msg: "Counselor account is not active" });
+      }
+
+      const securityConfig = await getSecurityConfig();
+      const now = Date.now();
+      const lastSeen = counselor.lastActivity ? new Date(counselor.lastActivity).getTime() : 0;
+
+      if (lastSeen && now - lastSeen > securityConfig.inactivityLimitMinutes * 60 * 1000) {
+        await Counselor.updateOne({ _id: counselor._id }, { $set: { lastActivity: null } });
+        res.clearCookie("refreshToken", clearCookieOptions);
+        return res.status(401).json({
+          msg: "Session expired due to inactivity. Please login again.",
+          code: "INACTIVITY_LOGOUT",
+        });
+      }
+
+      const newAccessToken = generateAccessToken(counselor._id, "counselor");
+      return res.status(200).json({ accessToken: newAccessToken });
+    }
+
     const user = await Student.findById(decoded.id).select("role lastActivity").lean();
     if (!user) {
       return res.status(401).json({ msg: "User not found" });
@@ -197,8 +338,9 @@ export const refreshAccessToken = async (req, res) => {
     if (user.role === "admin" || user.role === "subadmin") {
       const now = Date.now();
       const lastSeen = user.lastActivity ? new Date(user.lastActivity).getTime() : 0;
+      const securityConfig = await getSecurityConfig();
 
-      if (lastSeen && now - lastSeen > 15 * 60 * 1000) {
+      if (lastSeen && now - lastSeen > securityConfig.inactivityLimitMinutes * 60 * 1000) {
         await Student.updateOne({ _id: user._id }, { $set: { lastActivity: null } });
         res.clearCookie("refreshToken", clearCookieOptions);
         return res.status(401).json({
@@ -208,7 +350,7 @@ export const refreshAccessToken = async (req, res) => {
       }
     }
 
-    const newAccessToken = generateAccessToken(user._id);
+    const newAccessToken = generateAccessToken(user._id, user.role);
     return res.status(200).json({ accessToken: newAccessToken });
 
   } catch (error) {
@@ -305,6 +447,36 @@ export const getLoggedInStudent = (req, res) => {
   }
 };
 
+/* -------------------- MY APPLIED COURSES --------------------
+ * Previously missing entirely — the frontend's "/user/courses" page called
+ * this exact route and always got a 404, so every student silently saw
+ * "You haven't applied to any course yet." regardless of reality.
+ * A student's course applications live in the Admission collection,
+ * keyed by email — scoped to req.user.email, no client input trusted. */
+export const getAppliedCourses = async (req, res) => {
+  try {
+    if (!req.user?.email) return res.status(401).json({ msg: "Unauthorized" });
+
+    const admissions = await Admission.find({ email: req.user.email })
+      .sort({ createdAt: -1 })
+      .select("course university status createdAt")
+      .lean();
+
+    const courses = admissions.map((a) => ({
+      _id: a._id,
+      courseName: a.course || "—",
+      universityName: a.university || "—",
+      status: a.status || "pending",
+      createdAt: a.createdAt,
+    }));
+
+    return res.status(200).json({ success: true, courses });
+  } catch (error) {
+    console.error("getAppliedCourses error:", error);
+    return res.status(500).json({ msg: "Server error" });
+  }
+};
+
 /* -------------------- ASSIGN ACCESS -------------------- */
 export const assignAccess = async (req, res) => {
   try {
@@ -380,3 +552,40 @@ export const revokeAccess = async (req, res) => {
   }
 };  
  
+/* -------------------- STUDENT NOTIFICATIONS (Q&A answers, etc.) -------------------- */
+export const getMyStudentNotifications = async (req, res) => {
+  try {
+    const { unreadOnly, limit = 30 } = req.query;
+    const filter = { recipient: req.user._id, recipientType: "Student" };
+    if (unreadOnly === "true") filter.read = false;
+
+    const notifications = await RealtimeNotification.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .lean();
+
+    const unreadCount = await RealtimeNotification.countDocuments({
+      recipient: req.user._id,
+      recipientType: "Student",
+      read: false,
+    });
+
+    res.status(200).json({ success: true, data: notifications, unreadCount });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const markStudentNotificationsRead = async (req, res) => {
+  try {
+    const { notificationIds } = req.body;
+    const filter = { recipient: req.user._id, recipientType: "Student" };
+    if (Array.isArray(notificationIds) && notificationIds.length) {
+      filter._id = { $in: notificationIds };
+    }
+    await RealtimeNotification.updateMany(filter, { $set: { read: true } });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};

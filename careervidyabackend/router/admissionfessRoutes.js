@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createAdmissionFees,
   getAllAdmissionFees,
@@ -10,20 +12,17 @@ import {
 
 const router = express.Router();
 
-/* ================= Admission Fees Routes ================= */
+// Financial records — staff only, no public access
+router.use(authMiddleware, requireRole(["admin", "subadmin", "counselor"]));
 
-// ✅ Create Admission Fees
-router.post("/add", createAdmissionFees);              // Manual Add
-router.post("/bulk-upload", bulkAdmissionFeesUpload);  // Bulk Add
+router.post("/add", createAdmissionFees);
+router.post("/bulk-upload", bulkAdmissionFeesUpload);
 
-// ✅ Read Admission Fees
-router.get("/all", getAllAdmissionFees);              // Get All
-router.get("/:id", getAdmissionFeesById);             // Get By ID
+router.get("/all", getAllAdmissionFees);
+router.get("/:id", getAdmissionFeesById);
 
-// ✅ Update Admission Fees
-router.put("/update/:id", updateAdmissionFees);       // Update By ID
+router.put("/update/:id", updateAdmissionFees);
 
-// ✅ Delete Admission Fees
-router.delete("/delete/:id", deleteAdmissionFees);    // Delete By ID
+router.delete("/delete/:id", deleteAdmissionFees);
 
 export default router;

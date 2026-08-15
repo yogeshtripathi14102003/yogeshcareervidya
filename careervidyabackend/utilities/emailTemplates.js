@@ -107,3 +107,51 @@ export const getWelcomeTemplate = (studentName) => {
     </div>
   `;
 };
+/**
+ * Newsletter double opt-in confirmation email
+ */
+export const getNewsletterConfirmTemplate = (confirmUrl) => {
+  const currentYear = new Date().getFullYear();
+  return `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #eeeeee; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <div style="background-color: #1a73e8; height: 6px;"></div>
+      <div style="padding: 30px 24px 10px 24px; text-align: center;">
+        <h2 style="color: #202124; margin: 0; font-size: 22px;">Confirm your subscription</h2>
+        <p style="color: #5f6368; font-size: 15px; margin-top: 10px;">
+          One quick step — confirm you'd like to receive updates from CareerVidya.
+        </p>
+      </div>
+      <div style="padding: 20px 24px 30px; text-align: center;">
+        <a href="${confirmUrl}" style="display: inline-block; background-color: #1a73e8; color: #fff; text-decoration: none; font-weight: 600; padding: 12px 28px; border-radius: 8px; font-size: 15px;">
+          Confirm Subscription
+        </a>
+        <p style="color: #9aa0a6; font-size: 12px; margin-top: 18px;">
+          If you didn't request this, you can safely ignore this email.
+        </p>
+      </div>
+      <div style="padding: 16px; text-align: center; background-color: #f1f3f4; font-size: 12px; color: #70757a;">
+        &copy; ${currentYear} Career Vidya. All rights reserved.
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Newsletter campaign email — wraps the admin's HTML body with an unsubscribe
+ * footer and (invisible) open-tracking pixel.
+ */
+export const getNewsletterCampaignTemplate = (bodyHtml, unsubscribeUrl, trackingPixelUrl) => {
+  const currentYear = new Date().getFullYear();
+  return `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="padding: 20px;">
+        ${bodyHtml}
+      </div>
+      <div style="padding: 16px; text-align: center; background-color: #f1f3f4; font-size: 12px; color: #70757a;">
+        &copy; ${currentYear} Career Vidya. All rights reserved.<br>
+        <a href="${unsubscribeUrl}" style="color: #70757a;">Unsubscribe</a> from these emails.
+      </div>
+      <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;" />
+    </div>
+  `;
+};

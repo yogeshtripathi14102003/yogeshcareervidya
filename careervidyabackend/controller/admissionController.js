@@ -383,6 +383,10 @@ export const verifyAdmission = async (req, res) => {
 
 
 /* ================= GET STATUS BY EMAIL ================= */
+// SECURITY: this used to be fully public — anyone who knew or guessed an
+// applicant's email could see their name, status, course, and internal
+// adminRemark notes. It's now gated by authMiddleware (see admissionRoutes.js)
+// and enforces that a non-staff caller can only ever look up their own email.
 export const getStatusByEmail = async (req, res) => {
   try {
     const { email } = req.query;
@@ -394,8 +398,17 @@ export const getStatusByEmail = async (req, res) => {
       });
     }
 
-    // Email ko trim aur lowercase karein taaki matching sahi ho
     const searchEmail = email.trim().toLowerCase();
+
+    const isStaff = ["admin", "subadmin", "counselor"].includes(req.user?.role);
+    const isOwnEmail = req.user?.email && req.user.email.toLowerCase() === searchEmail;
+
+    if (!isStaff && !isOwnEmail) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only check the status of your own application.",
+      });
+    }
 
     const admission = await Admission.findOne({ email: searchEmail });
 

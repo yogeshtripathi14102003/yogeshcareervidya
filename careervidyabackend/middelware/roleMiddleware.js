@@ -7,6 +7,8 @@ export const requireRole = (roles) => (req, res, next) => {
 
 export const requirePermissions = (...requiredPermissions) => {
   return (req, res, next) => {
+    if (req.user?.role === "admin") return next(); // super admin bypasses granular checks
+
     const userPermissions = req.user?.permissions || [];
 
     const hasAll = requiredPermissions.every((perm) =>
@@ -23,6 +25,8 @@ export const requirePermissions = (...requiredPermissions) => {
 
 export const requireAnyPermission = (...permissions) => {
   return (req, res, next) => {
+    if (req.user?.role === "admin") return next(); // super admin bypasses granular checks
+
     const userPermissions = req.user?.permissions || [];
     const hasAny = permissions.some((perm) => userPermissions.includes(perm));
     if (!hasAny)

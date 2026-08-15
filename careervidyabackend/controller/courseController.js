@@ -3,6 +3,48 @@ import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
 
 // ======================================================
+// Update the list of universities attached to a course
+// (previously missing entirely — the admin "attach universities" tool
+// called PUT /course/:id/universities, which had no route at all)
+// ======================================================
+export const updateCourseUniversities = async (req, res) => {
+  try {
+    const { universities } = req.body;
+
+    if (!Array.isArray(universities)) {
+      return res.status(400).json({
+        success: false,
+        message: "universities must be an array",
+      });
+    }
+
+    const course = await Course.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          universities: universities.map((u) => ({
+            universityId: u.universityId,
+            name: u.name,
+            universitySlug: u.universitySlug,
+            approvals: u.approvals || [],
+          })),
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+
+    return res.status(200).json({ success: true, data: course });
+  } catch (error) {
+    console.error("updateCourseUniversities error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ======================================================
 // Helpers
 // ======================================================
 const parseArrayField = (data) => {

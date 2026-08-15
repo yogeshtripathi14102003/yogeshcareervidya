@@ -4,65 +4,12 @@
   import Counselor from "../models/counselor/Counselor.js";
   import XLSX from "xlsx";
   import mongoose from "mongoose";
-
-  /* =====================================================
-    COUNSELOR CRUD
-  ===================================================== */
-
-  export const getCounselors = async (req, res) => {
-    try {
-      const counselors = await Counselor.find().sort({ createdAt: -1 });
-      res.json({
-        success: true,
-        data: counselors,
-      });
-    } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  };
-
-  export const getCounselor = async (req, res) => {
-    try {
-      const counselor = await Counselor.findById(req.params.id);
-      if (!counselor) {
-        return res.status(404).json({ success: false, message: "Counselor not found" });
-      }
-      res.json({ success: true, data: counselor });
-    } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  };
-
-  export const createCounselor = async (req, res) => {
-    try {
-      const counselor = await Counselor.create(req.body);
-      res.json({ success: true, data: counselor });
-    } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  };
-
-  export const updateCounselor = async (req, res) => {
-    try {
-      const updated = await Counselor.findByIdAndUpdate(
-        req.params.id,
-        { $set: req.body },
-        { new: true, runValidators: true }
-      );
-      res.json({ success: true, data: updated });
-    } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  };
-
-  export const deleteCounselor = async (req, res) => {
-    try {
-      await Counselor.findByIdAndDelete(req.params.id);
-      res.json({ success: true, message: "Counselor deleted" });
-    } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  };
+  import { getViewableCounselorIds } from "../utilities/teamScope.js";
+  import { ADMITTED_STATUS, LOST_STATUSES } from "../constant/leadStatus.js";
+  import { autoAssignLead, getAssignmentConfig } from "../utilities/leadAssignmentEngine.js";
+  import { notifyCounselor } from "../utilities/notifyCounselor.js";
+  import { recalculateLeadScore, recalculateAllOpenLeadScores } from "../utilities/leadScoringEngine.js";
+  import { getTierFromScore, TIER_LABELS } from "../constant/leadScoring.js";
 
   /* =====================================================
     LEADS
@@ -85,8 +32,18 @@
       let query = {};
 
       if (status) query.status = status;
-      if (counselorId) query.assignedTo = counselorId;
-      if (unassignedOnly === "true") query.assignedTo = { $exists: false };
+
+      // SECURITY: a counselor (or Team Lead) can only ever see their own
+      // scope. This used to trust a client-supplied counselorId (or, if
+      // omitted, return every lead in the system) with no check at all.
+      const viewableIds = await getViewableCounselorIds(req.user);
+      if (viewableIds === null) {
+        // admin/subadmin — unrestricted, but honor an explicit filter if given
+        if (counselorId) query.assignedTo = counselorId;
+        if (unassignedOnly === "true") query.assignedTo = { $exists: false };
+      } else {
+        query.assignedTo = { $in: viewableIds.map((id) => new mongoose.Types.ObjectId(id)) };
+      }
 
       if (searchTerm) {
         query.$or = [
@@ -114,10 +71,7 @@
 
       let leadsQuery = Lead.find(query)
         .populate("assignedTo", "name email")
-        .sort({ updatedAt: -1 }) // ✅ updatedAt se sort — latest updated pehle
-        .select(
-          "name phone email course city status assignedTo assignedToName createdAt updatedAt referralName studentName branch universityName remark"
-        );
+        .sort({ updatedAt: -1 }); // ✅ updatedAt se sort — latest updated pehle
 
       if (limit !== "all") {
         const pageSize = parseInt(limit) || 40;
@@ -160,64 +114,58 @@
           .json({ success: false, message: "User not authenticated" });
       }
 
-      const counselorId = req.user._id;
-      const { page = 1, limit, searchTerm, status } = req.query;
+      const lead = await Lead.findById(req.params.id).lean();
 
-      let query = { assignedTo: counselorId };
-
-      if (status) query.status = status;
-
-      if (searchTerm) {
-        query.$or = [
-          { name: { $regex: searchTerm, $options: "i" } },
-          { phone: { $regex: searchTerm, $options: "i" } },
-        ];
+      if (!lead) {
+        return res.status(404).json({ success: false, message: "Lead not found" });
       }
 
-      let leadsQuery = Lead.find(query).sort({ createdAt: -1 }).lean();
-
-      let pageSize = 0;
-      if (limit === "all") {
-        pageSize = 0;
-      } else {
-        pageSize = parseInt(limit) || 30;
-        const skip = (parseInt(page) - 1) * pageSize;
-        leadsQuery = leadsQuery.skip(skip).limit(pageSize);
+      const viewableIds = await getViewableCounselorIds(req.user);
+      if (viewableIds !== null && !viewableIds.includes(String(lead.assignedTo))) {
+        return res.status(403).json({ success: false, message: "Access denied" });
       }
 
-      const [leads, total] = await Promise.all([
-        leadsQuery,
-        Lead.countDocuments(query),
-      ]);
-
-      const finalPageSize = limit === "all" ? total : pageSize;
-      const totalPages =
-        finalPageSize > 0 ? Math.ceil(total / finalPageSize) : 1;
-
-      res.json({
-        success: true,
-        total,
-        data: leads,
-        totalPages: totalPages || 1,
-        currentPage: parseInt(page),
-        count: leads.length,
-      });
+      return res.json({ success: true, data: lead });
     } catch (err) {
-      console.error("Error in getLead (MyLeads):", err);
-      res
-        .status(500)
-        .json({ success: false, message: "Server Error: " + err.message });
+      console.error("Error in getLead:", err);
+      res.status(500).json({ success: false, message: "Server Error: " + err.message });
     }
   };
 
+  const VALID_SOURCES = ["Website Inquiry", "Website Registration", "Manual Upload", "Imported Lead", "Referral", "Campaign", "Other"];
+
   export const createLead = async (req, res) => {
     try {
+      const source = VALID_SOURCES.includes(req.body.source) ? req.body.source : "Manual Upload";
+      let assignedTo = req.body.assignedTo || null;
+      let assignedToName = req.body.assignedToName || "";
+
+      // Module 5: Smart Lead Assignment — if the caller didn't explicitly
+      // pick a counselor, let the configured strategy choose one.
+      if (!assignedTo) {
+        const config = await getAssignmentConfig();
+        if (config.autoAssignOnCreate) {
+          const assignment = await autoAssignLead({
+            state: req.body.state,
+            city: req.body.city,
+            course: req.body.course,
+            universityName: req.body.universityName,
+            leadScore: 0,
+          });
+          if (assignment) {
+            assignedTo = assignment.counselorId;
+            assignedToName = assignment.counselorName;
+          }
+        }
+      }
+
       const lead = await Lead.create({
         name: req.body.name,
         phone: req.body.phone,
         email: req.body.email,
         course: req.body.course,
         city: req.body.city,
+        state: req.body.state,
 
         referralName: req.body.referralName,
         studentName: req.body.studentName,
@@ -234,9 +182,20 @@
 
         followUpHistory: req.body.followUpHistory || [],
 
-        assignedTo: req.body.assignedTo || null,
-        assignedToName: req.body.assignedToName || "",
+        source,
+        assignedTo,
+        assignedToName,
+        assignedAt: assignedTo ? new Date() : null, // Module 4: Assigned Time
       });
+
+      if (assignedTo) {
+        notifyCounselor(assignedTo, {
+          type: "lead_assigned",
+          title: "New Lead Assigned",
+          message: `${lead.name || "A new lead"}${lead.course ? ` (${lead.course})` : ""} has been assigned to you.`,
+          lead: lead._id,
+        });
+      }
 
       res.json({ success: true, data: lead });
     } catch (err) {
@@ -246,11 +205,76 @@
 
   export const updateLead = async (req, res) => {
     try {
+      const existing = await Lead.findById(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ success: false, message: "Lead not found" });
+      }
+
+      // Never let the generic update path be used to directly overwrite
+      // server-computed analytics fields from the client.
+      const updates = { ...req.body };
+      delete updates.leadScore;
+      delete updates.firstResponseAt;
+      delete updates.assignedAt;
+      delete updates.resolvedAt;
+      delete updates.firedAutomationSteps;
+
+      const now = new Date();
+      const isCounselorAction = "status" in updates || "remark" in updates || "action" in updates;
+
+      // Module 4: First Response Time — the first time a counselor actually
+      // touches this lead (status/remark/action change) after it was created.
+      if (isCounselorAction && !existing.firstResponseAt) {
+        updates.firstResponseAt = now;
+      }
+
+      // Module 4: Last Follow-up — bump whenever a follow-up-shaped update lands.
+      if (isCounselorAction) {
+        updates.lastFollowUpAt = now;
+        updates.firedAutomationSteps = []; // Module 8: staleness clock restarts
+      }
+
+      // Module 4: Lost Reason — captured automatically when status moves
+      // into one of the "lost" buckets; cleared if the lead is re-engaged.
+      if ("status" in updates) {
+        if (LOST_STATUSES.includes(updates.status) && existing.status !== updates.status) {
+          updates.lostReason = updates.remark?.trim() ? updates.remark : updates.status;
+        } else if (!LOST_STATUSES.includes(updates.status)) {
+          updates.lostReason = null;
+        }
+
+        // Module 9: Resolution Time — stamp the moment a lead first lands
+        // on a terminal status (won/lost); clear it if reopened.
+        const isTerminal = updates.status === ADMITTED_STATUS || LOST_STATUSES.includes(updates.status);
+        if (isTerminal && existing.status !== updates.status && !existing.resolvedAt) {
+          updates.resolvedAt = now;
+        } else if (!isTerminal) {
+          updates.resolvedAt = null;
+        }
+      }
+
+      // If this update is (re)assigning the lead, stamp the assignment time.
+      let reassignedTo = null;
+      if ("assignedTo" in updates && String(updates.assignedTo || "") !== String(existing.assignedTo || "")) {
+        updates.assignedAt = now;
+        reassignedTo = updates.assignedTo;
+      }
+
       const updated = await Lead.findByIdAndUpdate(
         req.params.id,
-        { $set: req.body },
+        { $set: updates },
         { new: true, runValidators: true }
       );
+
+      if (reassignedTo) {
+        notifyCounselor(reassignedTo, {
+          type: "lead_assigned",
+          title: "New Lead Assigned",
+          message: `${updated.name || "A lead"}${updated.course ? ` (${updated.course})` : ""} has been assigned to you.`,
+          lead: updated._id,
+        });
+      }
+
       res.json({ success: true, data: updated });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -330,15 +354,19 @@
         return "";
       };
 
+      const batchSource = VALID_SOURCES.includes(req.body?.source) ? req.body.source : null;
+
       const leads = sheet
         .map((rawRow) => {
           const l = normalizeRow(rawRow);
+          const rowSource = get(l, "source", "leadsource", "lead source");
           return {
             name: get(l, "name", "fullname", "full name", "studentname", "student name"),
             phone: get(l, "phone", "phoneno", "phone no", "mobile", "mobileno", "mobile no", "contact", "contactno"),
             email: get(l, "email", "emailid", "email id", "email address"),
             course: get(l, "course", "program", "programme", "stream"),
             city: get(l, "city", "location", "address", "district"),
+            state: get(l, "state", "region"),
             referralName: get(l, "referralname", "referral name", "referral", "referredby", "referred by"),
             studentName: get(l, "studentname", "student name", "student"),
             referralMobile: get(l, "referralmobile", "referral mobile", "referralphone", "referral phone"),
@@ -347,6 +375,7 @@
             remark: get(l, "remark", "remarks", "note", "notes", "comment", "comments"),
             action: get(l, "action", "actions", "nextstep", "next step"),
             status: "New",
+            source: VALID_SOURCES.includes(rowSource) ? rowSource : batchSource || "Imported Lead",
           };
         })
         .filter((l) => l.phone && l.phone.length >= 6);
@@ -356,6 +385,47 @@
           success: false,
           message:
             "No valid leads found. Check that your Excel has a 'phone' column with data.",
+        });
+      }
+
+      // Manual/bulk uploads must NEVER be swept into automatic assignment
+      // just because the global autoAssignOnCreate setting is on for real
+      // website leads — that setting governs Website Inquiry/Registration
+      // leads only. A bulk upload only gets auto-assigned if the admin
+      // explicitly opts in for *this* upload.
+      const explicitAutoAssign = req.body?.autoAssign === "true" || req.body?.autoAssign === true;
+
+      if (explicitAutoAssign) {
+        // Sequential on purpose — each pick needs to see the effect of the
+        // previous one for round-robin/workload distribution to work
+        // correctly across the batch, not just per-lead.
+        const assignedCountByCounselor = {};
+        for (const lead of leads) {
+          const assignment = await autoAssignLead(lead);
+          if (assignment) {
+            lead.assignedTo = assignment.counselorId;
+            lead.assignedToName = assignment.counselorName;
+            lead.assignedAt = new Date();
+            assignedCountByCounselor[assignment.counselorId] =
+              (assignedCountByCounselor[assignment.counselorId] || 0) + 1;
+          }
+        }
+
+        const inserted = await Lead.insertMany(leads, { ordered: false });
+
+        Object.entries(assignedCountByCounselor).forEach(([counselorId, count]) => {
+          notifyCounselor(counselorId, {
+            type: "lead_assigned",
+            title: "New Leads Assigned",
+            message: `${count} new lead${count > 1 ? "s" : ""} from a bulk upload ${count > 1 ? "have" : "has"} been assigned to you.`,
+            meta: { count },
+          });
+        });
+
+        return res.json({
+          success: true,
+          total: inserted.length,
+          skipped: leads.length - inserted.length,
         });
       }
 
@@ -409,9 +479,19 @@
             $set: {
               assignedTo: counselor._id,
               assignedToName: counselor.name,
+              assignedAt: new Date(), // Module 4: Assigned Time
             },
           }
         );
+
+        if (selected.length > 0) {
+          notifyCounselor(counselor._id, {
+            type: "lead_assigned",
+            title: "New Leads Assigned",
+            message: `${selected.length} new lead${selected.length > 1 ? "s" : ""} ${selected.length > 1 ? "have" : "has"} been assigned to you.`,
+            meta: { count: selected.length },
+          });
+        }
       }
 
       const today = new Date();
@@ -525,7 +605,6 @@
 export const getLeadsByCounselorId = async (req, res) => {
   try {
     const {
-      id,
       page = 1,
       limit = 30,
       searchTerm,
@@ -533,6 +612,24 @@ export const getLeadsByCounselorId = async (req, res) => {
       fromDate,
       toDate,
     } = req.query;
+
+    const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+    // SECURITY: a counselor can only ever request their own leads (or, if
+    // they're a Team Lead, a team member's leads). This used to trust a
+    // client-supplied `id` query param with no check at all, so any
+    // counselor could pass another counselor's id and see their entire
+    // lead list.
+    let id;
+    if (isStaffAdmin) {
+      id = req.query.id;
+    } else {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      const requestedId = req.query.id ? String(req.query.id) : String(req.user._id);
+      if (!viewableIds.includes(requestedId)) {
+        return res.status(403).json({ success: false, message: "Access denied" });
+      }
+      id = requestedId;
+    }
 
     if (!id)
       return res
@@ -808,9 +905,19 @@ export const transferLeads = async (req, res) => {
         $set: {
           assignedTo: toCounselor._id,
           assignedToName: toCounselor.name,
+          assignedAt: new Date(), // Module 4: Assigned Time
         },
       }
     );
+
+    if (leadIds.length > 0) {
+      notifyCounselor(toCounselor._id, {
+        type: "lead_assigned",
+        title: "Leads Transferred To You",
+        message: `${leadIds.length} lead${leadIds.length > 1 ? "s" : ""} ${leadIds.length > 1 ? "have" : "has"} been transferred to you.`,
+        meta: { count: leadIds.length },
+      });
+    }
 
     // ── Status-wise breakdown (kitni-kitni leads kis status ki gayi) ──
     const statusBreakdown = matchedLeads.reduce((acc, lead) => {
@@ -840,5 +947,281 @@ export const transferLeads = async (req, res) => {
       success: false,
       message: "Error transferring leads: " + err.message,
     });
+  }
+};
+/* =====================================================
+   MODULE 4 — LEAD ANALYTICS
+===================================================== */
+export const getLeadAnalytics = async (req, res) => {
+  try {
+    const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+    let scopeFilter = {};
+
+    if (!isStaffAdmin) {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      scopeFilter = { assignedTo: { $in: viewableIds } };
+    }
+
+    const { fromDate, toDate } = req.query;
+    if (fromDate || toDate) {
+      scopeFilter.createdAt = {};
+      if (fromDate) scopeFilter.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+      if (toDate) scopeFilter.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+    }
+
+    const leads = await Lead.find(scopeFilter)
+      .select("source status createdAt assignedAt firstResponseAt lastFollowUpAt lostReason leadScore")
+      .lean();
+
+    const totalLeads = leads.length;
+    const admittedCount = leads.filter((l) => l.status === ADMITTED_STATUS).length;
+    const overallConversionRate = totalLeads > 0 ? +((admittedCount / totalLeads) * 100).toFixed(2) : 0;
+
+    // ---- By source ----
+    const bySourceMap = {};
+    leads.forEach((l) => {
+      const src = l.source || "Website";
+      if (!bySourceMap[src]) bySourceMap[src] = { source: src, total: 0, admitted: 0 };
+      bySourceMap[src].total += 1;
+      if (l.status === ADMITTED_STATUS) bySourceMap[src].admitted += 1;
+    });
+    const bySource = Object.values(bySourceMap).map((s) => ({
+      ...s,
+      conversionRate: s.total > 0 ? +((s.admitted / s.total) * 100).toFixed(2) : 0,
+    }));
+
+    // ---- Status funnel ----
+    const statusFunnelMap = {};
+    leads.forEach((l) => {
+      const st = l.status || "New";
+      statusFunnelMap[st] = (statusFunnelMap[st] || 0) + 1;
+    });
+    const statusFunnel = Object.entries(statusFunnelMap).map(([status, count]) => ({ status, count }));
+
+    // ---- Lost reasons ----
+    const lostReasonsMap = {};
+    leads
+      .filter((l) => LOST_STATUSES.includes(l.status))
+      .forEach((l) => {
+        const reason = l.lostReason || l.status;
+        lostReasonsMap[reason] = (lostReasonsMap[reason] || 0) + 1;
+      });
+    const lostReasons = Object.entries(lostReasonsMap).map(([reason, count]) => ({ reason, count }));
+
+    // ---- Average first-response time (minutes) ----
+    const responded = leads.filter((l) => l.firstResponseAt);
+    const avgFirstResponseMinutes =
+      responded.length > 0
+        ? Math.round(
+            responded.reduce(
+              (sum, l) => sum + (new Date(l.firstResponseAt) - new Date(l.createdAt)) / 60000,
+              0
+            ) / responded.length
+          )
+        : null;
+
+    // ---- Average lead age (days) for still-open leads ----
+    const openLeads = leads.filter((l) => l.status !== ADMITTED_STATUS && !LOST_STATUSES.includes(l.status));
+    const now = Date.now();
+    const avgLeadAgeDays =
+      openLeads.length > 0
+        ? +(
+            openLeads.reduce((sum, l) => sum + (now - new Date(l.createdAt).getTime()) / 86400000, 0) /
+            openLeads.length
+          ).toFixed(1)
+        : null;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalLeads,
+        admittedCount,
+        overallConversionRate,
+        avgFirstResponseMinutes,
+        avgLeadAgeDays,
+        bySource,
+        statusFunnel,
+        lostReasons,
+      },
+    });
+  } catch (err) {
+    console.error("getLeadAnalytics error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/* =====================================================
+   MODULE 5 — SMART LEAD ASSIGNMENT
+===================================================== */
+
+/* Re-run assignment for a single lead (e.g. its counselor went inactive,
+ * or it was never assigned). Admin/subadmin only. */
+const notifyBulkAssignments = (countByCounselor, title) => {
+  Object.entries(countByCounselor).forEach(([counselorId, count]) => {
+    notifyCounselor(counselorId, {
+      type: "lead_assigned",
+      title,
+      message: `${count} lead${count > 1 ? "s" : ""} ${count > 1 ? "have" : "has"} been assigned to you.`,
+      meta: { count },
+    });
+  });
+};
+
+export const autoAssignSingleLead = async (req, res) => {
+  try {
+    const lead = await Lead.findById(req.params.id);
+    if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+
+    const assignment = await autoAssignLead(lead.toObject());
+    if (!assignment) {
+      return res.status(200).json({
+        success: false,
+        message: "No eligible active counselor found for this lead right now.",
+      });
+    }
+
+    lead.assignedTo = assignment.counselorId;
+    lead.assignedToName = assignment.counselorName;
+    lead.assignedAt = new Date();
+    await lead.save();
+
+    notifyCounselor(assignment.counselorId, {
+      type: "lead_assigned",
+      title: "New Lead Assigned",
+      message: `${lead.name || "A lead"}${lead.course ? ` (${lead.course})` : ""} has been assigned to you.`,
+      lead: lead._id,
+    });
+
+    res.status(200).json({ success: true, data: lead });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/* Bulk: assign every currently-unassigned lead using the active strategy. */
+export const bulkAutoAssignUnassigned = async (req, res) => {
+  try {
+    const unassigned = await Lead.find({ assignedTo: null }).limit(1000);
+
+    let assignedCount = 0;
+    const countByCounselor = {};
+    for (const lead of unassigned) {
+      const assignment = await autoAssignLead(lead.toObject());
+      if (!assignment) continue;
+      lead.assignedTo = assignment.counselorId;
+      lead.assignedToName = assignment.counselorName;
+      lead.assignedAt = new Date();
+      await lead.save();
+      assignedCount += 1;
+      countByCounselor[assignment.counselorId] = (countByCounselor[assignment.counselorId] || 0) + 1;
+    }
+
+    notifyBulkAssignments(countByCounselor, "New Leads Assigned");
+
+    res.status(200).json({
+      success: true,
+      message: `${assignedCount} of ${unassigned.length} unassigned leads were assigned.`,
+      totalUnassigned: unassigned.length,
+      assignedCount,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/* "If counselor is inactive then assign another counselor" — finds every
+ * still-open lead currently sitting with an inactive counselor and
+ * reassigns it. This is an explicit admin action, not something that fires
+ * silently as a side effect of changing a counselor's status. */
+export const reassignLeadsFromInactiveCounselors = async (req, res) => {
+  try {
+    const inactiveCounselors = await Counselor.find({ status: { $ne: "active" } }).select("_id");
+    const inactiveIds = inactiveCounselors.map((c) => c._id);
+
+    if (!inactiveIds.length) {
+      return res.status(200).json({ success: true, message: "No inactive counselors found.", reassignedCount: 0 });
+    }
+
+    const stuckLeads = await Lead.find({
+      assignedTo: { $in: inactiveIds },
+      status: { $nin: [ADMITTED_STATUS, ...LOST_STATUSES] },
+    }).limit(1000);
+
+    let reassignedCount = 0;
+    const countByCounselor = {};
+    for (const lead of stuckLeads) {
+      const assignment = await autoAssignLead(lead.toObject());
+      if (!assignment) continue;
+      lead.assignedTo = assignment.counselorId;
+      lead.assignedToName = assignment.counselorName;
+      lead.assignedAt = new Date();
+      await lead.save();
+      reassignedCount += 1;
+      countByCounselor[assignment.counselorId] = (countByCounselor[assignment.counselorId] || 0) + 1;
+    }
+
+    notifyBulkAssignments(countByCounselor, "Leads Reassigned To You");
+
+    res.status(200).json({
+      success: true,
+      message: `${reassignedCount} of ${stuckLeads.length} leads stuck with inactive counselors were reassigned.`,
+      totalStuck: stuckLeads.length,
+      reassignedCount,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/* =====================================================
+   MODULE 11 — AI LEAD SCORING
+===================================================== */
+
+/* On-demand recalculation for one lead — also returns which signals
+ * contributed, useful for an admin/counselor "why this score" view. */
+export const getLeadScoreDetail = async (req, res) => {
+  try {
+    const lead = await Lead.findById(req.params.id);
+    if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+
+    const result = await recalculateLeadScore(lead);
+    res.status(200).json({ success: true, ...result, tierLabel: TIER_LABELS[result.tier] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/* Admin: trigger the full sweep manually, same idea as Module 8's "run now". */
+export const rescoreAllLeads = async (req, res) => {
+  try {
+    const result = await recalculateAllOpenLeadScores();
+    res.status(200).json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/* Tier breakdown across all open leads — Cold/Warm/Hot/Priority counts,
+ * scoped the same way as Module 4's analytics (counselor/TL/admin). */
+export const getScoreBreakdown = async (req, res) => {
+  try {
+    const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+    let filter = { status: { $nin: [ADMITTED_STATUS, ...LOST_STATUSES] } };
+
+    if (!isStaffAdmin) {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      filter.assignedTo = { $in: viewableIds };
+    }
+
+    const leads = await Lead.find(filter).select("leadScore").lean();
+
+    const breakdown = { cold: 0, warm: 0, hot: 0, priority: 0 };
+    leads.forEach((l) => {
+      breakdown[getTierFromScore(l.leadScore || 0)] += 1;
+    });
+
+    res.status(200).json({ success: true, data: breakdown, total: leads.length });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

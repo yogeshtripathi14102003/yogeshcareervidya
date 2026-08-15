@@ -82,8 +82,6 @@
 
 // export default jobModel;
 
-
-
 import mongoose from "mongoose";
 
 const jobSchema = new mongoose.Schema(
@@ -140,10 +138,6 @@ const jobSchema = new mongoose.Schema(
           "Digital Marketing",
           "Software Testing",
           "IT Support",
-          "UI/UX Design",
-          "Graphics Design",
-          "seo executive",
-          "Team Lead",
         ],
         message: "{VALUE} is not a valid department",
       },

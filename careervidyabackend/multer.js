@@ -8,7 +8,7 @@ import cloudinary from "./config/cloudinary.js";
 const createUploader = ({
   folder = "applications",
   maxFileSizeMB = 20,
-  maxFiles =15,
+  maxFiles = 5,
 } = {}) => {
 
   const allowedExtensions = {

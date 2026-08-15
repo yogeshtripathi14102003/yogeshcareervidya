@@ -3,6 +3,7 @@
 import fs from "fs";
 import LeadAdmission from "../models/counselor/LeadAdmission.js";
 import Notification from "../models/counselor/DocumenetNotification.js";
+import { getViewableCounselorIds } from "../utilities/teamScope.js";
 
 // ================= CREATE ADMISSION =================
 export const createLeadAdmission = async (req, res) => {
@@ -42,17 +43,22 @@ export const createLeadAdmission = async (req, res) => {
 };
 
 // ================= GET ALL ADMISSIONS =================
-// ================= GET ALL ADMISSIONS =================
 export const getAllLeadAdmissions = async (req, res) => {
   try {
     const { limit, counselorName } = req.query;
+    const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
 
-    const filter = {};
-
-    // Admin = sab milega (filter empty)
-    // Counselor = sirf apne students (counselorName query param se)
-    if (counselorName) {
-      filter.counselorName = counselorName;
+    // SECURITY: a counselor can only ever see their own students, regardless
+    // of what they pass in the query string. This used to trust a raw
+    // client-supplied `counselorName` param for everyone — a counselor could
+    // simply omit it (or pass someone else's name) to see every applicant's
+    // record, including uploaded Aadhaar/PAN documents.
+    let filter = {};
+    if (isStaffAdmin) {
+      if (counselorName) filter.counselorName = counselorName; // admin-only convenience filter
+    } else {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      filter = { counselor: { $in: viewableIds } };
     }
 
     const admissions = await LeadAdmission.find(filter)
@@ -86,6 +92,14 @@ export const getLeadAdmissionById = async (req, res) => {
       });
     }
 
+    if (req.user?.role === "counselor") {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      const ownerId = String(admission.counselor?._id || admission.counselor);
+      if (!viewableIds.includes(ownerId)) {
+        return res.status(403).json({ success: false, message: "Access denied" });
+      }
+    }
+
     return res.status(200).json({ success: true, data: admission });
   } catch (error) {
     return res.status(500).json({
@@ -98,18 +112,31 @@ export const getLeadAdmissionById = async (req, res) => {
 // ================= UPDATE ADMISSION =================
 export const updateLeadAdmission = async (req, res) => {
   try {
+    const existing = await LeadAdmission.findById(req.params.id).select("counselor");
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "❌ Admission not found" });
+    }
+
+    if (
+      req.user?.role === "counselor" &&
+      String(existing.counselor) !== String(req.user._id)
+    ) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const updates = { ...req.body };
+    if (req.user?.role === "counselor") {
+      // A counselor can update their own applicant's record, but never
+      // reassign it to a different counselor.
+      delete updates.counselor;
+      delete updates.counselorName;
+    }
+
     const admission = await LeadAdmission.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updates,
       { new: true, runValidators: true }
     );
-
-    if (!admission) {
-      return res.status(404).json({
-        success: false,
-        message: "❌ Admission not found",
-      });
-    }
 
     return res.status(200).json({
       success: true,
@@ -134,6 +161,13 @@ export const deleteLeadAdmission = async (req, res) => {
         success: false,
         message: "❌ Admission not found",
       });
+    }
+
+    if (
+      req.user?.role === "counselor" &&
+      String(admission.counselor) !== String(req.user._id)
+    ) {
+      return res.status(403).json({ success: false, message: "Access denied" });
     }
 
     // ✅ Bilkul synchronous loop filesystem aur DB cleanup ke liye
@@ -176,6 +210,18 @@ export const uploadDocuments = async (req, res) => {
         success: false,
         message: "❌ Admission not found",
       });
+    }
+
+    if (
+      req.user?.role === "counselor" &&
+      String(admission.counselor) !== String(req.user._id)
+    ) {
+      if (req.files) {
+        for (const file of req.files) {
+          if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        }
+      }
+      return res.status(403).json({ success: false, message: "Access denied" });
     }
 
     if (!req.files || req.files.length === 0) {
@@ -228,7 +274,7 @@ export const uploadDocuments = async (req, res) => {
 export const getDocuments = async (req, res) => {
   try {
     const admission = await LeadAdmission.findById(req.params.id).select(
-      "studentName counselorName documents"
+      "studentName counselorName counselor documents"
     );
 
     if (!admission) {
@@ -236,6 +282,13 @@ export const getDocuments = async (req, res) => {
         success: false,
         message: "❌ Admission not found",
       });
+    }
+
+    if (req.user?.role === "counselor") {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      if (!viewableIds.includes(String(admission.counselor))) {
+        return res.status(403).json({ success: false, message: "Access denied" });
+      }
     }
 
     return res.status(200).json({
@@ -268,6 +321,13 @@ export const deleteDocument = async (req, res) => {
         success: false,
         message: "❌ Admission not found",
       });
+    }
+
+    if (
+      req.user?.role === "counselor" &&
+      String(admission.counselor) !== String(req.user._id)
+    ) {
+      return res.status(403).json({ success: false, message: "Access denied" });
     }
 
     const doc = admission.documents.id(req.params.docId);

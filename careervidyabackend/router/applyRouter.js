@@ -1,56 +1,6 @@
-// import express from "express";
-// // import verifyUser from "../middelware/authMiddleware.js";
-// import uploadPdf from "../middelware/uploadPdf.js";
-
-// import {
-//   addApplication,
-//   deleteApplication,
-//   getAllApplications,
-//   getApplicationById,
-//   updateApplication,
-//   updateApplicationStatus,
-// } from "../controller/JobController.js";
-
-
-// const applyRouter = express.Router();
-
-// /* ----------------------- ADD APPLICATION ----------------------- */
-// // Upload fields → resume + additionalDocument
-// applyRouter.post(
-//   "/",
-//   uploadPdf.fields([
-//     { name: "resume", maxCount: 1 },
-//     { name: "additionalDocument", maxCount: 1 },
-//   ]),
-//   addApplication
-// );
-
-// /* ----------------------- GET ALL APPLICATIONS ----------------------- */
-// applyRouter.get("/", getAllApplications);
-
-// /* ----------------------- GET SINGLE APPLICATION BY ID ----------------------- */
-// applyRouter.get("/:id",getApplicationById);
-
-// /* ----------------------- UPDATE APPLICATION ----------------------- */
-// applyRouter.put(
-//   "/:id",
- 
-//   uploadPdf.fields([
-//     { name: "resume", maxCount: 1 },
-//     { name: "additionalDocument", maxCount: 1 },
-//   ]),
-//   updateApplication
-// );
-
-// /* ----------------------- DELETE APPLICATION ----------------------- */
-// applyRouter.delete("/:id",deleteApplication);
-
-// /* ----------------------- UPDATE STATUS ----------------------- */
-// applyRouter.patch("/:id/status", updateApplicationStatus);
-
-// export default applyRouter;
-
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   addApplication,
   deleteApplication,
@@ -60,10 +10,12 @@ import {
   updateApplicationStatus,
 } from "../controller/JobController.js";
 
-import  uploadPdf from "../middelware/uploadPdf.js";
+import uploadPdf from "../middelware/uploadPdf.js";
 
 const applyRouter = express.Router();
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
+// Public — anyone can submit a job application
 applyRouter.post(
   "/",
   uploadPdf.fields([
@@ -73,11 +25,13 @@ applyRouter.post(
   addApplication
 );
 
-applyRouter.get("/", getAllApplications);
-applyRouter.get("/:id", getApplicationById);
+// Admin only — applications contain resumes and personal data
+applyRouter.get("/", adminOnly, getAllApplications);
+applyRouter.get("/:id", adminOnly, getApplicationById);
 
 applyRouter.put(
   "/:id",
+  adminOnly,
   uploadPdf.fields([
     { name: "resume", maxCount: 1 },
     { name: "additionalDocument", maxCount: 1 },
@@ -85,7 +39,7 @@ applyRouter.put(
   updateApplication
 );
 
-applyRouter.patch("/:id/status", updateApplicationStatus);
-applyRouter.delete("/:id", deleteApplication);
+applyRouter.patch("/:id/status", adminOnly, updateApplicationStatus);
+applyRouter.delete("/:id", adminOnly, deleteApplication);
 
 export default applyRouter;

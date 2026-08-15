@@ -1,7 +1,6 @@
-
-
-// router/companyJobRouter.js
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   addJob,
   getAllJobs,
@@ -11,20 +10,15 @@ import {
 } from "../controller/addjobController.js";
 
 const companyJobRouter = express.Router();
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
-// Create job
-companyJobRouter.post("/", addJob);
-
-// Get all jobs (with filters)
+// Public — job listings are shown on the careers page
 companyJobRouter.get("/", getAllJobs);
-
-// Get job by jobId
 companyJobRouter.get("/:jobId", getJobById);
 
-// Update job by jobId
-companyJobRouter.patch("/:jobId", updateJob); 
-
-// Delete job by jobId
-companyJobRouter.delete("/:jobId", deleteJob);
+// Admin only
+companyJobRouter.post("/", adminOnly, addJob);
+companyJobRouter.patch("/:jobId", adminOnly, updateJob);
+companyJobRouter.delete("/:jobId", adminOnly, deleteJob);
 
 export default companyJobRouter;

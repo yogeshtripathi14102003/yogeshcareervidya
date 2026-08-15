@@ -1,51 +1,27 @@
-// import express from "express";
-// import multer from "multer";
-// import {
-//   createOurStudent,
-//   getOurStudents,
-//   deleteOurStudent,
-// } from "../controller/ourstudentController.js";
-
-// const router = express.Router();
-
-// // Configure multer for handling multiple file fields
-// const storage = multer.diskStorage({}); // empty means use default temp storage
-// const upload = multer({ storage });
-
-// // Upload both image + companyLogo
-// router.post(
-//   "/",
-//   upload.fields([
-//     { name: "image", maxCount: 1 },
-//     { name: "companyLogo", maxCount: 1 },
-//   ]),
-//   createOurStudent
-// );
-
-// router.get("/", getOurStudents);
-// router.delete("/:id", deleteOurStudent);
-
-// export default router;
-
-
 import express from "express";
 import multer from "multer";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createOurStudent,
   getOurStudents,
   deleteOurStudent,
-  editOurStudent, // ✅ added import
+  editOurStudent,
 } from "../controller/ourstudentController.js";
 
 const router = express.Router();
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
-// ✅ Configure multer for handling multiple file fields
-const storage = multer.diskStorage({}); // default temporary storage
+const storage = multer.diskStorage({});
 const upload = multer({ storage });
 
-// ✅ Create Student (image + companyLogo)
+// Public — showcased on the site
+router.get("/", getOurStudents);
+
+// Admin only
 router.post(
   "/",
+  adminOnly,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "companyLogo", maxCount: 1 },
@@ -53,15 +29,11 @@ router.post(
   createOurStudent
 );
 
-// ✅ Get all Students
-router.get("/", getOurStudents);
+router.delete("/:id", adminOnly, deleteOurStudent);
 
-// ✅ Delete Student
-router.delete("/:id", deleteOurStudent);
-
-// ✅ Edit / Update Student
 router.put(
   "/:id",
+  adminOnly,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "companyLogo", maxCount: 1 },
@@ -70,4 +42,3 @@ router.put(
 );
 
 export default router;
-

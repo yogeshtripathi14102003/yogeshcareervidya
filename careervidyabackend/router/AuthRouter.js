@@ -1,41 +1,7 @@
-
-// import authMiddleware from "../middelware/authMiddleware.js";
-// import express from "express";
-// import { sendOTP,assignAccess ,getAdminProfile,getAllSubAdmins,revokeAccess, verifyOTP, logout,getAllStudents,deleteStudent , getStudentById, refreshAccessToken , getLoggedInStudent } from "../controller/AuthController.js";
-// import auth from "../middelware/authMiddleware.js";
-// const router = express.Router();
-
-// // Step 1: Send OTP for register or login
-// router.post("/send-otp", sendOTP);
-
-// // Step 2: Assign Access (for subadmin)
-// router.post("/assign-access", authMiddleware, assignAccess);
-// router.get("/me", authMiddleware, getAdminProfile);
-
-// // Management routes (Only for Super Admin)
-
-// router.get("/sub-admins", authMiddleware, getAllSubAdmins);
-// router.post("/revoke-access", authMiddleware, revokeAccess);
-
-
-
-// // Step 2: Verify OTP (register/login)
-// router.post("/verify-otp", verifyOTP);
-// router.post("/refresh", refreshAccessToken);
-
-// // Step 3: Logout
-// router.post("/logout", logout);
-// router.get("/students", authMiddleware, getAllStudents);
-// router.get("/students/me", authMiddleware, getLoggedInStudent); 
-// router.delete("/students/:id", authMiddleware, deleteStudent);
-// // Example route definition
-// router.get("/students/:id", authMiddleware, getStudentById);
-// export default router;
-
-
 import express from "express";
 import authMiddleware from "../middelware/authMiddleware.js";
-import { otpRateLimiter, apiRateLimiter } from "../middelware/rateLimiter.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
+import { otpRateLimiter } from "../middelware/rateLimiter.js";
 import {
   sendOTP,
   verifyOTP,
@@ -45,6 +11,9 @@ import {
   deleteStudent,
   getStudentById,
   getLoggedInStudent,
+  getAppliedCourses,
+  getMyStudentNotifications,
+  markStudentNotificationsRead,
   assignAccess,
   getAdminProfile,
   getAllSubAdmins,
@@ -53,31 +22,32 @@ import {
 
 const router = express.Router();
 
-// Apply general rate limiter to all auth routes
-router.use(apiRateLimiter);
-
-// OTP flow — strict rate limit on both endpoints
-router.post("/send-otp",   otpRateLimiter, sendOTP);
+// ---- OTP flow (public) — strict rate limit on both endpoints ----
+router.post("/send-otp", otpRateLimiter, sendOTP);
 router.post("/verify-otp", otpRateLimiter, verifyOTP);
 
-// Token management
+// ---- Token / session management (public — token itself is the credential) ----
 router.post("/refresh", refreshAccessToken);
-router.post("/logout",  logout);
+router.post("/logout", logout);
 
-// Logged-in student (must come before /students/:id to avoid route conflict)
+// ---- Logged-in student's own profile ----
+// (must come before "/students/:id" to avoid Express matching "me" as an :id)
 router.get("/students/me", authMiddleware, getLoggedInStudent);
+router.get("/students/applied-courses", authMiddleware, getAppliedCourses);
+router.get("/students/notifications", authMiddleware, getMyStudentNotifications);
+router.patch("/students/notifications/read", authMiddleware, markStudentNotificationsRead);
 
-// Student management
-router.get("/students",     authMiddleware, getAllStudents);
-router.get("/students/:id", authMiddleware, getStudentById);
-router.delete("/students/:id", authMiddleware, deleteStudent);
+// ---- Student management — admin/subadmin only ----
+router.get("/students", authMiddleware, requireRole(["admin", "subadmin"]), getAllStudents);
+router.get("/students/:id", authMiddleware, requireRole(["admin", "subadmin"]), getStudentById);
+router.delete("/students/:id", authMiddleware, requireRole(["admin"]), deleteStudent);
 
-// Admin profile
-router.get("/me", authMiddleware, getAdminProfile);
+// ---- Admin profile (any authenticated admin/subadmin) ----
+router.get("/me", authMiddleware, requireRole(["admin", "subadmin"]), getAdminProfile);
 
-// Sub-admin management (super admin only)
-router.post("/assign-access", authMiddleware, assignAccess);
-router.post("/revoke-access", authMiddleware, revokeAccess);
-router.get("/sub-admins",     authMiddleware, getAllSubAdmins);
+// ---- Sub-admin management — super admin only ----
+router.post("/assign-access", authMiddleware, requireRole(["admin"]), assignAccess);
+router.post("/revoke-access", authMiddleware, requireRole(["admin"]), revokeAccess);
+router.get("/sub-admins", authMiddleware, requireRole(["admin"]), getAllSubAdmins);
 
 export default router;

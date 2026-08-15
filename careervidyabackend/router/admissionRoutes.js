@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createAdmission,
   getAdmissions,
@@ -12,11 +14,10 @@ import {
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary.js";
-// import { protect } from "../middleware/authMiddleware.js"; // Agar admin protection use kar rahe hain
 
 const router = express.Router();
+const staff = [authMiddleware, requireRole(["admin", "subadmin", "counselor"])];
 
-// ================= Cloudinary storage =================
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
@@ -28,15 +29,12 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// ================= ROUTES =================
-
-/** * 1. STATUS CHECK (Public Route)
- * Ise sabse upar rakhein taaki Express "/status" ko ":id" na samajhle.
+/** 1. STATUS CHECK — must be logged in; controller enforces the caller can
+ *  only look up their own email unless they're staff (admin/subadmin/counselor).
  */
-router.get("/status", getStatusByEmail);
+router.get("/status", authMiddleware, getStatusByEmail);
 
-/** * 2. CREATE ADMISSION (Public Route)
- */
+/** 2. CREATE ADMISSION (Public — applicant submits the form) */
 router.post(
   "/",
   upload.fields([
@@ -48,16 +46,13 @@ router.post(
   createAdmission
 );
 
-/** * 3. GET ALL ADMISSIONS (Admin Route)
- */
-router.get("/", getAdmissions); 
-
-/** * 4. ID BASED ROUTES (Hamesha niche rakhein)
- */
-router.get("/:id", getAdmissionById);
+/** 3-5. Everything else touches applicant PII (Aadhaar/PAN) — staff only */
+router.get("/", ...staff, getAdmissions);
+router.get("/:id", ...staff, getAdmissionById);
 
 router.put(
   "/:id",
+  ...staff,
   upload.fields([
     { name: "aadhaarNumber", maxCount: 1 },
     { name: "panNumber", maxCount: 1 },
@@ -67,10 +62,7 @@ router.put(
   updateAdmission
 );
 
-router.delete("/:id", deleteAdmission);
-
-/** * 5. VERIFICATION ROUTE
- */
-router.patch("/:id/verify", verifyAdmission);
+router.delete("/:id", ...staff, deleteAdmission);
+router.patch("/:id/verify", ...staff, verifyAdmission);
 
 export default router;

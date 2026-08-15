@@ -1,7 +1,7 @@
-
-
 import express from "express";
 import createUploader from "../multer.js";
+import authMiddleware from "../middelware/authMiddleware.js";
+import { requireRole } from "../middelware/roleMiddleware.js";
 import {
   createBanner,
   deleteBanner,
@@ -12,20 +12,24 @@ import {
 } from "../controller/bannerController.js";
 
 const bannerRouter = express.Router();
+const adminOnly = [authMiddleware, requireRole(["admin", "subadmin"])];
 
-// ✅ Multer uploader config
 const bannerUploader = createUploader({
   folder: "banners",
   maxFileSizeMB: 5,
-  maxFiles: 2, // <-- 2 images allowed
+  maxFiles: 2,
   allowedTypes: ["jpeg", "jpg", "png", "webp"],
 });
 
-// --------------------------------------------------
-// ✅ Create Banner (Upload Desktop + Mobile Images)
-// --------------------------------------------------
+// -------- Public (site display) --------
+bannerRouter.get("/", getBanners);
+bannerRouter.get("/active", getActiveBanners);
+bannerRouter.get("/:bannerId/promotion-products", getBannerPromotionProducts);
+
+// -------- Admin only --------
 bannerRouter.post(
   "/",
+  adminOnly,
   bannerUploader.fields([
     { name: "desktopImage", maxCount: 1 },
     { name: "mobileImage", maxCount: 1 },
@@ -33,11 +37,9 @@ bannerRouter.post(
   createBanner
 );
 
-// --------------------------------------------------
-// ✅ Update Banner (Upload Desktop + Mobile Images)
-// --------------------------------------------------
 bannerRouter.put(
   "/:id",
+  adminOnly,
   bannerUploader.fields([
     { name: "desktopImage", maxCount: 1 },
     { name: "mobileImage", maxCount: 1 },
@@ -45,12 +47,6 @@ bannerRouter.put(
   updateBanner
 );
 
-// --------------------------------------------------
-// Other routes
-// --------------------------------------------------
-bannerRouter.delete("/:id", deleteBanner);
-bannerRouter.get("/", getBanners);
-bannerRouter.get("/active", getActiveBanners);
-bannerRouter.get("/:bannerId/promotion-products", getBannerPromotionProducts);
+bannerRouter.delete("/:id", adminOnly, deleteBanner);
 
 export default bannerRouter;

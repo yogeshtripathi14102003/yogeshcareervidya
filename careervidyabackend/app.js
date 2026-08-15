@@ -164,6 +164,12 @@ import videoRoutes from "./router/videoRoutes.js";
 import employeeRouter from "./router/employeesRoutes.js";
 import slotRoutes from "./router/slotRoutes.js";
 import manageTeamroutes from "./router/manageTeamroutes.js";
+import analyticsRoutes from "./router/analyticsRoutes.js";
+import reportsRoutes from "./router/reportsRoutes.js";
+import qaRoutes from "./router/qaRoutes.js";
+import securityConfigRoutes from "./router/securityConfigRoutes.js";
+import { globalBackstopLimiter } from "./middelware/rateLimiter.js";
+import sanitizeInputs from "./middelware/sanitize.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -190,7 +196,8 @@ app.use(
       "http://192.168.1.49:3000",
       "https://careervidya.in",
       "https://www.careervidya.in",
-      "https://api.careervidya.in",
+      // "https://api.careervidya.in",
+  // "http://localhost:8080",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -199,6 +206,17 @@ app.use(
 );
 
 app.use(morgan("dev"));
+
+// ✅ Global protections: baseline rate limit + strip NoSQL-injection payloads
+// Global DDoS backstop only — loose by design. This used to be a tight
+// 300 req/15min limit keyed by IP alone, applied to literally every
+// request. That's what was causing the reported false 429s: it silently
+// pooled every user behind a shared IP (e.g. an office) into one bucket,
+// and the app now generates a lot of legitimate background traffic
+// (heartbeats, page tracking, live dashboard polling) that alone can
+// approach that number for a single active user. See rateLimiter.js.
+app.use(globalBackstopLimiter);
+app.use(sanitizeInputs);
 
 app.use(sessionMiddleware);
 app.use(passport.initialize());
@@ -244,6 +262,10 @@ app.use("/api/v1/videos", videoRoutes);
 app.use("/api/v1/employees", employeeRouter);
 app.use("/api/v1/slot", slotRoutes);
 app.use("/api/v1/manage", manageTeamroutes);
+app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/reports", reportsRoutes);
+app.use("/api/v1/qa", qaRoutes);
+app.use("/api/v1/security-config", securityConfigRoutes);
 
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");
