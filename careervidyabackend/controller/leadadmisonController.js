@@ -6,6 +6,43 @@ import Notification from "../models/counselor/DocumenetNotification.js";
 import { getViewableCounselorIds } from "../utilities/teamScope.js";
 
 // ================= CREATE ADMISSION =================
+// export const createLeadAdmission = async (req, res) => {
+//   try {
+//     const { email, phone } = req.body;
+
+//     const existingStudent = await LeadAdmission.findOne({
+//       $or: [{ email }, { phone }],
+//     });
+
+//     if (existingStudent) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "⚠️ This student is already registered!",
+//       });
+//     }
+
+//     const admission = await LeadAdmission.create(req.body);
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "✅ Admission created successfully!",
+//       data: admission,
+//     });
+//   } catch (error) {
+//     if (error.code === 11000) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "⚠️ Duplicate entry! Student already exists.",
+//       });
+//     }
+//     return res.status(500).json({
+//       success: false,
+//       message: "❌ Error creating admission: " + error.message,
+//     });
+//   }
+// };
+
+// ================= CREATE ADMISSION =================
 export const createLeadAdmission = async (req, res) => {
   try {
     const { email, phone } = req.body;
@@ -21,7 +58,14 @@ export const createLeadAdmission = async (req, res) => {
       });
     }
 
-    const admission = await LeadAdmission.create(req.body);
+    // ✅ FIX: Logged-in counselor ki ObjectId aur Name attach karein
+    const admissionData = {
+      ...req.body,
+      counselor: req.user?._id, // Required for security scoping
+      counselorName: req.body.counselorName || req.user?.name || req.user?.fullName,
+    };
+
+    const admission = await LeadAdmission.create(admissionData);
 
     return res.status(201).json({
       success: true,
@@ -43,22 +87,63 @@ export const createLeadAdmission = async (req, res) => {
 };
 
 // ================= GET ALL ADMISSIONS =================
+// export const getAllLeadAdmissions = async (req, res) => {
+//   try {
+//     const { limit, counselorName } = req.query;
+//     const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+
+//     // SECURITY: a counselor can only ever see their own students, regardless
+//     // of what they pass in the query string. This used to trust a raw
+//     // client-supplied `counselorName` param for everyone — a counselor could
+//     // simply omit it (or pass someone else's name) to see every applicant's
+//     // record, including uploaded Aadhaar/PAN documents.
+//     let filter = {};
+//     if (isStaffAdmin) {
+//       if (counselorName) filter.counselorName = counselorName; // admin-only convenience filter
+//     } else {
+//       const viewableIds = await getViewableCounselorIds(req.user);
+//       filter = { counselor: { $in: viewableIds } };
+//     }
+
+//     const admissions = await LeadAdmission.find(filter)
+//       .sort({ createdAt: -1 })
+//       .limit(limit ? parseInt(limit) : 0)
+//       .populate("counselor", "name email phone");
+
+//     return res.status(200).json({
+//       success: true,
+//       count: admissions.length,
+//       data: admissions,
+//     });
+//   } catch (error) {
+//     console.error("getAllLeadAdmissions error:", error.message);
+//     return res.status(500).json({
+//       success: false,
+//       message: "❌ Error fetching admissions: " + error.message,
+//     });
+//   }
+// };
+
+// ================= GET ALL ADMISSIONS =================
 export const getAllLeadAdmissions = async (req, res) => {
   try {
     const { limit, counselorName } = req.query;
     const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
 
-    // SECURITY: a counselor can only ever see their own students, regardless
-    // of what they pass in the query string. This used to trust a raw
-    // client-supplied `counselorName` param for everyone — a counselor could
-    // simply omit it (or pass someone else's name) to see every applicant's
-    // record, including uploaded Aadhaar/PAN documents.
     let filter = {};
     if (isStaffAdmin) {
-      if (counselorName) filter.counselorName = counselorName; // admin-only convenience filter
+      if (counselorName) filter.counselorName = counselorName;
     } else {
       const viewableIds = await getViewableCounselorIds(req.user);
-      filter = { counselor: { $in: viewableIds } };
+      const userFullName = req.user?.name || req.user?.fullName;
+
+      // ✅ FIX: ObjectId ($in) YA phir Name ($regex) dono se match karein
+      filter = {
+        $or: [
+          { counselor: { $in: viewableIds } },
+          { counselorName: { $regex: new RegExp(`^${userFullName}$`, "i") } }
+        ]
+      };
     }
 
     const admissions = await LeadAdmission.find(filter)

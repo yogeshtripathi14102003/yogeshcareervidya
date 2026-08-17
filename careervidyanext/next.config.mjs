@@ -117,7 +117,7 @@ const nextConfig = {
   },
 
   async rewrites() {
-    const apiUrl = process.env.API_URL || "https://api.careervidya.in"; // Default to localhost if not set
+    const apiUrl = process.env.API_URL || "http://localhost:8080"; // Default to localhost if not set
 
     return [
       // {

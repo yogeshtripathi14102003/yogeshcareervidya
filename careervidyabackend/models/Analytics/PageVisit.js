@@ -22,7 +22,8 @@ const eventSchema = new mongoose.Schema(
 
 const pageVisitSchema = new mongoose.Schema(
   {
-    sessionId: { type: String, required: true, index: true },
+    // ✅ FIX: "index: true" yahan se hata diya gaya hai
+    sessionId: { type: String, required: true },
     visitorId: { type: mongoose.Schema.Types.ObjectId, ref: "Visitor" },
 
     page: { type: String, required: true }, // path, e.g. "/course/mba-in-finance"
@@ -39,6 +40,7 @@ const pageVisitSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Mongoose automatically builds indexes here:
 pageVisitSchema.index({ sessionId: 1, page: 1, enterTime: -1 });
 pageVisitSchema.index({ createdAt: -1 });
 

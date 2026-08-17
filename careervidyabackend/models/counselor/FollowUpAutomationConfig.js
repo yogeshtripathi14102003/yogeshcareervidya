@@ -22,11 +22,11 @@ const followUpAutomationConfigSchema = new mongoose.Schema(
     steps: {
       type: [stepSchema],
       default: [
-        { label: "5 minute reminder", afterMinutes: 5, action: "reminder" },
+        // { label: "5 minute reminder", afterMinutes: 5, action: "reminder" },
         { label: "1 day reminder", afterMinutes: 1440, action: "reminder" },
         { label: "3 day reminder", afterMinutes: 4320, action: "reminder" },
         { label: "7 day manager notification", afterMinutes: 10080, action: "manager_notification" },
-        { label: "10 day auto-reassign", afterMinutes: 14400, action: "auto_reassign" },
+        // { label: "10 day auto-reassign", afterMinutes: 14400, action: "auto_reassign" },
       ],
     },
   },

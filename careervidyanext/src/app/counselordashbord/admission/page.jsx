@@ -1,9 +1,365 @@
 
 
+// "use client";
+
+// import React, { useState, useEffect } from "react";
+// import api from "@/utlis/api.js";
+// import { useAuth } from "@/context/AuthContext.jsx";
+// import { Users, Search, Loader2, Download, Phone } from "lucide-react";
+
+// const CounselorAdmissions = () => {
+//   const { user: authUser } = useAuth();
+//   const [admissions, setAdmissions] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [monthFilter, setMonthFilter] = useState("");
+//   const [counselorName, setCounselorName] = useState("");
+//   const [pdfLoading, setPdfLoading] = useState(false);
+
+//   /* ================= FETCH USER ================= */
+//   useEffect(() => {
+//     if (authUser?.name) {
+//       setCounselorName(authUser.name);
+//       fetchAdmissions(authUser.name);
+//     } else if (authUser) {
+//       setLoading(false);
+//     }
+//   }, [authUser]);
+
+//   /* ================= FETCH ADMISSIONS ================= */
+//   const fetchAdmissions = async (name) => {
+//     try {
+//       const res = await api.get("/api/v1/ad");
+
+//       if (res?.data?.success) {
+//         setAdmissions(
+//           res.data.data.filter((ad) => ad.counselorName === name)
+//         );
+//       }
+//     } catch (err) {
+//       console.error("Fetch Error:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   /* ================= AMOUNT CLEANER ================= */
+//   const cleanAmount = (val) => String(Math.floor(Number(val || 0)));
+
+//   /* ================= DOWNLOAD PDF (FIXED) ================= */
+//   const downloadPDF = async (data) => {
+//     try {
+//       setPdfLoading(true);
+
+//       // ✅ Dynamic Import (Turbopack Fix)
+//       const { default: jsPDF } = await import("jspdf");
+//       const autoTable = (await import("jspdf-autotable")).default;
+
+//       const doc = new jsPDF({
+//         orientation: "p",
+//         unit: "mm",
+//         format: "a4",
+//       });
+
+//       doc.setFont("courier", "normal");
+
+//       /* ================= CALCULATIONS ================= */
+//       const semCount = Number(data.semesterCount || 1);
+
+//       const semesterFee = Number(data.c_semesterFees || 0);
+//       const examFee = Number(data.c_examFees || 0);
+//       const regFee = Number(data.c_registrationFee || 0);
+//       const discount = Number(data.c_discount || 0);
+//       const closingFees = Number(data.c_totalFees || 0);
+
+//       const totalSemFees = semesterFee * semCount;
+//       const totalExamFees = examFee * semCount;
+
+//       const subTotal = totalSemFees + totalExamFees + regFee;
+
+//       const perSemesterFee = Math.round(closingFees / semCount);
+
+//       /* ================= HEADER ================= */
+//       doc.setFontSize(18);
+//       doc.setTextColor(249, 115, 22);
+//       doc.text("Application Detail SLIP", 14, 20);
+
+//       doc.setFontSize(10);
+//       doc.setTextColor(0);
+
+//       doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 28);
+//       doc.text(`Counselor: ${data.counselorName}`, 14, 33);
+
+//       /* ================= STUDENT DETAILS ================= */
+//       autoTable(doc, {
+//         startY: 40,
+//         head: [["Student Details", "Academic Info"]],
+//         body: [
+//           [
+//             `Name: ${data.studentName}
+// Father: ${data.fatherName || "N/A"}
+// Mother: ${data.motherName || "N/A"}
+// Aadhar Number: ${data.adhraNumber || "N/A"}
+// Date of Birth: ${data.dob ? new Date(data.dob).toLocaleDateString() : "N/A"}
+// Phone: ${data.phone}
+// Email: ${data.email}`,
+
+//             `University: ${data.universityName}
+// Course: ${data.course}
+// Branch: ${data.branch || "N/A"}
+// Total Semesters: ${semCount}`,
+//           ],
+//         ],
+//         theme: "grid",
+//         headStyles: { fillColor: [51, 65, 85] },
+//       });
+
+//       /* ================= FEES TABLE ================= */
+//       autoTable(doc, {
+//         startY: doc.lastAutoTable.finalY + 10,
+//         head: [["Fee Type", "Calculation", "Amount"]],
+
+//         body: [
+//           ["Semester Fees", `${semesterFee} x ${semCount}`, `Rs. ${cleanAmount(totalSemFees)}`],
+//           ["Registration Fee", "One Time", `Rs. ${cleanAmount(regFee)}`],
+//           ["Exam Fees", `${examFee} x ${semCount}`, `Rs. ${cleanAmount(totalExamFees)}`],
+
+//           ["Subtotal", "Semester + Exam + Reg", `Rs. ${cleanAmount(subTotal)}`],
+
+//           ["Discount", "apply", `-Rs. ${cleanAmount(discount)}`],
+
+//           [
+//             { content: "Final Closing Amount", styles: { fontStyle: "bold" } },
+//             "-",
+//             { content: `Rs. ${cleanAmount(closingFees)}`, styles: { fontStyle: "bold" } },
+//           ],
+
+//           [
+//             {
+//               content: "Per Semester Payable",
+//               styles: { fontStyle: "bold", textColor: [249, 115, 22] },
+//             },
+//             "Total / Sem",
+//             {
+//               content: `Rs. ${cleanAmount(perSemesterFee)}`,
+//               styles: { fontStyle: "bold", textColor: [249, 115, 22] },
+//             },
+//           ],
+//         ],
+
+//         theme: "striped",
+//         headStyles: { fillColor: [249, 115, 22] },
+//       });
+
+//       /* ================= FOOTER ================= */
+//       const y = doc.lastAutoTable.finalY + 15;
+
+//       doc.setFontSize(10);
+//       doc.setFont("courier", "bold");
+//       doc.text("Note:", 14, y);
+
+//       doc.setFont("courier", "normal");
+
+//       doc.text(
+//         `1. Subtotal (before discount: Rs. ${cleanAmount(subTotal)}
+// 2. Final payable amount: Rs. ${cleanAmount(closingFees)}
+// 3. Average per semester cos: Rs. ${cleanAmount(perSemesterFee)}
+// 4. Keep this slip safe for future reference.
+// 5. This is a system generated slip and does not require signature.`,
+//         14,
+//         y + 5
+//       );
+
+//       /* ================= SAVE ================= */
+//       doc.save(`Admission_${data.studentName.replace(/\s+/g, "_")}.pdf`);
+//     } catch (err) {
+//       console.error("PDF Error:", err);
+//       alert("PDF Generate Failed!");
+//     } finally {
+//       setPdfLoading(false);
+//     }
+//   };
+
+//   /* ================= SEARCH ================= */
+// const filtered = admissions.filter((ad) => {
+
+//   const matchSearch =
+//     ad.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//     ad.course?.toLowerCase().includes(searchTerm.toLowerCase());
+
+//   if (!monthFilter) return matchSearch;
+
+//   const adMonth = new Date(ad.admissionDate).getMonth() + 1;
+
+//   const matchMonth = adMonth === Number(monthFilter);
+
+//   return matchSearch && matchMonth;
+// });
+//   /* ================= LOADER ================= */
+//   if (loading) {
+//     return (
+//       <div className="h-screen flex flex-col items-center justify-center gap-4">
+//         <Loader2 className="animate-spin text-orange-500" size={40} />
+//         <p className="font-black text-xs uppercase text-slate-500">
+//           Loading Records...
+//         </p>
+//       </div>
+//     );
+//   }
+
+//   /* ================= UI ================= */
+//   return (
+//     <div className="min-h-screen bg-slate-50 pb-10">
+
+//       {/* HEADER */}
+//       <header className="bg-white border-b sticky top-0 z-10 px-6 py-4 flex justify-between items-center shadow-sm">
+
+//         <div className="flex items-center gap-3">
+//           <div className="bg-orange-100 p-2 rounded-lg">
+//             <Users size={20} className="text-orange-600" />
+//           </div>
+
+//           <div>
+//             <h1 className="text-lg font-bold">My Admissions</h1>
+
+//             <p className="text-[10px] text-slate-400 uppercase font-bold">
+//               Counselor:{" "}
+//               <span className="text-orange-600">{counselorName}</span>
+//             </p>
+//           </div>
+//         </div>
+
+//         <div className="flex items-center gap-4">
+
+//           <div className="relative">
+//             <Search
+//               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+//               size={14}
+//             />
+
+//             <input
+//               type="text"
+//               placeholder="Search students..."
+//               className="pl-9 pr-4 py-2 text-xs border rounded-full outline-none focus:ring-2 focus:ring-orange-500/20 w-64"
+//               onChange={(e) => setSearchTerm(e.target.value)}
+//             />
+//           </div>
+//           <select
+//   value={monthFilter}
+//   onChange={(e) => setMonthFilter(e.target.value)}
+//   className="px-3 py-2 text-xs border rounded-full outline-none focus:ring-2 focus:ring-orange-500/20"
+// >
+//   <option value="">All Months</option>
+//   <option value="1">January</option>
+//   <option value="2">February</option>
+//   <option value="3">March</option>
+//   <option value="4">April</option>
+//   <option value="5">May</option>
+//   <option value="6">June</option>
+//   <option value="7">July</option>
+//   <option value="8">August</option>
+//   <option value="9">September</option>
+//   <option value="10">October</option>
+//   <option value="11">November</option>
+//   <option value="12">December</option>
+// </select>
+
+//           <div className="bg-slate-100 px-3 py-1 rounded-full text-[10px] font-bold">
+//             {filtered.length} Admission
+//           </div>
+
+//         </div>
+//       </header>
+
+//       {/* TABLE */}
+//       <div className="max-w-7xl mx-auto p-6">
+
+//         <div className="bg-white rounded-xl shadow border overflow-hidden">
+
+//           <table className="w-full text-left">
+
+//             <thead className="bg-slate-50 text-[10px] font-bold uppercase">
+//               <tr>
+//                 <th className="p-4">Date</th>
+//                 <th className="p-4">Student</th>
+//                 <th className="p-4">Course</th>
+//                 <th className="p-4 text-center">Final</th>
+//                 <th className="p-4 text-right">PDF</th>
+//               </tr>
+//             </thead>
+
+//             <tbody className="text-xs divide-y">
+
+//               {filtered.length ? (
+//                 filtered.map((ad, i) => (
+
+//                   <tr key={i} className="hover:bg-slate-50">
+
+//                     <td className="p-4">
+//                       {new Date(ad.admissionDate).toLocaleDateString("en-GB")}
+//                     </td>
+
+//                     <td className="p-4">
+//                       <div className="font-bold">{ad.studentName}</div>
+//                       <div className="text-[10px] text-slate-400 flex gap-1">
+//                         <Phone size={10} /> {ad.phone}
+//                       </div>
+//                     </td>
+
+//                     <td className="p-4">
+//                       <div className="font-semibold">{ad.course}</div>
+//                       <div className="text-[10px] text-orange-600 font-bold uppercase">
+//                         {ad.universityName}
+//                       </div>
+//                     </td>
+
+//                     <td className="p-4 text-center font-bold">
+//                       Rs. {cleanAmount(ad.c_totalFees)}
+//                     </td>
+
+//                     <td className="p-4 text-right">
+
+//                       <button
+//                         disabled={pdfLoading}
+//                         onClick={() => downloadPDF(ad)}
+//                         className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded text-[10px] font-bold hover:bg-orange-600 disabled:opacity-50"
+//                       >
+//                         <Download size={12} />
+//                         {pdfLoading ? "Loading..." : "Get Slip"}
+//                       </button>
+
+//                     </td>
+
+//                   </tr>
+//                 ))
+//               ) : (
+//                 <tr>
+//                   <td
+//                     colSpan={5}
+//                     className="p-20 text-center text-slate-300 font-bold uppercase"
+//                   >
+//                     No Admissions Found
+//                   </td>
+//                 </tr>
+//               )}
+
+//             </tbody>
+
+//           </table>
+
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default CounselorAdmissions;
+
+
 "use client";
 
 import React, { useState, useEffect } from "react";
-import api from "@/utlis/api.js";
+import api from "@/utlis/api.js"; // Ensure path matches your project structure (@/utils/api)
 import { useAuth } from "@/context/AuthContext.jsx";
 import { Users, Search, Loader2, Download, Phone } from "lucide-react";
 
@@ -16,12 +372,23 @@ const CounselorAdmissions = () => {
   const [counselorName, setCounselorName] = useState("");
   const [pdfLoading, setPdfLoading] = useState(false);
 
+  /* ================= NORMALIZE HELPER ================= */
+  // Trims spaces + lowercases for reliable string matching
+  const normalize = (s) => (s || "").toString().trim().toLowerCase();
+
   /* ================= FETCH USER ================= */
   useEffect(() => {
-    if (authUser?.name) {
-      setCounselorName(authUser.name);
-      fetchAdmissions(authUser.name);
-    } else if (authUser) {
+    if (!authUser) return; // Wait until authUser is loaded
+
+    // Resolve name from common auth object schemas
+    const resolvedName =
+      authUser.name || authUser.fullName || authUser.username || "";
+
+    if (resolvedName) {
+      setCounselorName(resolvedName);
+      fetchAdmissions(resolvedName);
+    } else {
+      console.warn("authUser has no usable name field:", authUser);
       setLoading(false);
     }
   }, [authUser]);
@@ -29,15 +396,40 @@ const CounselorAdmissions = () => {
   /* ================= FETCH ADMISSIONS ================= */
   const fetchAdmissions = async (name) => {
     try {
+      setLoading(true);
       const res = await api.get("/api/v1/ad");
 
-      if (res?.data?.success) {
-        setAdmissions(
-          res.data.data.filter((ad) => ad.counselorName === name)
-        );
+      console.log("Full API Response:", res?.data);
+
+      if (res?.data) {
+        // Fallback checks to extract array from potential key wrappers
+        const all =
+          res.data.data ||
+          res.data.admissions ||
+          res.data.ad ||
+          (Array.isArray(res.data) ? res.data : []);
+
+        const loggedInName = normalize(name);
+
+        // Flexible matching: exact match OR partial match (handles full name vs first name)
+        const mine = all.filter((ad) => {
+          if (!ad.counselorName) return false;
+          const dbName = normalize(ad.counselorName);
+
+          return (
+            dbName === loggedInName ||
+            dbName.includes(loggedInName) ||
+            loggedInName.includes(dbName)
+          );
+        });
+
+        setAdmissions(mine);
+      } else {
+        setAdmissions([]);
       }
     } catch (err) {
       console.error("Fetch Error:", err);
+      setAdmissions([]);
     } finally {
       setLoading(false);
     }
@@ -46,12 +438,12 @@ const CounselorAdmissions = () => {
   /* ================= AMOUNT CLEANER ================= */
   const cleanAmount = (val) => String(Math.floor(Number(val || 0)));
 
-  /* ================= DOWNLOAD PDF (FIXED) ================= */
+  /* ================= DOWNLOAD PDF ================= */
   const downloadPDF = async (data) => {
     try {
       setPdfLoading(true);
 
-      // ✅ Dynamic Import (Turbopack Fix)
+      // Dynamic Imports
       const { default: jsPDF } = await import("jspdf");
       const autoTable = (await import("jspdf-autotable")).default;
 
@@ -76,7 +468,6 @@ const CounselorAdmissions = () => {
       const totalExamFees = examFee * semCount;
 
       const subTotal = totalSemFees + totalExamFees + regFee;
-
       const perSemesterFee = Math.round(closingFees / semCount);
 
       /* ================= HEADER ================= */
@@ -99,10 +490,10 @@ const CounselorAdmissions = () => {
             `Name: ${data.studentName}
 Father: ${data.fatherName || "N/A"}
 Mother: ${data.motherName || "N/A"}
-Aadhar Number: ${data.adhraNumber || "N/A"}
+National ID: ${data.adhraNumber ? "[ID Redacted]" : "N/A"}
 Date of Birth: ${data.dob ? new Date(data.dob).toLocaleDateString() : "N/A"}
 Phone: ${data.phone}
-Email: ${data.email}`,
+Email: ${data.email || "N/A"}`,
 
             `University: ${data.universityName}
 Course: ${data.course}
@@ -123,17 +514,13 @@ Total Semesters: ${semCount}`,
           ["Semester Fees", `${semesterFee} x ${semCount}`, `Rs. ${cleanAmount(totalSemFees)}`],
           ["Registration Fee", "One Time", `Rs. ${cleanAmount(regFee)}`],
           ["Exam Fees", `${examFee} x ${semCount}`, `Rs. ${cleanAmount(totalExamFees)}`],
-
           ["Subtotal", "Semester + Exam + Reg", `Rs. ${cleanAmount(subTotal)}`],
-
-          ["Discount", "apply", `-Rs. ${cleanAmount(discount)}`],
-
+          ["Discount", "Applied", `-Rs. ${cleanAmount(discount)}`],
           [
             { content: "Final Closing Amount", styles: { fontStyle: "bold" } },
             "-",
             { content: `Rs. ${cleanAmount(closingFees)}`, styles: { fontStyle: "bold" } },
           ],
-
           [
             {
               content: "Per Semester Payable",
@@ -159,11 +546,10 @@ Total Semesters: ${semCount}`,
       doc.text("Note:", 14, y);
 
       doc.setFont("courier", "normal");
-
       doc.text(
-        `1. Subtotal (before discount: Rs. ${cleanAmount(subTotal)}
+        `1. Subtotal (before discount): Rs. ${cleanAmount(subTotal)}
 2. Final payable amount: Rs. ${cleanAmount(closingFees)}
-3. Average per semester cos: Rs. ${cleanAmount(perSemesterFee)}
+3. Average per semester cost: Rs. ${cleanAmount(perSemesterFee)}
 4. Keep this slip safe for future reference.
 5. This is a system generated slip and does not require signature.`,
         14,
@@ -171,30 +557,31 @@ Total Semesters: ${semCount}`,
       );
 
       /* ================= SAVE ================= */
-      doc.save(`Admission_${data.studentName.replace(/\s+/g, "_")}.pdf`);
+      doc.save(`Admission_${(data.studentName || "Student").replace(/\s+/g, "_")}.pdf`);
     } catch (err) {
       console.error("PDF Error:", err);
-      alert("PDF Generate Failed!");
+      alert("PDF Generation Failed!");
     } finally {
       setPdfLoading(false);
     }
   };
 
-  /* ================= SEARCH ================= */
-const filtered = admissions.filter((ad) => {
+  /* ================= SEARCH & MONTH FILTER ================= */
+  const filtered = admissions.filter((ad) => {
+    const matchSearch =
+      ad.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ad.course?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ad.phone?.includes(searchTerm);
 
-  const matchSearch =
-    ad.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ad.course?.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!monthFilter) return matchSearch;
 
-  if (!monthFilter) return matchSearch;
+    if (!ad.admissionDate) return false;
+    const adMonth = new Date(ad.admissionDate).getMonth() + 1;
+    const matchMonth = adMonth === Number(monthFilter);
 
-  const adMonth = new Date(ad.admissionDate).getMonth() + 1;
+    return matchSearch && matchMonth;
+  });
 
-  const matchMonth = adMonth === Number(monthFilter);
-
-  return matchSearch && matchMonth;
-});
   /* ================= LOADER ================= */
   if (loading) {
     return (
@@ -207,13 +594,11 @@ const filtered = admissions.filter((ad) => {
     );
   }
 
-  /* ================= UI ================= */
+  /* ================= UI RENDER ================= */
   return (
     <div className="min-h-screen bg-slate-50 pb-10">
-
       {/* HEADER */}
-      <header className="bg-white border-b sticky top-0 z-10 px-6 py-4 flex justify-between items-center shadow-sm">
-
+      <header className="bg-white border-b sticky top-0 z-10 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="bg-orange-100 p-2 rounded-lg">
             <Users size={20} className="text-orange-600" />
@@ -224,14 +609,13 @@ const filtered = admissions.filter((ad) => {
 
             <p className="text-[10px] text-slate-400 uppercase font-bold">
               Counselor:{" "}
-              <span className="text-orange-600">{counselorName}</span>
+              <span className="text-orange-600">{counselorName || "Unknown"}</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-
-          <div className="relative">
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={14}
@@ -239,114 +623,107 @@ const filtered = admissions.filter((ad) => {
 
             <input
               type="text"
-              placeholder="Search students..."
-              className="pl-9 pr-4 py-2 text-xs border rounded-full outline-none focus:ring-2 focus:ring-orange-500/20 w-64"
+              placeholder="Search students, phone..."
+              className="pl-9 pr-4 py-2 text-xs border rounded-full outline-none focus:ring-2 focus:ring-orange-500/20 w-full"
+              value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
           <select
-  value={monthFilter}
-  onChange={(e) => setMonthFilter(e.target.value)}
-  className="px-3 py-2 text-xs border rounded-full outline-none focus:ring-2 focus:ring-orange-500/20"
->
-  <option value="">All Months</option>
-  <option value="1">January</option>
-  <option value="2">February</option>
-  <option value="3">March</option>
-  <option value="4">April</option>
-  <option value="5">May</option>
-  <option value="6">June</option>
-  <option value="7">July</option>
-  <option value="8">August</option>
-  <option value="9">September</option>
-  <option value="10">October</option>
-  <option value="11">November</option>
-  <option value="12">December</option>
-</select>
+            value={monthFilter}
+            onChange={(e) => setMonthFilter(e.target.value)}
+            className="px-3 py-2 text-xs border rounded-full outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+          >
+            <option value="">All Months</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
 
-          <div className="bg-slate-100 px-3 py-1 rounded-full text-[10px] font-bold">
-            {filtered.length} Admission
+          <div className="bg-slate-100 px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap">
+            {filtered.length} Admission{filtered.length !== 1 ? "s" : ""}
           </div>
-
         </div>
       </header>
 
       {/* TABLE */}
-      <div className="max-w-7xl mx-auto p-6">
-
+      <div className="max-w-7xl mx-auto p-4 md:p-6">
         <div className="bg-white rounded-xl shadow border overflow-hidden">
-
-          <table className="w-full text-left">
-
-            <thead className="bg-slate-50 text-[10px] font-bold uppercase">
-              <tr>
-                <th className="p-4">Date</th>
-                <th className="p-4">Student</th>
-                <th className="p-4">Course</th>
-                <th className="p-4 text-center">Final</th>
-                <th className="p-4 text-right">PDF</th>
-              </tr>
-            </thead>
-
-            <tbody className="text-xs divide-y">
-
-              {filtered.length ? (
-                filtered.map((ad, i) => (
-
-                  <tr key={i} className="hover:bg-slate-50">
-
-                    <td className="p-4">
-                      {new Date(ad.admissionDate).toLocaleDateString("en-GB")}
-                    </td>
-
-                    <td className="p-4">
-                      <div className="font-bold">{ad.studentName}</div>
-                      <div className="text-[10px] text-slate-400 flex gap-1">
-                        <Phone size={10} /> {ad.phone}
-                      </div>
-                    </td>
-
-                    <td className="p-4">
-                      <div className="font-semibold">{ad.course}</div>
-                      <div className="text-[10px] text-orange-600 font-bold uppercase">
-                        {ad.universityName}
-                      </div>
-                    </td>
-
-                    <td className="p-4 text-center font-bold">
-                      Rs. {cleanAmount(ad.c_totalFees)}
-                    </td>
-
-                    <td className="p-4 text-right">
-
-                      <button
-                        disabled={pdfLoading}
-                        onClick={() => downloadPDF(ad)}
-                        className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded text-[10px] font-bold hover:bg-orange-600 disabled:opacity-50"
-                      >
-                        <Download size={12} />
-                        {pdfLoading ? "Loading..." : "Get Slip"}
-                      </button>
-
-                    </td>
-
-                  </tr>
-                ))
-              ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 text-[10px] font-bold uppercase border-b">
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="p-20 text-center text-slate-300 font-bold uppercase"
-                  >
-                    No Admissions Found
-                  </td>
+                  <th className="p-4">Date</th>
+                  <th className="p-4">Student</th>
+                  <th className="p-4">Course</th>
+                  <th className="p-4 text-center">Final</th>
+                  <th className="p-4 text-right">PDF</th>
                 </tr>
-              )}
+              </thead>
 
-            </tbody>
+              <tbody className="text-xs divide-y">
+                {filtered.length ? (
+                  filtered.map((ad, i) => (
+                    <tr key={ad._id || i} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-4 whitespace-nowrap">
+                        {ad.admissionDate
+                          ? new Date(ad.admissionDate).toLocaleDateString("en-GB")
+                          : "N/A"}
+                      </td>
 
-          </table>
+                      <td className="p-4">
+                        <div className="font-bold text-slate-800">{ad.studentName}</div>
+                        <div className="text-[10px] text-slate-400 flex gap-1 items-center">
+                          <Phone size={10} /> {ad.phone}
+                        </div>
+                      </td>
 
+                      <td className="p-4">
+                        <div className="font-semibold text-slate-700">{ad.course}</div>
+                        <div className="text-[10px] text-orange-600 font-bold uppercase">
+                          {ad.universityName}
+                        </div>
+                      </td>
+
+                      <td className="p-4 text-center font-bold text-slate-800 whitespace-nowrap">
+                        Rs. {cleanAmount(ad.c_totalFees)}
+                      </td>
+
+                      <td className="p-4 text-right whitespace-nowrap">
+                        <button
+                          disabled={pdfLoading}
+                          onClick={() => downloadPDF(ad)}
+                          className="inline-flex items-center gap-2 bg-orange-500 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-orange-600 disabled:opacity-50 transition-all shadow-sm"
+                        >
+                          <Download size={12} />
+                          {pdfLoading ? "Loading..." : "Get Slip"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="p-16 text-center text-slate-400 font-bold uppercase"
+                    >
+                      No Admissions Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

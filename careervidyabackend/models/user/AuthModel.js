@@ -1,5 +1,119 @@
 
 
+// import mongoose from "mongoose";
+
+// const studentSchema = new mongoose.Schema(
+//   {
+//     name: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+
+//     email: {
+//       type: String,
+//       unique: true,
+//       lowercase: true,
+//       trim: true,
+//       match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+//     },
+
+//     mobileNumber: {
+//       type: String,
+//       match: /^[0-9]{10,15}$/,
+//     },
+
+//     state: {
+//       type: String,
+//       trim: true,
+//     },
+
+//     city: {
+//       type: String,
+//       trim: true,
+//     },
+
+//     addresses: {
+//       type: String,
+//       trim: true,
+//     },
+
+//     course: {
+//       type: String,
+//       trim: true,
+//     },
+
+//     // ✅ Branch (CSE, IT, Mechanical etc.)
+//     branch: {
+//       type: String,
+//       trim: true,
+//     },
+
+//     // ✅ Specialization (AI, Data Science, Cyber Security etc.)
+//     specialization: {
+//       type: String,
+//       trim: true,
+//     },
+
+//     // ✅ Date of Birth
+//     dob: {
+//       type: Date,
+//     },
+
+//     // ✅ Subsidy Coupon Code
+//     subsidyCoupon: {
+//       type: String,
+//       trim: true,
+//       uppercase: true,
+//     },
+
+//     description: {
+//       type: String,
+//       trim: true,
+//       maxlength: 500,
+//     },
+
+//     gender: {
+//       type: String,
+//       enum: ["male", "female", "other"],
+//       default: "other",
+//     },
+
+//     role: {
+//       type: String,
+//       enum: ["user", "admin", "subadmin"],
+//       default: "user",
+//     },
+//       permissions: {
+//     type: [String],
+//     default: [],
+//   },
+
+//     isSystemAdmin: {
+//       type: Boolean,
+//       default: false,
+//     },
+
+//     oauthId: {
+//       type: String,
+//     },
+
+//     // Was previously written by authMiddleware.js but never declared here —
+//     // Mongoose's default strict mode silently drops undeclared fields on
+//     // write, so admin/subadmin inactivity auto-logout has never actually
+//     // worked. See authMiddleware.js.
+//     lastActivity: {
+//       type: Date,
+//       default: null,
+//     },
+//   },
+//   { timestamps: true }
+// );
+
+// const Student = mongoose.model("Student", studentSchema);
+// export default Student;
+
+
 import mongoose from "mongoose";
 
 const studentSchema = new mongoose.Schema(
@@ -12,7 +126,7 @@ const studentSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      unique: true,
+      unique: true, // ✅ MongoDB index handles uniqueness automatically
       lowercase: true,
       trim: true,
       match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
@@ -43,24 +157,20 @@ const studentSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // ✅ Branch (CSE, IT, Mechanical etc.)
     branch: {
       type: String,
       trim: true,
     },
 
-    // ✅ Specialization (AI, Data Science, Cyber Security etc.)
     specialization: {
       type: String,
       trim: true,
     },
 
-    // ✅ Date of Birth
     dob: {
       type: Date,
     },
 
-    // ✅ Subsidy Coupon Code
     subsidyCoupon: {
       type: String,
       trim: true,
@@ -84,10 +194,11 @@ const studentSchema = new mongoose.Schema(
       enum: ["user", "admin", "subadmin"],
       default: "user",
     },
-      permissions: {
-    type: [String],
-    default: [],
-  },
+
+    permissions: {
+      type: [String],
+      default: [],
+    },
 
     isSystemAdmin: {
       type: Boolean,
@@ -98,10 +209,6 @@ const studentSchema = new mongoose.Schema(
       type: String,
     },
 
-    // Was previously written by authMiddleware.js but never declared here —
-    // Mongoose's default strict mode silently drops undeclared fields on
-    // write, so admin/subadmin inactivity auto-logout has never actually
-    // worked. See authMiddleware.js.
     lastActivity: {
       type: Date,
       default: null,
@@ -112,4 +219,3 @@ const studentSchema = new mongoose.Schema(
 
 const Student = mongoose.model("Student", studentSchema);
 export default Student;
-

@@ -334,10 +334,10 @@ export default function TeamListingPage() {
       <Header />
 
       <section
-        className="relative bg-blue-300 h-80 flex items-center justify-center text-center overflow-hidden cursor-pointer"
+        className="relative bg-gradient-to-r from-[#0f2027] via-[#203a43] to-[#2c5364]  h-80 flex items-center justify-center text-center overflow-hidden cursor-pointer"
         style={{ backgroundImage: "url('/images/counselor-banner-placeholder.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0f2027] via-[#203a43] to-[#2c5364]  backdrop-blur-sm" aria-hidden="true" />
         <div className="relative z-10 p-4 max-w-4xl text-white">
           <h1 className="text-4xl md:text-5xl font-extrabold uppercase">Meet Our Expert Career Counselors</h1>
           <p className="mt-3 text-lg opacity-90">Find the right mentor to guide your future and book a personalised session today</p>

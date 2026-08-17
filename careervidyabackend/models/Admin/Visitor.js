@@ -1,15 +1,13 @@
 import mongoose from "mongoose";
 
 // ── Module 1: Visitor Analytics ──────────────────────────────────
-// Extended from the original basic IP+pages tracker. Kept the original
-// fields (ip, visits, pages, isReturning, lastVisitedAt) so existing
-// admin dashboards / queries keep working, and added everything Module 1
-// asks for on top.
 const visitorSchema = new mongoose.Schema(
   {
     // ---- identity ----
-    sessionId: { type: String, index: true }, // one per browser tab session
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "Student", default: null, index: true },
+    // ✅ FIX: "index: true" yahan se hata diya (niche unique index declared hai)
+    sessionId: { type: String }, 
+    // ✅ FIX: "index: true" yahan se hata diya
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "Student", default: null },
     isGuest: { type: Boolean, default: true },
 
     ip: String,
@@ -21,7 +19,7 @@ const visitorSchema = new mongoose.Schema(
     osVersion: String,
     screenResolution: String, // e.g. "1920x1080"
 
-    // ---- geo (from geoip-lite, offline lookup — best-effort, may be null for local/VPN IPs) ----
+    // ---- geo (from geoip-lite, offline lookup) ----
     city: String,
     state: String,
     country: String,
@@ -57,8 +55,9 @@ const visitorSchema = new mongoose.Schema(
 );
 
 visitorSchema.index({ ip: 1 });
+visitorSchema.index({ userId: 1 }); // ✅ Clean explicit index for userId
 visitorSchema.index({ sessionId: 1 }, { unique: true, sparse: true });
 visitorSchema.index({ createdAt: -1 });
-visitorSchema.index({ lastActiveTime: -1 }); // Module 10: "online now" dashboard cards, queried every 30s
+visitorSchema.index({ lastActiveTime: -1 }); // Module 10: "online now" dashboard cards
 
 export default mongoose.model("Visitor", visitorSchema);

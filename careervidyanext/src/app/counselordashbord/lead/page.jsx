@@ -641,9 +641,13 @@ const LeadRow = ({ lead, onSave }) => {
         </td>
       </tr>
 
-      {/* Activity Timeline Modal */}
+      {/* Activity Timeline Modal — FIX: wrapped in <tr><td> so no <div> is a direct child of <tbody> */}
       {showTimeline && (
-        <LeadTimelineModal leadId={lead._id} onClose={() => setShowTimeline(false)} />
+        <tr>
+          <td colSpan="6" className="p-0 border-none">
+            <LeadTimelineModal leadId={lead._id} onClose={() => setShowTimeline(false)} />
+          </td>
+        </tr>
       )}
 
       {/* Student Admission Modal */}

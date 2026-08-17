@@ -93,7 +93,7 @@ export const metadata = {
     title:
       "Top Online Universities & Courses in India | CareerVidya",
     description:
-      "Compare top UGC-recognized online universities and degree programs in India. Explore MBA, MCA, BBA, BCA, M.Com and other career-focused online courses.",
+      "Compare top UGC-recognized online universities and degree programs in India. Explore MBA, MCA, BBA, BCA, M.Com and other career-focused online courses in india.",
     images: [
       {
         url: "/images/universities-og.jpg",
