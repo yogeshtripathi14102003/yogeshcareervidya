@@ -9,34 +9,29 @@ export default function CompactBannerSection() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative w-full flex justify-center">
+    <div className="relative w-full max-w-[1510px] mx-auto overflow-hidden">
       
-      {/* Banner Image */}
-      <Image 
-        src={backgroundImage} 
-        alt="Banner" 
-        width={1510}
-        height={500}
-        priority
-        className="
-          object-contain 
-          w-auto 
-          h-auto 
-          max-w-full 
-          max-h-[450px]     
-          md:max-h-[600px]  /* 🖥 desktop SAME */
-        " 
-      />
+      {/* Banner Image - Aspect Ratio maintain rahegi aur bilkul crop nahi hogi */}
+      <div className="relative w-full h-auto">
+        <Image 
+          src={backgroundImage} 
+          alt="Banner" 
+          width={1510}
+          height={500}
+          priority
+          sizes="(max-width: 1200px) 100vw, 1510px"
+          className="w-full h-auto object-contain block" 
+        />
+      </div>
 
       {/* Apply Now Button */}
       <div
         className="
           absolute 
-          bottom-2          /* 📱 mobile → thoda aur niche */
-          left-3
-          md:bottom-16      /* 🖥 desktop SAME */
-          md:left-5
-        "
+          bottom-[5%] 
+          left-[3%]
+          md:bottom-[10%] 
+          md:left-[4%]"
       >
         <button
           onClick={() => setIsOpen(true)}
@@ -45,15 +40,16 @@ export default function CompactBannerSection() {
             bg-[#FFC107] 
             text-black 
             font-bold 
-            py-[6px]         /* 📱 mobile smaller height */
-            px-5             /* 📱 mobile smaller width */
-            md:py-3          /* 🖥 desktop SAME */
+            py-1.5 
+            px-4 
+            md:py-3 
             md:px-10
-            rounded-lg       /* 📱 slightly compact look */
+            rounded-lg 
             hover:bg-[#FFB300] 
             transition 
             shadow-xl 
-            text-[10px]      /* 📱 mobile smaller text */
+            text-[10px] 
+            sm:text-xs
             md:text-sm
             uppercase 
             flex 
@@ -62,7 +58,7 @@ export default function CompactBannerSection() {
             tracking-wide
           "
         >
-          Apply Now <span className="ml-1 text-sm md:text-l">→</span>
+          Apply Now <span className="ml-1 text-xs md:text-base">→</span>
         </button>
       </div>
 
