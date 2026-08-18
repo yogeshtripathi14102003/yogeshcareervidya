@@ -118,7 +118,13 @@ export default function Header() {
         <div className="header-inner">
 
           {/* ── LOGO ── */}
-          <Link href="/Home" className="logo-wrapper">
+          {/* ✅ FIX: was "/Home" — a separate, duplicate route that Google
+              indexed alongside "/" (duplicate H1 + meta description).
+              Since this Header renders on every page, every internal link
+              site-wide was pointing crawlers at "/Home". Now points at the
+              real homepage "/". A permanent redirect for "/Home" stays in
+              next.config.js as a safety net for any old bookmarks/links. */}
+          <Link href="/" className="logo-wrapper">
             <div className="logo-box">
               <Image src="/images/n12.png" alt="CareerVidya Logo"
                 width={110} height={40} className="logo-img" priority />
@@ -292,7 +298,12 @@ export default function Header() {
 
           {/* ── DESKTOP RIGHT: SEARCH + SIGNUP / USER ── */}
           <div className="right-actions desktop-only">
-            <Link href="/search" className="search-link">
+            {/* ✅ FIX: added aria-label — the visible content here is just a
+                readOnly input placeholder + icon, which crawlers don't treat
+                as real anchor text. aria-label gives the link a clear,
+                indexable purpose (low-impact since /search is noindexed,
+                but keeps things consistent site-wide). */}
+            <Link href="/search" className="search-link" aria-label="Search courses and universities">
               <div className="main-search-bar">
                 <input type="text" placeholder="Explore Courses"
                   className="main-search-input" readOnly />
