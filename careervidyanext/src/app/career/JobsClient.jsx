@@ -239,6 +239,7 @@
 // }
 
 
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -348,16 +349,6 @@ export default function JobsClient({ initialJobs }) {
     const start = (currentPage - 1) * JOBS_PER_PAGE;
     return filteredJobs.slice(start, start + JOBS_PER_PAGE);
   }, [filteredJobs, currentPage]);
-
-  // Group paginated jobs by department
-  const grouped = useMemo(() => {
-    return paginatedJobs.reduce((acc, job) => {
-      const dept = job?.department || "Others";
-      if (!acc[dept]) acc[dept] = [];
-      acc[dept].push(job);
-      return acc;
-    }, {});
-  }, [paginatedJobs]);
 
   const isFilterActive = search || selectedDept || selectedLocation;
 
@@ -469,7 +460,7 @@ export default function JobsClient({ initialJobs }) {
 
       {/* Content: Job Listings */}
       <div className="max-w-6xl mx-auto mt-6 mb-20 px-4">
-        {Object.keys(grouped).length === 0 ? (
+        {paginatedJobs.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 border border-gray-200 rounded-2xl">
             <p className="text-gray-500 text-lg">
               No job openings found 😕
@@ -485,78 +476,70 @@ export default function JobsClient({ initialJobs }) {
           </div>
         ) : (
           <>
-            {Object.keys(grouped).map((dept) => (
-              <div key={dept} className="mb-8">
-                <h2 className="text-lg font-bold text-[#0A4FA3] mb-3">
-                  {dept}
-                </h2>
-
-                <div className="flex flex-col gap-4">
-                  {grouped[dept].map((job) => {
-                    const jobId = job.jobId || job.id || job._id;
-                    return (
-                      <div
-                        key={job._id || jobId}
-                        className="bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 hover:shadow-md transition"
-                      >
-                        {/* LEFT */}
-                        <div
-                          onClick={() => openDetail(job)}
-                          className="cursor-pointer flex-1"
-                        >
-                          <div className="flex flex-wrap items-baseline gap-2">
-                            <h3 className="text-base md:text-lg font-bold text-[#0A4FA3]">
-                              {job.title}
-                            </h3>
-                            {jobId && (
-                              <span className="text-xs text-gray-500">
-                                (Job ID : {jobId})
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-600">
-                            <span className="flex items-center gap-1.5">
-                              <span className="bg-blue-100 text-blue-600 rounded-full p-1 flex items-center justify-center">
-                                <MapPin className="w-3.5 h-3.5" />
-                              </span>
-                              {job.location || "Not specified"}
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <span className="bg-blue-100 text-blue-600 rounded-full p-1 flex items-center justify-center">
-                                <Briefcase className="w-3.5 h-3.5" />
-                              </span>
-                              {formatExperience(job.experience)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* RIGHT */}
-                        <div className="flex flex-col items-end gap-2 shrink-0">
-                          <span className="text-sm font-bold italic text-gray-800">
-                            {job.type || "Full time"}
+            <div className="flex flex-col gap-4">
+              {paginatedJobs.map((job) => {
+                const jobId = job.jobId || job.id || job._id;
+                return (
+                  <div
+                    key={job._id || jobId}
+                    className="bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 hover:shadow-md transition"
+                  >
+                    {/* LEFT */}
+                    <div
+                      onClick={() => openDetail(job)}
+                      className="cursor-pointer flex-1"
+                    >
+                      <div className="flex flex-wrap items-baseline gap-2">
+                        <h3 className="text-base md:text-lg font-bold text-[#0A4FA3]">
+                          {job.title}
+                        </h3>
+                        {jobId && (
+                          <span className="text-xs text-gray-500">
+                            (Job ID : {jobId})
                           </span>
-
-                          <button
-                            onClick={() => openDetail(job)}
-                            className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-[#0A4FA3] font-medium px-4 py-1.5 rounded-full transition text-sm"
-                          >
-                            Apply Now
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-
-                          {isMounted && job.createdAt && (
-                            <span className="text-xs text-gray-400">
-                              {new Date(job.createdAt).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-600">
+                        <span className="flex items-center gap-1.5">
+                          <span className="bg-blue-100 text-blue-600 rounded-full p-1 flex items-center justify-center">
+                            <MapPin className="w-3.5 h-3.5" />
+                          </span>
+                          {job.location || "Not specified"}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="bg-blue-100 text-blue-600 rounded-full p-1 flex items-center justify-center">
+                            <Briefcase className="w-3.5 h-3.5" />
+                          </span>
+                          {formatExperience(job.experience)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <span className="text-sm font-bold italic text-gray-800">
+                        {job.type || "Full time"}
+                      </span>
+
+                      <button
+                        onClick={() => openDetail(job)}
+                        className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-[#0A4FA3] font-medium px-4 py-1.5 rounded-full transition text-sm"
+                      >
+                        Apply Now
+                        <Send className="w-3.5 h-3.5" />
+                      </button>
+
+                      {isMounted && job.createdAt && (
+                        <span className="text-xs text-gray-400">
+                          {new Date(job.createdAt).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
@@ -603,3 +586,7 @@ export default function JobsClient({ initialJobs }) {
     </>
   );
 }
+
+
+
+

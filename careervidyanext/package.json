@@ -4,13 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
-    "sharp": "^0.34.5",
     "@faker-js/faker": "^10.0.0",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
@@ -29,6 +27,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@tanstack/react-query": "^5.62.0",
     "algoliasearch": "^5.40.0",
     "axios": "^1.12.2",
     "chart.js": "^4.5.1",
@@ -38,6 +37,7 @@
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.26",
     "gsap": "^3.14.2",
+    "html2canvas": "^1.4.1",
     "i": "^0.3.7",
     "js-cookie": "^3.0.5",
     "jspdf": "^4.1.0",
@@ -59,10 +59,10 @@
     "react-simple-typewriter": "^5.0.1",
     "react-slick": "^0.31.0",
     "recharts": "^3.2.1",
-    "@tanstack/react-query": "^5.62.0",
-    "socket.io-client": "^4.8.1",
+    "sharp": "^0.34.5",
     "slick-carousel": "^1.8.1",
     "smooth-scrollbar": "^8.8.4",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",
     "swiper": "^12.0.3",
     "tailwind-merge": "^3.3.1",
