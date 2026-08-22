@@ -202,6 +202,8 @@
 //   );
 // }
 
+
+
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -209,6 +211,7 @@ import { useEffect, useState } from "react";
 import api from "@/utlis/api";
 import Header from "@/app/layout/Header.jsx";
 import Footer from "@/app/layout/Footer.jsx";
+
 import { Download } from "lucide-react";
 
 export default function ComparePageClient({ teamSection }) {

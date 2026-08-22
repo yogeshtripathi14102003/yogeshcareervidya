@@ -45,7 +45,7 @@ export default function UniversityDetail({ initialData }) {
     const Eligibilityref = useRef(null);
     const approvelRef = useRef(null);
     const HeighlighRef = useRef(null);
-    const tabs = ["Overview", "Key Highlight", "Courses","Approvel", "Eligibility", "Feesstracture", "Admission Process", "Placement", "Review", "Faq"];
+    const tabs = ["Overview", "Key Highlight", "Courses","Approval", "Eligibility", "Fee Structure", "Admission Process", "Placement", "Review", "FAQ"];
 
     const handleTabClick = (tab) => {
         const refMap = {
