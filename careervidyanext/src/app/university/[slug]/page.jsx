@@ -55,7 +55,11 @@ import UniversityDetail from "@/app/university/UniversityDetail.jsx";
 import { serverFetch } from "@/utlis/serverFetch";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+// ✅ SEO FIX: was `export const dynamic = "force-dynamic"`, which forces a
+// full server re-render on every request with no caching — even though the
+// fetch below already uses `revalidate: 60`. Removed in favor of ISR so
+// Next.js can serve a cached page and regenerate it in the background.
+export const revalidate = 60;
 
 async function getUniversityData(slug) {
   const { ok, data } = await serverFetch(`/api/v1/university/slug/${slug}`, {
@@ -99,6 +103,15 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const cleanDescription =
+    data.description?.replace(/<[^>]*>/g, "").substring(0, 150) ||
+    `Explore ${data.name} courses, fees, eligibility criteria, and the admission process.`;
+
+  const canonicalUrl = `https://careervidya.in/university/${slug}`;
+  const ogImage = data.universityImage?.startsWith("http")
+    ? data.universityImage
+    : `https://careervidya.in${data.universityImage?.startsWith("/") ? "" : "/"}${data.universityImage || "images/universities-og.jpg"}`;
+
   return {
     // ✅ FIX: was `${data.name} | CareerVidya` — same double-suffix issue.
     // Confirmed live on /university/manipal-university-jaipur, which was
@@ -110,11 +123,36 @@ export async function generateMetadata({ params }) {
     // with no university name, which would be identical across every
     // university page that has no `data.description` — a duplicate-meta-
     // description risk. Now includes the university name.
-    description:
-      data.description?.replace(/<[^>]*>/g, "").substring(0, 150) ||
-      `Explore ${data.name} courses, fees, eligibility criteria, and the admission process.`,
+    description: cleanDescription,
     alternates: {
-      canonical: `https://careervidya.in/university/${slug}`,
+      canonical: canonicalUrl,
+    },
+    // ✅ SEO FIX: openGraph/twitter were missing entirely on this page —
+    // meaning every individual university page (this template covers all
+    // of them) fell back to generic/blank previews when shared on
+    // WhatsApp, LinkedIn, Facebook, Twitter/X. /universities (the listing
+    // page) already has these; added here for consistency across the site.
+    openGraph: {
+      title: data.name,
+      description: cleanDescription,
+      url: canonicalUrl,
+      siteName: "CareerVidya",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${data.name} - CareerVidya`,
+        },
+      ],
+      locale: "en_IN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: data.name,
+      description: cleanDescription,
+      images: [ogImage],
     },
   };
 }
