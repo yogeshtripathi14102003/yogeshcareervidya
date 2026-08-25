@@ -434,7 +434,16 @@
   flex-shrink: 0;
   border-radius: 2px;
 }
-.mega-col-heading h4 {
+/*
+  SEO FIX: renamed from `.mega-col-heading h4` to `.mega-col-heading-text`.
+  The JSX now renders these mega-menu column labels ("Quick Links",
+  "Get in Touch", "Top Ranked", etc.) as <p className="mega-col-heading-text">
+  instead of <h4>, since they are decorative dropdown labels, not real
+  content headings — and Header (which contains them) renders on every
+  page before that page's own <h1>. Same visual styling, just no longer
+  part of the page's semantic heading outline.
+*/
+.mega-col-heading-text {
   font-size: 15px;
   font-weight: 700;
   margin: 0;
