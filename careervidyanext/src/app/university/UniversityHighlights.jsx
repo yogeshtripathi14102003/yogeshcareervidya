@@ -56,11 +56,12 @@
 //     );
 // }
 
+
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
 
-// ✅ FIX: was self-fetching /api/v1/university/slug/{slug} again — same
+// ✅ FIX: was self-fetching /a pi/v1/university/slug/{slug} again — same
 // data the parent (UniversityDetail) already has via `data` prop. Removed
 // useEffect/api call/loading state entirely; renders synchronously from
 // props so this section is present in the initial SSR HTML.
