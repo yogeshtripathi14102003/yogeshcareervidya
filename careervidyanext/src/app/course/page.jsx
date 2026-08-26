@@ -72,7 +72,7 @@ export const metadata = {
   // search/filter), while /explore is the full searchable directory.
   // Distinct wording here avoids both pages targeting the identical
   // search intent/title.
-  title: "Top Courses & Partner Universities | CareerVidya",
+  title: " Flexible Online MBA for Working Professionals ",
   description:
     "A quick look at our top-rated online courses and partner universities. Compare fees, duration, and eligibility, or search the full directory on our Explore page.",
   alternates: { canonical: PAGE_URL },
