@@ -42,7 +42,7 @@ export default function ContactBanner() {
         <div className="relative z-10 flex flex-col items-center md:items-start text-center md:text-left">
           <PhoneCall size={48} className="text-white mb-4" />
           <p className="text-lg font-medium text-gray-100">Reach Out Now</p>
-          <p className="text-2xl font-bold mt-1"> +91 12018447695</p>
+          <p className="text-2xl font-bold mt-1"> +91 9289716667</p>
 
           <Link
             href="/contactus"

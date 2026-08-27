@@ -59,8 +59,8 @@ export default function ContactUs() {
             icon={<Mail size={36} />}
             title="Contact Us"
             text="Prefer writing? Drop an email and we’ll respond shortly."
-            link="mailto:contact@careervidya.in"
-            linkText="contact@careervidya.in"
+            link="mailto:hr@careervidya.in"
+            linkText="hr@careervidya.in"
           />
         </section>
 

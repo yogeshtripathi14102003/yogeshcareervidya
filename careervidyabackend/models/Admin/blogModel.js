@@ -1,197 +1,451 @@
 
 
+// import mongoose from "mongoose";
+// import slugify from "slugify";
+
+// const blogSchema = new mongoose.Schema(
+// {
+//   /* ================= BASIC INFO ================= */
+
+//   custom_id: {
+//     type: String,
+//     required: true,
+//     unique: true,
+//   },
+
+//   title: {
+//     type: String,
+//     required: true,
+//     trim: true,
+//   },
+
+//   slug: {
+//     type: String,
+//     unique: true,
+//     lowercase: true,
+//     trim: true,
+//   },
+
+//   category: {
+//     type: String,
+//     required: true,
+//     trim: true,
+//   },
+
+//   reads: {
+//     type: Number,
+//     default: 0,
+//   },
+
+//   is_verified: {
+//     type: Boolean,
+//     default: false,
+//   },
+
+//   /* ================= FEATURE IMAGE ================= */
+
+//   image: {
+//     public_id: String,
+//     url: {
+//       type: String,
+//       default:
+//         "https://res.cloudinary.com/demo/image/upload/v1699999999/placeholder_blog.png",
+//     },
+//   },
+
+//   /* ================= AUTHOR ================= */
+
+//   author: {
+//     name: {
+//       type: String,
+//       required: true,
+//     },
+
+//     experience: String,
+
+//     specialization: String,
+
+//     designation: String,
+
+//     description: String,
+
+//     profile_img: {
+//       public_id: String,
+//       url: String,
+//     },
+//   },
+
+//   /* ================= BLOG CONTENT ================= */
+
+//   content: [
+//     {
+//       type: {
+//         type: String,
+//         enum: [
+//           "heading",
+//           "paragraph",
+//           "list",
+//           "subheading",
+//           "number_list",
+//           "image",
+//           "video",
+//           "table",
+//           "quote",
+//           "code",
+//         ],
+//         required: true,
+//       },
+
+//       /* heading / paragraph text */
+
+//       text: String,
+
+//       /* heading level (h1-h6) */
+
+//       level: {
+//         type: Number,
+//         min: 1,
+//         max: 6,
+//       },
+
+//       /* text color */
+
+//       color: {
+//         type: String,
+//         default: "#000000",
+//       },
+
+//       /* text alignment */
+
+//       align: {
+//         type: String,
+//         enum: ["left", "center", "right"],
+//         default: "left",
+//       },
+
+//       /* bullet / numbered list */
+
+//       list_items: [
+//         {
+//           type: String,
+//         },
+//       ],
+
+//       /* table */
+
+//       table: {
+//         headers: [String],
+
+//         rows: [[String]],
+//       },
+
+//       /* image / video */
+
+//       media: {
+//         public_id: String,
+
+//         url: String,
+
+//         caption: String,
+//       },
+//     },
+//   ],
+
+//   /* ================= FAQ ================= */
+
+//   faqs: [
+//     {
+//       question: String,
+
+//       answer: String,
+//     },
+//   ],
+
+//   /* ================= SEO ================= */
+
+//   seo: {
+//     meta_title: String,
+
+//     meta_desc: String,
+
+//     keywords: {
+//       type: [String],
+//       default: [],
+//     },
+//   },
+// },
+// {
+//   timestamps: true,
+// }
+// );
+
+// /* ================= AUTO SLUG ================= */
+
+// blogSchema.pre("save", function (next) {
+
+// if (this.isModified("title")) {
+//   this.slug = slugify(this.title, {
+//     lower: true,
+//     strict: true,
+//   });
+// }
+
+// next();
+
+// });
+
+// export default mongoose.model("Blog", blogSchema);
+
+
 import mongoose from "mongoose";
 import slugify from "slugify";
 
 const blogSchema = new mongoose.Schema(
-{
-  /* ================= BASIC INFO ================= */
+  {
+    /* ================= BASIC INFO ================= */
 
-  custom_id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-
-  title: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  slug: {
-    type: String,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-
-  category: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  reads: {
-    type: Number,
-    default: 0,
-  },
-
-  is_verified: {
-    type: Boolean,
-    default: false,
-  },
-
-  /* ================= FEATURE IMAGE ================= */
-
-  image: {
-    public_id: String,
-    url: {
-      type: String,
-      default:
-        "https://res.cloudinary.com/demo/image/upload/v1699999999/placeholder_blog.png",
-    },
-  },
-
-  /* ================= AUTHOR ================= */
-
-  author: {
-    name: {
+    custom_id: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
     },
 
-    experience: String,
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    specialization: String,
+    slug: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
 
-    designation: String,
+    category: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    description: String,
+    reads: {
+      type: Number,
+      default: 0,
+    },
 
-    profile_img: {
+    is_verified: {
+      type: Boolean,
+      default: false,
+    },
+
+    /* ================= FEATURE IMAGE ================= */
+
+    image: {
       public_id: String,
-      url: String,
-    },
-  },
-
-  /* ================= BLOG CONTENT ================= */
-
-  content: [
-    {
-      type: {
+      url: {
         type: String,
-        enum: [
-          "heading",
-          "paragraph",
-          "list",
-          "subheading",
-          "number_list",
-          "image",
-          "video",
-          "table",
-          "quote",
-          "code",
-        ],
+        default:
+          "https://res.cloudinary.com/demo/image/upload/v1699999999/placeholder_blog.png",
+      },
+    },
+
+    /* ================= AUTHOR ================= */
+
+    author: {
+      name: {
+        type: String,
         required: true,
       },
 
-      /* heading / paragraph text */
+      experience: String,
 
-      text: String,
+      specialization: String,
 
-      /* heading level (h1-h6) */
+      designation: String,
 
-      level: {
-        type: Number,
-        min: 1,
-        max: 6,
-      },
+      description: String,
 
-      /* text color */
-
-      color: {
-        type: String,
-        default: "#000000",
-      },
-
-      /* text alignment */
-
-      align: {
-        type: String,
-        enum: ["left", "center", "right"],
-        default: "left",
-      },
-
-      /* bullet / numbered list */
-
-      list_items: [
-        {
-          type: String,
-        },
-      ],
-
-      /* table */
-
-      table: {
-        headers: [String],
-
-        rows: [[String]],
-      },
-
-      /* image / video */
-
-      media: {
+      profile_img: {
         public_id: String,
-
         url: String,
-
-        caption: String,
       },
     },
-  ],
 
-  /* ================= FAQ ================= */
+    /* ================= BLOG CONTENT ================= */
 
-  faqs: [
-    {
-      question: String,
+    content: [
+      {
+        type: {
+          type: String,
+          enum: [
+            "heading",
+            "paragraph",
+            "list",
+            "subheading",
+            "number_list",
+            "image",
+            "video",
+            "table",
+            "quote",
+            "code",
+          ],
+          required: true,
+        },
 
-      answer: String,
-    },
-  ],
+        /* ================= TEXT ================= */
 
-  /* ================= SEO ================= */
+        text: String,
 
-  seo: {
-    meta_title: String,
+        /* ================= INTERNAL / EXTERNAL LINKS ================= */
 
-    meta_desc: String,
+        links: [
+          {
+            text: {
+              type: String,
+              trim: true,
+            },
 
-    keywords: {
-      type: [String],
-      default: [],
+            href: {
+              type: String,
+              trim: true,
+            },
+
+            /* Internal blog ka MongoDB ID */
+            blogId: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "Blog",
+              default: null,
+            },
+
+            /* Internal blog ka slug */
+            slug: {
+              type: String,
+              trim: true,
+              default: null,
+            },
+
+            /*
+             * Paragraph ke andar link kaha start/end hota hai
+             *
+             * Example:
+             *
+             * text:
+             * "Online MBA is good for working professionals"
+             *
+             * start: 0
+             * end: 10
+             *
+             * "Online MBA" clickable hoga
+             */
+
+            start: {
+              type: Number,
+              min: 0,
+            },
+
+            end: {
+              type: Number,
+              min: 0,
+            },
+
+            type: {
+              type: String,
+              enum: ["internal", "external"],
+              default: "internal",
+            },
+          },
+        ],
+
+        /* ================= HEADING LEVEL ================= */
+
+        level: {
+          type: Number,
+          min: 1,
+          max: 6,
+        },
+
+        /* ================= TEXT COLOR ================= */
+
+        color: {
+          type: String,
+          default: "#000000",
+        },
+
+        /* ================= ALIGNMENT ================= */
+
+        align: {
+          type: String,
+          enum: ["left", "center", "right", "justify"],
+          default: "left",
+        },
+
+        /* ================= LIST ================= */
+
+        list_items: [
+          {
+            type: String,
+          },
+        ],
+
+        /* ================= TABLE ================= */
+
+        table: {
+          headers: [String],
+          rows: [[String]],
+        },
+
+        /* ================= IMAGE / VIDEO ================= */
+
+        media: {
+          public_id: String,
+          url: String,
+          caption: String,
+          alt: String,
+        },
+      },
+    ],
+
+    /* ================= FAQ ================= */
+
+    faqs: [
+      {
+        question: String,
+        answer: String,
+      },
+    ],
+
+    /* ================= SEO ================= */
+
+    seo: {
+      meta_title: String,
+
+      meta_desc: String,
+
+      keywords: {
+        type: [String],
+        default: [],
+      },
     },
   },
-},
-{
-  timestamps: true,
-}
+
+  {
+    timestamps: true,
+  }
 );
 
 /* ================= AUTO SLUG ================= */
 
 blogSchema.pre("save", function (next) {
+  if (this.isModified("title")) {
+    this.slug = slugify(this.title, {
+      lower: true,
+      strict: true,
+    });
+  }
 
-if (this.isModified("title")) {
-  this.slug = slugify(this.title, {
-    lower: true,
-    strict: true,
-  });
-}
-
-next();
-
+  next();
 });
 
 export default mongoose.model("Blog", blogSchema);
