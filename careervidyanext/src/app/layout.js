@@ -191,7 +191,7 @@ export const metadata = {
         url: "/og-banner.jpg",
         width: 1200,
         height: 630,
-        alt: "CareerVidya - Best Career Guidance & Online Education Platform India",
+        alt: " Best Career Guidance & Online Education Platform India",
       },
     ],
     locale: "en_IN",

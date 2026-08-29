@@ -89,7 +89,6 @@
 
 // export default nextConfig;
 
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // ✅ Hide tech stack from attackers
@@ -163,6 +162,18 @@ const nextConfig = {
   // in Search Console). 308 permanent redirect merges ranking signals into /
   async redirects() {
     return [
+      // ✅ SEO fix — www.careervidya.in and careervidya.in were both serving
+      // identical content with no redirect (confirmed duplicate: same HTML,
+      // separate 200 OK on both hosts). This was splitting ranking signals
+      // and risking duplicate-content treatment in Search Console.
+      // 308 (permanent) redirect merges www → non-www, matching the
+      // canonical tag already set via metadataBase in layout.js.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.careervidya.in" }],
+        destination: "https://careervidya.in/:path*",
+        permanent: true,
+      },
       {
         source: "/Home",
         destination: "/",

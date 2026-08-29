@@ -224,7 +224,7 @@ export const createCourse = async (req, res) => {
 export const getCourses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = Math.min(parseInt(req.query.limit) || 24, 50); // ✅ max 50
+    const limit = Math.min(parseInt(req.query.limit) || 50, 50); // ✅ max 50
     const filter = req.query.category && req.query.category !== "All"
       ? { category: req.query.category } : {};
 
