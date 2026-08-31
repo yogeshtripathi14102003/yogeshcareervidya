@@ -827,32 +827,49 @@ export default function CoursesClient({ initialCourses = [] }) {
   }, []);
 
   useEffect(() => {
-    // Skip fetch on first mount if server already provided courses
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-
-      if (selectedCategory === "All" && initialCourses.length > 0) {
-        return;
-      }
-    }
+    // NOTE: previously this effect skipped the client-side fetch entirely
+    // on first mount whenever the server already provided `initialCourses`
+    // (for category "All"). That meant priority pinning only ever had
+    // access to whatever CourseGridSection.jsx fetched server-side —
+    // which may use a different/smaller limit — so priority courses
+    // missing from that smaller server-side list never got pinned until
+    // the user switched categories (which triggers a real client fetch).
+    //
+    // Now: `initialCourses` still renders instantly on first paint (fast,
+    // good for SEO), but a full client-side fetch always runs right after,
+    // fetching the larger pool (`fetchLimit` below) so priority pinning
+    // has the complete picture regardless of what the server sent.
+    const isSilentInitialFetch =
+      isFirstRun.current && selectedCategory === "All" && initialCourses.length > 0;
+    isFirstRun.current = false;
 
     const fetchCourses = async () => {
       const page = 1;
-      const limit = displayLimit;
-      const cacheKey = `${selectedCategory}_${page}_${limit}`;
+      // Fetch a much larger pool than what's actually shown, so the
+      // trending + oldest-first sorting in `visibleCourses` has the
+      // full picture to work with — not just whatever happened to be
+      // within the first `displayLimit` results from the API.
+      const fetchLimit = 200;
+      const cacheKey = `${selectedCategory}_${page}_${fetchLimit}`;
 
       if (globalCoursesCache[cacheKey]) {
         setCourses(globalCoursesCache[cacheKey]);
         return;
       }
 
-      setLoading(true);
+      // Don't flash the "Updating..." indicator for the silent
+      // background fetch that follows the initial server-rendered
+      // paint — only show it for fetches triggered by the user
+      // (e.g. switching category).
+      if (!isSilentInitialFetch) {
+        setLoading(true);
+      }
 
       try {
         const url =
           selectedCategory === "All"
-            ? `/api/v1/short?page=${page}&limit=${limit}`
-            : `/api/v1/short?category=${selectedCategory}&page=${page}&limit=${limit}`;
+            ? `/api/v1/short?page=${page}&limit=${fetchLimit}`
+            : `/api/v1/short?category=${selectedCategory}&page=${page}&limit=${fetchLimit}`;
 
         const res = await api.get(url);
         const fetchedData = res.data.courses || [];
@@ -915,10 +932,23 @@ export default function CoursesClient({ initialCourses = [] }) {
       }
     });
 
+    // First 3 remaining items stay exactly as the API returned them —
+    // these are the "TRENDING" cards.
+    const trending = all.slice(0, 3);
+
+    // Everything else is sorted oldest-first (ascending createdAt), so
+    // whichever course was added earliest shows up first among the
+    // non-trending cards.
+    const rest = [...all.slice(3)].sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aTime - bTime;
+    });
+
     // Trim the remaining (non-priority) courses to the display limit,
     // reserving room for the priority courses on top of that limit.
     const remainingLimit = Math.max(displayLimit - picked.length, 0);
-    const limited = all.slice(0, remainingLimit);
+    const limited = [...trending, ...rest].slice(0, remainingLimit);
 
     // Insert priority courses right after the first 3 trending cards
     limited.splice(3, 0, ...picked);
@@ -927,12 +957,12 @@ export default function CoursesClient({ initialCourses = [] }) {
   }, [courses, displayLimit]);
 
   // TEMPORARY DEBUG LOG — remove after checking console output
-  useEffect(() => {
-    console.log(
-      "All course slugs currently in `courses`:",
-      courses.map((c) => c.slug)
-    );
-  }, [courses]);
+  // useEffect(() => {
+  //   console.log(
+  //     "All course slugs currently in `courses`:",
+  //     courses.map((c) => c.slug)
+  //   );
+  // }, [courses]);
 
   // Keep original API/database order in popup
   const sortedPopupCourses = useMemo(() => {
