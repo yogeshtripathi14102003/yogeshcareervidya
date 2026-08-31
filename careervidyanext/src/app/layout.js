@@ -148,7 +148,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://careervidya.in";
+const SITE_URL = "https://careervidya.in";    
 
 const DEFAULT_TITLE = "CareerVidya: Best Career Guidance & Online Education Platform India";
 const DEFAULT_DESC = "CareerVidya — India's leading platform for online MBA, BBA & BCA admissions. Compare top universities, get expert advice, and secure your admission today.";
