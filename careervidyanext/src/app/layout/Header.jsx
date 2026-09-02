@@ -504,7 +504,7 @@ const TOP_UNIVERSITIES = [
 const WHY_CAREERVIDYA = [
   { href: "/whycareervidya/careervidya-care",  label: "Continuous Career Guidance",  icon: Compass,   chip: "chip-blue"    },
   { href: "/whycareervidya/placement-support", label: "Expert Placement Cell",        icon: Award,     chip: "chip-emerald" },
-  { href: "/WP/home",                          label: "Balance your job and learning", icon: Briefcase, chip: "chip-amber"   },
+  { href: "/WP/Professional",                          label: "Balance your job and learning", icon: Briefcase, chip: "chip-amber"   },
 ];
 
 // ─── SMALL REUSABLE PIECES ──────────────────────────────────────────────────
