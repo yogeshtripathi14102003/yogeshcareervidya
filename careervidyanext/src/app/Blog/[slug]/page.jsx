@@ -11,37 +11,58 @@ async function getBlogData(slug) {
 }
 
 /* =========================================================
-   GENERATE STATIC PARAMS
+   RETRY HELPER
    ---------------------------------------------------------
-   IMPORTANT FIX: Without this function, Next.js has no way of
-   knowing which blog slugs exist at build time. That forces
-   every /blog/[slug] page to render dynamically on each
-   request instead of being pre-built as a static page — which
-   is exactly what was causing <title>, canonical, and meta
-   tags to stream into <body> instead of <head> (the SEO issue
-   flagged by Screaming Frog).
+   Build-time backend hiccups (e.g. the API restarting at the
+   exact moment `npm run build` runs) previously caused a 502,
+   which made generateStaticParams silently return an empty
+   list — so /blog/[slug] fell back to full dynamic rendering,
+   which is what was pushing <title>/<canonical> tags into
+   <body> instead of <head>.
 
-   Adding this tells Next.js all known slugs upfront, so it can
-   pre-render (SSG) each blog page at build time, and refresh
-   them periodically via ISR (revalidate: 300 above).
+   This wraps a fetch attempt with a few retries + backoff so a
+   transient 502/503 during build doesn't permanently break SSG
+   for this route. It does NOT fix a backend that's genuinely
+   down for the whole build — only smooths over brief blips.
+========================================================= */
+async function fetchWithRetry(fn, { attempts = 4, delayMs = 3000 } = {}) {
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      const result = await fn();
+      if (result?.ok) return result;
+      console.warn(
+        `[generateStaticParams:blog] attempt ${i}/${attempts} failed (not ok), retrying in ${delayMs}ms...`
+      );
+    } catch (err) {
+      console.warn(
+        `[generateStaticParams:blog] attempt ${i}/${attempts} threw: ${err?.message}, retrying in ${delayMs}ms...`
+      );
+    }
+    if (i < attempts) {
+      await new Promise((res) => setTimeout(res, delayMs));
+    }
+  }
+  return { ok: false, data: null };
+}
 
-   NOTE: This assumes a "/api/v1/blog" endpoint returns the full
-   list of blogs (matching the pattern used by /api/v1/course
-   and /api/v1/university elsewhere in the app). Double-check
-   the exact path/response shape against whatever your blog
-   LISTING page (e.g. src/app/blog/page.jsx) already uses to
-   fetch all posts, and adjust below if it differs.
+/* =========================================================
+   GENERATE STATIC PARAMS
 ========================================================= */
 export async function generateStaticParams() {
-  const { ok, data } = await serverFetch("/api/v1/blog?limit=200");
+  const { ok, data } = await fetchWithRetry(() =>
+    serverFetch("/api/v1/blog?page=1&limit=200")
+  );
 
-  if (!ok) return [];
+  if (!ok) {
+    console.error(
+      "[generateStaticParams:blog] All retry attempts failed — falling back to dynamic rendering for /blog/[slug]. Fix backend availability at build time and rebuild."
+    );
+    return [];
+  }
 
-  const blogs = data?.data || data?.blogs || [];
+  const blogs = data?.data || [];
 
-  return blogs
-    .filter((b) => b?.slug)
-    .map((b) => ({ slug: b.slug }));
+  return blogs.filter((b) => b?.slug).map((b) => ({ slug: b.slug }));
 }
 
 export async function generateMetadata({ params }) {
