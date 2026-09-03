@@ -107,6 +107,7 @@
 // }
 
 
+
 import UniversityDetail from "@/app/university/UniversityDetail.jsx";
 import { serverFetch } from "@/utlis/serverFetch";
 import { notFound } from "next/navigation";
@@ -115,7 +116,7 @@ import { notFound } from "next/navigation";
    PAGE CONFIG
 ========================================================= */
 
-export const revalidate = 60;
+export const revalidate = 90;
 
 const SITE_URL = "https://careervidya.in";
 
@@ -129,7 +130,7 @@ async function getUniversityData(slug) {
       `/api/v1/university/slug/${encodeURIComponent(slug)}`,
       {
         next: {
-          revalidate: 60,
+          revalidate: 90,
         },
       }
     );
@@ -144,6 +145,38 @@ async function getUniversityData(slug) {
 
     return null;
   }
+}
+
+/* =========================================================
+   GENERATE STATIC PARAMS
+   ---------------------------------------------------------
+   IMPORTANT FIX: Without this function, Next.js has no way of
+   knowing which university slugs exist at build time. That
+   forces every /university/[slug] page to render dynamically
+   on each request instead of being pre-built as a static page
+   — which is exactly what was causing <title>, canonical, and
+   meta tags to stream into <body> instead of <head> (the SEO
+   issue flagged by Screaming Frog).
+
+   Adding this tells Next.js all known slugs upfront, so it can
+   pre-render (SSG) each university page at build time, and
+   refresh them periodically via ISR (revalidate: 60 above).
+
+   NOTE: This reuses the same "/api/v1/university" endpoint
+   already used elsewhere in the app (e.g. the /university and
+   /explore listing pages) — adjust the path/limit if your API
+   needs a different query for the full list.
+========================================================= */
+export async function generateStaticParams() {
+  const { ok, data } = await serverFetch("/api/v1/university");
+
+  if (!ok) return [];
+
+  const universities = data?.data || [];
+
+  return universities
+    .filter((u) => u?.slug)
+    .map((u) => ({ slug: u.slug }));
 }
 
 /* =========================================================
