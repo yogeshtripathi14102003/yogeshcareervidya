@@ -823,9 +823,15 @@
 //   );
 // }
 
+
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import {
   Plus,
   Trash2,
@@ -835,9 +841,9 @@ import {
   Upload,
   Image as ImageIcon,
   GripVertical,
-  Eye,
   ExternalLink,
 } from "lucide-react";
+
 import api from "@/utlis/api";
 
 /* =========================================================
@@ -846,15 +852,25 @@ import api from "@/utlis/api";
 
 const createBlock = (type = "paragraph") => ({
   type,
+
   text: "",
-  level: type === "heading" ? 2 : 3,
+
+  level:
+    type === "heading"
+      ? 2
+      : 3,
+
   color: "#000000",
+
   align: "left",
+
   list_items: [],
+
   table: {
     headers: [],
     rows: [],
   },
+
   media: {
     public_id: "",
     url: "",
@@ -862,13 +878,21 @@ const createBlock = (type = "paragraph") => ({
     alt: "",
   },
 
-  // Multiple internal links
   links: [],
 });
 
+
+const createFaq = () => ({
+  question: "",
+  answer: "",
+});
+
+
 const initialForm = {
   custom_id: "",
+
   title: "",
+
   category: "",
 
   author: {
@@ -879,13 +903,12 @@ const initialForm = {
     description: "",
   },
 
-  content: [createBlock("paragraph")],
+  content: [
+    createBlock("paragraph"),
+  ],
 
   faqs: [
-    {
-      question: "",
-      answer: "",
-    },
+    createFaq(),
   ],
 
   seo: {
@@ -895,11 +918,13 @@ const initialForm = {
   },
 };
 
+
 /* =========================================================
    MAIN COMPONENT
 ========================================================= */
 
 export default function AddBlogPage() {
+
   const [formData, setFormData] =
     useState(initialForm);
 
@@ -927,33 +952,41 @@ export default function AddBlogPage() {
   const [previewAuthor, setPreviewAuthor] =
     useState("");
 
-  /*
-   * Textarea refs
-   *
-   * blockIndex -> textarea
-   */
-  const textareaRefs = useRef({});
+  const textareaRefs =
+    useRef({});
 
-  /*
-   * Temporary selected text
-   */
-  const selections = useRef({});
+  const selections =
+    useRef({});
 
-  /*
-   * Internal link modal
-   */
+  const [selectionPreview, setSelectionPreview] =
+    useState({});
+
+
+  /* =======================================================
+     INTERNAL LINK MODAL
+  ======================================================= */
+
   const [linkModal, setLinkModal] =
     useState({
       open: false,
+
       blockIndex: null,
+
       linkIndex: null,
 
       text: "",
+
       start: 0,
+
       end: 0,
 
+      linkType: "blog",
+
       blogId: "",
+
+      href: "",
     });
+
 
   /* =======================================================
      LOAD BLOGS
@@ -963,13 +996,17 @@ export default function AddBlogPage() {
     loadBlogs();
   }, []);
 
+
   const loadBlogs = async () => {
+
     try {
+
       setBlogsLoading(true);
 
-      const response = await api.get(
-        "/api/v1/blog"
-      );
+      const response =
+        await api.get(
+          "/api/v1/blog"
+        );
 
       const data =
         response?.data?.data ||
@@ -981,15 +1018,21 @@ export default function AddBlogPage() {
           ? data
           : []
       );
+
     } catch (error) {
+
       console.error(
         "Blog loading error:",
         error
       );
+
     } finally {
+
       setBlogsLoading(false);
+
     }
   };
+
 
   /* =======================================================
      FORM UPDATE
@@ -999,7 +1042,9 @@ export default function AddBlogPage() {
     path,
     value
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1010,6 +1055,7 @@ export default function AddBlogPage() {
         i < path.length - 1;
         i++
       ) {
+
         current =
           current[path[i]];
       }
@@ -1022,6 +1068,7 @@ export default function AddBlogPage() {
     });
   };
 
+
   /* =======================================================
      BLOCK UPDATE
   ======================================================= */
@@ -1031,7 +1078,9 @@ export default function AddBlogPage() {
     key,
     value
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1042,6 +1091,150 @@ export default function AddBlogPage() {
     });
   };
 
+
+  /* =======================================================
+     TEXT UPDATE
+  ======================================================= */
+
+  const updateBlockText = (
+    blockIndex,
+    newText
+  ) => {
+
+    setFormData((prev) => {
+
+      const next =
+        structuredClone(prev);
+
+      const block =
+        next.content[blockIndex];
+
+      const oldText =
+        block.text || "";
+
+      let prefixLen = 0;
+
+      const maxPrefix =
+        Math.min(
+          oldText.length,
+          newText.length
+        );
+
+      while (
+        prefixLen < maxPrefix &&
+        oldText[prefixLen] ===
+          newText[prefixLen]
+      ) {
+
+        prefixLen++;
+      }
+
+
+      let suffixLen = 0;
+
+      const maxSuffix =
+        Math.min(
+          oldText.length,
+          newText.length
+        ) - prefixLen;
+
+
+      while (
+        suffixLen < maxSuffix &&
+        oldText[
+          oldText.length -
+            1 -
+            suffixLen
+        ] ===
+          newText[
+            newText.length -
+              1 -
+              suffixLen
+          ]
+      ) {
+
+        suffixLen++;
+      }
+
+
+      const oldEditEnd =
+        oldText.length -
+        suffixLen;
+
+
+      const delta =
+        newText.length -
+        oldText.length;
+
+
+      const existingLinks =
+        Array.isArray(block.links)
+          ? block.links
+          : [];
+
+
+      const updatedLinks =
+        existingLinks
+          .map((link) => {
+
+            /*
+             * Edit happened after link
+             */
+
+            if (
+              oldEditEnd <=
+              link.start
+            ) {
+
+              return {
+                ...link,
+
+                start:
+                  link.start +
+                  delta,
+
+                end:
+                  link.end +
+                  delta,
+              };
+            }
+
+
+            /*
+             * Edit happened before link
+             */
+
+            if (
+              prefixLen >=
+              link.end
+            ) {
+
+              return link;
+            }
+
+
+            /*
+             * Edit overlaps link
+             */
+
+            return null;
+
+          })
+          .filter(Boolean);
+
+
+      block.text =
+        newText;
+
+      block.links =
+        updatedLinks;
+
+
+      return next;
+    });
+  };
+
+
   /* =======================================================
      ADD BLOCK
   ======================================================= */
@@ -1049,15 +1242,20 @@ export default function AddBlogPage() {
   const addBlock = (
     type = "paragraph"
   ) => {
+
     setFormData((prev) => ({
+
       ...prev,
 
       content: [
         ...prev.content,
+
         createBlock(type),
       ],
+
     }));
   };
+
 
   /* =======================================================
      DELETE BLOCK
@@ -1066,18 +1264,22 @@ export default function AddBlogPage() {
   const deleteBlock = (
     index
   ) => {
+
     if (
       formData.content.length ===
       1
     ) {
+
       alert(
-        "At least one content block required."
+        "At least one content block is required."
       );
 
       return;
     }
 
+
     setFormData((prev) => ({
+
       ...prev,
 
       content:
@@ -1085,44 +1287,66 @@ export default function AddBlogPage() {
           (_, i) =>
             i !== index
         ),
+
     }));
 
+
     setContentImages((prev) => {
+
       const next = {};
 
       Object.entries(prev).forEach(
         ([key, value]) => {
+
           const oldIndex =
             Number(key);
 
           if (
             oldIndex < index
           ) {
+
             next[oldIndex] =
               value;
           }
 
+
           if (
             oldIndex > index
           ) {
-            next[oldIndex - 1] =
-              value;
+
+            next[
+              oldIndex - 1
+            ] = value;
           }
+
         }
       );
 
       return next;
     });
+
+
+    delete textareaRefs.current[
+      index
+    ];
+
+    delete selections.current[
+      index
+    ];
+
   };
 
+
   /* =======================================================
-     ADD LIST ITEM
+     LIST
   ======================================================= */
 
   const addListItem = (
     blockIndex
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1134,12 +1358,15 @@ export default function AddBlogPage() {
     });
   };
 
+
   const updateListItem = (
     blockIndex,
     itemIndex,
     value
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1152,11 +1379,14 @@ export default function AddBlogPage() {
     });
   };
 
+
   const deleteListItem = (
     blockIndex,
     itemIndex
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1171,30 +1401,34 @@ export default function AddBlogPage() {
     });
   };
 
+
   /* =======================================================
      FAQ
   ======================================================= */
 
   const addFaq = () => {
+
     setFormData((prev) => ({
+
       ...prev,
 
       faqs: [
         ...prev.faqs,
-        {
-          question: "",
-          answer: "",
-        },
+        createFaq(),
       ],
+
     }));
   };
+
 
   const updateFaq = (
     index,
     key,
     value
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1205,10 +1439,13 @@ export default function AddBlogPage() {
     });
   };
 
+
   const deleteFaq = (
     index
   ) => {
+
     setFormData((prev) => ({
+
       ...prev,
 
       faqs:
@@ -1216,8 +1453,10 @@ export default function AddBlogPage() {
           (_, i) =>
             i !== index
         ),
+
     }));
   };
+
 
   /* =======================================================
      TABLE
@@ -1226,7 +1465,9 @@ export default function AddBlogPage() {
   const addTableColumn = (
     blockIndex
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1249,10 +1490,13 @@ export default function AddBlogPage() {
     });
   };
 
+
   const addTableRow = (
     blockIndex
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1271,11 +1515,14 @@ export default function AddBlogPage() {
     });
   };
 
+
   const deleteTableRow = (
     blockIndex,
     rowIndex
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1290,45 +1537,61 @@ export default function AddBlogPage() {
     });
   };
 
+
   /* =======================================================
-     IMAGE
+     IMAGES
   ======================================================= */
 
   const handleCoverImage = (
     file
   ) => {
+
     setCoverImage(file);
 
     if (file) {
+
       setPreviewCover(
-        URL.createObjectURL(file)
+        URL.createObjectURL(
+          file
+        )
       );
+
     }
   };
+
 
   const handleAuthorImage = (
     file
   ) => {
+
     setAuthorImage(file);
 
     if (file) {
+
       setPreviewAuthor(
-        URL.createObjectURL(file)
+        URL.createObjectURL(
+          file
+        )
       );
+
     }
   };
+
 
   const handleContentImage = (
     blockIndex,
     file
   ) => {
+
     setContentImages(
       (prev) => ({
         ...prev,
-        [blockIndex]: file,
+        [blockIndex]:
+          file,
       })
     );
   };
+
 
   /* =======================================================
      TEXT SELECTION
@@ -1337,6 +1600,7 @@ export default function AddBlogPage() {
   const captureSelection = (
     blockIndex
   ) => {
+
     const textarea =
       textareaRefs.current[
         blockIndex
@@ -1346,17 +1610,21 @@ export default function AddBlogPage() {
       return;
     }
 
+
     const start =
       textarea.selectionStart;
 
     const end =
       textarea.selectionEnd;
 
+
     if (
       start === end
     ) {
+
       return;
     }
+
 
     const text =
       textarea.value.slice(
@@ -1364,9 +1632,11 @@ export default function AddBlogPage() {
         end
       );
 
+
     if (!text.trim()) {
       return;
     }
+
 
     selections.current[
       blockIndex
@@ -1375,36 +1645,48 @@ export default function AddBlogPage() {
       end,
       text,
     };
+
+
+    setSelectionPreview(
+      (prev) => ({
+        ...prev,
+        [blockIndex]:
+          text,
+      })
+    );
+
   };
 
+
   /* =======================================================
-     OPEN ADD LINK
+     OPEN LINK MODAL
   ======================================================= */
 
   const openLinkModal = (
     blockIndex
   ) => {
+
     const selection =
       selections.current[
         blockIndex
       ];
 
+
     if (!selection) {
+
       alert(
-        "Paragraph mein pehle text select karein."
+        "Please select text first."
       );
 
       return;
     }
 
-    /*
-     * Check overlapping link
-     */
 
     const links =
       formData.content[
         blockIndex
       ].links || [];
+
 
     const overlap =
       links.find(
@@ -1415,30 +1697,44 @@ export default function AddBlogPage() {
             link.start
       );
 
+
     if (overlap) {
+
       alert(
-        "Selected text already linked hai."
+        "Selected text is already linked."
       );
 
       return;
     }
 
+
     setLinkModal({
+
       open: true,
 
       blockIndex,
 
       linkIndex: null,
 
-      text: selection.text,
+      text:
+        selection.text,
 
-      start: selection.start,
+      start:
+        selection.start,
 
-      end: selection.end,
+      end:
+        selection.end,
+
+      linkType: "blog",
 
       blogId: "",
+
+      href: "",
+
     });
+
   };
+
 
   /* =======================================================
      EDIT LINK
@@ -1448,6 +1744,7 @@ export default function AddBlogPage() {
     blockIndex,
     linkIndex
   ) => {
+
     const link =
       formData.content[
         blockIndex
@@ -1455,103 +1752,218 @@ export default function AddBlogPage() {
         linkIndex
       ];
 
+
     if (!link) {
       return;
     }
 
+
     setLinkModal({
+
       open: true,
 
       blockIndex,
 
       linkIndex,
 
-      text: link.text,
+      text:
+        link.text,
 
-      start: link.start,
+      start:
+        link.start,
 
-      end: link.end,
+      end:
+        link.end,
+
+      linkType:
+        link.targetType ===
+        "page"
+          ? "page"
+          : "blog",
 
       blogId:
-        link.blogId || "",
+        link.blogId ||
+        "",
+
+      href:
+        link.href ||
+        "",
+
     });
+
   };
 
+
   /* =======================================================
-     SAVE LINK
+     SAVE INTERNAL LINK
   ======================================================= */
 
   const saveLink = () => {
+
     const {
       blockIndex,
       linkIndex,
       text,
       start,
       end,
+      linkType,
       blogId,
+      href,
     } = linkModal;
 
+
+    let newLink = null;
+
+
+    /* =====================================================
+       BLOG LINK
+    ===================================================== */
+
     if (
-      !blogId
+      linkType ===
+      "blog"
     ) {
-      alert(
-        "Please blog select karein."
-      );
 
+      if (!blogId) {
+
+        alert(
+          "Please select a blog."
+        );
+
+        return;
+      }
+
+
+      const selectedBlog =
+        blogs.find(
+          (blog) =>
+            String(
+              blog._id
+            ) ===
+            String(
+              blogId
+            )
+        );
+
+
+      if (!selectedBlog) {
+
+        alert(
+          "Selected blog not found."
+        );
+
+        return;
+      }
+
+
+      if (
+        !selectedBlog.slug
+      ) {
+
+        alert(
+          "Selected blog does not have a slug."
+        );
+
+        return;
+      }
+
+
+      newLink = {
+
+        text,
+
+        type:
+          "internal",
+
+        targetType:
+          "blog",
+
+        blogId:
+          selectedBlog._id,
+
+        slug:
+          selectedBlog.slug,
+
+        href:
+          `/blog/${selectedBlog.slug}`,
+
+        start:
+          Number(start),
+
+        end:
+          Number(end),
+
+      };
+
+    }
+
+
+    /* =====================================================
+       WEBSITE PAGE LINK
+    ===================================================== */
+
+    if (
+      linkType ===
+      "page"
+    ) {
+
+      const cleanHref =
+        href.trim();
+
+
+      if (!cleanHref) {
+
+        alert(
+          "Please enter an internal URL."
+        );
+
+        return;
+      }
+
+
+      if (
+        !cleanHref.startsWith("/")
+      ) {
+
+        alert(
+          "Internal URL must start with /"
+        );
+
+        return;
+      }
+
+
+      newLink = {
+
+        text,
+
+        type:
+          "internal",
+
+        targetType:
+          "page",
+
+        href:
+          cleanHref,
+
+        start:
+          Number(start),
+
+        end:
+          Number(end),
+
+      };
+
+    }
+
+
+    if (!newLink) {
       return;
     }
 
-    const selectedBlog =
-      blogs.find(
-        (blog) =>
-          String(
-            blog._id
-          ) ===
-          String(
-            blogId
-          )
-      );
-
-    if (!selectedBlog) {
-      alert(
-        "Blog not found."
-      );
-
-      return;
-    }
-
-    if (!selectedBlog.slug) {
-      alert(
-        "Selected blog ka slug available nahi hai."
-      );
-
-      return;
-    }
-
-    const newLink = {
-      text,
-
-      blogId:
-        selectedBlog._id,
-
-      slug:
-        selectedBlog.slug,
-
-      href:
-        `/blog/${selectedBlog.slug}`,
-
-      start: Number(
-        start
-      ),
-
-      end: Number(
-        end
-      ),
-
-      type: "internal",
-    };
 
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1560,37 +1972,51 @@ export default function AddBlogPage() {
           blockIndex
         ];
 
+
       if (
         !Array.isArray(
           block.links
         )
       ) {
+
         block.links = [];
       }
+
 
       if (
         linkIndex ===
         null
       ) {
+
         block.links.push(
           newLink
         );
+
       } else {
+
         block.links[
           linkIndex
         ] = newLink;
+
       }
+
 
       block.links.sort(
         (a, b) =>
-          a.start - b.start
+          a.start -
+          b.start
       );
 
+
       return next;
+
     });
 
+
     closeLinkModal();
+
   };
+
 
   /* =======================================================
      DELETE LINK
@@ -1600,7 +2026,9 @@ export default function AddBlogPage() {
     blockIndex,
     linkIndex
   ) => {
+
     setFormData((prev) => {
+
       const next =
         structuredClone(prev);
 
@@ -1612,16 +2040,21 @@ export default function AddBlogPage() {
       );
 
       return next;
+
     });
+
   };
 
+
   /* =======================================================
-     CLOSE LINK MODAL
+     CLOSE MODAL
   ======================================================= */
 
   const closeLinkModal =
     () => {
+
       setLinkModal({
+
         open: false,
 
         blockIndex: null,
@@ -1634,195 +2067,260 @@ export default function AddBlogPage() {
 
         end: 0,
 
+        linkType:
+          "blog",
+
         blogId: "",
+
+        href: "",
+
       });
+
     };
 
+
   /* =======================================================
-     SEO KEYWORDS
+     SEO
   ======================================================= */
 
   const keywordsArray =
     formData.seo.keywords
       .split(",")
-      .map((item) =>
-        item.trim()
+      .map(
+        (item) =>
+          item.trim()
       )
       .filter(Boolean);
+
 
   /* =======================================================
      SUBMIT
   ======================================================= */
 
-  const handleSubmit = async (
-    e
-  ) => {
-    e.preventDefault();
+  const handleSubmit =
+    async (e) => {
 
-    if (
-      !formData.title.trim()
-    ) {
-      alert(
-        "Blog title required."
-      );
+      e.preventDefault();
 
-      return;
-    }
 
-    if (
-      !formData.category.trim()
-    ) {
-      alert(
-        "Category required."
-      );
+      if (
+        !formData.title.trim()
+      ) {
 
-      return;
-    }
+        alert(
+          "Blog title is required."
+        );
 
-    if (
-      !formData.author.name.trim()
-    ) {
-      alert(
-        "Author name required."
-      );
+        return;
+      }
 
-      return;
-    }
 
-    try {
-      setLoading(true);
+      if (
+        !formData.category.trim()
+      ) {
 
-      const form =
-        new FormData();
+        alert(
+          "Category is required."
+        );
 
-      /*
-       * JSON DATA
-       */
+        return;
+      }
 
-      const payload = {
-        ...formData,
 
-        seo: {
-          ...formData.seo,
+      if (
+        !formData.author.name.trim()
+      ) {
 
-          keywords:
-            keywordsArray,
-        },
-      };
+        alert(
+          "Author name is required."
+        );
 
-      form.append(
-        "jsonData",
-        JSON.stringify(
-          payload
-        )
-      );
+        return;
+      }
 
-      /*
-       * COVER
-       */
 
-      if (coverImage) {
+      try {
+
+        setLoading(true);
+
+
+        const form =
+          new FormData();
+
+
+        const payload = {
+
+          ...formData,
+
+          seo: {
+
+            ...formData.seo,
+
+            keywords:
+              keywordsArray,
+
+          },
+
+        };
+
+
         form.append(
-          "coverImage",
+          "jsonData",
+          JSON.stringify(
+            payload
+          )
+        );
+
+
+        /* COVER */
+
+        if (
           coverImage
-        );
-      }
+        ) {
 
-      /*
-       * AUTHOR IMAGE
-       */
+          form.append(
+            "coverImage",
+            coverImage
+          );
 
-      if (authorImage) {
-        form.append(
-          "authorImage",
-          authorImage
-        );
-      }
-
-      /*
-       * CONTENT IMAGES
-       */
-
-      Object.entries(
-        contentImages
-      ).forEach(
-        ([
-          index,
-          file,
-        ]) => {
-          if (file) {
-            form.append(
-              "contentImages",
-              file
-            );
-          }
         }
-      );
 
-      const response =
-        await api.post(
-          "/api/v1/blog",
-          form,
-          {
-            headers: {
-              "Content-Type":
-                "multipart/form-data",
-            },
+
+        /* AUTHOR */
+
+        if (
+          authorImage
+        ) {
+
+          form.append(
+            "authorImage",
+            authorImage
+          );
+
+        }
+
+
+        /* CONTENT IMAGES */
+
+        Object.entries(
+          contentImages
+        ).forEach(
+          ([
+            index,
+            file,
+          ]) => {
+
+            if (file) {
+
+              /*
+               * Index bhi bhej rahe hain.
+               * Backend ko pata chalega image
+               * kis content block ki hai.
+               */
+
+              form.append(
+                "contentImages",
+                file
+              );
+
+              form.append(
+                "contentImageIndexes",
+                index
+              );
+
+            }
+
           }
         );
 
-      console.log(
-        "BLOG RESPONSE:",
-        response.data
-      );
 
-      alert(
-        "Blog created successfully."
-      );
+        const response =
+          await api.post(
+            "/api/v1/blog",
+            form,
+            {
+              headers: {
+                "Content-Type":
+                  "multipart/form-data",
+              },
+            }
+          );
 
-      /*
-       * Reset
-       */
 
-      setFormData(
-        initialForm
-      );
+        console.log(
+          "BLOG RESPONSE:",
+          response.data
+        );
 
-      setCoverImage(
-        null
-      );
 
-      setAuthorImage(
-        null
-      );
+        alert(
+          "Blog created successfully."
+        );
 
-      setContentImages(
-        {}
-      );
 
-      setPreviewCover(
-        ""
-      );
+        /* RESET */
 
-      setPreviewAuthor(
-        ""
-      );
+        setFormData(
+          structuredClone(
+            initialForm
+          )
+        );
 
-    } catch (error) {
-      console.error(
-        "Create blog error:",
-        error
-      );
+        setCoverImage(
+          null
+        );
 
-      alert(
-        error?.response?.data
-          ?.message ||
-          "Blog create failed."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+        setAuthorImage(
+          null
+        );
+
+        setContentImages(
+          {}
+        );
+
+        setPreviewCover(
+          ""
+        );
+
+        setPreviewAuthor(
+          ""
+        );
+
+        setSelectionPreview(
+          {}
+        );
+
+        selections.current =
+          {};
+
+
+        loadBlogs();
+
+
+      } catch (error) {
+
+        console.error(
+          "Create blog error:",
+          error
+        );
+
+
+        alert(
+          error?.response
+            ?.data
+            ?.message ||
+            "Blog creation failed."
+        );
+
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
+
 
   /* =======================================================
      INPUT STYLE
@@ -1831,16 +2329,16 @@ export default function AddBlogPage() {
   const inputClass =
     "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
+
   /* =======================================================
      UI
   ======================================================= */
 
   return (
+
     <div className="min-h-screen bg-gray-50">
 
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <div className="sticky top-0 z-40 border-b bg-white">
 
@@ -1853,11 +2351,11 @@ export default function AddBlogPage() {
             </h1>
 
             <p className="text-xs text-gray-500">
-              Create and publish SEO-friendly
-              blog content
+              Create and publish SEO-friendly blog content
             </p>
 
           </div>
+
 
           <button
             type="submit"
@@ -1866,9 +2364,7 @@ export default function AddBlogPage() {
             className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
 
-            <Save
-              size={17}
-            />
+            <Save size={17} />
 
             {loading
               ? "Publishing..."
@@ -1880,17 +2376,14 @@ export default function AddBlogPage() {
 
       </div>
 
-      {/* =====================================================
-          MAIN
-      ===================================================== */}
+
+      {/* MAIN */}
 
       <div className="mx-auto max-w-7xl px-6 py-8">
 
         <form
           id="blog-form"
-          onSubmit={
-            handleSubmit
-          }
+          onSubmit={handleSubmit}
           className="space-y-6"
         >
 
@@ -1904,6 +2397,7 @@ export default function AddBlogPage() {
               Basic Information
             </CardTitle>
 
+
             <div className="grid gap-5 md:grid-cols-2">
 
               <Input
@@ -1913,15 +2407,13 @@ export default function AddBlogPage() {
                 }
                 onChange={(e) =>
                   updateForm(
-                    [
-                      "custom_id",
-                    ],
-                    e.target
-                      .value
+                    ["custom_id"],
+                    e.target.value
                   )
                 }
                 placeholder="online-mba-guide"
               />
+
 
               <Input
                 label="Category"
@@ -1930,15 +2422,13 @@ export default function AddBlogPage() {
                 }
                 onChange={(e) =>
                   updateForm(
-                    [
-                      "category",
-                    ],
-                    e.target
-                      .value
+                    ["category"],
+                    e.target.value
                   )
                 }
                 placeholder="Education"
               />
+
 
               <div className="md:col-span-2">
 
@@ -1950,8 +2440,7 @@ export default function AddBlogPage() {
                   onChange={(e) =>
                     updateForm(
                       ["title"],
-                      e.target
-                        .value
+                      e.target.value
                     )
                   }
                   placeholder="Enter blog title"
@@ -1963,6 +2452,7 @@ export default function AddBlogPage() {
 
           </Card>
 
+
           {/* =================================================
               COVER IMAGE
           ================================================= */}
@@ -1973,6 +2463,7 @@ export default function AddBlogPage() {
               Cover Image
             </CardTitle>
 
+
             <div className="grid gap-5 md:grid-cols-2">
 
               <div>
@@ -1981,6 +2472,7 @@ export default function AddBlogPage() {
                   Upload Cover
                 </label>
 
+
                 <label className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50">
 
                   <Upload
@@ -1988,13 +2480,16 @@ export default function AddBlogPage() {
                     size={28}
                   />
 
+
                   <span className="text-sm text-gray-600">
                     Click to upload
                   </span>
 
+
                   <span className="mt-1 text-xs text-gray-400">
                     JPG, PNG, WEBP
                   </span>
+
 
                   <input
                     type="file"
@@ -2002,8 +2497,7 @@ export default function AddBlogPage() {
                     className="hidden"
                     onChange={(e) =>
                       handleCoverImage(
-                        e.target
-                          .files?.[0]
+                        e.target.files?.[0]
                       )
                     }
                   />
@@ -2012,6 +2506,7 @@ export default function AddBlogPage() {
 
               </div>
 
+
               <div>
 
                 {previewCover ? (
@@ -2019,9 +2514,7 @@ export default function AddBlogPage() {
                   <div className="overflow-hidden rounded-xl border bg-white">
 
                     <img
-                      src={
-                        previewCover
-                      }
+                      src={previewCover}
                       alt="Cover preview"
                       className="h-48 w-full object-cover"
                     />
@@ -2055,6 +2548,7 @@ export default function AddBlogPage() {
 
           </Card>
 
+
           {/* =================================================
               AUTHOR
           ================================================= */}
@@ -2065,13 +2559,13 @@ export default function AddBlogPage() {
               Author Information
             </CardTitle>
 
+
             <div className="grid gap-5 md:grid-cols-2">
 
               <Input
                 label="Author Name"
                 value={
-                  formData.author
-                    .name
+                  formData.author.name
                 }
                 onChange={(e) =>
                   updateForm(
@@ -2079,18 +2573,17 @@ export default function AddBlogPage() {
                       "author",
                       "name",
                     ],
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 placeholder="Yogesh Kumar"
               />
 
+
               <Input
                 label="Designation"
                 value={
-                  formData.author
-                    .designation
+                  formData.author.designation
                 }
                 onChange={(e) =>
                   updateForm(
@@ -2098,18 +2591,17 @@ export default function AddBlogPage() {
                       "author",
                       "designation",
                     ],
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 placeholder="Senior Education Consultant"
               />
 
+
               <Input
                 label="Experience"
                 value={
-                  formData.author
-                    .experience
+                  formData.author.experience
                 }
                 onChange={(e) =>
                   updateForm(
@@ -2117,18 +2609,17 @@ export default function AddBlogPage() {
                       "author",
                       "experience",
                     ],
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 placeholder="8+ Years"
               />
 
+
               <Input
                 label="Specialization"
                 value={
-                  formData.author
-                    .specialization
+                  formData.author.specialization
                 }
                 onChange={(e) =>
                   updateForm(
@@ -2136,12 +2627,12 @@ export default function AddBlogPage() {
                       "author",
                       "specialization",
                     ],
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 placeholder="Online Education"
               />
+
 
               <div className="md:col-span-2">
 
@@ -2149,11 +2640,11 @@ export default function AddBlogPage() {
                   Author Description
                 </label>
 
+
                 <textarea
                   className={`${inputClass} min-h-[100px]`}
                   value={
-                    formData.author
-                      .description
+                    formData.author.description
                   }
                   onChange={(e) =>
                     updateForm(
@@ -2161,8 +2652,7 @@ export default function AddBlogPage() {
                         "author",
                         "description",
                       ],
-                      e.target
-                        .value
+                      e.target.value
                     )
                   }
                   placeholder="Short author description"
@@ -2170,19 +2660,20 @@ export default function AddBlogPage() {
 
               </div>
 
+
               <div>
 
                 <label className="mb-2 block text-sm font-medium">
                   Author Image
                 </label>
 
+
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) =>
                     handleAuthorImage(
-                      e.target
-                        .files?.[0]
+                      e.target.files?.[0]
                     )
                   }
                   className="block w-full rounded-lg border p-2 text-sm"
@@ -2190,14 +2681,13 @@ export default function AddBlogPage() {
 
               </div>
 
+
               {previewAuthor && (
 
                 <div>
 
                   <img
-                    src={
-                      previewAuthor
-                    }
+                    src={previewAuthor}
                     alt="Author"
                     className="h-24 w-24 rounded-full object-cover"
                   />
@@ -2210,8 +2700,9 @@ export default function AddBlogPage() {
 
           </Card>
 
+
           {/* =================================================
-              CONTENT
+              BLOG CONTENT
           ================================================= */}
 
           <Card>
@@ -2222,51 +2713,52 @@ export default function AddBlogPage() {
                 Blog Content
               </CardTitle>
 
+
               <div className="flex flex-wrap gap-2">
 
                 <AddBlockButton
                   type="paragraph"
-                  onClick={
-                    () =>
-                      addBlock(
-                        "paragraph"
-                      )
+                  onClick={() =>
+                    addBlock(
+                      "paragraph"
+                    )
                   }
                 />
+
 
                 <AddBlockButton
                   type="heading"
-                  onClick={
-                    () =>
-                      addBlock(
-                        "heading"
-                      )
+                  onClick={() =>
+                    addBlock(
+                      "heading"
+                    )
                   }
                 />
+
 
                 <AddBlockButton
                   type="list"
-                  onClick={
-                    () =>
-                      addBlock(
-                        "list"
-                      )
+                  onClick={() =>
+                    addBlock(
+                      "list"
+                    )
                   }
                 />
 
+
                 <AddBlockButton
                   type="image"
-                  onClick={
-                    () =>
-                      addBlock(
-                        "image"
-                      )
+                  onClick={() =>
+                    addBlock(
+                      "image"
+                    )
                   }
                 />
 
               </div>
 
             </div>
+
 
             <div className="mt-6 space-y-5">
 
@@ -2277,20 +2769,17 @@ export default function AddBlogPage() {
                 ) => (
 
                   <ContentBlock
-                    key={
-                      blockIndex
-                    }
-                    block={
-                      block
-                    }
-                    index={
-                      blockIndex
-                    }
+                    key={blockIndex}
+                    block={block}
+                    index={blockIndex}
                     inputClass={
                       inputClass
                     }
                     updateBlock={
                       updateBlock
+                    }
+                    updateBlockText={
+                      updateBlockText
                     }
                     deleteBlock={
                       deleteBlock
@@ -2300,6 +2789,11 @@ export default function AddBlogPage() {
                     }
                     captureSelection={
                       captureSelection
+                    }
+                    selectedPreviewText={
+                      selectionPreview[
+                        blockIndex
+                      ]
                     }
                     openLinkModal={
                       openLinkModal
@@ -2343,6 +2837,7 @@ export default function AddBlogPage() {
 
             </div>
 
+
             <button
               type="button"
               onClick={() =>
@@ -2361,6 +2856,7 @@ export default function AddBlogPage() {
 
           </Card>
 
+
           {/* =================================================
               FAQ
           ================================================= */}
@@ -2373,23 +2869,21 @@ export default function AddBlogPage() {
                 Frequently Asked Questions
               </CardTitle>
 
+
               <button
                 type="button"
-                onClick={
-                  addFaq
-                }
+                onClick={addFaq}
                 className="flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600"
               >
 
-                <Plus
-                  size={15}
-                />
+                <Plus size={15} />
 
                 Add FAQ
 
               </button>
 
             </div>
+
 
             <div className="mt-5 space-y-4">
 
@@ -2400,19 +2894,16 @@ export default function AddBlogPage() {
                 ) => (
 
                   <div
-                    key={
-                      index
-                    }
+                    key={index}
                     className="rounded-xl border bg-gray-50 p-4"
                   >
 
                     <div className="mb-3 flex items-center justify-between">
 
                       <span className="text-sm font-semibold">
-                        FAQ #
-                        {index +
-                          1}
+                        FAQ #{index + 1}
                       </span>
+
 
                       <button
                         type="button"
@@ -2424,13 +2915,12 @@ export default function AddBlogPage() {
                         className="text-red-500"
                       >
 
-                        <Trash2
-                          size={16}
-                        />
+                        <Trash2 size={16} />
 
                       </button>
 
                     </div>
+
 
                     <div className="space-y-3">
 
@@ -2439,32 +2929,27 @@ export default function AddBlogPage() {
                         value={
                           faq.question
                         }
-                        onChange={(
-                          e
-                        ) =>
+                        onChange={(e) =>
                           updateFaq(
                             index,
                             "question",
-                            e.target
-                              .value
+                            e.target.value
                           )
                         }
                         placeholder="Enter question"
                       />
+
 
                       <textarea
                         className={`${inputClass} min-h-[100px]`}
                         value={
                           faq.answer
                         }
-                        onChange={(
-                          e
-                        ) =>
+                        onChange={(e) =>
                           updateFaq(
                             index,
                             "answer",
-                            e.target
-                              .value
+                            e.target.value
                           )
                         }
                         placeholder="Enter answer"
@@ -2481,6 +2966,7 @@ export default function AddBlogPage() {
 
           </Card>
 
+
           {/* =================================================
               SEO
           ================================================= */}
@@ -2491,13 +2977,13 @@ export default function AddBlogPage() {
               SEO Settings
             </CardTitle>
 
+
             <div className="space-y-5">
 
               <Input
                 label="Meta Title"
                 value={
-                  formData.seo
-                    .meta_title
+                  formData.seo.meta_title
                 }
                 onChange={(e) =>
                   updateForm(
@@ -2505,12 +2991,12 @@ export default function AddBlogPage() {
                       "seo",
                       "meta_title",
                     ],
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 placeholder="SEO meta title"
               />
+
 
               <div>
 
@@ -2518,11 +3004,11 @@ export default function AddBlogPage() {
                   Meta Description
                 </label>
 
+
                 <textarea
                   className={`${inputClass} min-h-[100px]`}
                   value={
-                    formData.seo
-                      .meta_desc
+                    formData.seo.meta_desc
                   }
                   onChange={(e) =>
                     updateForm(
@@ -2530,8 +3016,7 @@ export default function AddBlogPage() {
                         "seo",
                         "meta_desc",
                       ],
-                      e.target
-                        .value
+                      e.target.value
                     )
                   }
                   placeholder="SEO meta description"
@@ -2539,11 +3024,11 @@ export default function AddBlogPage() {
 
               </div>
 
+
               <Input
                 label="Keywords"
                 value={
-                  formData.seo
-                    .keywords
+                  formData.seo.keywords
                 }
                 onChange={(e) =>
                   updateForm(
@@ -2551,24 +3036,20 @@ export default function AddBlogPage() {
                       "seo",
                       "keywords",
                     ],
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
-                placeholder="online mba, mba for working professionals, distance mba"
+                placeholder="online mba, mba courses, distance mba"
               />
+
 
               <div className="flex flex-wrap gap-2">
 
                 {keywordsArray.map(
-                  (
-                    keyword
-                  ) => (
+                  (keyword) => (
 
                     <span
-                      key={
-                        keyword
-                      }
+                      key={keyword}
                       className="rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700"
                     >
                       {keyword}
@@ -2583,23 +3064,20 @@ export default function AddBlogPage() {
 
           </Card>
 
+
           {/* =================================================
-              BOTTOM SUBMIT
+              SUBMIT
           ================================================= */}
 
           <div className="flex justify-end">
 
             <button
               type="submit"
-              disabled={
-                loading
-              }
+              disabled={loading}
               className="flex min-w-[180px] items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
             >
 
-              <Save
-                size={17}
-              />
+              <Save size={17} />
 
               {loading
                 ? "Publishing..."
@@ -2613,258 +3091,40 @@ export default function AddBlogPage() {
 
       </div>
 
+
       {/* =====================================================
           INTERNAL LINK MODAL
       ===================================================== */}
 
       {linkModal.open && (
 
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-
-          <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
-
-            {/* HEADER */}
-
-            <div className="flex items-center justify-between border-b px-5 py-4">
-
-              <div>
-
-                <h2 className="flex items-center gap-2 font-semibold text-gray-900">
-
-                  <LinkIcon
-                    size={18}
-                    className="text-blue-600"
-                  />
-
-                  {linkModal.linkIndex ===
-                  null
-                    ? "Add Internal Link"
-                    : "Edit Internal Link"}
-
-                </h2>
-
-                <p className="mt-1 text-xs text-gray-500">
-                  Selected text ko kisi
-                  existing blog se connect karein.
-                </p>
-
-              </div>
-
-              <button
-                type="button"
-                onClick={
-                  closeLinkModal
-                }
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-              >
-
-                <X size={19} />
-
-              </button>
-
-            </div>
-
-            {/* BODY */}
-
-            <div className="space-y-5 p-5">
-
-              {/* SELECTED TEXT */}
-
-              <div>
-
-                <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
-                  Selected Text
-                </label>
-
-                <div className="rounded-lg border bg-gray-50 p-3 text-sm font-medium text-gray-800">
-                  "{linkModal.text}"
-                </div>
-
-              </div>
-
-              {/* BLOG */}
-
-              <div>
-
-                <label className="mb-2 block text-sm font-medium">
-                  Select Blog
-                </label>
-
-                <select
-                  className={inputClass}
-                  value={
-                    linkModal.blogId
-                  }
-                  onChange={(e) =>
-                    setLinkModal(
-                      (prev) => ({
-                        ...prev,
-                        blogId:
-                          e.target
-                            .value,
-                      })
-                    )
-                  }
-                >
-
-                  <option value="">
-                    {blogsLoading
-                      ? "Loading blogs..."
-                      : "Select internal blog"}
-                  </option>
-
-                  {blogs.map(
-                    (blog) => (
-
-                      <option
-                        key={
-                          blog._id
-                        }
-                        value={
-                          blog._id
-                        }
-                      >
-                        {blog.title}
-                      </option>
-
-                    )
-                  )}
-
-                </select>
-
-                {!blogsLoading &&
-                  blogs.length ===
-                    0 && (
-
-                    <p className="mt-2 text-xs text-red-500">
-                      No blogs found.
-                    </p>
-
-                  )}
-
-              </div>
-
-              {/* URL */}
-
-              {linkModal.blogId &&
-                (() => {
-                  const blog =
-                    blogs.find(
-                      (item) =>
-                        String(
-                          item._id
-                        ) ===
-                        String(
-                          linkModal.blogId
-                        )
-                    );
-
-                  if (!blog)
-                    return null;
-
-                  return (
-
-                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-
-                      <div className="mb-1 text-xs font-semibold text-blue-600">
-                        Internal URL
-                      </div>
-
-                      <div className="flex items-center gap-2 text-sm text-blue-800">
-
-                        <ExternalLink
-                          size={14}
-                        />
-
-                        <span className="break-all">
-                          /blog/
-                          {
-                            blog.slug
-                          }
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  );
-                })()}
-
-              {/* POSITION */}
-
-              <div className="grid grid-cols-2 gap-3">
-
-                <div>
-
-                  <label className="mb-2 block text-xs font-medium text-gray-500">
-                    Start Position
-                  </label>
-
-                  <input
-                    readOnly
-                    className={`${inputClass} bg-gray-50`}
-                    value={
-                      linkModal.start
-                    }
-                  />
-
-                </div>
-
-                <div>
-
-                  <label className="mb-2 block text-xs font-medium text-gray-500">
-                    End Position
-                  </label>
-
-                  <input
-                    readOnly
-                    className={`${inputClass} bg-gray-50`}
-                    value={
-                      linkModal.end
-                    }
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* FOOTER */}
-
-            <div className="flex justify-end gap-3 border-t px-5 py-4">
-
-              <button
-                type="button"
-                onClick={
-                  closeLinkModal
-                }
-                className="rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={
-                  saveLink
-                }
-                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                Save Link
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
+        <InternalLinkModal
+          linkModal={
+            linkModal
+          }
+          setLinkModal={
+            setLinkModal
+          }
+          blogs={
+            blogs
+          }
+          blogsLoading={
+            blogsLoading
+          }
+          closeLinkModal={
+            closeLinkModal
+          }
+          saveLink={
+            saveLink
+          }
+        />
 
       )}
 
     </div>
   );
 }
+
 
 /* =========================================================
    CONTENT BLOCK
@@ -2875,32 +3135,29 @@ function ContentBlock({
   index,
   inputClass,
   updateBlock,
+  updateBlockText,
   deleteBlock,
-
   textareaRefs,
   captureSelection,
-
+  selectedPreviewText,
   openLinkModal,
   editLink,
   deleteLink,
-
   addListItem,
   updateListItem,
   deleteListItem,
-
   handleContentImage,
   contentImage,
-
   addTableColumn,
   addTableRow,
   deleteTableRow,
 }) {
+
   return (
+
     <div className="relative rounded-xl border bg-white p-5 shadow-sm">
 
-      {/* =====================================================
-          BLOCK HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <div className="mb-5 flex items-center gap-3">
 
@@ -2908,6 +3165,7 @@ function ContentBlock({
           size={18}
           className="text-gray-300"
         />
+
 
         <select
           value={
@@ -2965,40 +3223,36 @@ function ContentBlock({
 
         </select>
 
+
         <span className="text-xs text-gray-400">
-          Block #
-          {index + 1}
+          Block #{index + 1}
         </span>
+
 
         <button
           type="button"
           onClick={() =>
-            deleteBlock(
-              index
-            )
+            deleteBlock(index)
           }
           className="ml-auto rounded-lg p-2 text-red-500 hover:bg-red-50"
         >
 
-          <Trash2
-            size={17}
-          />
+          <Trash2 size={17} />
 
         </button>
 
       </div>
 
+
       {/* =====================================================
           HEADING
       ===================================================== */}
 
-      {(
-        [
-          "heading",
-          "subheading",
-        ].includes(
-          block.type
-        )
+      {[
+        "heading",
+        "subheading",
+      ].includes(
+        block.type
       ) && (
 
         <div className="space-y-4">
@@ -3011,6 +3265,7 @@ function ContentBlock({
                 Text
               </label>
 
+
               <input
                 className={
                   inputClass
@@ -3019,11 +3274,9 @@ function ContentBlock({
                   block.text
                 }
                 onChange={(e) =>
-                  updateBlock(
+                  updateBlockText(
                     index,
-                    "text",
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 placeholder={
@@ -3036,11 +3289,13 @@ function ContentBlock({
 
             </div>
 
+
             <div>
 
               <label className="mb-2 block text-sm font-medium">
                 Level
               </label>
+
 
               <select
                 className={
@@ -3054,8 +3309,7 @@ function ContentBlock({
                     index,
                     "level",
                     Number(
-                      e.target
-                        .value
+                      e.target.value
                     )
                   )
                 }
@@ -3072,15 +3326,10 @@ function ContentBlock({
                   (level) => (
 
                     <option
-                      key={
-                        level
-                      }
-                      value={
-                        level
-                      }
+                      key={level}
+                      value={level}
                     >
-                      H
-                      {level}
+                      H{level}
                     </option>
 
                   )
@@ -3092,13 +3341,10 @@ function ContentBlock({
 
           </div>
 
+
           <TextOptions
-            block={
-              block
-            }
-            index={
-              index
-            }
+            block={block}
+            index={index}
             updateBlock={
               updateBlock
             }
@@ -3107,6 +3353,7 @@ function ContentBlock({
         </div>
 
       )}
+
 
       {/* =====================================================
           PARAGRAPH
@@ -3126,10 +3373,11 @@ function ContentBlock({
               </label>
 
               <span className="text-xs text-gray-400">
-                Text select karke link add karein
+                Select text → Add Internal Link
               </span>
 
             </div>
+
 
             <textarea
               ref={(element) => {
@@ -3142,11 +3390,9 @@ function ContentBlock({
                 block.text
               }
               onChange={(e) =>
-                updateBlock(
+                updateBlockText(
                   index,
-                  "text",
-                  e.target
-                    .value
+                  e.target.value
                 )
               }
               onSelect={() =>
@@ -3169,9 +3415,8 @@ function ContentBlock({
 
           </div>
 
-          {/* =================================================
-              INTERNAL LINK TOOLBAR
-          ================================================= */}
+
+          {/* LINK TOOL */}
 
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
 
@@ -3181,21 +3426,36 @@ function ContentBlock({
 
                 <div className="flex items-center gap-2 font-semibold text-blue-800">
 
-                  <LinkIcon
-                    size={17}
-                  />
+                  <LinkIcon size={17} />
 
                   Internal Links
 
                 </div>
 
+
                 <p className="mt-1 text-xs text-blue-600">
-                  Paragraph mein text select
-                  karein → Add Internal Link →
-                  blog select karein.
+                  Select text → Add Internal Link → Blog or Website Page
                 </p>
 
+
+                {selectedPreviewText && (
+
+                  <p className="mt-2 text-xs text-gray-700">
+
+                    Currently selected:{" "}
+
+                    <span className="rounded bg-yellow-100 px-1.5 py-0.5 font-medium text-gray-900">
+
+                      "{selectedPreviewText}"
+
+                    </span>
+
+                  </p>
+
+                )}
+
               </div>
+
 
               <button
                 type="button"
@@ -3207,9 +3467,7 @@ function ContentBlock({
                 className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
               >
 
-                <LinkIcon
-                  size={15}
-                />
+                <LinkIcon size={15} />
 
                 Add Internal Link
 
@@ -3217,9 +3475,8 @@ function ContentBlock({
 
             </div>
 
-            {/* =================================================
-                LINKS LIST
-            ================================================= */}
+
+            {/* EXISTING LINKS */}
 
             {block.links?.length >
               0 && (
@@ -3247,17 +3504,34 @@ function ContentBlock({
                             Internal
                           </span>
 
+
+                          <span className="rounded bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700">
+                            {link.targetType ===
+                            "blog"
+                              ? "Blog"
+                              : "Page"}
+                          </span>
+
+
                           <span className="text-sm font-semibold text-gray-800">
                             {link.text}
                           </span>
 
                         </div>
 
-                        <div className="mt-1 text-xs text-blue-600">
+
+                        <div className="mt-1 flex items-center gap-1 text-xs text-blue-600">
+
+                          <ExternalLink
+                            size={12}
+                          />
+
                           {link.href}
+
                         </div>
 
                       </div>
+
 
                       <button
                         type="button"
@@ -3271,6 +3545,7 @@ function ContentBlock({
                       >
                         Edit
                       </button>
+
 
                       <button
                         type="button"
@@ -3296,13 +3571,10 @@ function ContentBlock({
 
           </div>
 
+
           <TextOptions
-            block={
-              block
-            }
-            index={
-              index
-            }
+            block={block}
+            index={index}
             updateBlock={
               updateBlock
             }
@@ -3312,17 +3584,16 @@ function ContentBlock({
 
       )}
 
+
       {/* =====================================================
           LIST
       ===================================================== */}
 
-      {(
-        [
-          "list",
-          "number_list",
-        ].includes(
-          block.type
-        )
+      {[
+        "list",
+        "number_list",
+      ].includes(
+        block.type
       ) && (
 
         <div>
@@ -3330,6 +3601,7 @@ function ContentBlock({
           <label className="mb-3 block text-sm font-medium">
             List Items
           </label>
+
 
           <div className="space-y-2">
 
@@ -3347,11 +3619,14 @@ function ContentBlock({
                 >
 
                   <span className="w-6 text-center text-sm text-gray-400">
+
                     {block.type ===
                     "number_list"
                       ? `${itemIndex + 1}.`
                       : "•"}
+
                   </span>
+
 
                   <input
                     className={
@@ -3364,12 +3639,12 @@ function ContentBlock({
                       updateListItem(
                         index,
                         itemIndex,
-                        e.target
-                          .value
+                        e.target.value
                       )
                     }
                     placeholder="List item"
                   />
+
 
                   <button
                     type="button"
@@ -3382,9 +3657,7 @@ function ContentBlock({
                     className="rounded-lg p-2 text-red-500 hover:bg-red-50"
                   >
 
-                    <Trash2
-                      size={15}
-                    />
+                    <Trash2 size={15} />
 
                   </button>
 
@@ -3394,6 +3667,7 @@ function ContentBlock({
             )}
 
           </div>
+
 
           <button
             type="button"
@@ -3405,9 +3679,7 @@ function ContentBlock({
             className="mt-3 flex items-center gap-1 text-sm font-medium text-blue-600"
           >
 
-            <Plus
-              size={15}
-            />
+            <Plus size={15} />
 
             Add Item
 
@@ -3416,6 +3688,7 @@ function ContentBlock({
         </div>
 
       )}
+
 
       {/* =====================================================
           IMAGE
@@ -3432,20 +3705,21 @@ function ContentBlock({
               Content Image
             </label>
 
+
             <input
               type="file"
               accept="image/*"
               onChange={(e) =>
                 handleContentImage(
                   index,
-                  e.target
-                    .files?.[0]
+                  e.target.files?.[0]
                 )
               }
               className="block w-full rounded-lg border p-2 text-sm"
             />
 
           </div>
+
 
           {contentImage && (
 
@@ -3459,13 +3733,13 @@ function ContentBlock({
 
           )}
 
+
           <div className="grid gap-4 md:grid-cols-2">
 
             <Input
               label="Caption"
               value={
-                block.media
-                  ?.caption ||
+                block.media?.caption ||
                 ""
               }
               onChange={(e) =>
@@ -3475,18 +3749,17 @@ function ContentBlock({
                   {
                     ...block.media,
                     caption:
-                      e.target
-                        .value,
+                      e.target.value,
                   }
                 )
               }
             />
 
+
             <Input
               label="Alt Text"
               value={
-                block.media
-                  ?.alt ||
+                block.media?.alt ||
                 ""
               }
               onChange={(e) =>
@@ -3496,8 +3769,7 @@ function ContentBlock({
                   {
                     ...block.media,
                     alt:
-                      e.target
-                        .value,
+                      e.target.value,
                   }
                 )
               }
@@ -3508,6 +3780,7 @@ function ContentBlock({
         </div>
 
       )}
+
 
       {/* =====================================================
           VIDEO
@@ -3521,8 +3794,7 @@ function ContentBlock({
           <Input
             label="Video URL"
             value={
-              block.media
-                ?.url ||
+              block.media?.url ||
               ""
             }
             onChange={(e) =>
@@ -3532,19 +3804,18 @@ function ContentBlock({
                 {
                   ...block.media,
                   url:
-                    e.target
-                      .value,
+                    e.target.value,
                 }
               )
             }
             placeholder="https://www.youtube.com/watch?v=..."
           />
 
+
           <Input
             label="Caption"
             value={
-              block.media
-                ?.caption ||
+              block.media?.caption ||
               ""
             }
             onChange={(e) =>
@@ -3554,8 +3825,7 @@ function ContentBlock({
                 {
                   ...block.media,
                   caption:
-                    e.target
-                      .value,
+                    e.target.value,
                 }
               )
             }
@@ -3564,6 +3834,7 @@ function ContentBlock({
         </div>
 
       )}
+
 
       {/* =====================================================
           TABLE
@@ -3588,6 +3859,7 @@ function ContentBlock({
               + Column
             </button>
 
+
             <button
               type="button"
               onClick={() =>
@@ -3602,9 +3874,8 @@ function ContentBlock({
 
           </div>
 
-          {block.table
-            .headers
-            .length >
+
+          {block.table.headers.length >
             0 && (
 
             <div className="overflow-x-auto">
@@ -3629,16 +3900,17 @@ function ContentBlock({
                         >
 
                           <input
-                            className={inputClass}
+                            className={
+                              inputClass
+                            }
                             value={
                               header
                             }
                             onChange={(e) => {
+
                               const headers =
                                 [
-                                  ...block
-                                    .table
-                                    .headers,
+                                  ...block.table.headers,
                                 ];
 
                               headers[
@@ -3654,6 +3926,7 @@ function ContentBlock({
                                   headers,
                                 }
                               );
+
                             }}
                             placeholder="Header"
                           />
@@ -3666,6 +3939,7 @@ function ContentBlock({
                   </tr>
 
                 </thead>
+
 
                 <tbody>
 
@@ -3695,16 +3969,17 @@ function ContentBlock({
                             >
 
                               <input
-                                className={inputClass}
+                                className={
+                                  inputClass
+                                }
                                 value={
                                   cell
                                 }
                                 onChange={(e) => {
+
                                   const rows =
                                     structuredClone(
-                                      block
-                                        .table
-                                        .rows
+                                      block.table.rows
                                     );
 
                                   rows[
@@ -3722,6 +3997,7 @@ function ContentBlock({
                                       rows,
                                     }
                                   );
+
                                 }}
                               />
 
@@ -3729,6 +4005,7 @@ function ContentBlock({
 
                           )
                         )}
+
 
                         <td className="border p-2">
 
@@ -3744,9 +4021,7 @@ function ContentBlock({
                           >
 
                             <Trash2
-                              size={
-                                15
-                              }
+                              size={15}
                             />
 
                           </button>
@@ -3770,6 +4045,7 @@ function ContentBlock({
 
       )}
 
+
       {/* =====================================================
           QUOTE
       ===================================================== */}
@@ -3785,23 +4061,18 @@ function ContentBlock({
               block.text
             }
             onChange={(e) =>
-              updateBlock(
+              updateBlockText(
                 index,
-                "text",
-                e.target
-                  .value
+                e.target.value
               )
             }
             placeholder="Write quote..."
           />
 
+
           <TextOptions
-            block={
-              block
-            }
-            index={
-              index
-            }
+            block={block}
+            index={index}
             updateBlock={
               updateBlock
             }
@@ -3810,6 +4081,7 @@ function ContentBlock({
         </div>
 
       )}
+
 
       {/* =====================================================
           CODE
@@ -3827,8 +4099,7 @@ function ContentBlock({
             updateBlock(
               index,
               "text",
-              e.target
-                .value
+              e.target.value
             )
           }
           placeholder="// Write code..."
@@ -3837,8 +4108,423 @@ function ContentBlock({
       )}
 
     </div>
+
   );
 }
+
+
+/* =========================================================
+   INTERNAL LINK MODAL
+========================================================= */
+
+function InternalLinkModal({
+  linkModal,
+  setLinkModal,
+  blogs,
+  blogsLoading,
+  closeLinkModal,
+  saveLink,
+}) {
+
+  const selectedBlog =
+    blogs.find(
+      (blog) =>
+        String(
+          blog._id
+        ) ===
+        String(
+          linkModal.blogId
+        )
+    );
+
+
+  return (
+
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+
+      <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+
+        {/* HEADER */}
+
+        <div className="flex items-center justify-between border-b px-5 py-4">
+
+          <div>
+
+            <h2 className="flex items-center gap-2 font-semibold text-gray-900">
+
+              <LinkIcon
+                size={18}
+                className="text-blue-600"
+              />
+
+              {linkModal.linkIndex ===
+              null
+                ? "Add Internal Link"
+                : "Edit Internal Link"}
+
+            </h2>
+
+
+            <p className="mt-1 text-xs text-gray-500">
+              Connect selected text with a blog or CareerVidya page.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            onClick={
+              closeLinkModal
+            }
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"
+          >
+
+            <X size={19} />
+
+          </button>
+
+        </div>
+
+
+        {/* BODY */}
+
+        <div className="space-y-5 p-5">
+
+          {/* SELECTED TEXT */}
+
+          <div>
+
+            <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">
+              Selected Text
+            </label>
+
+
+            <div className="rounded-lg border bg-gray-50 p-3 text-sm font-medium text-gray-800">
+
+              "{linkModal.text}"
+
+            </div>
+
+          </div>
+
+
+          {/* LINK TYPE */}
+
+          <div>
+
+            <label className="mb-2 block text-sm font-medium">
+              Link Type
+            </label>
+
+
+            <div className="grid grid-cols-2 gap-3">
+
+              <button
+                type="button"
+                onClick={() =>
+                  setLinkModal(
+                    (prev) => ({
+                      ...prev,
+                      linkType:
+                        "blog",
+                      blogId: "",
+                      href: "",
+                    })
+                  )
+                }
+                className={`rounded-lg border px-4 py-3 text-sm font-semibold ${
+                  linkModal.linkType ===
+                  "blog"
+                    ? "border-blue-600 bg-blue-50 text-blue-700"
+                    : "border-gray-300 text-gray-600"
+                }`}
+              >
+
+                Blog
+
+              </button>
+
+
+              <button
+                type="button"
+                onClick={() =>
+                  setLinkModal(
+                    (prev) => ({
+                      ...prev,
+                      linkType:
+                        "page",
+                      blogId: "",
+                      href: "",
+                    })
+                  )
+                }
+                className={`rounded-lg border px-4 py-3 text-sm font-semibold ${
+                  linkModal.linkType ===
+                  "page"
+                    ? "border-blue-600 bg-blue-50 text-blue-700"
+                    : "border-gray-300 text-gray-600"
+                }`}
+              >
+
+                Website Page
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+          {/* =================================================
+              BLOG SELECT
+          ================================================= */}
+
+          {linkModal.linkType ===
+            "blog" && (
+
+            <div>
+
+              <label className="mb-2 block text-sm font-medium">
+                Select Blog
+              </label>
+
+
+              <select
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+                value={
+                  linkModal.blogId
+                }
+                onChange={(e) =>
+                  setLinkModal(
+                    (prev) => ({
+                      ...prev,
+                      blogId:
+                        e.target
+                          .value,
+                    })
+                  )
+                }
+              >
+
+                <option value="">
+
+                  {blogsLoading
+                    ? "Loading blogs..."
+                    : "Select internal blog"}
+
+                </option>
+
+
+                {blogs.map(
+                  (blog) => (
+
+                    <option
+                      key={
+                        blog._id
+                      }
+                      value={
+                        blog._id
+                      }
+                    >
+
+                      {blog.title}
+
+                    </option>
+
+                  )
+                )}
+
+              </select>
+
+
+              {!blogsLoading &&
+                blogs.length ===
+                  0 && (
+
+                  <p className="mt-2 text-xs text-red-500">
+                    No blogs found.
+                  </p>
+
+                )}
+
+
+              {selectedBlog && (
+
+                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
+
+                  <div className="mb-1 text-xs font-semibold text-blue-600">
+                    Internal Blog URL
+                  </div>
+
+
+                  <div className="flex items-center gap-2 break-all text-sm text-blue-800">
+
+                    <ExternalLink
+                      size={14}
+                    />
+
+                    /blog/
+                    {
+                      selectedBlog.slug
+                    }
+
+                  </div>
+
+                </div>
+
+              )}
+
+            </div>
+
+          )}
+
+
+          {/* =================================================
+              WEBSITE PAGE
+          ================================================= */}
+
+          {linkModal.linkType ===
+            "page" && (
+
+            <div>
+
+              <label className="mb-2 block text-sm font-medium">
+                Internal Page URL
+              </label>
+
+
+              <input
+                value={
+                  linkModal.href
+                }
+                onChange={(e) =>
+                  setLinkModal(
+                    (prev) => ({
+                      ...prev,
+                      href:
+                        e.target
+                          .value,
+                    })
+                  )
+                }
+                placeholder="/course/online-mba"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+
+
+              <p className="mt-2 text-xs text-gray-500">
+                Use a relative internal URL, for example:
+                <br />
+                /course/online-mba
+                <br />
+                /university
+                <br />
+                /career-assessment
+              </p>
+
+
+              {linkModal.href && (
+
+                <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3">
+
+                  <div className="flex items-center gap-2 text-sm font-medium text-green-700">
+
+                    <ExternalLink
+                      size={14}
+                    />
+
+                    {linkModal.href}
+
+                  </div>
+
+                </div>
+
+              )}
+
+            </div>
+
+          )}
+
+
+          {/* POSITION */}
+
+          <div className="grid grid-cols-2 gap-3">
+
+            <div>
+
+              <label className="mb-2 block text-xs font-medium text-gray-500">
+                Start Position
+              </label>
+
+
+              <input
+                readOnly
+                className="w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm"
+                value={
+                  linkModal.start
+                }
+              />
+
+            </div>
+
+
+            <div>
+
+              <label className="mb-2 block text-xs font-medium text-gray-500">
+                End Position
+              </label>
+
+
+              <input
+                readOnly
+                className="w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm"
+                value={
+                  linkModal.end
+                }
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        {/* FOOTER */}
+
+        <div className="flex justify-end gap-3 border-t px-5 py-4">
+
+          <button
+            type="button"
+            onClick={
+              closeLinkModal
+            }
+            className="rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+
+
+          <button
+            type="button"
+            onClick={
+              saveLink
+            }
+            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            Save Link
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  );
+}
+
 
 /* =========================================================
    TEXT OPTIONS
@@ -3849,7 +4535,9 @@ function TextOptions({
   index,
   updateBlock,
 }) {
+
   return (
+
     <div className="grid gap-4 md:grid-cols-2">
 
       <div>
@@ -3857,6 +4545,7 @@ function TextOptions({
         <label className="mb-2 block text-sm font-medium">
           Alignment
         </label>
+
 
         <select
           className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm"
@@ -3868,8 +4557,7 @@ function TextOptions({
             updateBlock(
               index,
               "align",
-              e.target
-                .value
+              e.target.value
             )
           }
         >
@@ -3890,11 +4578,13 @@ function TextOptions({
 
       </div>
 
+
       <div>
 
         <label className="mb-2 block text-sm font-medium">
           Text Color
         </label>
+
 
         <div className="flex gap-2">
 
@@ -3908,12 +4598,12 @@ function TextOptions({
               updateBlock(
                 index,
                 "color",
-                e.target
-                  .value
+                e.target.value
               )
             }
             className="h-10 w-12 cursor-pointer rounded border"
           />
+
 
           <input
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
@@ -3925,8 +4615,7 @@ function TextOptions({
               updateBlock(
                 index,
                 "color",
-                e.target
-                  .value
+                e.target.value
               )
             }
           />
@@ -3936,8 +4625,10 @@ function TextOptions({
       </div>
 
     </div>
+
   );
 }
+
 
 /* =========================================================
    SMALL COMPONENTS
@@ -3946,22 +4637,35 @@ function TextOptions({
 function Card({
   children,
 }) {
+
   return (
+
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
+
       {children}
+
     </div>
+
   );
 }
+
 
 function CardTitle({
   children,
 }) {
+
   return (
+
     <h2 className="mb-5 text-lg font-bold text-gray-900">
+
       {children}
+
     </h2>
+
   );
+
 }
+
 
 function Input({
   label,
@@ -3969,37 +4673,50 @@ function Input({
   onChange,
   placeholder = "",
 }) {
+
   return (
+
     <div>
 
       <label className="mb-2 block text-sm font-medium text-gray-700">
+
         {label}
+
       </label>
+
 
       <input
         value={value}
         onChange={onChange}
-        placeholder={
-          placeholder
-        }
+        placeholder={placeholder}
         className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
       />
 
     </div>
+
   );
+
 }
+
 
 function AddBlockButton({
   type,
   onClick,
 }) {
+
   return (
+
     <button
       type="button"
       onClick={onClick}
       className="rounded-lg border bg-white px-3 py-2 text-xs font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600"
     >
+
       + {type}
+
     </button>
+
   );
+
 }
+
