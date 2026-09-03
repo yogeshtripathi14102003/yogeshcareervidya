@@ -1,3 +1,6 @@
+
+
+//updated blog 
 import BlogList from "@/features/blog/components/BlogList.jsx";
 import { serverFetch } from "@/utlis/serverFetch";
 import { BLOG_PAGE_SIZE } from "@/features/blog/constants/blogConstants.js";
@@ -60,7 +63,6 @@ export const metadata = {
     canonical: "/blog",
   },
 };
-
 export default async function BlogPage() {
   const initialData = await fetchInitialBlogs();
   return <BlogList initialData={initialData} />;
