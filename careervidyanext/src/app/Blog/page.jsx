@@ -2,8 +2,6 @@ import BlogList from "@/features/blog/components/BlogList.jsx";
 import { serverFetch } from "@/utlis/serverFetch";
 import { BLOG_PAGE_SIZE } from "@/features/blog/constants/blogConstants.js";
 
-export const dynamic = "force-dynamic";
-
 async function fetchInitialBlogs() {
   try {
     const res = await serverFetch(`/api/v1/blog?page=1&limit=${BLOG_PAGE_SIZE}`, {

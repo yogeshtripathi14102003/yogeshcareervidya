@@ -10,6 +10,40 @@ async function getBlogData(slug) {
   return data?.data || null;
 }
 
+/* =========================================================
+   GENERATE STATIC PARAMS
+   ---------------------------------------------------------
+   IMPORTANT FIX: Without this function, Next.js has no way of
+   knowing which blog slugs exist at build time. That forces
+   every /blog/[slug] page to render dynamically on each
+   request instead of being pre-built as a static page — which
+   is exactly what was causing <title>, canonical, and meta
+   tags to stream into <body> instead of <head> (the SEO issue
+   flagged by Screaming Frog).
+
+   Adding this tells Next.js all known slugs upfront, so it can
+   pre-render (SSG) each blog page at build time, and refresh
+   them periodically via ISR (revalidate: 300 above).
+
+   NOTE: This assumes a "/api/v1/blog" endpoint returns the full
+   list of blogs (matching the pattern used by /api/v1/course
+   and /api/v1/university elsewhere in the app). Double-check
+   the exact path/response shape against whatever your blog
+   LISTING page (e.g. src/app/blog/page.jsx) already uses to
+   fetch all posts, and adjust below if it differs.
+========================================================= */
+export async function generateStaticParams() {
+  const { ok, data } = await serverFetch("/api/v1/blog?limit=200");
+
+  if (!ok) return [];
+
+  const blogs = data?.data || data?.blogs || [];
+
+  return blogs
+    .filter((b) => b?.slug)
+    .map((b) => ({ slug: b.slug }));
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const blog = await getBlogData(slug);
