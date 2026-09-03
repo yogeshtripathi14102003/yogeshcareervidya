@@ -937,7 +937,7 @@ import VideoSlider from "./components/VideoSlider";
 // pre-rendered at build time. Needed because HeroSlider/LogoSlider fetch
 // data from the DB via API_URL — that data isn't available/ready at
 // build time, so static generation was failing the whole build.
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Career Vidya | Best Courses & Career Guidance Platform",
