@@ -159,4 +159,4 @@ export default async function BlogDetailPage({ params }) {
       <BlogDetailView slug={slug} initialBlog={blog} />
     </>
   );
-} 
+}
