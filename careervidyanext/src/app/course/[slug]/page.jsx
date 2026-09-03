@@ -50,6 +50,8 @@
 //   return <CourseDetailClient course={course} />;
 // }
 
+
+
 import CourseDetailClient from "@/app/course/CourseDetailClient.jsx";
 import { serverFetch } from "@/utlis/serverFetch";
 import { notFound } from "next/navigation";
@@ -69,6 +71,36 @@ async function getCourseData(slug) {
   if (!ok) return null;
 
   return data?.course || null;
+}
+
+/* =========================================================
+   GENERATE STATIC PARAMS
+   ---------------------------------------------------------
+   IMPORTANT FIX: Without this function, Next.js has no way of
+   knowing which course slugs exist at build time. That forces
+   every /course/[slug] page to be rendered dynamically on each
+   request instead of being pre-built as a static page — which
+   is exactly what was causing <title>, canonical, and meta tags
+   to stream into <body> instead of <head> (the SEO issue).
+
+   Adding this tells Next.js all known slugs upfront, so it can
+   pre-render (SSG) each course page at build time, and refresh
+   them periodically via ISR (revalidate: 3600 above).
+
+   NOTE: Double-check the endpoint/limit below matches whatever
+   your other pages (e.g. Explore page's getCourses()) already
+   use to fetch the full course list — adjust if different.
+========================================================= */
+export async function generateStaticParams() {
+  const { ok, data } = await serverFetch("/api/v1/course?limit=200");
+
+  if (!ok) return [];
+
+  const courses = data?.courses || [];
+
+  return courses
+    .filter((c) => c?.slug)
+    .map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }) {
