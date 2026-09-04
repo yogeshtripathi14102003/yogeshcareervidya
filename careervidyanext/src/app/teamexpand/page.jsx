@@ -401,7 +401,11 @@ export default function TeamListingPage() {
                       key={m._id || m.id}
                       mentor={m}
                       onBook={() => { setSelectedMentor(m); setOpenBookModal(true); }}
-                      onDetail={() => router.push(`/teamexpand/${m._id || m.id}`)}
+                      // onDetail={() => router.push(`/teamexpand/${m._id || m.id}`)}
+                         onDetail={() => {
+     const mentorId = m._id || m.id;
+     if (mentorId) router.push(`/teamexpand/${mentorId}`);
+   }}
                     />
                   ))}
                   {totalPages > 1 && (

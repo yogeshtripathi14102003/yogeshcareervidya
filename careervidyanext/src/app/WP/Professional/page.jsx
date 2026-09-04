@@ -12,9 +12,8 @@ import Choose from "@/app/WP/Choose";
 import FAQ from "@/app/WP/FAQ";
 import Footer from "@/app/WP/Footer";
 import LearnersSlider from "@/app/WP/LearnersSlider";
-export default function Home() {
 
-  // 👉 Smooth scrolling enabled globally (JS-based)
+export default function Home() {
   useEffect(() => {
     if (typeof document !== "undefined") {
       document.documentElement.style.scrollBehavior = "smooth";
@@ -23,44 +22,25 @@ export default function Home() {
 
   return (
     <>
-      {/* TOP BAR */}
       <Topbar />
-
-      {/* SLIDER */}
-         <section id="enquire">
-   <Slider />
-   
-         </section>
-   
-
-      {/* COUNTER */}
+      <section id="enquire">
+        <Slider />
+      </section>
       <Counter />
-
-      {/* ABOUT COURSE SECTION */}
       <section id="about">
         <Keyand />
       </section>
-
-      {/* TOP UNIVERSITIES SECTION */}
       <section id="university">
         <Topuniversities />
       </section>
-
-      {/* HIGHLIGHTS / PROGRAM SECTION */}
       <section id="highlights">
         <Programand />
       </section>
-
-      {/* ENQUIRE NOW SECTION */}
       <section id="enquire">
         <Choose />
       </section>
-
-      {/* FAQ SECTION */}
       <FAQ />
       <LearnersSlider />
-
-      {/* FOOTER */}
       <Footer />
     </>
   );

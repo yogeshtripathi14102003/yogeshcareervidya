@@ -1,19 +1,18 @@
-// Mentor profiles are fetched client-side, but generateMetadata runs
-// server-side and has access to params — so we can still give each
-// mentor a unique, self-referencing canonical URL even without full
-// server-rendered data fetching.
-export async function generateMetadata({ params }) {
-  const { id } = await params;
-
-  return {
-    title: "Our Mentors",
+export const metadata = {
+  title: "Our Mentors | CareerVidya",
+  description:
+    "Meet CareerVidya's expert mentors and counselors who guide students toward the right career path.",
+  alternates: {
+    canonical: "https://careervidya.in/teamexpand",
+  },
+  openGraph: {
+    title: "Our Mentors | CareerVidya",
     description:
       "Meet CareerVidya's expert mentors and counselors who guide students toward the right career path.",
-    alternates: {
-      canonical: `https://careervidya.in/teamexpand/${id}`,
-    },
-  };
-}
+    url: "https://careervidya.in/teamexpand",
+    type: "website",
+  },
+};
 
 export default function TeamExpandLayout({ children }) {
   return children;
