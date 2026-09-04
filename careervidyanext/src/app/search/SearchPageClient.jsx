@@ -466,8 +466,14 @@ const SearchContent = () => {
         {/* ── BODY ── */}
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "24px 20px 100px" }}>
 
-          {searchQuery.trim() !== "" ? (
-            <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
+       {searchQuery.trim() !== "" ? (
+  <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
+    <h1 style={{
+      position: "absolute", width: 1, height: 1, padding: 0, margin: -1,
+      overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0,
+    }}>
+      Search results for "{searchQuery}"
+    </h1>
 
               {/* ── SIDEBAR ── */}
               <aside style={{ width: 232, flexShrink: 0, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -841,9 +847,9 @@ const SearchContent = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
-                <h2 className="font-display" style={{ fontSize: 24, fontWeight: 800, color: "#111827", margin: "0 0 10px 0", letterSpacing: "-0.02em" }}>
+                <h1 className="font-display" style={{ fontSize: 24, fontWeight: 800, color: "#111827", margin: "0 0 10px 0", letterSpacing: "-0.02em" }}>
                   Search for your future
-                </h2>
+                </h1>
                 <p style={{ fontSize: 14, color: "#9CA3AF", maxWidth: 320, lineHeight: 1.6, margin: "0 0 28px 0" }}>
                   Enter a university name, course, or your budget like{" "}
                   <strong style={{ color: "#2563EB" }}>"MBA under 50k"</strong>

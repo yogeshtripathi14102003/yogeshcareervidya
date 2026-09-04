@@ -23,7 +23,7 @@ export const metadata = {
     "Discover blogs that bring you the latest insights, trends, and strategies to stay ahead in the digital world.",
 
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.careervidya.in"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://careervidya.in"
   ),
 
   openGraph: {

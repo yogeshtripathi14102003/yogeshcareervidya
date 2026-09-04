@@ -16,8 +16,7 @@ import { serverFetch } from "@/utlis/serverFetch";
 
 
 const SITE_URL = "https://careervidya.in";
-const PAGE_URL = `${SITE_URL}/placement`;
-
+const PAGE_URL = `${SITE_URL}/whycareervidya/placement-support`;
 /* =========================================================
    SEO
 ========================================================= */
