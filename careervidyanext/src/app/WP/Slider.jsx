@@ -10,7 +10,14 @@ export default function CompactBannerSection() {
 
   return (
     <div className="relative w-full max-w-[1510px] mx-auto overflow-hidden">
-      
+      <h1 style={{
+        position: "absolute", width: 1, height: 1, padding: 0, margin: -1,
+        overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0,
+      }}>
+        Online Degree Programs — Compare UGC-Approved Universities
+      </h1>
+
+      {/* Banner Image - Aspect Ratio maintain rahegi aur bilkul crop nahi hogi */}      
       {/* Banner Image - Aspect Ratio maintain rahegi aur bilkul crop nahi hogi */}
       <div className="relative w-full h-auto">
         <Image 
