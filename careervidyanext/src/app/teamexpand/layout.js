@@ -1,14 +1,21 @@
 export const metadata = {
-  title: "Our Mentors",
+  title: "Meet Our Expert Career Counselors | CareerVidya",
   description:
-    "Meet CareerVidya's expert mentors and counselors who guide students toward the right career path.",
+    "Find expert career counselors at CareerVidya and book a personalised career guidance session.",
+
   alternates: {
     canonical: "https://careervidya.in/teamexpand",
   },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
   openGraph: {
-    title: "Our Mentors",
+    title: "Meet Our Expert Career Counselors | CareerVidya",
     description:
-      "Meet CareerVidya's expert mentors and counselors who guide students toward the right career path.",
+      "Find expert career counselors at CareerVidya and book a personalised career guidance session.",
     url: "https://careervidya.in/teamexpand",
     type: "website",
   },

@@ -931,6 +931,7 @@ import SocialSidebar from "./components/SocialSidebar";
 import ServiceSlider from "./components/ServiceSlider";
 import Notification from "../app/components/Notification";
 import VideoSlider from "./components/VideoSlider";
+import CareervidyaFromModal from "./components/CareervidyaFormModal";
 //  import CareervidyaFormModal from "./components/CareervidyaFormModal";
 
 // ✅ Forces this page to render on every request (SSR) instead of being
@@ -977,6 +978,7 @@ export default function Home() {
       <Footer />
       <ChatbotFloating />
       <SocialSidebar />
+      <CareervidyaFromModal />
     </div>
   );
 }

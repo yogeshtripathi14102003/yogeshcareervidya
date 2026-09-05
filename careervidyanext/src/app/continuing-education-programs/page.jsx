@@ -361,6 +361,7 @@
 //   );
 // }
 
+
 "use client";
 
 import { useState, useRef } from "react";
@@ -449,10 +450,14 @@ export default function ContinuingEducationContent() {
   return (
     <>
       <Header />
+
       <div className="bg-slate-50 text-slate-800 font-[Inter,sans-serif]">
-        {/* Hero Section */}
+
+        {/* =====================================================
+            HERO SECTION
+        ===================================================== */}
         <section className="relative py-16 px-6 text-center overflow-hidden bg-[#08131F]">
-          {/* gradient wash */}
+
           <div
             className="absolute inset-0"
             style={{
@@ -460,26 +465,33 @@ export default function ContinuingEducationContent() {
                 "radial-gradient(circle at 15% 20%, rgba(30,95,158,0.55), transparent 55%), radial-gradient(circle at 85% 80%, rgba(212,167,44,0.35), transparent 50%), linear-gradient(135deg, #08131F 0%, #0d2338 55%, #123456 100%)",
             }}
           />
-          {/* subtle dotted texture */}
+
           <div
             className="absolute inset-0 opacity-20"
             style={{
-              backgroundImage: "radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)",
+              backgroundImage:
+                "radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)",
               backgroundSize: "26px 26px",
             }}
           />
-          {/* soft glow blobs */}
+
           <div className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-[#1E5F9E] opacity-30 blur-3xl" />
+
           <div className="absolute -bottom-20 -right-10 w-80 h-80 rounded-full bg-[#D4A72C] opacity-20 blur-3xl" />
 
           <div className="relative max-w-4xl mx-auto">
+
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">
               CONTINUING EDUCATION PROGRAM FOR{" "}
-              <span className="text-amber-400">WORKING PROFESSIONALS</span>
+              <span className="text-amber-400">
+                WORKING PROFESSIONALS
+              </span>
             </h1>
+
             <div className="w-12 h-1 bg-amber-500 mx-auto mt-4 rounded-full" />
 
             <div className="mt-8 max-w-xl mx-auto grid grid-cols-3 gap-3">
+
               {["B. Tech", "M. Tech", "Diploma"].map((p) => (
                 <div
                   key={p}
@@ -488,16 +500,22 @@ export default function ContinuingEducationContent() {
                   <p className="text-base sm:text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
                     {p}
                   </p>
-                  <span className="block w-4 h-[2px] bg-amber-400 mx-auto mt-1.5 group-hover:w-8 group-hover:bg-amber-400 transition-all" />
+
+                  <span className="block w-4 h-[2px] bg-amber-400 mx-auto mt-1.5 group-hover:w-8 transition-all" />
                 </div>
               ))}
+
             </div>
           </div>
         </section>
 
-        {/* Intro */}
+        {/* =====================================================
+            INTRO
+        ===================================================== */}
         <section className="max-w-7xl mx-auto px-6 py-12">
+
           <div className="border-l-4 border-amber-500 bg-white p-6 rounded-r-xl border-y border-r border-slate-200 shadow-sm">
+
             <p className="text-slate-700 text-base md:text-lg leading-relaxed font-medium">
               Academic success plays an important role in building a strong and successful
               professional career. The Continuing Education Programme for Working Professionals is
@@ -509,156 +527,266 @@ export default function ContinuingEducationContent() {
               jobs, allowing them to learn, grow, and progress in their careers while maintaining a
               balance between work and education.
             </p>
+
           </div>
         </section>
 
-        {/* Eligible programmes + Video */}
-        <section className="max-w-7xl mx-auto px-6 pb-16 grid md:grid-cols-2 gap-10 items-start">
+        {/* =====================================================
+            ELIGIBLE PROGRAMMES + VIDEO
+        ===================================================== */}
+        <section className="max-w-7xl mx-auto px-6 pb-16 grid md:grid-cols-2 gap-8 items-start">
+
+          {/* LEFT CONTENT */}
           <div>
+
             <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-2">
               Eligible Academic Programmes
             </h2>
+
             <p className="text-sm text-slate-600 mb-6">
               This policy is applicable to the following programmes (all branches, wherever
               applicable) offered by the University:
             </p>
+
             <ol className="space-y-3">
+
               {ELIGIBLE_PROGRAMMES.map((p, i) => (
+
                 <li
                   key={p}
                   className="flex items-center gap-4 border border-slate-200 rounded-lg px-4 py-3 bg-white shadow-sm hover:border-amber-500 hover:shadow-md transition-all"
                 >
+
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1E5F9E] text-white font-[Fraunces,serif] text-sm font-bold shrink-0">
                     {i + 1}
                   </span>
-                  <span className="text-sm text-slate-800 font-semibold">{p}</span>
+
+                  <span className="text-sm text-slate-800 font-semibold">
+                    {p}
+                  </span>
+
                 </li>
+
               ))}
+
             </ol>
+
             <p className="text-xs text-slate-500 mt-4 leading-relaxed">
-              **Note:** The availability of these programmes is subject to the necessary
+              <strong>Note:</strong> The availability of these programmes is subject to the necessary
               approvals, recognitions, and permissions from the relevant statutory and regulatory
               authorities. Each programme will be offered only after fulfilling the applicable
               academic, legal, and regulatory requirements.
             </p>
+
           </div>
 
-          {/* Video block: blurred backdrop fills empty space, main video stays uncropped */}
-          <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-md relative bg-slate-900 h-[380px] md:h-[450px]">
-            {/* Blurred backdrop copy - fills the box, no empty side space */}
-            <video
-              src="/video/Ai.mp4"
-              className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
-              autoPlay
-              loop
-              muted
-              playsInline
-              aria-hidden="true"
-            />
-            {/* Main video - uncropped, centered on top of blurred backdrop */}
-            <video
-              ref={videoRef}
-              src="/video/Ai.mp4"
-              className="relative w-full h-full object-contain"
-              autoPlay
-              loop
-              muted
-              playsInline
-              poster="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1600&auto=format&fit=crop"
-            />
-            <button
-              type="button"
-              onClick={toggleMute}
-              aria-label={isMuted ? "Unmute video" : "Mute video"}
-              className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors z-10"
-            >
-              {isMuted ? "🔇" : "🔊"}
-            </button>
-          </div>
+          {/* =====================================================
+              UPDATED VIDEO CONTAINER
+          ===================================================== */}
+        <div
+  className="
+    relative
+    h-[360px]
+    md:h-[420px]
+    w-full
+    md:w-[400px]
+    mx-auto
+    mt-16
+    rounded-2xl
+    overflow-hidden
+    bg-white
+    border-2
+    border-[#ec7425]
+    shadow-[0_10px_35px_rgba(0,0,0,0.18)]
+  "
+>
+  <video
+    ref={videoRef}
+    src="/video/Ai.mp4"
+    className="
+      w-full
+      h-full
+      object-contain
+      block
+      bg-white
+    "
+    autoPlay
+    loop
+    muted
+    playsInline
+    preload="auto"
+    poster="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1600&auto=format&fit=crop"
+  />
+
+  <button
+    type="button"
+    onClick={toggleMute}
+    aria-label={isMuted ? "Unmute video" : "Mute video"}
+    className="
+      absolute
+      bottom-4
+      right-4
+      z-10
+      bg-black/60
+      hover:bg-black/80
+      text-white
+      rounded-full
+      w-10
+      h-10
+      flex
+      items-center
+      justify-center
+      transition-all
+      border
+      border-white/30
+      shadow-lg
+    "
+  >
+    {isMuted ? "🔇" : "🔊"}
+  </button>
+</div>
+
         </section>
 
-        {/* Admission & Eligibility conditions */}
+        {/* =====================================================
+            ADMISSION & ELIGIBILITY
+        ===================================================== */}
         <section className="bg-slate-100 py-16 border-y border-slate-200">
+
           <div className="max-w-7xl mx-auto px-6">
+
             <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-2">
               Admission &amp; Eligibility Conditions
             </h2>
+
             <p className="text-slate-600 text-sm mb-8 max-w-2xl">
               Eligibility criteria for admission in this scheme are as follows:
             </p>
+
             <div className="grid md:grid-cols-3 gap-6">
+
               {ELIGIBILITY.map((e, i) => (
+
                 <div
                   key={e.title}
                   className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-amber-500 transition-all"
                 >
+
                   <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#D4A72C] text-[#08131F] font-[Fraunces,serif] text-sm font-bold">
                     0{i + 1}
                   </span>
-                  <h3 className="text-slate-900 font-bold mt-4 mb-2">{e.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">{e.body}</p>
+
+                  <h3 className="text-slate-900 font-bold mt-4 mb-2">
+                    {e.title}
+                  </h3>
+
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {e.body}
+                  </p>
+
                 </div>
+
               ))}
+
             </div>
+
           </div>
+
         </section>
 
-        {/* Documents & Scheduling */}
+        {/* =====================================================
+            DOCUMENTS & SCHEDULING
+        ===================================================== */}
         <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10">
+
           <div>
+
             <h2 className="font-[Fraunces,serif] text-2xl text-slate-900 font-bold mb-3">
               Documents Required at Admission
             </h2>
-            <p className="text-sm text-slate-600 mb-4">Applicants must submit:</p>
+
+            <p className="text-sm text-slate-600 mb-4">
+              Applicants must submit:
+            </p>
+
             <ul className="space-y-3">
+
               <li className="flex gap-3 items-start text-sm text-slate-800 bg-white border border-slate-200 rounded-lg px-4 py-3 shadow-sm">
+
                 <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E5F9E] text-white font-[Fraunces,serif] text-xs font-bold shrink-0 mt-0.5">
                   01
                 </span>
-                <span>Educational certificates and academic transcripts, as applicable.</span>
+
+                <span>
+                  Educational certificates and academic transcripts, as applicable.
+                </span>
+
               </li>
+
               <li className="flex gap-3 items-start text-sm text-slate-800 bg-white border border-slate-200 rounded-lg px-4 py-3 shadow-sm">
+
                 <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E5F9E] text-white font-[Fraunces,serif] text-xs font-bold shrink-0 mt-0.5">
                   02
                 </span>
+
                 <span>
                   No Objection Certificate (NOC) from the employer / Employment Certificate /
                   Appointment Letter, along with a self-declaration confirming current employment
                   status.
                 </span>
+
               </li>
+
             </ul>
+
           </div>
 
           <div>
+
             <h2 className="font-[Fraunces,serif] text-2xl text-slate-900 font-bold mb-3">
               Academic Delivery &amp; Scheduling
             </h2>
+
             <p className="text-sm text-slate-600 mb-4">
               Flexible learning options offered to working professionals:
             </p>
+
             <div className="grid grid-cols-2 gap-3">
+
               {SCHEDULES.map((s, i) => (
+
                 <div
                   key={s}
                   className="flex items-center gap-3 border border-slate-200 bg-white rounded-lg px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm hover:border-amber-500 transition-all"
                 >
+
                   <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E5F9E] text-white font-[Fraunces,serif] text-xs font-bold shrink-0">
                     {i + 1}
                   </span>
+
                   {s}
+
                 </div>
+
               ))}
+
             </div>
+
           </div>
+
         </section>
 
-        {/* Industry sponsorship & compliance */}
+        {/* =====================================================
+            INDUSTRY SPONSORSHIP
+        ===================================================== */}
         <section className="max-w-7xl mx-auto px-6 pb-16 grid md:grid-cols-2 gap-6">
+
           <div className="border-t-4 border-[#D4A72C] bg-white border border-slate-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+
             <h3 className="font-[Fraunces,serif] text-lg text-slate-900 font-bold mb-2">
               Industry Sponsorship
             </h3>
+
             <p className="text-sm text-slate-600 leading-relaxed">
               The University promotes strong collaboration with industries, corporate
               organizations, government bodies, and other professional institutions through
@@ -668,89 +796,135 @@ export default function ContinuingEducationContent() {
               professionals to strengthen their knowledge and advance their careers while
               continuing their employment.
             </p>
+
           </div>
+
           <div className="border-t-4 border-[#08131F] bg-white border border-slate-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+
             <h3 className="font-[Fraunces,serif] text-lg text-slate-900 font-bold mb-2">
               Regulatory Compliance
             </h3>
+
             <p className="text-sm text-slate-600 leading-relaxed">
               This policy has been established in accordance with UGC Act 1956 provisions and is
               subject to oversight from the Academic Council. The Vice Chancellor holds authority
               to amend policy directives as required.
             </p>
+
           </div>
+
         </section>
 
-        {/* FAQ Section */}
+        {/* =====================================================
+            FAQ
+        ===================================================== */}
         <section className="bg-slate-100 py-16 border-t border-slate-200">
+
           <div className="max-w-5xl mx-auto px-6">
+
             <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-8 text-center">
               Frequently Asked Questions
             </h2>
+
             <div className="grid md:grid-cols-2 gap-4">
+
               {FAQS.map((item, i) => {
+
                 const isOpen = openFaq === i;
+
                 return (
+
                   <div
                     key={item.q}
                     className={`rounded-lg border transition-all h-fit bg-white ${
-                      isOpen ? "border-[#D4A72C] shadow-sm" : "border-slate-200"
+                      isOpen
+                        ? "border-[#D4A72C] shadow-sm"
+                        : "border-slate-200"
                     }`}
                   >
+
                     <button
                       onClick={() => setOpenFaq(isOpen ? null : i)}
                       className="w-full flex items-center justify-between text-left px-5 py-4"
                     >
-                      <span className="text-sm font-semibold text-slate-900 pr-4">{item.q}</span>
+
+                      <span className="text-sm font-semibold text-slate-900 pr-4">
+                        {item.q}
+                      </span>
+
                       <span className="text-[#D4A72C] font-bold text-lg shrink-0">
                         {isOpen ? "−" : "+"}
                       </span>
+
                     </button>
+
                     {isOpen && (
+
                       <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
                         {item.a}
                       </div>
+
                     )}
+
                   </div>
+
                 );
+
               })}
+
             </div>
+
           </div>
+
         </section>
 
-        {/* CTA Section */}
+        {/* =====================================================
+            CTA
+        ===================================================== */}
         <section className="max-w-7xl mx-auto px-6 py-16">
+
           <div className="bg-white border border-slate-200 rounded-2xl p-8 md:p-12 text-center shadow-md">
+
             <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-3">
               Ready to continue your education?
             </h2>
+
             <p className="text-slate-600 text-sm max-w-xl mx-auto mb-8">
               Keep working, keep earning, and keep learning — apply to the Continuing Education
               Programme today.
             </p>
+
             <div className="flex flex-wrap justify-center gap-3">
+
               <Link
                 href="/signup"
                 className="bg-[#c15304] text-white font-bold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity shadow-sm"
               >
                 Apply Now
               </Link>
+
               <Link
                 href="/signup"
                 className="bg-[#08131F] text-white font-semibold text-sm px-6 py-3 rounded-lg hover:bg-slate-800 transition-colors"
               >
                 Download Brochure
               </Link>
+
               <Link
                 href="/signup"
                 className="border border-slate-300 text-slate-700 font-semibold text-sm px-6 py-3 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 Contact for Admissions
               </Link>
+
             </div>
+
           </div>
+
         </section>
+
       </div>
+
       <Footer />
     </>
   );

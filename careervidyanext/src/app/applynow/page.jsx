@@ -29,9 +29,9 @@ export default function ApplyForm() {
     if (files) {
       const file = files[0];
 
-      // Optional size validation (50KB)
-      if (file.size > 50 * 1024) {
-        alert("File size must be less than 50KB");
+      // Optional size validation (500KB)
+      if (file.size > 500 * 1024) {
+        alert("File size must be less than 500KB");
         return;
       }
 
