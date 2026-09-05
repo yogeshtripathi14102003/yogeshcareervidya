@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
@@ -131,6 +130,74 @@ const CompareToggle = ({ checked, disabled, onToggle }) => (
       </svg>
     )}
   </button>
+);
+
+// ✅ NEW: Static Suspense fallback with REAL <Link> tags.
+// Why this matters: SearchContent calls useSearchParams(), which forces
+// Next.js to wrap it in <Suspense>. During the initial server-rendered
+// HTML (before client JS hydrates), Next.js serves THIS fallback, not
+// SearchContent. If the fallback is just an empty <div> (as it was
+// before), any crawler that reads raw HTML — or evaluates JS with a
+// timeout that expires before hydration — sees a page with zero internal
+// outlinks. That's exactly what Screaming Frog's "Pages Without Internal
+// Outlinks" warning flagged for /search.
+// Putting real navigation links directly in the fallback guarantees they
+// exist in the very first HTML byte, regardless of JS execution/timing.
+const SearchFallback = () => (
+  <div style={{ minHeight: "100vh", background: "#F4F6FB", padding: "24px 20px" }}>
+    <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+      <p style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 12px 4px" }}>
+        Browse directly
+      </p>
+      <nav style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+        <Link
+          href="/university"
+          style={{
+            padding: "10px 16px", borderRadius: 12, border: "1px solid #E5E9F2",
+            background: "#fff", color: "#111827", fontSize: 13, fontWeight: 600, textDecoration: "none",
+          }}
+        >
+          All Universities
+        </Link>
+        <Link
+          href="/course"
+          style={{
+            padding: "10px 16px", borderRadius: 12, border: "1px solid #E5E9F2",
+            background: "#fff", color: "#111827", fontSize: 13, fontWeight: 600, textDecoration: "none",
+          }}
+        >
+          All Courses
+        </Link>
+        <Link
+          href="/explore"
+          style={{
+            padding: "10px 16px", borderRadius: 12, border: "1px solid #E5E9F2",
+            background: "#fff", color: "#111827", fontSize: 13, fontWeight: 600, textDecoration: "none",
+          }}
+        >
+          Explore
+        </Link>
+        <Link
+          href="/career"
+          style={{
+            padding: "10px 16px", borderRadius: 12, border: "1px solid #E5E9F2",
+            background: "#fff", color: "#111827", fontSize: 13, fontWeight: 600, textDecoration: "none",
+          }}
+        >
+          Career Guidance
+        </Link>
+        <Link
+          href="/"
+          style={{
+            padding: "10px 16px", borderRadius: 12, border: "1px solid #E5E9F2",
+            background: "#fff", color: "#111827", fontSize: 13, fontWeight: 600, textDecoration: "none",
+          }}
+        >
+          Home
+        </Link>
+      </nav>
+    </div>
+  </div>
 );
 
 const SearchContent = () => {
@@ -466,14 +533,8 @@ const SearchContent = () => {
         {/* ── BODY ── */}
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "24px 20px 100px" }}>
 
-       {searchQuery.trim() !== "" ? (
-  <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
-    <h1 style={{
-      position: "absolute", width: 1, height: 1, padding: 0, margin: -1,
-      overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0,
-    }}>
-      Search results for "{searchQuery}"
-    </h1>
+          {searchQuery.trim() !== "" ? (
+            <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
 
               {/* ── SIDEBAR ── */}
               <aside style={{ width: 232, flexShrink: 0, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -847,9 +908,9 @@ const SearchContent = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
-                <h1 className="font-display" style={{ fontSize: 24, fontWeight: 800, color: "#111827", margin: "0 0 10px 0", letterSpacing: "-0.02em" }}>
+                <h2 className="font-display" style={{ fontSize: 24, fontWeight: 800, color: "#111827", margin: "0 0 10px 0", letterSpacing: "-0.02em" }}>
                   Search for your future
-                </h1>
+                </h2>
                 <p style={{ fontSize: 14, color: "#9CA3AF", maxWidth: 320, lineHeight: 1.6, margin: "0 0 28px 0" }}>
                   Enter a university name, course, or your budget like{" "}
                   <strong style={{ color: "#2563EB" }}>"MBA under 50k"</strong>
@@ -1058,7 +1119,7 @@ const SearchContent = () => {
 
 export default function SearchPageClient() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F4F6FB" }} />}>
+    <Suspense fallback={<SearchFallback />}>
       <SearchContent />
     </Suspense>
   );
