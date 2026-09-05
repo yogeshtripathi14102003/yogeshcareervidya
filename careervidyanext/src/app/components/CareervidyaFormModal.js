@@ -2933,12 +2933,12 @@ export default function CareerVidyaPremiumWidget() {
               <div style={formImageWrapper}>
 
                 <img
-                  src="/images/book1.jpg"
+                  src="/images/112.png"
                   alt="Career Counselling"
                   style={formImage}
                 />
 
-                <div style={imageOverlay}>
+                {/* <div style={imageOverlay}>
 
                   <h3 style={imageTitle}>
                     Plan Your Career
@@ -2951,7 +2951,7 @@ export default function CareerVidyaPremiumWidget() {
                     the right career choice.
                   </p>
 
-                </div>
+                </div> */}
               </div>
             </div>
 

@@ -642,7 +642,7 @@ export default function CareervidyaFormModal() {
                   style={imageCardStyle}
                 >
                   <Image
-                    src="/images/book1.jpg"
+                    src="/images/112.png"
                     alt="Career Counselling"
                     fill
                     priority
@@ -656,7 +656,7 @@ export default function CareervidyaFormModal() {
                   <div
                     style={imageOverlayStyle}
                   >
-                    <div>
+                    {/* <div>
                       <h3
                         style={imageHeadingStyle}
                       >
@@ -672,7 +672,7 @@ export default function CareervidyaFormModal() {
                         and make the right
                         career choice.
                       </p>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
