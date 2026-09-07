@@ -1,3 +1,6 @@
+
+
+
 // import Course from "../models/Admin/Course.js";
 // import cloudinary from "../config/cloudinary.js";
 // import slugify from "slugify";
@@ -108,6 +111,7 @@
 // };
 
 // const LIST_FIELDS = "name slug category duration tag courseLogo.url createdAt specializations";
+
 // // ======================================================
 // // ✅ DB INDEXES — Ek baar chalenge, permanently fast
 // // ======================================================
@@ -484,15 +488,12 @@
 // };
 
 
-
 import Course from "../models/Admin/Course.js";
 import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
 
 // ======================================================
 // Update the list of universities attached to a course
-// (previously missing entirely — the admin "attach universities" tool
-// called PUT /course/:id/universities, which had no route at all)
 // ======================================================
 export const updateCourseUniversities = async (req, res) => {
   try {
@@ -597,7 +598,7 @@ const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] 
 const LIST_FIELDS = "name slug category duration tag courseLogo.url createdAt specializations";
 
 // ======================================================
-// ✅ DB INDEXES — Ek baar chalenge, permanently fast
+// ✅ DB INDEXES
 // ======================================================
 const ensureIndexes = async () => {
   try {
@@ -624,18 +625,16 @@ export const createCourse = async (req, res) => {
       goodThings, topUniversities, keyHighlights, syllabus, offeredCourses,
       onlineEligibility, feeStructureSidebar, detailedFees, onlineCourseWorthIt,
       jobOpportunities, universities, topRecruiters,
+      Careervidyabenifit, faqs, // ✅ NEW
     } = req.body;
 
     if (!name) return res.status(400).json({ success: false, message: "Course name is required" });
 
-    // Slug
     let baseSlug = slugify(name, { lower: true, strict: true });
     let slug = baseSlug;
     let counter = 1;
-    // ✅ slug index hone se ye query fast hogi
     while (await Course.findOne({ slug }).select("_id").lean()) slug = `${baseSlug}-${counter++}`;
 
-    // ✅ Parallel uploads
     const [logoResult, pdfResult] = await Promise.all([
       req.files?.courseLogo?.[0]
         ? cloudinary.uploader.upload(req.files.courseLogo[0].path, { folder: "courses/logos" })
@@ -652,7 +651,6 @@ export const createCourse = async (req, res) => {
     const courseLogo = logoResult ? { public_id: logoResult.public_id, url: logoResult.secure_url } : null;
     const syllabusPdf = pdfResult ? { public_id: pdfResult.public_id, url: pdfResult.secure_url } : null;
 
-    // Overview images
     let parsedOverview = parseArrayField(overview);
     if (req.files?.overviewImages?.length > 0) {
       const uploaded = await Promise.all(
@@ -661,7 +659,6 @@ export const createCourse = async (req, res) => {
       parsedOverview = await mapImagesToItems({ items: parsedOverview, uploaded, existingItems: [] });
     }
 
-    // WhyChooseUs images
     let parsedWhy = parseArrayField(whyChooseUs);
     if (req.files?.whyChooseUsImages?.length > 0) {
       const uploaded = await Promise.all(
@@ -670,7 +667,6 @@ export const createCourse = async (req, res) => {
       parsedWhy = await mapImagesToItems({ items: parsedWhy, uploaded, existingItems: [] });
     }
 
-    // OnlineCourseWorthIt
     let parsedOCW = parseObjectField(onlineCourseWorthIt);
     if (req.files?.onlineCourseWorthItImage?.[0]) {
       const up = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, { folder: "courses/worthit" });
@@ -694,6 +690,8 @@ export const createCourse = async (req, res) => {
       jobOpportunities: parseArrayField(jobOpportunities),
       topRecruiters: parseArrayField(topRecruiters),
       universities: parseUniversitiesField(universities),
+      Careervidyabenifit: parseArrayField(Careervidyabenifit), // ✅ NEW
+      faqs: parseArrayField(faqs), // ✅ NEW
       courseLogo,
       syllabusPdf,
     });
@@ -712,22 +710,21 @@ export const createCourse = async (req, res) => {
 export const getCourses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = Math.min(parseInt(req.query.limit) || 50, 50); // ✅ max 50
+    const limit = Math.min(parseInt(req.query.limit) || 50, 50);
     const filter = req.query.category && req.query.category !== "All"
       ? { category: req.query.category } : {};
 
-    // ✅ Parallel count + find
     const [totalCourses, courses] = await Promise.all([
       Course.countDocuments(filter),
       Course.find(filter)
-        .select(LIST_FIELDS)        // ✅ sirf zaroori fields
-        .sort({ createdAt: -1 })   // ✅ index se fast
+        .select(LIST_FIELDS)
+        .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .lean(),                   // ✅ plain JS — 2-3x fast
+        .lean(),
     ]);
 
-    res.set("Cache-Control", "public, max-age=60"); // ✅ 1 min browser cache
+    res.set("Cache-Control", "public, max-age=60");
     res.status(200).json({
       success: true,
       totalCourses,
@@ -745,11 +742,10 @@ export const getCourses = async (req, res) => {
 // ======================================================
 export const getCourseBySlug = async (req, res) => {
   try {
-    // ✅ slug index hone se O(1) lookup
     const course = await Course.findOne({ slug: req.params.slug }).lean();
     if (!course) return res.status(404).json({ success: false, message: "Course not found" });
 
-    res.set("Cache-Control", "public, max-age=300"); // ✅ 5 min cache
+    res.set("Cache-Control", "public, max-age=300");
     res.status(200).json({ success: true, course });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -761,11 +757,10 @@ export const getCourseBySlug = async (req, res) => {
 // ======================================================
 export const getCourseById = async (req, res) => {
   try {
-    // ✅ _id default index hota hai MongoDB mein — already fast
     const course = await Course.findById(req.params.id).lean();
     if (!course) return res.status(404).json({ success: false, message: "Course not found" });
 
-    res.set("Cache-Control", "no-store"); // ✅ admin — fresh data
+    res.set("Cache-Control", "no-store");
     res.status(200).json({ success: true, data: course });
   } catch (error) {
     if (error.kind === "ObjectId")
@@ -785,11 +780,11 @@ export const updateCourse = async (req, res) => {
 
     const data = { ...req.body };
 
-    // ✅ Safe parse
     const arrayFields = [
       "specializations", "goodThings", "topUniversities", "keyHighlights",
       "syllabus", "offeredCourses", "onlineEligibility", "feeStructureSidebar",
       "detailedFees", "jobOpportunities", "topRecruiters",
+      "Careervidyabenifit", "faqs", // ✅ NEW
     ];
     arrayFields.forEach((field) => {
       if (data[field] !== undefined) data[field] = parseArrayField(data[field]);
@@ -799,7 +794,6 @@ export const updateCourse = async (req, res) => {
       data.universities = parseUniversitiesField(data.universities);
     }
 
-    // ✅ Parallel logo + pdf
     const [logoResult, pdfResult] = await Promise.all([
       req.files?.courseLogo?.[0]
         ? (existing.courseLogo?.public_id
@@ -818,7 +812,6 @@ export const updateCourse = async (req, res) => {
     if (logoResult) data.courseLogo = { public_id: logoResult.public_id, url: logoResult.secure_url };
     if (pdfResult) data.syllabusPdf = { public_id: pdfResult.public_id, url: pdfResult.secure_url };
 
-    // Overview
     if (req.files?.overviewImages) {
       const uploaded = await Promise.all(
         req.files.overviewImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/overview" }))
@@ -832,7 +825,6 @@ export const updateCourse = async (req, res) => {
       data.overview = parseArrayField(data.overview);
     }
 
-    // WhyChooseUs
     if (req.files?.whyChooseUsImages) {
       const uploaded = await Promise.all(
         req.files.whyChooseUsImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" }))
@@ -846,7 +838,6 @@ export const updateCourse = async (req, res) => {
       data.whyChooseUs = parseArrayField(data.whyChooseUs);
     }
 
-    // OnlineCourseWorthIt
     if (data.onlineCourseWorthIt !== undefined) {
       const worthIt = parseObjectField(data.onlineCourseWorthIt);
       if (req.files?.onlineCourseWorthItImage?.[0]) {
@@ -942,7 +933,7 @@ export const getCoursesShort = async (req, res) => {
 };
 
 // ======================================================
-// SEARCH COURSES (for global search bar)
+// SEARCH COURSES
 // ======================================================
 export const searchCourses = async (req, res) => {
   try {
@@ -952,7 +943,6 @@ export const searchCourses = async (req, res) => {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    // ✅ Same fields as list view + universities (already embedded, no populate needed)
     const courses = await Course.find({
       name: { $regex: query, $options: "i" },
     })

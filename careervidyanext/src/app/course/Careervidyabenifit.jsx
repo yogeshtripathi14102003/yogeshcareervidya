@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-// Import your logos or place them in the /public folder
+// Partner logos - EMI/Loan partners
 const partners = [
   { name: "LIQUILOANS", src: "/logos/liquiloans.png", alt: "LiquiLoans" },
   { name: "EarlySalary", src: "/logos/earlysalary.png", alt: "EarlySalary" },
@@ -14,26 +14,54 @@ const partners = [
   { name: "Jodo", src: "/logos/jodo.png", alt: "Jodo" },
 ];
 
-export default function EmiSection() {
+export default function Careervidyabenifit({ courseBenifit = [], courseTitle }) {
+  if (!courseBenifit || courseBenifit.length === 0) return null;
+
   return (
     <section className="bg-blue-900 text-white py-16 px-6">
       <div className="max-w-6xl mx-auto text-center space-y-6">
         {/* Title */}
         <h2 className="text-2xl md:text-3xl font-bold">
-          Education Loan/EMI Facilities for Online MBA
+          Career Vidya Benefits for {courseTitle}
         </h2>
 
-        {/* Description */}
-        <p className="text-sm md:text-base max-w-3xl mx-auto">
-          Students in educational colleges and universities and banking institutions choose "EMI" as their educational pathway selection option. Through online EMI services, you can enroll in the MBA course program because these payment methods reduce cost rates. Workers can access this service through university finances and regular educational loan programs that many employers provide.
-        </p>
+        {/* Benefit List */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 text-left">
+          {courseBenifit.map((item, i) => (
+            <div
+              key={i}
+              className="bg-white/10 border border-white/10 rounded-xl p-6 hover:bg-white/20 transition-colors"
+            >
+              {typeof item === "string" ? (
+                <p className="text-sm md:text-base font-medium leading-relaxed">
+                  {item}
+                </p>
+              ) : (
+                <>
+                  {item.title && (
+                    <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+                  )}
+                  <p className="text-sm md:text-base font-medium leading-relaxed text-white/90">
+                    {item.description}
+                  </p>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap justify-center gap-4 mt-4">
-          <Link href="#" className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg">
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
+          <Link
+            href="#"
+            className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg"
+          >
             Apply For No Cost EMI →
           </Link>
-          <Link href="#" className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg">
+          <Link
+            href="#"
+            className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg"
+          >
             Compare EMI Partners →
           </Link>
         </div>
@@ -41,7 +69,10 @@ export default function EmiSection() {
         {/* Partner Logos */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mt-8 items-center justify-items-center">
           {partners.map((partner) => (
-            <div key={partner.name} className="bg-white p-3 rounded-md flex items-center justify-center w-full h-16">
+            <div
+              key={partner.name}
+              className="bg-white p-3 rounded-md flex items-center justify-center w-full h-16"
+            >
               <Image
                 src={partner.src}
                 alt={partner.alt}
