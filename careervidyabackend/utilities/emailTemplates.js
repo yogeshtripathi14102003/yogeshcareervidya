@@ -156,6 +156,9 @@ export const getNewsletterCampaignTemplate = (bodyHtml, unsubscribeUrl, tracking
   `;
 };
 
+
+
+
 /**
  * Website Query Confirmation Email
  */
@@ -170,8 +173,14 @@ const escapeHtml = (value = "") => {
 };
 
 export const getQueryConfirmationTemplate = (name) => {
-  const currentYear = new Date().getFullYear();
+  const now = new Date();
+  const currentYear = now.getFullYear();
   const safeName = escapeHtml(name || "there");
+
+  const monthShort = now
+    .toLocaleString("en-US", { month: "short" })
+    .toUpperCase();
+  const dayNum = now.getDate();
 
   return `
 <!DOCTYPE html>
@@ -216,30 +225,8 @@ export const getQueryConfirmationTemplate = (name) => {
             ">
 
             <!-- LOGO -->
-            <!--
-              NOTE: cid:career-vidya-logo ONLY works if your send function
-              attaches the logo as an inline attachment with that exact cid.
-              Example (nodemailer):
-
-              transporter.sendMail({
-                ...
-                html: getQueryConfirmationTemplate(name),
-                attachments: [
-                  {
-                    filename: "logo.png",
-                    path: "./assets/career-vidya-logo.png", // or a Buffer/URL
-                    cid: "career-vidya-logo" // must match the img src exactly
-                  }
-                ]
-              });
-
-              If you don't want to manage attachments, replace the src below
-              with a permanent HTTPS URL of your hosted logo instead — that
-              is more reliable across Gmail/Outlook and needs no attachment:
-              src="https://your-domain.com/assets/logo.png"
-            -->
             <img
-              src="cid:career-vidya-logo"
+              src="https://careervidya.in/_next/image?url=%2Fimages%2Fn12.png&w=384&q=75"
               alt="Career Vidya"
               width="190"
               style="
@@ -314,8 +301,7 @@ export const getQueryConfirmationTemplate = (name) => {
 
                 </td>
 
-                <!-- RIGHT: Envelope illustration (CSS/emoji built,
-                     no external image needed — always renders) -->
+                <!-- RIGHT: Envelope illustration -->
                 <td width="150" valign="top" align="center" style="padding-top:6px;">
 
                   <div style="
@@ -426,7 +412,7 @@ export const getQueryConfirmationTemplate = (name) => {
 
               <tr>
 
-                <!-- ICON -->
+                <!-- ICON: real calendar with current date -->
                 <td width="115" align="center"
                   style="padding:25px 10px;">
 
@@ -436,10 +422,45 @@ export const getQueryConfirmationTemplate = (name) => {
                     background:#e1f0ff;
                     border-radius:50%;
                     text-align:center;
-                    line-height:72px;
-                    font-size:34px;
                   ">
-                    📅
+                    <table width="100%" height="72" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td align="center" valign="middle">
+
+                          <div style="
+                            width:44px;
+                            background:#ffffff;
+                            border-radius:6px;
+                            overflow:hidden;
+                            box-shadow:0 1px 3px rgba(0,0,0,0.15);
+                            display:inline-block;
+                          ">
+                            <div style="
+                              background:#e63946;
+                              color:#ffffff;
+                              font-size:9px;
+                              font-weight:800;
+                              letter-spacing:0.5px;
+                              padding:3px 0;
+                              text-align:center;
+                            ">
+                              ${monthShort}
+                            </div>
+                            <div style="
+                              color:#123f78;
+                              font-size:20px;
+                              font-weight:800;
+                              padding:4px 0 5px;
+                              text-align:center;
+                              line-height:1;
+                            ">
+                              ${dayNum}
+                            </div>
+                          </div>
+
+                        </td>
+                      </tr>
+                    </table>
                   </div>
 
                 </td>
