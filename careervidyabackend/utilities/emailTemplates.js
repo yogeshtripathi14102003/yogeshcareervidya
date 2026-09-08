@@ -156,7 +156,6 @@ export const getNewsletterCampaignTemplate = (bodyHtml, unsubscribeUrl, tracking
   `;
 };
 
-
 /**
  * Website Query Confirmation Email
  */
@@ -217,6 +216,28 @@ export const getQueryConfirmationTemplate = (name) => {
             ">
 
             <!-- LOGO -->
+            <!--
+              NOTE: cid:career-vidya-logo ONLY works if your send function
+              attaches the logo as an inline attachment with that exact cid.
+              Example (nodemailer):
+
+              transporter.sendMail({
+                ...
+                html: getQueryConfirmationTemplate(name),
+                attachments: [
+                  {
+                    filename: "logo.png",
+                    path: "./assets/career-vidya-logo.png", // or a Buffer/URL
+                    cid: "career-vidya-logo" // must match the img src exactly
+                  }
+                ]
+              });
+
+              If you don't want to manage attachments, replace the src below
+              with a permanent HTTPS URL of your hosted logo instead — that
+              is more reliable across Gmail/Outlook and needs no attachment:
+              src="https://your-domain.com/assets/logo.png"
+            -->
             <img
               src="cid:career-vidya-logo"
               alt="Career Vidya"
@@ -256,34 +277,99 @@ export const getQueryConfirmationTemplate = (name) => {
         <tr>
           <td style="padding:15px 38px 10px;">
 
-            <div style="
-              font-size:15px;
-              color:#1261bd;
-              font-weight:600;
-              margin-bottom:8px;
-            ">
-              Your Query Has Been Received
-            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
 
-            <div style="
-              width:125px;
-              height:3px;
-              background:#f47721;
-              margin-bottom:18px;
-            "></div>
+                <!-- LEFT: Text -->
+                <td valign="middle" style="padding-right:10px;">
 
-            <h1 style="
-              margin:0;
-              font-size:42px;
-              line-height:1.05;
-              color:#123f78;
-              font-weight:800;
-            ">
-              Thanks for
-              <span style="color:#f47721;">
-                Query!
-              </span>
-            </h1>
+                  <div style="
+                    font-size:15px;
+                    color:#1261bd;
+                    font-weight:600;
+                    margin-bottom:8px;
+                  ">
+                    Your Query Has Been Received
+                  </div>
+
+                  <div style="
+                    width:125px;
+                    height:3px;
+                    background:#f47721;
+                    margin-bottom:18px;
+                  "></div>
+
+                  <h1 style="
+                    margin:0;
+                    font-size:38px;
+                    line-height:1.05;
+                    color:#123f78;
+                    font-weight:800;
+                  ">
+                    Thanks for
+                    <span style="color:#f47721;">
+                      Query!
+                    </span>
+                  </h1>
+
+                </td>
+
+                <!-- RIGHT: Envelope illustration (CSS/emoji built,
+                     no external image needed — always renders) -->
+                <td width="150" valign="top" align="center" style="padding-top:6px;">
+
+                  <div style="
+                    font-size:11px;
+                    color:#1261bd;
+                    font-style:italic;
+                    font-weight:700;
+                    line-height:1.3;
+                    margin-bottom:10px;
+                  ">
+                    We're<br>Here for You ✈️
+                  </div>
+
+                  <div style="
+                    position:relative;
+                    width:110px;
+                    height:90px;
+                    margin:0 auto;
+                    background:#e8f1fb;
+                    border-radius:22px;
+                  ">
+                    <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td align="center" valign="middle">
+                          <div style="font-size:44px; line-height:1;">
+                            ✉️
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <div style="
+                      position:absolute;
+                      bottom:-8px;
+                      right:-6px;
+                      width:30px;
+                      height:30px;
+                      background:#2ecc71;
+                      border-radius:50%;
+                      border:3px solid #ffffff;
+                      color:#ffffff;
+                      font-size:16px;
+                      font-weight:900;
+                      text-align:center;
+                      line-height:24px;
+                    ">
+                      ✓
+                    </div>
+                  </div>
+
+                </td>
+
+              </tr>
+            </table>
 
           </td>
         </tr>
