@@ -157,93 +157,494 @@ export const getNewsletterCampaignTemplate = (bodyHtml, unsubscribeUrl, tracking
 };
 
 
-
 /**
  * Website Query Confirmation Email
  */
+
+const escapeHtml = (value = "") => {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 export const getQueryConfirmationTemplate = (name) => {
   const currentYear = new Date().getFullYear();
+  const safeName = escapeHtml(name || "there");
 
   return `
-    <div style="
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      max-width: 600px;
-      margin: 0 auto;
-      border: 1px solid #eeeeee;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      background-color: #ffffff;
-    ">
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thanks for Query - Career Vidya</title>
+</head>
 
-      <div style="background-color: #1a73e8; height: 6px;"></div>
+<body style="
+  margin:0;
+  padding:0;
+  background:#f4f8fc;
+  font-family:Arial, Helvetica, sans-serif;
+">
 
-      <div style="
-        padding: 35px 30px;
-        color: #202124;
-        font-size: 15px;
-        line-height: 1.7;
-      ">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="background:#f4f8fc; padding:30px 10px;">
 
-        <p>
-          Hi <strong>${name || "there"}</strong>,
-        </p>
+  <tr>
+    <td align="center">
 
-        <h2 style="
-          color: #002147;
-          margin-bottom: 20px;
-          font-size: 24px;
+      <!-- MAIN CONTAINER -->
+      <table width="600" cellpadding="0" cellspacing="0" border="0"
+        style="
+          max-width:600px;
+          width:100%;
+          background:#ffffff;
+          border-radius:16px;
+          overflow:hidden;
+          border:1px solid #e5edf6;
         ">
-          Thanks for Query!
-        </h2>
 
-        <p>
-          We have received your Interest.
-        </p>
+        <!-- TOP BRAND SECTION -->
+        <tr>
+          <td align="center"
+            style="
+              padding:30px 20px 22px;
+              background:#ffffff;
+              border-top:5px solid #123f78;
+            ">
 
-        <p>
-          Please Provide a suitable time slot by which we can connect you!
-        </p>
+            <!-- LOGO -->
+            <img
+              src="cid:career-vidya-logo"
+              alt="Career Vidya"
+              width="190"
+              style="
+                display:block;
+                width:190px;
+                max-width:80%;
+                height:auto;
+                margin:0 auto 10px;
+              "
+            >
 
-        <div style="
-          margin: 25px 0;
-          padding: 18px 20px;
-          background-color: #f1f7ff;
-          border-left: 4px solid #1a73e8;
-          border-radius: 6px;
-        ">
-          <p style="
-            margin: 0;
-            color: #002147;
-            font-weight: 600;
+            <!-- TAGLINE -->
+            <div style="
+              font-size:16px;
+              color:#123f78;
+              font-style:italic;
+              font-weight:600;
+            ">
+              Vidya hai to Success hai
+            </div>
+
+            <div style="
+              width:55px;
+              height:3px;
+              background:#f47721;
+              margin:12px auto 0;
+              border-radius:10px;
+            "></div>
+
+          </td>
+        </tr>
+
+
+        <!-- HERO -->
+        <tr>
+          <td style="padding:15px 38px 10px;">
+
+            <div style="
+              font-size:15px;
+              color:#1261bd;
+              font-weight:600;
+              margin-bottom:8px;
+            ">
+              Your Query Has Been Received
+            </div>
+
+            <div style="
+              width:125px;
+              height:3px;
+              background:#f47721;
+              margin-bottom:18px;
+            "></div>
+
+            <h1 style="
+              margin:0;
+              font-size:42px;
+              line-height:1.05;
+              color:#123f78;
+              font-weight:800;
+            ">
+              Thanks for
+              <span style="color:#f47721;">
+                Query!
+              </span>
+            </h1>
+
+          </td>
+        </tr>
+
+
+        <!-- GREETING -->
+        <tr>
+          <td style="
+            padding:25px 38px 10px;
+            color:#173f70;
           ">
-            Our team will connect with you soon.
-          </p>
-        </div>
 
-        <p style="
-          margin-top: 30px;
-          border-top: 1px solid #eeeeee;
-          padding-top: 20px;
-        ">
-          Regards,<br>
-          <strong style="color: #1a73e8;">
-            Team Career Vidya
-          </strong>
-        </p>
+            <h2 style="
+              margin:0 0 15px;
+              font-size:27px;
+              color:#123f78;
+            ">
+              Hi ${safeName},
+            </h2>
 
-      </div>
+            <p style="
+              margin:0 0 10px;
+              font-size:16px;
+              line-height:1.7;
+              color:#24466e;
+            ">
+              We have received your Interest.
+            </p>
 
-      <div style="
-        padding: 18px;
-        text-align: center;
-        background-color: #f1f3f4;
-        font-size: 12px;
-        color: #70757a;
-      ">
-        &copy; ${currentYear} Career Vidya. All rights reserved.
-      </div>
+            <p style="
+              margin:0;
+              font-size:16px;
+              line-height:1.7;
+              color:#24466e;
+            ">
+              Please provide a suitable time slot by which we can
+              connect with you!
+            </p>
 
-    </div>
+          </td>
+        </tr>
+
+
+        <!-- NEXT STEP CARD -->
+        <tr>
+          <td style="padding:25px 38px;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+              style="
+                background:#f1f8ff;
+                border:1px solid #d4e8fb;
+                border-radius:14px;
+              ">
+
+              <tr>
+
+                <!-- ICON -->
+                <td width="115" align="center"
+                  style="padding:25px 10px;">
+
+                  <div style="
+                    width:72px;
+                    height:72px;
+                    background:#e1f0ff;
+                    border-radius:50%;
+                    text-align:center;
+                    line-height:72px;
+                    font-size:34px;
+                  ">
+                    📅
+                  </div>
+
+                </td>
+
+
+                <!-- TEXT -->
+                <td style="
+                  padding:25px 15px 25px 5px;
+                  border-left:3px solid #1261bd;
+                ">
+
+                  <div style="
+                    display:inline-block;
+                    background:#f47721;
+                    color:#ffffff;
+                    padding:7px 15px;
+                    border-radius:20px;
+                    font-size:14px;
+                    font-weight:bold;
+                    margin-bottom:12px;
+                  ">
+                    🕐 &nbsp; Next Step
+                  </div>
+
+                  <div style="
+                    color:#123f78;
+                    font-size:18px;
+                    line-height:1.5;
+                    font-weight:700;
+                  ">
+                    Please provide a suitable time slot
+                    by which we can connect with you.
+                  </div>
+
+                  <div style="
+                    margin-top:8px;
+                    color:#37699d;
+                    font-size:14px;
+                  ">
+                    Our team will connect with you soon.
+                  </div>
+
+                </td>
+
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+
+
+        <!-- BENEFITS -->
+        <tr>
+          <td style="padding:5px 25px 20px;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+
+              <tr>
+
+                <td align="center" width="20%"
+                  style="padding:10px 4px;">
+
+                  <div style="font-size:25px;">👨‍💼</div>
+
+                  <div style="
+                    color:#123f78;
+                    font-size:12px;
+                    line-height:1.4;
+                    margin-top:7px;
+                  ">
+                    Expert<br>Guidance
+                  </div>
+
+                </td>
+
+
+                <td align="center" width="20%"
+                  style="padding:10px 4px;">
+
+                  <div style="font-size:25px;">🎓</div>
+
+                  <div style="
+                    color:#123f78;
+                    font-size:12px;
+                    line-height:1.4;
+                    margin-top:7px;
+                  ">
+                    Verified<br>Universities
+                  </div>
+
+                </td>
+
+
+                <td align="center" width="20%"
+                  style="padding:10px 4px;">
+
+                  <div style="font-size:25px;">🛡️</div>
+
+                  <div style="
+                    color:#123f78;
+                    font-size:12px;
+                    line-height:1.4;
+                    margin-top:7px;
+                  ">
+                    100% Free<br>Counselling
+                  </div>
+
+                </td>
+
+
+                <td align="center" width="20%"
+                  style="padding:10px 4px;">
+
+                  <div style="font-size:25px;">💼</div>
+
+                  <div style="
+                    color:#123f78;
+                    font-size:12px;
+                    line-height:1.4;
+                    margin-top:7px;
+                  ">
+                    Job<br>Assistance
+                  </div>
+
+                </td>
+
+
+                <td align="center" width="20%"
+                  style="padding:10px 4px;">
+
+                  <div style="font-size:25px;">📈</div>
+
+                  <div style="
+                    color:#123f78;
+                    font-size:12px;
+                    line-height:1.4;
+                    margin-top:7px;
+                  ">
+                    Better<br>Career Future
+                  </div>
+
+                </td>
+
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+
+
+        <!-- CLOSING -->
+        <tr>
+          <td style="
+            padding:15px 38px 30px;
+            color:#24466e;
+          ">
+
+            <p style="
+              margin:0 0 28px;
+              font-size:15px;
+              line-height:1.6;
+            ">
+              Thank you for choosing Career Vidya for your
+              education journey.
+            </p>
+
+            <p style="
+              margin:0 0 5px;
+              font-size:15px;
+            ">
+              Regards,
+            </p>
+
+            <p style="
+              margin:0;
+              color:#1261bd;
+              font-size:19px;
+              font-weight:700;
+            ">
+              Team Career Vidya
+            </p>
+
+            <p style="
+              margin:5px 0 0;
+              color:#f47721;
+              font-size:14px;
+              font-style:italic;
+              font-weight:600;
+            ">
+              Vidya hai to Success hai
+            </p>
+
+          </td>
+        </tr>
+
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="
+            background:#123f78;
+            padding:28px 25px;
+          ">
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+
+              <tr>
+
+                <td align="center">
+
+                  <div style="
+                    color:#ffffff;
+                    font-size:15px;
+                    font-weight:600;
+                  ">
+                    🌐 careervidya.in
+                  </div>
+
+                </td>
+
+              </tr>
+
+              <tr>
+                <td align="center" style="padding-top:12px;">
+
+                  <div style="
+                    color:#ffffff;
+                    font-size:13px;
+                  ">
+                    Follow Us
+                  </div>
+
+                  <div style="
+                    color:#ffffff;
+                    font-size:14px;
+                    margin-top:8px;
+                  ">
+                    Facebook &nbsp; • &nbsp;
+                    Instagram &nbsp; • &nbsp;
+                    LinkedIn &nbsp; • &nbsp;
+                    YouTube
+                  </div>
+
+                </td>
+              </tr>
+
+              <tr>
+                <td align="center" style="padding-top:18px;">
+
+                  <div style="
+                    color:#ffffff;
+                    font-size:14px;
+                    font-style:italic;
+                  ">
+                    Your Trusted Education Partner
+                  </div>
+
+                </td>
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+
+
+        <!-- COPYRIGHT -->
+        <tr>
+          <td align="center"
+            style="
+              background:#ffffff;
+              padding:15px;
+              color:#718096;
+              font-size:12px;
+            ">
+
+            © ${currentYear} Career Vidya.
+            All rights reserved.
+
+          </td>
+        </tr>
+
+      </table>
+
+    </td>
+  </tr>
+
+</table>
+
+</body>
+</html>
   `;
 };
