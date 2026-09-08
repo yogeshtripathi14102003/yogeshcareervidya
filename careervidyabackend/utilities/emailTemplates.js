@@ -219,22 +219,22 @@ export const getQueryConfirmationTemplate = (name) => {
         <tr>
           <td align="center"
             style="
-              padding:30px 20px 22px;
+              padding:38px 20px 26px;
               background:#ffffff;
               border-top:5px solid #123f78;
             ">
 
             <!-- LOGO -->
             <img
-              src="https://careervidya.in/_next/image?url=%2Fimages%2Fn12.png&w=384&q=75"
+              src="https://careervidya.in/images/n12.png"
               alt="Career Vidya"
-              width="190"
+              width="150"
               style="
                 display:block;
-                width:190px;
-                max-width:80%;
+                width:150px;
+                max-width:65%;
                 height:auto;
-                margin:0 auto 10px;
+                margin:0 auto 14px;
               "
             >
 
@@ -252,7 +252,7 @@ export const getQueryConfirmationTemplate = (name) => {
               width:55px;
               height:3px;
               background:#f47721;
-              margin:12px auto 0;
+              margin:14px auto 0;
               border-radius:10px;
             "></div>
 
@@ -262,7 +262,7 @@ export const getQueryConfirmationTemplate = (name) => {
 
         <!-- HERO -->
         <tr>
-          <td style="padding:15px 38px 10px;">
+          <td style="padding:18px 38px 10px;">
 
             <table width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
