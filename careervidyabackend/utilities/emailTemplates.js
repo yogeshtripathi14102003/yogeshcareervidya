@@ -155,3 +155,95 @@ export const getNewsletterCampaignTemplate = (bodyHtml, unsubscribeUrl, tracking
     </div>
   `;
 };
+
+
+
+/**
+ * Website Query Confirmation Email
+ */
+export const getQueryConfirmationTemplate = (name) => {
+  const currentYear = new Date().getFullYear();
+
+  return `
+    <div style="
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      border: 1px solid #eeeeee;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background-color: #ffffff;
+    ">
+
+      <div style="background-color: #1a73e8; height: 6px;"></div>
+
+      <div style="
+        padding: 35px 30px;
+        color: #202124;
+        font-size: 15px;
+        line-height: 1.7;
+      ">
+
+        <p>
+          Hi <strong>${name || "there"}</strong>,
+        </p>
+
+        <h2 style="
+          color: #002147;
+          margin-bottom: 20px;
+          font-size: 24px;
+        ">
+          Thanks for Query!
+        </h2>
+
+        <p>
+          We have received your Interest.
+        </p>
+
+        <p>
+          Please Provide a suitable time slot by which we can connect you!
+        </p>
+
+        <div style="
+          margin: 25px 0;
+          padding: 18px 20px;
+          background-color: #f1f7ff;
+          border-left: 4px solid #1a73e8;
+          border-radius: 6px;
+        ">
+          <p style="
+            margin: 0;
+            color: #002147;
+            font-weight: 600;
+          ">
+            Our team will connect with you soon.
+          </p>
+        </div>
+
+        <p style="
+          margin-top: 30px;
+          border-top: 1px solid #eeeeee;
+          padding-top: 20px;
+        ">
+          Regards,<br>
+          <strong style="color: #1a73e8;">
+            Team Career Vidya
+          </strong>
+        </p>
+
+      </div>
+
+      <div style="
+        padding: 18px;
+        text-align: center;
+        background-color: #f1f3f4;
+        font-size: 12px;
+        color: #70757a;
+      ">
+        &copy; ${currentYear} Career Vidya. All rights reserved.
+      </div>
+
+    </div>
+  `;
+};

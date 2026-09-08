@@ -277,7 +277,6 @@
 //   );
 // }
 
-
 "use client";
 
 import Image from "next/image";
@@ -358,39 +357,41 @@ export default function BlogDetailView({ slug, initialBlog }) {
                   );
                 }
 
+                // ✅ FIX: paragraph ab rich text (HTML) hai — links, bold, etc.
                 if (block.type === "paragraph") {
                   return (
-                    <p
+                    <div
                       key={i}
                       style={{ color: block.color, textAlign: block.align }}
-                      className="text-lg leading-relaxed text-slate-700"
-                    >
-                      {block.text}
-                    </p>
+                      className="text-lg leading-relaxed text-slate-700 prose prose-lg max-w-none [&_a]:text-blue-600 [&_a]:underline [&_a]:font-medium hover:[&_a]:text-blue-800"
+                      dangerouslySetInnerHTML={{ __html: block.text }}
+                    />
                   );
                 }
 
+                // ✅ FIX: list items ab rich text (HTML) hain — links, bold, etc.
                 if (block.type === "list") {
                   return (
                     <ul
                       key={i}
-                      className="list-disc ml-6 space-y-1 text-slate-700"
+                      className="list-disc ml-6 space-y-1 text-slate-700 [&_a]:text-blue-600 [&_a]:underline [&_a]:font-medium hover:[&_a]:text-blue-800"
                     >
                       {block.list_items?.map((li, index) => (
-                        <li key={index}>{li}</li>
+                        <li key={index} dangerouslySetInnerHTML={{ __html: li }} />
                       ))}
                     </ul>
                   );
                 }
 
+                // ✅ FIX: numbered list items ab rich text (HTML) hain
                 if (block.type === "number_list") {
                   return (
                     <ol
                       key={i}
-                      className="list-decimal ml-6 space-y-1 text-slate-700"
+                      className="list-decimal ml-6 space-y-1 text-slate-700 [&_a]:text-blue-600 [&_a]:underline [&_a]:font-medium hover:[&_a]:text-blue-800"
                     >
                       {block.list_items?.map((li, index) => (
-                        <li key={index}>{li}</li>
+                        <li key={index} dangerouslySetInnerHTML={{ __html: li }} />
                       ))}
                     </ol>
                   );
@@ -468,14 +469,14 @@ export default function BlogDetailView({ slug, initialBlog }) {
                   );
                 }
 
+                // ✅ FIX: quote ab rich text (HTML) hai — links, bold, etc.
                 if (block.type === "quote") {
                   return (
                     <blockquote
                       key={i}
-                      className="border-l-4 border-blue-500 pl-4 italic text-lg text-gray-700 mt-4 bg-blue-50 py-2 pr-4"
-                    >
-                      {block.text}
-                    </blockquote>
+                      className="border-l-4 border-blue-500 pl-4 italic text-lg text-gray-700 mt-4 bg-blue-50 py-2 pr-4 [&_a]:text-blue-700 [&_a]:underline [&_a]:font-semibold"
+                      dangerouslySetInnerHTML={{ __html: block.text }}
+                    />
                   );
                 }
 
@@ -506,7 +507,11 @@ export default function BlogDetailView({ slug, initialBlog }) {
                       <h4 className="font-bold text-lg text-slate-800 flex gap-2">
                         <span className="text-blue-600">Q.</span> {faq.question}
                       </h4>
-                      <p className="text-slate-600 mt-1 pl-4">{faq.answer}</p>
+                      {/* ✅ FIX: answer ab rich text (HTML) hai — links, bold, etc. */}
+                      <div
+                        className="text-slate-600 mt-1 pl-4 prose prose-sm max-w-none [&_a]:text-blue-600 [&_a]:underline [&_a]:font-medium hover:[&_a]:text-blue-800"
+                        dangerouslySetInnerHTML={{ __html: faq.answer }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -533,18 +538,17 @@ export default function BlogDetailView({ slug, initialBlog }) {
                 <p className="text-sm md:text-md text-slate-500 italic mb-2">
                   {blog.author?.designation} • {blog.author?.specialization}
                 </p>
+                {/* ✅ FIX: author description ab rich text (HTML) hai */}
                 {blog.author?.description && (
-                  <p className="text-slate-600 leading-relaxed">
-                    {blog.author.description}
-                  </p>
+                  <div
+                    className="text-slate-600 leading-relaxed prose prose-sm max-w-none [&_a]:text-blue-600 [&_a]:underline"
+                    dangerouslySetInnerHTML={{ __html: blog.author.description }}
+                  />
                 )}
               </div>
             </div>
 
-            {/* 🆕 CONTINUE EXPLORING — internal navigation links.
-                Fixes Screaming Frog's "Pages Without Internal Outlinks"
-                warning: blog detail pages previously had zero outgoing
-                internal links in their content. */}
+            {/* CONTINUE EXPLORING */}
             <div className="mt-6 flex flex-wrap items-center gap-3 p-6 bg-slate-50 border border-slate-200 rounded-2xl">
               <Link
                 href="/blog"

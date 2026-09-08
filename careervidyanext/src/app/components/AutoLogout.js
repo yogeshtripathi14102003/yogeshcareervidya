@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext.jsx";
 // cookies) is cleared consistently — and cross-tab logout kicks in for free
 // because logout() clears "accessToken" from localStorage, which the
 // AuthContext in every other open tab is already listening for.
-const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutes
+const INACTIVITY_LIMIT_MS = 45 * 60 * 1000; // 45 minutes
 
 export default function AutoLogout() {
   const { isAuthenticated, logout } = useAuth();

@@ -77,9 +77,14 @@ export async function generateMetadata({ params }) {
   }
 
   const title = blog.seo?.meta_title || blog.title;
+
+  // ✅ FIX: paragraph text ab HTML ho sakta hai (rich text editor se),
+  // isliye meta description banane se pehle HTML tags strip kar rahe hain
+  const stripHtml = (html) => (html ? html.replace(/<[^>]*>/g, "").trim() : "");
+
   const description =
     blog.seo?.meta_desc ||
-    blog.content?.find((b) => b?.type === "paragraph")?.text?.slice(0, 155) ||
+    stripHtml(blog.content?.find((b) => b?.type === "paragraph")?.text)?.slice(0, 155) ||
     "Read the latest career and education insights on CareerVidya.";
 
   return {
