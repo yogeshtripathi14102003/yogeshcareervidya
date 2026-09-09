@@ -830,7 +830,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "@/utlis/api";
 import { PlusCircle, Trash2, Upload } from "lucide-react";
-import RichTextField from "@/app/components/RichTextField.jsx";
+import RichTextField from "@/app/admin/components/RichTextField.jsx";
 
 const STORAGE_KEY = "blogFormDraft";
 const FIELD_HISTORY_KEY = "blogFormFieldHistory";
