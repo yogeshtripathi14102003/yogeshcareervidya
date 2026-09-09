@@ -157,8 +157,6 @@ export const getNewsletterCampaignTemplate = (bodyHtml, unsubscribeUrl, tracking
 };
 
 
-
-
 /**
  * Website Query Confirmation Email
  */
@@ -180,6 +178,7 @@ export const getQueryConfirmationTemplate = (name) => {
   const monthShort = now
     .toLocaleString("en-US", { month: "short" })
     .toUpperCase();
+
   const dayNum = now.getDate();
 
   return `
@@ -198,14 +197,25 @@ export const getQueryConfirmationTemplate = (name) => {
   font-family:Arial, Helvetica, sans-serif;
 ">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="background:#f4f8fc; padding:30px 10px;">
-
+<table
+  width="100%"
+  cellpadding="0"
+  cellspacing="0"
+  border="0"
+  style="
+    background:#f4f8fc;
+    padding:30px 10px;
+  "
+>
   <tr>
     <td align="center">
 
       <!-- MAIN CONTAINER -->
-      <table width="600" cellpadding="0" cellspacing="0" border="0"
+      <table
+        width="600"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
         style="
           max-width:600px;
           width:100%;
@@ -213,30 +223,48 @@ export const getQueryConfirmationTemplate = (name) => {
           border-radius:16px;
           overflow:hidden;
           border:1px solid #e5edf6;
-        ">
+        "
+      >
 
+        <!-- ===================================================== -->
         <!-- TOP BRAND SECTION -->
+        <!-- ===================================================== -->
+
         <tr>
-          <td align="center"
+          <td
+            align="center"
             style="
               padding:38px 20px 26px;
               background:#ffffff;
               border-top:5px solid #123f78;
-            ">
+            "
+          >
 
-            <!-- LOGO -->
-            <img
-              src="https://careervidya.in/images/n12.png"
-              alt="Career Vidya"
-              width="150"
+            <!-- CLICKABLE LOGO -->
+            <a
+              href="https://careervidya.in"
+              target="_blank"
               style="
+                text-decoration:none;
                 display:block;
-                width:150px;
-                max-width:65%;
-                height:auto;
-                margin:0 auto 14px;
               "
             >
+              <img
+                src="https://careervidya.in/images/n12.png"
+                alt="Career Vidya"
+                width="240"
+                style="
+                  display:block;
+                  width:240px;
+                  max-width:85%;
+                  height:auto;
+                  margin:0 auto 14px;
+                  border:0;
+                  outline:none;
+                  text-decoration:none;
+                "
+              >
+            </a>
 
             <!-- TAGLINE -->
             <div style="
@@ -260,15 +288,30 @@ export const getQueryConfirmationTemplate = (name) => {
         </tr>
 
 
+        <!-- ===================================================== -->
         <!-- HERO -->
-        <tr>
-          <td style="padding:18px 38px 10px;">
+        <!-- ===================================================== -->
 
-            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="
+            padding:18px 38px 10px;
+          ">
+
+            <table
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+            >
               <tr>
 
-                <!-- LEFT: Text -->
-                <td valign="middle" style="padding-right:10px;">
+                <!-- LEFT: TEXT -->
+                <td
+                  valign="middle"
+                  style="
+                    padding-right:10px;
+                  "
+                >
 
                   <div style="
                     font-size:15px;
@@ -301,8 +344,16 @@ export const getQueryConfirmationTemplate = (name) => {
 
                 </td>
 
-                <!-- RIGHT: Envelope illustration -->
-                <td width="150" valign="top" align="center" style="padding-top:6px;">
+
+                <!-- RIGHT: ENVELOPE -->
+                <td
+                  width="150"
+                  valign="top"
+                  align="center"
+                  style="
+                    padding-top:6px;
+                  "
+                >
 
                   <div style="
                     font-size:11px;
@@ -323,16 +374,30 @@ export const getQueryConfirmationTemplate = (name) => {
                     background:#e8f1fb;
                     border-radius:22px;
                   ">
-                    <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
+
+                    <table
+                      width="100%"
+                      height="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      border="0"
+                    >
                       <tr>
-                        <td align="center" valign="middle">
-                          <div style="font-size:44px; line-height:1;">
+                        <td
+                          align="center"
+                          valign="middle"
+                        >
+                          <div style="
+                            font-size:44px;
+                            line-height:1;
+                          ">
                             ✉️
                           </div>
                         </td>
                       </tr>
                     </table>
 
+                    <!-- CHECK ICON -->
                     <div style="
                       position:absolute;
                       bottom:-8px;
@@ -350,6 +415,7 @@ export const getQueryConfirmationTemplate = (name) => {
                     ">
                       ✓
                     </div>
+
                   </div>
 
                 </td>
@@ -361,7 +427,10 @@ export const getQueryConfirmationTemplate = (name) => {
         </tr>
 
 
+        <!-- ===================================================== -->
         <!-- GREETING -->
+        <!-- ===================================================== -->
+
         <tr>
           <td style="
             padding:25px 38px 10px;
@@ -399,22 +468,37 @@ export const getQueryConfirmationTemplate = (name) => {
         </tr>
 
 
+        <!-- ===================================================== -->
         <!-- NEXT STEP CARD -->
-        <tr>
-          <td style="padding:25px 38px;">
+        <!-- ===================================================== -->
 
-            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+        <tr>
+          <td style="
+            padding:25px 38px;
+          ">
+
+            <table
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
               style="
                 background:#f1f8ff;
                 border:1px solid #d4e8fb;
                 border-radius:14px;
-              ">
+              "
+            >
 
               <tr>
 
-                <!-- ICON: real calendar with current date -->
-                <td width="115" align="center"
-                  style="padding:25px 10px;">
+                <!-- CALENDAR -->
+                <td
+                  width="115"
+                  align="center"
+                  style="
+                    padding:25px 10px;
+                  "
+                >
 
                   <div style="
                     width:72px;
@@ -423,9 +507,19 @@ export const getQueryConfirmationTemplate = (name) => {
                     border-radius:50%;
                     text-align:center;
                   ">
-                    <table width="100%" height="72" cellpadding="0" cellspacing="0" border="0">
+
+                    <table
+                      width="100%"
+                      height="72"
+                      cellpadding="0"
+                      cellspacing="0"
+                      border="0"
+                    >
                       <tr>
-                        <td align="center" valign="middle">
+                        <td
+                          align="center"
+                          valign="middle"
+                        >
 
                           <div style="
                             width:44px;
@@ -435,6 +529,7 @@ export const getQueryConfirmationTemplate = (name) => {
                             box-shadow:0 1px 3px rgba(0,0,0,0.15);
                             display:inline-block;
                           ">
+
                             <div style="
                               background:#e63946;
                               color:#ffffff;
@@ -446,6 +541,7 @@ export const getQueryConfirmationTemplate = (name) => {
                             ">
                               ${monthShort}
                             </div>
+
                             <div style="
                               color:#123f78;
                               font-size:20px;
@@ -456,17 +552,19 @@ export const getQueryConfirmationTemplate = (name) => {
                             ">
                               ${dayNum}
                             </div>
+
                           </div>
 
                         </td>
                       </tr>
                     </table>
+
                   </div>
 
                 </td>
 
 
-                <!-- TEXT -->
+                <!-- NEXT STEP TEXT -->
                 <td style="
                   padding:25px 15px 25px 5px;
                   border-left:3px solid #1261bd;
@@ -513,18 +611,32 @@ export const getQueryConfirmationTemplate = (name) => {
         </tr>
 
 
+        <!-- ===================================================== -->
         <!-- BENEFITS -->
-        <tr>
-          <td style="padding:5px 25px 20px;">
+        <!-- ===================================================== -->
 
-            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="
+            padding:5px 25px 20px;
+          ">
+
+            <table
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+            >
 
               <tr>
 
-                <td align="center" width="20%"
-                  style="padding:10px 4px;">
-
-                  <div style="font-size:25px;">👨‍💼</div>
+                <td
+                  align="center"
+                  width="20%"
+                  style="padding:10px 4px;"
+                >
+                  <div style="font-size:25px;">
+                    👨‍💼
+                  </div>
 
                   <div style="
                     color:#123f78;
@@ -534,14 +646,17 @@ export const getQueryConfirmationTemplate = (name) => {
                   ">
                     Expert<br>Guidance
                   </div>
-
                 </td>
 
 
-                <td align="center" width="20%"
-                  style="padding:10px 4px;">
-
-                  <div style="font-size:25px;">🎓</div>
+                <td
+                  align="center"
+                  width="20%"
+                  style="padding:10px 4px;"
+                >
+                  <div style="font-size:25px;">
+                    🎓
+                  </div>
 
                   <div style="
                     color:#123f78;
@@ -551,14 +666,17 @@ export const getQueryConfirmationTemplate = (name) => {
                   ">
                     Verified<br>Universities
                   </div>
-
                 </td>
 
 
-                <td align="center" width="20%"
-                  style="padding:10px 4px;">
-
-                  <div style="font-size:25px;">🛡️</div>
+                <td
+                  align="center"
+                  width="20%"
+                  style="padding:10px 4px;"
+                >
+                  <div style="font-size:25px;">
+                    🛡️
+                  </div>
 
                   <div style="
                     color:#123f78;
@@ -568,14 +686,17 @@ export const getQueryConfirmationTemplate = (name) => {
                   ">
                     100% Free<br>Counselling
                   </div>
-
                 </td>
 
 
-                <td align="center" width="20%"
-                  style="padding:10px 4px;">
-
-                  <div style="font-size:25px;">💼</div>
+                <td
+                  align="center"
+                  width="20%"
+                  style="padding:10px 4px;"
+                >
+                  <div style="font-size:25px;">
+                    💼
+                  </div>
 
                   <div style="
                     color:#123f78;
@@ -585,14 +706,17 @@ export const getQueryConfirmationTemplate = (name) => {
                   ">
                     Job<br>Assistance
                   </div>
-
                 </td>
 
 
-                <td align="center" width="20%"
-                  style="padding:10px 4px;">
-
-                  <div style="font-size:25px;">📈</div>
+                <td
+                  align="center"
+                  width="20%"
+                  style="padding:10px 4px;"
+                >
+                  <div style="font-size:25px;">
+                    📈
+                  </div>
 
                   <div style="
                     color:#123f78;
@@ -602,7 +726,6 @@ export const getQueryConfirmationTemplate = (name) => {
                   ">
                     Better<br>Career Future
                   </div>
-
                 </td>
 
               </tr>
@@ -613,7 +736,43 @@ export const getQueryConfirmationTemplate = (name) => {
         </tr>
 
 
+        <!-- ===================================================== -->
+        <!-- VISIT WEBSITE BUTTON -->
+        <!-- ===================================================== -->
+
+        <tr>
+          <td
+            align="center"
+            style="
+              padding:5px 38px 25px;
+            "
+          >
+
+            <a
+              href="https://careervidya.in"
+              target="_blank"
+              style="
+                display:inline-block;
+                background:#f47721;
+                color:#ffffff;
+                text-decoration:none;
+                font-size:15px;
+                font-weight:700;
+                padding:13px 28px;
+                border-radius:8px;
+              "
+            >
+              🌐 Visit Career Vidya
+            </a>
+
+          </td>
+        </tr>
+
+
+        <!-- ===================================================== -->
         <!-- CLOSING -->
+        <!-- ===================================================== -->
+
         <tr>
           <td style="
             padding:15px 38px 30px;
@@ -659,57 +818,228 @@ export const getQueryConfirmationTemplate = (name) => {
         </tr>
 
 
+        <!-- ===================================================== -->
         <!-- FOOTER -->
+        <!-- ===================================================== -->
+
         <tr>
           <td style="
             background:#123f78;
             padding:28px 25px;
           ">
 
-            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <table
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+            >
 
+              <!-- CLICKABLE WEBSITE -->
               <tr>
-
                 <td align="center">
 
-                  <div style="
-                    color:#ffffff;
-                    font-size:15px;
-                    font-weight:600;
-                  ">
+                  <a
+                    href="https://careervidya.in"
+                    target="_blank"
+                    style="
+                      color:#ffffff;
+                      font-size:15px;
+                      font-weight:600;
+                      text-decoration:none;
+                    "
+                  >
                     🌐 careervidya.in
-                  </div>
+                  </a>
 
                 </td>
-
               </tr>
 
+
+              <!-- FOLLOW US -->
               <tr>
-                <td align="center" style="padding-top:12px;">
+                <td
+                  align="center"
+                  style="
+                    padding-top:18px;
+                  "
+                >
 
                   <div style="
                     color:#ffffff;
                     font-size:13px;
+                    font-weight:600;
+                    margin-bottom:12px;
                   ">
                     Follow Us
                   </div>
 
-                  <div style="
-                    color:#ffffff;
-                    font-size:14px;
-                    margin-top:8px;
-                  ">
-                    Facebook &nbsp; • &nbsp;
-                    Instagram &nbsp; • &nbsp;
-                    LinkedIn &nbsp; • &nbsp;
-                    YouTube
-                  </div>
+
+                  <!-- SOCIAL ICON TABLE -->
+                  <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    align="center"
+                  >
+
+                    <tr>
+
+                      <!-- LINKEDIN -->
+                      <td style="padding:0 5px;">
+
+                        <a
+                          href="https://www.linkedin.com/company/career-vidya/"
+                          target="_blank"
+                          style="text-decoration:none;"
+                        >
+
+                          <img
+                            src="https://careervidya.in/images/i5.png"
+                            alt="LinkedIn"
+                            width="32"
+                            height="32"
+                            style="
+                              display:block;
+                              width:32px;
+                              height:32px;
+                              border:0;
+                              outline:none;
+                            "
+                          >
+
+                        </a>
+
+                      </td>
+
+
+                      <!-- X -->
+                      <td style="padding:0 5px;">
+
+                        <a
+                          href="https://x.com/CareerVidya"
+                          target="_blank"
+                          style="text-decoration:none;"
+                        >
+
+                          <img
+                            src="https://careervidya.in/images/i4.png"
+                            alt="X"
+                            width="32"
+                            height="32"
+                            style="
+                              display:block;
+                              width:32px;
+                              height:32px;
+                              border:0;
+                              outline:none;
+                            "
+                          >
+
+                        </a>
+
+                      </td>
+
+
+                      <!-- INSTAGRAM -->
+                      <td style="padding:0 5px;">
+
+                        <a
+                          href="https://www.instagram.com/career_vidya/"
+                          target="_blank"
+                          style="text-decoration:none;"
+                        >
+
+                          <img
+                            src="https://careervidya.in/images/i3.png"
+                            alt="Instagram"
+                            width="32"
+                            height="32"
+                            style="
+                              display:block;
+                              width:32px;
+                              height:32px;
+                              border:0;
+                              outline:none;
+                            "
+                          >
+
+                        </a>
+
+                      </td>
+
+
+                      <!-- FACEBOOK -->
+                      <td style="padding:0 5px;">
+
+                        <a
+                          href="https://www.facebook.com/Career-Vidya"
+                          target="_blank"
+                          style="text-decoration:none;"
+                        >
+
+                          <img
+                            src="https://careervidya.in/images/i2.png"
+                            alt="Facebook"
+                            width="32"
+                            height="32"
+                            style="
+                              display:block;
+                              width:32px;
+                              height:32px;
+                              border:0;
+                              outline:none;
+                            "
+                          >
+
+                        </a>
+
+                      </td>
+
+
+                      <!-- YOUTUBE -->
+                      <td style="padding:0 5px;">
+
+                        <a
+                          href="https://youtube.com/@careervidya02"
+                          target="_blank"
+                          style="text-decoration:none;"
+                        >
+
+                          <img
+                            src="https://careervidya.in/images/i1.png"
+                            alt="YouTube"
+                            width="32"
+                            height="32"
+                            style="
+                              display:block;
+                              width:32px;
+                              height:32px;
+                              border:0;
+                              outline:none;
+                            "
+                          >
+
+                        </a>
+
+                      </td>
+
+                    </tr>
+
+                  </table>
 
                 </td>
               </tr>
 
+
+              <!-- TRUST LINE -->
               <tr>
-                <td align="center" style="padding-top:18px;">
+                <td
+                  align="center"
+                  style="
+                    padding-top:18px;
+                  "
+                >
 
                   <div style="
                     color:#ffffff;
@@ -728,15 +1058,20 @@ export const getQueryConfirmationTemplate = (name) => {
         </tr>
 
 
+        <!-- ===================================================== -->
         <!-- COPYRIGHT -->
+        <!-- ===================================================== -->
+
         <tr>
-          <td align="center"
+          <td
+            align="center"
             style="
               background:#ffffff;
               padding:15px;
               color:#718096;
               font-size:12px;
-            ">
+            "
+          >
 
             © ${currentYear} Career Vidya.
             All rights reserved.
@@ -744,14 +1079,15 @@ export const getQueryConfirmationTemplate = (name) => {
           </td>
         </tr>
 
+
       </table>
 
     </td>
   </tr>
-
 </table>
 
 </body>
 </html>
   `;
 };
+
