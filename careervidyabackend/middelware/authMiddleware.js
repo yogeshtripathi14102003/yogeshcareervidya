@@ -54,33 +54,60 @@ const authMiddleware = async (req, res, next) => {
 
     // 4. Staff inactivity check — admin/subadmin/counselor. Deliberately
     //    excludes regular students, matching the original design intent.
-    if (user.role === "admin" || user.role === "subadmin" || user.role === "counselor") {
-      const now = Date.now();
-      const lastSeen = user.lastActivity ? new Date(user.lastActivity).getTime() : 0;
-      const securityConfig = await getSecurityConfig();
-      const inactivityLimitMs = securityConfig.inactivityLimitMinutes * 60 * 1000;
+    // if (user.role === "admin" || user.role === "subadmin" || user.role === "counselor") {
+    //   const now = Date.now();
+    //   const lastSeen = user.lastActivity ? new Date(user.lastActivity).getTime() : 0;
+    //   const securityConfig = await getSecurityConfig();
+    //   const inactivityLimitMs = securityConfig.inactivityLimitMinutes * 60 * 1000;
 
-      const modelForRole = user.role === "counselor" ? counselorModel : userModel;
+    //   const modelForRole = user.role === "counselor" ? counselorModel : userModel;
 
-      if (lastSeen && now - lastSeen > inactivityLimitMs) {
-        // Clear lastActivity in DB
-        await modelForRole.updateOne({ _id: user._id }, { $set: { lastActivity: null } });
+    //   if (lastSeen && now - lastSeen > inactivityLimitMs) {
+    //     // Clear lastActivity in DB
+    //     await modelForRole.updateOne({ _id: user._id }, { $set: { lastActivity: null } });
 
-        res.clearCookie("refreshToken", cookieOptions);
-        res.clearCookie("userRole", { ...cookieOptions, httpOnly: false });
+    //     res.clearCookie("refreshToken", cookieOptions);
+    //     res.clearCookie("userRole", { ...cookieOptions, httpOnly: false });
 
-        return res.status(401).json({
-          msg: "Session expired due to inactivity",
-          code: "INACTIVITY_LOGOUT",
-        });
-      }
+    //     return res.status(401).json({
+    //       msg: "Session expired due to inactivity",
+    //       code: "INACTIVITY_LOGOUT",
+    //     });
+    //   }
 
-      // Throttled lastActivity update — at most once per minute
-      if (now - lastSeen > THROTTLE_LIMIT) {
-        await modelForRole.updateOne({ _id: user._id }, { $set: { lastActivity: now } });
-      }
-    }
+    //   // Throttled lastActivity update — at most once per minute
+    //   if (now - lastSeen > THROTTLE_LIMIT) {
+    //     await modelForRole.updateOne({ _id: user._id }, { $set: { lastActivity: now } });
+    //   }
+    // }
 
+
+    // 4. Inactivity check — subadmin/counselor only.
+// admin aur user (student) explicitly excluded — original design intent.
+if (user.role === "subadmin" || user.role === "counselor") {
+  const now = Date.now();
+  const lastSeen = user.lastActivity ? new Date(user.lastActivity).getTime() : 0;
+  const securityConfig = await getSecurityConfig();
+  const inactivityLimitMs = securityConfig.inactivityLimitMinutes * 60 * 1000;
+
+  const modelForRole = user.role === "counselor" ? counselorModel : userModel;
+
+  if (lastSeen && now - lastSeen > inactivityLimitMs) {
+    await modelForRole.updateOne({ _id: user._id }, { $set: { lastActivity: null } });
+
+    res.clearCookie("refreshToken", cookieOptions);
+    res.clearCookie("userRole", { ...cookieOptions, httpOnly: false });
+
+    return res.status(401).json({
+      msg: "Session expired due to inactivity",
+      code: "INACTIVITY_LOGOUT",
+    });
+  }
+
+  if (now - lastSeen > THROTTLE_LIMIT) {
+    await modelForRole.updateOne({ _id: user._id }, { $set: { lastActivity: now } });
+  }
+}
     // 5. Attach user and continue
     req.user = user;
     next();
