@@ -170,7 +170,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useMemo, useState } from "react";
@@ -181,6 +180,14 @@ import Image from "next/image";
 import Footer from "../layout/Footer";
 
 const BLUE = "#0056B3";
+
+// Special redirect courses — these three redirect to
+// /continuing-education-programs instead of their own /course/[slug] page
+const specialRedirectCourses = [
+  "btech-for-working-professional",
+  "mtech-for-working-professionals",
+  "diploma-for-working-professionals",
+];
 
 export default function ExploreClient({ initialData }) {
   const [courses] = useState(initialData?.initialCourses || []);
@@ -458,12 +465,19 @@ export default function ExploreClient({ initialData }) {
                       course?.courseLogo?.url ||
                       "/placeholder.png";
 
+                    // Special redirect: these three courses go to
+                    // /continuing-education-programs instead of
+                    // their own /course/[slug] page.
+                    const courseHref = specialRedirectCourses.includes(
+                      course.slug
+                    )
+                      ? "/continuing-education-programs"
+                      : `/course/${encodeURIComponent(course.slug)}`;
+
                     return (
                       <Link
                         key={course._id}
-                        href={`/course/${encodeURIComponent(
-                          course.slug
-                        )}`}
+                        href={courseHref}
                         aria-label={`View ${courseName}`}
                         className="block"
                       >
@@ -607,4 +621,3 @@ export default function ExploreClient({ initialData }) {
     </>
   );
 }
-
