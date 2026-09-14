@@ -428,7 +428,7 @@ export default function AdmissionProcess() {
                 : "opacity-0 translate-y-2"
             }`}
           >
-            Apply Now
+            Find My Best Course
           </button>
           <p className="text-[11px] text-slate-500 font-medium">
             Free counselling &bull; No hidden fees

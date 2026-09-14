@@ -1012,7 +1012,7 @@ export default function CoursesClient({ initialCourses = [] }) {
           {/* SECTION HEADER */}
           <header className="mb-6 md:mb-10 text-center">
             <h2 className="text-xl md:text-3xl font-black text-[#0056B3] uppercase">
-              Job-Oriented Professional Courses
+              Find the Right Course for Your Career
             </h2>
 
             <p className="mt-1 text-gray-500 text-[10px] md:text-sm italic">

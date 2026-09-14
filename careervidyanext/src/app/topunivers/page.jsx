@@ -185,7 +185,7 @@ export const metadata = {
 
   title: {
     default:
-      "Top Online Universities & Courses in India | CareerVidya",
+      "Don't Just Choose a University. Choose the Right One. | CareerVidya",
     template: "%s | CareerVidya",
   },
 
@@ -234,7 +234,7 @@ export const metadata = {
     url: PAGE_URL,
     siteName: "CareerVidya",
     title:
-      "Top Online Universities & Courses in India | CareerVidya",
+      "Don't Just Choose a University. Choose the Right One. | CareerVidya",
     description:
       "Compare top UGC-recognized online universities and degree programs in India. Explore MBA, MCA, BBA, BCA, M.Com and other career-focused online courses in india.",
     images: [
@@ -250,7 +250,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "Top Online Universities & Courses in India | CareerVidya",
+      "Don't Just Choose a University. Choose the Right One. | CareerVidya",
     description:
       "Explore UGC-recognized online universities, courses, fees, eligibility and career opportunities for students and working professionals.",
     images: ["/images/universities-og.jpg"],
