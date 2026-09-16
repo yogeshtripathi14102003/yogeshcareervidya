@@ -51,20 +51,11 @@
 //   );
 // }
 
-
 "use client";
 
 import { CheckCircle } from "lucide-react";
+import { cleanHtml } from "@/utlis/cleanHtml.js";
 
-// ✅ FIX: was self-fetching /api/v1/university/slug/{slug} again — same
-// data the parent (UniversityDetail) already fetched server-side. Removed
-// useEffect/api call/state entirely; renders synchronously from the
-// `data` prop, so this section is present in the initial SSR HTML.
-//
-// ✅ FIX: original null-check (`!facts.factsPoints.length`) would throw
-// if `facts.factsPoints` was undefined (can't read `.length` of
-// undefined) — used optional chaining instead so a missing factsPoints
-// array no longer crashes the page.
 export default function FactsSection({ data }) {
     const facts = data?.facts;
 
@@ -72,22 +63,32 @@ export default function FactsSection({ data }) {
         return null;
 
     return (
-        <section className="max-w-6xl mx-auto px-4 md:px-6 mt-10">
+        <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
             {facts.factsHeading && (
-                <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
                     {facts.factsHeading}
                 </h2>
             )}
 
             {facts.factsSubHeading && (
-                <p className="text-lg text-gray-700 mb-5">{facts.factsSubHeading}</p>
+                <p className="text-base md:text-lg text-gray-700 mb-5">
+                    {facts.factsSubHeading}
+                </p>
             )}
 
             <div className="flex flex-col gap-4">
                 {facts.factsPoints?.map((point, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                        <CheckCircle className="text-blue-500 min-w-[22px]" size={22} />
-                        <p className="text-gray-800 text-lg leading-relaxed">{point}</p>
+                    <div key={index} className="flex items-start gap-3">
+                        <CheckCircle
+                            className="text-blue-500 min-w-[22px] mt-1"
+                            size={22}
+                        />
+                        <p
+                            className="text-gray-800 text-base md:text-lg leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                                __html: cleanHtml(point),
+                            }}
+                        />
                     </div>
                 ))}
             </div>

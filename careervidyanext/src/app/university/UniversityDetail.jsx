@@ -140,35 +140,208 @@
 //     );
 // }
 
+
+
+// "use client";
+
+// import { useState, useRef } from "react";
+// import { useParams } from "next/navigation";
+// import { Star, MessageSquare, ChevronRight, X } from 'lucide-react';
+// import Header from "@/app/layout/Header";
+// import Footer from "@/app/layout/Footer.jsx";
+// import Applictionpopup from "@/app/university/Applictionpopup";
+// import TalkToUniversity from "@/app/university/TalkToUniversity.jsx";
+// import UniversityCertificate from "@/app/university/UniversityCertificate.jsx";
+// import AdmissionProcess from "@/app/university/AdmissionProcess";
+// import FactsSection from "@/app/university/FactsSection";
+// import FeesStructureSection from "@/app/university/Feesstracture.jsx";
+// import Eligibility from "@/app/university/Eligibility.jsx";
+// import Approvel from "@/app/university/Approvel.jsx";
+// import UniversityHighlights from "@/app/university/UniversityHighlights.jsx";
+// import DiscountPopup from "@/app/components/DiscountPopup.jsx";
+// import ReviewRatingstatic from "@/app/components/ReviewRatingstatic.jsx";
+// import Image from "next/image";
+
+// const BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL;
+
+// const getImagePath = (path) => {
+//     if (!path) return "/fallback-logo.png";
+//     if (path.startsWith("http")) return path;
+//     if (!BASE_URL) {
+//         console.error("UniversityDetail: API base URL is not set — cannot resolve image path:", path);
+//         return "/fallback-logo.png";
+//     }
+//     return `${BASE_URL}/${path.replace(/^\/+/, "")}`;
+// };
+
+// export default function UniversityDetail({ initialData }) {
+//     const [data] = useState(initialData);
+//     const [popupOpen, setPopupOpen] = useState(false);
+//     const [popupType, setPopupType] = useState("apply");
+//     const overviewRef = useRef(null);
+//     const coursesRef = useRef(null);
+//     const admissionRef = useRef(null);
+//     const certificateRef = useRef(null);
+//     const factsRef = useRef(null);
+//     const feesRef = useRef(null);
+//     const Eligibilityref = useRef(null);
+//     const approvelRef = useRef(null);
+//     const HeighlighRef = useRef(null);
+//     const tabs = ["Overview", "Key Highlight", "Courses","Approval", "Eligibility", "Fee Structure", "Admission Process", "Placement", "Review", "FAQ"];
+
+//     const handleTabClick = (tab) => {
+//         const refMap = {
+//             "Overview": overviewRef, "Courses": coursesRef, "Admission Process": admissionRef,
+//             "Key Highlight": certificateRef, "Placement": factsRef, "Feesstracture": feesRef,
+//             "Eligibility": Eligibilityref, "Approvel": approvelRef,
+//         };
+//         if (refMap[tab]?.current) {
+//             refMap[tab].current.scrollIntoView({ behavior: "smooth", block: "start" });
+//         }
+//     };
+
+//     if (!data) return <div className="p-10 text-center bg-white text-black font-semibold">University not found.</div>;
+
+//     const reviewsCount = data.reviewsCount || (data._id ? 500 + (parseInt(data._id.slice(-3), 16) % 300) : 650);
+
+//     return (
+//         <>
+//             <div className="bg-white text-black min-h-screen w-full">
+//                 <Header />
+//                 <section className="relative w-full overflow-hidden bg-no-repeat bg-center shadow-lg"
+//                     style={{ backgroundImage: `url(${getImagePath(data.background?.backgroundImage)})`, backgroundSize: "100% 100%" }}
+//                 >
+//                     <div className="absolute inset-0 bg-black/40"></div>
+//                     <div className="relative z-10 px-6 md:px-20 py-8 lg:py-12 w-full">
+//                         <div className="max-w-4xl">
+//                             {/* Single H1 for the page — university name */}
+//                             <h1 className="text-3xl md:text-5xl font-extrabold mb-1 leading-tight text-white">{data.name}</h1>
+//                             <div className="flex items-center mb-3 text-sm">
+//                                 <Star fill="#ffc107" color="#ffc107" size={16} className="mr-1" />
+//                                 <span className="text-yellow-300 font-bold text-lg">({reviewsCount} Reviews)</span>
+//                             </div>
+//                             <div className="mb-4">
+//                                 <div className="relative h-[75px] w-[150px] bg-white rounded-xl shadow-2xl overflow-hidden p-2">
+//                                     <Image
+//                                         src={getImagePath(data.universityImage)}
+//                                         alt={`${data.name} logo`}
+//                                         fill
+//                                         className="object-contain p-2"
+//                                     />
+//                                 </div>
+//                             </div>
+//                                 {/*
+//                                   NOTE: this strip repeats the same approval logos
+//                                   that <Approvel /> renders further down the page.
+//                                   Kept here since it's the hero trust-badge row,
+//                                   but flagging: this is duplicate content within a
+//                                   single page. Ask if you want <Approvel /> below
+//                                   to render only data.approvals.slice(6) instead,
+//                                   so nothing repeats.
+//                                 */}
+//                                 <div className="flex items-center gap-4 mb-6 flex-wrap items-start">
+//                                 {data.approvals?.slice(0, 6).map((approval, index) => (
+//                                     <div key={index} className="flex flex-col items-center w-17 md:w-19">
+//                                         <div className="relative w-full h-10 md:h-13 bg-white rounded-lg p-1 shadow-md flex items-center justify-center overflow-hidden flex-shrink-0">
+//                                             <Image
+//                                                 src={getImagePath(approval.logo)}
+//                                                 alt={`${approval.name} approval - ${data.name}`}
+//                                                 fill
+//                                                 className="object-contain"
+//                                             />
+//                                         </div>
+//                                         <div className="w-full pt-1.5">
+//                                             <p className="text-[10px] md:text-[11px] font-semibold text-white text-center leading-tight break-words">{approval.name}</p>
+//                                         </div>
+//                                     </div>
+//                                 ))}
+//                             </div>
+//                             <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+//                                 <button className="cursor-pointer flex-1 bg-yellow-400 text-black font-bold py-3 rounded-xl hover:bg-yellow-500 transition shadow-lg text-sm uppercase" onClick={() => { setPopupType("apply"); setPopupOpen(true); }}>Apply Now →</button>
+//                                 <button className="flex-1 bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-100 transition shadow-lg text-sm uppercase flex items-center justify-center" onClick={() => { setPopupType("talk"); setPopupOpen(true); }}><MessageSquare size={18} className="mr-2" /> Talk to University</button>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </section>
+//                 <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm overflow-x-auto">
+//                     <div className="max-w-7xl mx-auto px-4 py-4"><div className="flex items-center gap-3 min-w-max">{tabs.map((tab, index) => (<button key={index} className="px-6 py-3 rounded-lg border font-semibold text-sm transition-all text-gray-600 border-gray-200 hover:text-orange-500 hover:border-orange-200" onClick={() => handleTabClick(tab)}>{tab}</button>))}</div></div>
+//                 </div>
+//                 <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
+//                     {/*
+//                       ✅ HEADING FIX: H2 text below now includes data.name so it's
+//                       unique per university (was plain "Overview" before, which
+//                       repeated identically across every /university/[slug] page).
+
+//                       ✅ DATA-FETCH FIX: Approvel, UniversityHighlights,
+//                       UniversityCertificate, and FeesStructureSection now take
+//                       `data={data}` instead of `slug={data.slug}`. They no longer
+//                       run their own client-side API calls — they reuse the data
+//                       this page already fetched server-side. Their content is
+//                       now present in the initial SSR HTML, and 4 redundant
+//                       network requests per page load are gone.
+
+//                       AdmissionProcess now also takes `data={data}` (same
+//                       fix applied). Eligibility is still on `slug` — its
+//                       source wasn't shared yet. Send that file if you want
+//                       the same fix applied to it too.
+//                     */}
+//                     <div ref={overviewRef}><div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm"><h2 className="text-[#0056D2] text-4xl font-bold mb-8">Overview of {data.name}</h2><div className="text-[#4A4A4A] text-[17px] leading-[1.8] space-y-6" dangerouslySetInnerHTML={{ __html: data.description || "No description available." }} /></div></div>
+//                     <div ref={certificateRef}><UniversityCertificate data={data} /></div>
+//                     <div ref={coursesRef} className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+//                         <h2 className="text-xl font-bold text-white bg-[#0b3a6f] p-5 text-center uppercase tracking-wide">Explore Online Programs at {data.name}</h2>
+//                         <div className="bg-white p-2"><div className="grid grid-cols-1 md:grid-cols-2">{data.courses?.map((course, index) => (<div key={index} className={`transition hover:bg-gray-50 border-gray-100 ${index % 2 === 0 ? 'md:border-r' : ''} border-b`}><div className="p-5 flex items-center justify-between gap-4"><span className="text-blue-900 font-bold flex-1">{course.name}</span><button onClick={() => { setPopupType("apply"); setPopupOpen(true); }} className="cursor-pointer bg-[#c15304] text-white text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full hover:bg-blue-900 transition-all shadow-sm whitespace-nowrap flex items-center gap-1">Apply Now <ChevronRight size={12} /></button></div></div>))}</div></div>
+//                     </div>
+//                     <div ref={approvelRef}><Approvel data={data} /></div>
+//                     <div ref={HeighlighRef}><UniversityHighlights data={data} /></div>
+//                     <div ref={feesRef}><FeesStructureSection data={data} /></div>
+//                     <div ref={Eligibilityref}><Eligibility slug={data.slug} /></div>
+//                     <div ref={factsRef}><FactsSection data={data} /></div>
+//                     <div ref={admissionRef}><AdmissionProcess data={data} /></div>
+//                 </div>
+//                 {popupOpen && popupType === "apply" && (<Applictionpopup open={popupOpen} onClose={() => setPopupOpen(false)} type={popupType} universityName={data.name} />)}
+//                 {popupOpen && popupType === "talk" && (<TalkToUniversity open={popupOpen} onClose={() => setPopupOpen(false)} universityName={data.name} phone={data.contactNumber || "+919319998717"} whatsapp={data.whatsappNumber || "+919319998717"} />)}
+//             </div>
+//             <ReviewRatingstatic /><Footer /><DiscountPopup />
+//         </>
+//     );
+// }
+
 "use client";
 
 import { useState, useRef } from "react";
-import { useParams } from "next/navigation";
-import { Star, MessageSquare, ChevronRight, X } from 'lucide-react';
+import { Star, MessageSquare, ChevronRight } from "lucide-react";
+import Image from "next/image";
+
+// Layout
 import Header from "@/app/layout/Header";
 import Footer from "@/app/layout/Footer.jsx";
+
+// Popups
 import Applictionpopup from "@/app/university/Applictionpopup";
 import TalkToUniversity from "@/app/university/TalkToUniversity.jsx";
-import UniversityCertificate from "@/app/university/UniversityCertificate.jsx";
-import AdmissionProcess from "@/app/university/AdmissionProcess";
-import FactsSection from "@/app/university/FactsSection";
-import FeesStructureSection from "@/app/university/Feesstracture.jsx";
-import Eligibility from "@/app/university/Eligibility.jsx";
-import Approvel from "@/app/university/Approvel.jsx";
-import UniversityHighlights from "@/app/university/UniversityHighlights.jsx";
 import DiscountPopup from "@/app/components/DiscountPopup.jsx";
 import ReviewRatingstatic from "@/app/components/ReviewRatingstatic.jsx";
-import Image from "next/image";
+
+// Sections
+import UniversityCertificate from "@/app/university/UniversityCertificate.jsx";
+import UniversityHighlights from "@/app/university/UniversityHighlights.jsx";
+// import OnlineExamPattern from "@/app/university/OnlineExamPattern.jsx"; // ✅ Career Vidya Benefits
+import Approvel from "@/app/university/Approvel.jsx";
+import FeesStructureSection from "@/app/university/Feesstracture.jsx";
+import Eligibility from "@/app/university/Eligibility.jsx";
+import FactsSection from "@/app/university/FactsSection.jsx";
+import AdmissionProcess from "@/app/university/AdmissionProcess.jsx";
+import FaqSection from "@/app/university/FaqSection.jsx"; // ✅ NEW
+
+// Utils
+import { cleanHtml } from "@/utlis/cleanHtml.js";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL;
 
 const getImagePath = (path) => {
     if (!path) return "/fallback-logo.png";
     if (path.startsWith("http")) return path;
-    if (!BASE_URL) {
-        console.error("UniversityDetail: API base URL is not set — cannot resolve image path:", path);
-        return "/fallback-logo.png";
-    }
+    if (!BASE_URL) return "/fallback-logo.png";
     return `${BASE_URL}/${path.replace(/^\/+/, "")}`;
 };
 
@@ -176,49 +349,99 @@ export default function UniversityDetail({ initialData }) {
     const [data] = useState(initialData);
     const [popupOpen, setPopupOpen] = useState(false);
     const [popupType, setPopupType] = useState("apply");
-    const overviewRef = useRef(null);
-    const coursesRef = useRef(null);
-    const admissionRef = useRef(null);
-    const certificateRef = useRef(null);
-    const factsRef = useRef(null);
-    const feesRef = useRef(null);
-    const Eligibilityref = useRef(null);
-    const approvelRef = useRef(null);
-    const HeighlighRef = useRef(null);
-    const tabs = ["Overview", "Key Highlight", "Courses","Approval", "Eligibility", "Fee Structure", "Admission Process", "Placement", "Review", "FAQ"];
 
-    const handleTabClick = (tab) => {
-        const refMap = {
-            "Overview": overviewRef, "Courses": coursesRef, "Admission Process": admissionRef,
-            "Key Highlight": certificateRef, "Placement": factsRef, "Feesstracture": feesRef,
-            "Eligibility": Eligibilityref, "Approvel": approvelRef,
-        };
-        if (refMap[tab]?.current) {
-            refMap[tab].current.scrollIntoView({ behavior: "smooth", block: "start" });
+    // ============ REFS ============
+    const overviewRef = useRef(null);
+    const careerBenefitsRef = useRef(null); // ✅ Career Vidya Benefits
+    const certificateRef = useRef(null);
+    const highlightRef = useRef(null);
+    const coursesRef = useRef(null);
+    const approvalRef = useRef(null);
+    const feesRef = useRef(null);
+    const eligibilityRef = useRef(null);
+    const factsRef = useRef(null);
+    const admissionRef = useRef(null);
+    const faqRef = useRef(null);
+
+    // ============ TABS ============
+    const tabs = [
+        { id: "Overview", ref: overviewRef },
+        { id: "Key Highlight", ref: highlightRef },
+        { id: "Career Benefits", ref: careerBenefitsRef }, // ✅
+        { id: "Courses", ref: coursesRef },
+        { id: "Approval", ref: approvalRef },
+        { id: "Eligibility", ref: eligibilityRef },
+        { id: "Fee Structure", ref: feesRef },
+        { id: "Admission Process", ref: admissionRef },
+        { id: "Placement", ref: factsRef },
+        { id: "FAQ", ref: faqRef },
+    ];
+
+    const handleTabClick = (ref) => {
+        if (ref?.current) {
+            const yOffset = -110; // sticky tab bar ke liye
+            const y =
+                ref.current.getBoundingClientRect().top +
+                window.pageYOffset +
+                yOffset;
+            window.scrollTo({ top: y, behavior: "smooth" });
         }
     };
 
-    if (!data) return <div className="p-10 text-center bg-white text-black font-semibold">University not found.</div>;
+    if (!data) {
+        return (
+            <div className="p-10 text-center bg-white text-black font-semibold">
+                University not found.
+            </div>
+        );
+    }
 
-    const reviewsCount = data.reviewsCount || (data._id ? 500 + (parseInt(data._id.slice(-3), 16) % 300) : 650);
+    const reviewsCount =
+        data.reviewsCount ||
+        (data._id ? 500 + (parseInt(data._id.slice(-3), 16) % 300) : 650);
 
     return (
         <>
             <div className="bg-white text-black min-h-screen w-full">
                 <Header />
-                <section className="relative w-full overflow-hidden bg-no-repeat bg-center shadow-lg"
-                    style={{ backgroundImage: `url(${getImagePath(data.background?.backgroundImage)})`, backgroundSize: "100% 100%" }}
+
+                {/* =====================================================
+                    HERO SECTION
+                ===================================================== */}
+                <section
+                    className="relative w-full overflow-hidden bg-no-repeat bg-center shadow-lg"
+                    style={{
+                        backgroundImage: `url(${getImagePath(
+                            data.background?.backgroundImage
+                        )})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                    }}
                 >
-                    <div className="absolute inset-0 bg-black/40"></div>
-                    <div className="relative z-10 px-6 md:px-20 py-8 lg:py-12 w-full">
+                    <div className="absolute inset-0 bg-black/50"></div>
+
+                    <div className="relative z-10 px-6 md:px-20 py-10 lg:py-14 w-full">
                         <div className="max-w-4xl">
-                            {/* Single H1 for the page — university name */}
-                            <h1 className="text-3xl md:text-5xl font-extrabold mb-1 leading-tight text-white">{data.name}</h1>
-                            <div className="flex items-center mb-3 text-sm">
-                                <Star fill="#ffc107" color="#ffc107" size={16} className="mr-1" />
-                                <span className="text-yellow-300 font-bold text-lg">({reviewsCount} Reviews)</span>
+                            {/* H1 */}
+                            <h1 className="text-3xl md:text-5xl font-extrabold mb-2 leading-tight text-white">
+                                {data.name}
+                            </h1>
+
+                            {/* Reviews */}
+                            <div className="flex items-center mb-4 text-sm">
+                                <Star
+                                    fill="#ffc107"
+                                    color="#ffc107"
+                                    size={16}
+                                    className="mr-1"
+                                />
+                                <span className="text-yellow-300 font-bold text-lg">
+                                    ({reviewsCount} Reviews)
+                                </span>
                             </div>
-                            <div className="mb-4">
+
+                            {/* University logo */}
+                            <div className="mb-5">
                                 <div className="relative h-[75px] w-[150px] bg-white rounded-xl shadow-2xl overflow-hidden p-2">
                                     <Image
                                         src={getImagePath(data.universityImage)}
@@ -228,78 +451,224 @@ export default function UniversityDetail({ initialData }) {
                                     />
                                 </div>
                             </div>
-                                {/*
-                                  NOTE: this strip repeats the same approval logos
-                                  that <Approvel /> renders further down the page.
-                                  Kept here since it's the hero trust-badge row,
-                                  but flagging: this is duplicate content within a
-                                  single page. Ask if you want <Approvel /> below
-                                  to render only data.approvals.slice(6) instead,
-                                  so nothing repeats.
-                                */}
+
+                            {/* Approvals row (top 6) */}
+                            {data.approvals?.length > 0 && (
                                 <div className="flex items-center gap-4 mb-6 flex-wrap items-start">
-                                {data.approvals?.slice(0, 6).map((approval, index) => (
-                                    <div key={index} className="flex flex-col items-center w-17 md:w-19">
-                                        <div className="relative w-full h-10 md:h-13 bg-white rounded-lg p-1 shadow-md flex items-center justify-center overflow-hidden flex-shrink-0">
-                                            <Image
-                                                src={getImagePath(approval.logo)}
-                                                alt={`${approval.name} approval - ${data.name}`}
-                                                fill
-                                                className="object-contain"
-                                            />
-                                        </div>
-                                        <div className="w-full pt-1.5">
-                                            <p className="text-[10px] md:text-[11px] font-semibold text-white text-center leading-tight break-words">{approval.name}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    {data.approvals
+                                        .slice(0, 6)
+                                        .map((approval, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex flex-col items-center w-20"
+                                            >
+                                                <div className="relative w-full h-12 bg-white rounded-lg p-1 shadow-md flex items-center justify-center overflow-hidden">
+                                                    <Image
+                                                        src={getImagePath(
+                                                            approval.logo
+                                                        )}
+                                                        alt={
+                                                            approval.name ||
+                                                            "Approval"
+                                                        }
+                                                        fill
+                                                        className="object-contain"
+                                                    />
+                                                </div>
+                                                <p className="text-[10px] md:text-[11px] font-semibold text-white text-center leading-tight mt-1.5 break-words">
+                                                    {approval.name}
+                                                </p>
+                                            </div>
+                                        ))}
+                                </div>
+                            )}
+
+                            {/* CTA buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 max-w-md">
-                                <button className="cursor-pointer flex-1 bg-yellow-400 text-black font-bold py-3 rounded-xl hover:bg-yellow-500 transition shadow-lg text-sm uppercase" onClick={() => { setPopupType("apply"); setPopupOpen(true); }}>Apply Now →</button>
-                                <button className="flex-1 bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-100 transition shadow-lg text-sm uppercase flex items-center justify-center" onClick={() => { setPopupType("talk"); setPopupOpen(true); }}><MessageSquare size={18} className="mr-2" /> Talk to University</button>
+                                <button
+                                    className="cursor-pointer flex-1 bg-yellow-400 text-black font-bold py-3 rounded-xl hover:bg-yellow-500 transition shadow-lg text-sm uppercase"
+                                    onClick={() => {
+                                        setPopupType("apply");
+                                        setPopupOpen(true);
+                                    }}
+                                >
+                                    Apply Now →
+                                </button>
+                                <button
+                                    className="flex-1 bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-100 transition shadow-lg text-sm uppercase flex items-center justify-center"
+                                    onClick={() => {
+                                        setPopupType("talk");
+                                        setPopupOpen(true);
+                                    }}
+                                >
+                                    <MessageSquare size={18} className="mr-2" />
+                                    Talk to University
+                                </button>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                {/* =====================================================
+                    STICKY TABS
+                ===================================================== */}
                 <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm overflow-x-auto">
-                    <div className="max-w-7xl mx-auto px-4 py-4"><div className="flex items-center gap-3 min-w-max">{tabs.map((tab, index) => (<button key={index} className="px-6 py-3 rounded-lg border font-semibold text-sm transition-all text-gray-600 border-gray-200 hover:text-orange-500 hover:border-orange-200" onClick={() => handleTabClick(tab)}>{tab}</button>))}</div></div>
-                </div>
-                <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
-                    {/*
-                      ✅ HEADING FIX: H2 text below now includes data.name so it's
-                      unique per university (was plain "Overview" before, which
-                      repeated identically across every /university/[slug] page).
-
-                      ✅ DATA-FETCH FIX: Approvel, UniversityHighlights,
-                      UniversityCertificate, and FeesStructureSection now take
-                      `data={data}` instead of `slug={data.slug}`. They no longer
-                      run their own client-side API calls — they reuse the data
-                      this page already fetched server-side. Their content is
-                      now present in the initial SSR HTML, and 4 redundant
-                      network requests per page load are gone.
-
-                      AdmissionProcess now also takes `data={data}` (same
-                      fix applied). Eligibility is still on `slug` — its
-                      source wasn't shared yet. Send that file if you want
-                      the same fix applied to it too.
-                    */}
-                    <div ref={overviewRef}><div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm"><h2 className="text-[#0056D2] text-4xl font-bold mb-8">Overview of {data.name}</h2><div className="text-[#4A4A4A] text-[17px] leading-[1.8] space-y-6" dangerouslySetInnerHTML={{ __html: data.description || "No description available." }} /></div></div>
-                    <div ref={certificateRef}><UniversityCertificate data={data} /></div>
-                    <div ref={coursesRef} className="mb-16 shadow-lg rounded-2xl overflow-hidden border border-gray-100">
-                        <h2 className="text-xl font-bold text-white bg-[#0b3a6f] p-5 text-center uppercase tracking-wide">Explore Online Programs at {data.name}</h2>
-                        <div className="bg-white p-2"><div className="grid grid-cols-1 md:grid-cols-2">{data.courses?.map((course, index) => (<div key={index} className={`transition hover:bg-gray-50 border-gray-100 ${index % 2 === 0 ? 'md:border-r' : ''} border-b`}><div className="p-5 flex items-center justify-between gap-4"><span className="text-blue-900 font-bold flex-1">{course.name}</span><button onClick={() => { setPopupType("apply"); setPopupOpen(true); }} className="cursor-pointer bg-[#c15304] text-white text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full hover:bg-blue-900 transition-all shadow-sm whitespace-nowrap flex items-center gap-1">Apply Now <ChevronRight size={12} /></button></div></div>))}</div></div>
+                    <div className="max-w-7xl mx-auto px-4 py-3">
+                        <div className="flex items-center gap-2 min-w-max">
+                            {tabs.map((tab, index) => (
+                                <button
+                                    key={index}
+                                    className="px-5 py-2.5 rounded-lg border font-semibold text-sm transition-all text-gray-600 border-gray-200 hover:text-orange-500 hover:border-orange-300 whitespace-nowrap"
+                                    onClick={() => handleTabClick(tab.ref)}
+                                >
+                                    {tab.id}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div ref={approvelRef}><Approvel data={data} /></div>
-                    <div ref={HeighlighRef}><UniversityHighlights data={data} /></div>
-                    <div ref={feesRef}><FeesStructureSection data={data} /></div>
-                    <div ref={Eligibilityref}><Eligibility slug={data.slug} /></div>
-                    <div ref={factsRef}><FactsSection data={data} /></div>
-                    <div ref={admissionRef}><AdmissionProcess data={data} /></div>
                 </div>
-                {popupOpen && popupType === "apply" && (<Applictionpopup open={popupOpen} onClose={() => setPopupOpen(false)} type={popupType} universityName={data.name} />)}
-                {popupOpen && popupType === "talk" && (<TalkToUniversity open={popupOpen} onClose={() => setPopupOpen(false)} universityName={data.name} phone={data.contactNumber || "+919319998717"} whatsapp={data.whatsappNumber || "+919319998717"} />)}
+
+                {/* =====================================================
+                    MAIN CONTENT
+                ===================================================== */}
+                <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
+                    {/* ---------- 1. OVERVIEW ---------- */}
+                    <div ref={overviewRef}>
+                        <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                            <h2 className="text-[#0056D2] text-3xl md:text-4xl font-bold mb-6">
+                                Overview of {data.name}
+                            </h2>
+                            <div
+                                className="rich-content"
+                                dangerouslySetInnerHTML={{
+                                    __html: cleanHtml(
+                                        data.description ||
+                                            "No description available."
+                                    ),
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* ---------- 2. CAREER VIDYA BENEFITS ---------- */}
+                    {/* <div ref={careerBenefitsRef}>
+                        <OnlineExamPattern data={data} />
+                    </div> */}
+
+                    {/* ---------- 3. RECOGNITION / CERTIFICATE ---------- */}
+                    <div ref={certificateRef}>
+                        <UniversityCertificate data={data} />
+                    </div>
+
+                    {/* ---------- 4. KEY HIGHLIGHTS ---------- */}
+                    <div ref={highlightRef}>
+                        <UniversityHighlights data={data} />
+                    </div>
+
+                    {/* ---------- 5. COURSES ---------- */}
+                    <div
+                        ref={coursesRef}
+                        className="shadow-lg rounded-2xl overflow-hidden border border-gray-100"
+                    >
+                        <h2 className="text-xl font-bold text-white bg-[#0b3a6f] p-5 text-center uppercase tracking-wide">
+                            Explore Online Programs at {data.name}
+                        </h2>
+
+                        <div className="bg-white p-2">
+                            {data.courses?.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2">
+                                    {data.courses.map((course, index) => (
+                                        <div
+                                            key={index}
+                                            className={`transition hover:bg-gray-50 border-gray-100 ${
+                                                index % 2 === 0
+                                                    ? "md:border-r"
+                                                    : ""
+                                            } border-b`}
+                                        >
+                                            <div className="p-5 flex items-center justify-between gap-4">
+                                                <span className="text-blue-900 font-bold flex-1">
+                                                    {course.name}
+                                                </span>
+                                                <button
+                                                    onClick={() => {
+                                                        setPopupType("apply");
+                                                        setPopupOpen(true);
+                                                    }}
+                                                    className="cursor-pointer bg-[#c15304] text-white text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full hover:bg-blue-900 transition-all shadow-sm whitespace-nowrap flex items-center gap-1"
+                                                >
+                                                    Apply Now
+                                                    <ChevronRight size={12} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="p-6 text-center text-gray-500">
+                                    No courses listed yet.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ---------- 6. APPROVALS ---------- */}
+                    <div ref={approvalRef}>
+                        <Approvel data={data} />
+                    </div>
+
+                    {/* ---------- 7. FEE STRUCTURE ---------- */}
+                    <div ref={feesRef}>
+                        <FeesStructureSection data={data} />
+                    </div>
+
+                    {/* ---------- 8. ELIGIBILITY ---------- */}
+                    <div ref={eligibilityRef}>
+                        <Eligibility slug={data.slug} data={data} />
+                    </div>
+
+                    {/* ---------- 9. PLACEMENT / FACTS ---------- */}
+                    <div ref={factsRef}>
+                        <FactsSection data={data} />
+                    </div>
+
+                    {/* ---------- 10. ADMISSION PROCESS ---------- */}
+                    <div ref={admissionRef}>
+                        <AdmissionProcess data={data} />
+                    </div>
+
+                    {/* ---------- 11. FAQ ---------- */}
+                    <div ref={faqRef}>
+                        <FaqSection data={data} />
+                    </div>
+                </div>
+
+                {/* =====================================================
+                    POPUPS
+                ===================================================== */}
+                {popupOpen && popupType === "apply" && (
+                    <Applictionpopup
+                        open={popupOpen}
+                        onClose={() => setPopupOpen(false)}
+                        type={popupType}
+                        universityName={data.name}
+                    />
+                )}
+
+                {popupOpen && popupType === "talk" && (
+                    <TalkToUniversity
+                        open={popupOpen}
+                        onClose={() => setPopupOpen(false)}
+                        universityName={data.name}
+                        phone={data.contactNumber || "+919319998717"}
+                        whatsapp={data.whatsappNumber || "+919319998717"}
+                    />
+                )}
             </div>
-            <ReviewRatingstatic /><Footer /><DiscountPopup />
+
+            <ReviewRatingstatic />
+            <Footer />
+            <DiscountPopup />
         </>
     );
 }
