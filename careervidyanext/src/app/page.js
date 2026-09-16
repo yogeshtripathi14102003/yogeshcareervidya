@@ -14,9 +14,9 @@
 // import Footer from "@/app/layout/Footer";
 // import Header from "@/app/layout/Header";
 // import Counter from "../app/components/counter/page";
-
+// import Getcourse from "../app/components/Getcourse";
 // const CAREER_URL = "https://jobportal.careervidya.in/";
-// const HERO_BG_IMG = "/images/home.jpeg";
+// const HERO_BG_IMG = "/images/Home2.jpeg";
 
 // const PARTNER_LOGOS = [
 //   { name: "Amity University", image: "/images/w2.webp" },
@@ -820,7 +820,7 @@
 //         {/* CENTER CONTENT */}
 //         <div className="cv-hero-center">
 
-//           <div className="cv-hero-eyebrow">
+//           {/* <div className="cv-hero-eyebrow">
 //             YOUR CAREER&nbsp;&nbsp;+&nbsp;&nbsp;YOUR EDUCATION
 //             &nbsp;&nbsp;=&nbsp;&nbsp; A BRIGHTER FUTURE
 //           </div>
@@ -850,7 +850,7 @@
 //             support
 //             <br />
 //             to help you achieve your dreams.
-//           </p>
+//           </p> */}
 
 //           {/* TWO CENTER BUTTONS */}
 //           <div className="cv-hero-actions">
@@ -864,7 +864,7 @@
 //             </a>
 
 //             <a
-//               href="/explore"
+//               href="/Homepage"
 //               className="cv-hero-btn cv-hero-btn-secondary"
 //             >
 //               Find the Right Course
@@ -1182,6 +1182,7 @@
 //         </div>
 
 //       </div>
+//       <Getcourse />
 
 //       <Counter />
 

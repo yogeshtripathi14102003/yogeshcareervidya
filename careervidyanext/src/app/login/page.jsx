@@ -9,6 +9,8 @@ import api from "@/utlis/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { trackEvent } from "@/utlis/analytics.js";
 import { ArrowRight, Mail, Phone, Lock, ShieldCheck } from "lucide-react";
+import Header from "@/app/layout/Header.jsx";
+import Footer from "@/app/layout/Footer.jsx";
 
 const LoginPage = () => {
   const [loginMode, setLoginMode] = useState("email");
@@ -79,6 +81,8 @@ const LoginPage = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-6 font-sans antialiased text-slate-900 relative">
       
       {/* Background Subtle Pattern */}
@@ -217,6 +221,8 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 
