@@ -139,7 +139,7 @@
 // }
 
 
-import UniversityList from "@/app/university/UniversityList.jsx"; // ✅ New component
+// import UniversityList from "@/app/university/UniversityList.jsx"; // ✅ New component
 import { serverFetch, resolveImageUrl } from "@/utlis/serverFetch";
 
 /* =========================================================
@@ -327,7 +327,7 @@ export default async function Page() {
             </h1>
 
             {/* ✅ Fixed: Alag listing component use karo */}
-            <UniversityList universities={universities} />
+            {/* <UniversityList universities={universities} /> */}
         </main>
     );
 }
