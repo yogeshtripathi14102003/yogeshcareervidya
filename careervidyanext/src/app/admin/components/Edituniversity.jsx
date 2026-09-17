@@ -1129,7 +1129,7 @@ export default function EditUniversityPage({ params }) {
 
                             <div>
                                 <label className={labelCls}>
-                                    Card Description (Listing)
+                                    Card Description With CV benifit 
                                 </label>
                                 <RichTextField
                                     value={cardDescription}

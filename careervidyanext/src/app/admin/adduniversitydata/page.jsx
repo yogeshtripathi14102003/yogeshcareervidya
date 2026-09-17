@@ -327,6 +327,7 @@
 //     );
 // }
 
+
 "use client";
 
 import { useState } from "react";
@@ -334,6 +335,9 @@ import api from "@/utlis/api.js";
 import CourseApiSelector from "@/app/admin/adduniversitydata/CourseApiSelector.jsx";
 import RichTextField from "@/app/admin/components/RichTextField.jsx";
 
+// =====================================================
+// HELPERS
+// =====================================================
 const filterEmptyObjects = (arr) =>
     arr.filter((item) => {
         if (typeof item === "string") return item.trim() !== "";
@@ -348,6 +352,9 @@ const filterEmptyObjects = (arr) =>
         return false;
     });
 
+// =====================================================
+// INITIAL STATES
+// =====================================================
 const initialApproval = { name: "", logo: null };
 const initialFaq = { question: "", answer: "" };
 const initialCourse = {
@@ -360,8 +367,58 @@ const initialCourse = {
     details: "",
 };
 
+// ✅ NEW: Career Vidya Benefit
+const initialCareerBenefit = {
+    title: "",
+    description: "",
+    icon: null,
+};
+
+// ✅ NEW: Eligibility Criterion
+const initialEligibilityCriterion = {
+    courseName: "",
+    requirement: "",
+};
+
+// ✅ NEW: Exam Pattern
+const initialExamPattern = {
+    heading: "Examination Pattern",
+    subHeading: "",
+    description: "",
+    mode: "",
+    duration: "",
+    totalMarks: "",
+    passingMarks: "",
+    questionTypes: [""],
+    points: [""],
+};
+
+// ✅ NEW: LMS
+const initialLms = {
+    heading: "Learning Management System (LMS)",
+    subHeading: "",
+    description: "",
+    features: [""],
+    image: null,
+};
+
+// ✅ NEW: EMI Options
+const initialEmiOptions = {
+    heading: "EMI & Education Loan Support",
+    subHeading: "",
+    description: "",
+    lendersCount: "",
+    approvalTime: "",
+    noBankVisit: true,
+    emiStartingFrom: "",
+    points: [""],
+    partners: [""],
+};
+
 export default function AddUniversityPage() {
-    // --- State Variables ---
+    // =====================================================
+    // EXISTING STATE VARIABLES
+    // =====================================================
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [universityImage, setUniversityImage] = useState(null);
@@ -390,11 +447,44 @@ export default function AddUniversityPage() {
     const [courseApiData, setCourseApiData] = useState([]);
     const [selectedCoursesFromApi, setSelectedCoursesFromApi] = useState({});
 
+    // =====================================================
+    // ✅ NEW STATE VARIABLES (5 Naye Sections)
+    // =====================================================
+
+    // 1. Career Vidya Benefits
+    const [careerVidyaHeading, setCareerVidyaHeading] = useState("Career Vidya Benefits");
+    const [careerVidyaSubHeading, setCareerVidyaSubHeading] = useState("");
+    const [careerVidyaDescription, setCareerVidyaDescription] = useState("");
+    const [careerBenefits, setCareerBenefits] = useState([{ ...initialCareerBenefit }]);
+
+    // 2. Eligibility
+    const [eligibilityHeading, setEligibilityHeading] = useState("Eligibility Criteria");
+    const [eligibilitySubHeading, setEligibilitySubHeading] = useState("");
+    const [eligibilityDescription, setEligibilityDescription] = useState("");
+    const [eligibilityCriteria, setEligibilityCriteria] = useState([
+        { ...initialEligibilityCriterion },
+    ]);
+    const [eligibilityPoints, setEligibilityPoints] = useState([""]);
+
+    // 3. Examination Pattern
+    const [examPattern, setExamPattern] = useState({ ...initialExamPattern });
+
+    // 4. LMS
+    const [lms, setLms] = useState({ ...initialLms });
+
+    // 5. EMI Options
+    const [emiOptions, setEmiOptions] = useState({ ...initialEmiOptions });
+
+    // =====================================================
+    // COMMON STATE
+    // =====================================================
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [formKey, setFormKey] = useState(0);
 
-    // --- Handlers ---
+    // =====================================================
+    // EXISTING HANDLERS
+    // =====================================================
     const addAdmissionPoint = () => setAdmissionPoints((p) => [...p, ""]);
     const removeAdmissionPoint = (i) => setAdmissionPoints((p) => p.filter((_, x) => x !== i));
     const handleAdmissionPointChange = (i, v) =>
@@ -430,6 +520,116 @@ export default function AddUniversityPage() {
     const handleCourseChange = (i, f, v) =>
         setCourses((p) => p.map((item, idx) => (idx === i ? { ...item, [f]: v } : item)));
 
+    // =====================================================
+    // ✅ NEW HANDLERS
+    // =====================================================
+
+    // ---------- Career Vidya Benefits ----------
+    const addCareerBenefit = () =>
+        setCareerBenefits((p) => [...p, { ...initialCareerBenefit }]);
+    const removeCareerBenefit = (i) =>
+        setCareerBenefits((p) => p.filter((_, x) => x !== i));
+    const handleCareerBenefitChange = (i, f, v) =>
+        setCareerBenefits((p) =>
+            p.map((item, idx) => (idx === i ? { ...item, [f]: v } : item))
+        );
+
+    // ---------- Eligibility ----------
+    const addEligibilityCriterion = () =>
+        setEligibilityCriteria((p) => [...p, { ...initialEligibilityCriterion }]);
+    const removeEligibilityCriterion = (i) =>
+        setEligibilityCriteria((p) => p.filter((_, x) => x !== i));
+    const handleEligibilityCriterionChange = (i, f, v) =>
+        setEligibilityCriteria((p) =>
+            p.map((item, idx) => (idx === i ? { ...item, [f]: v } : item))
+        );
+
+    const addEligibilityPoint = () => setEligibilityPoints((p) => [...p, ""]);
+    const removeEligibilityPoint = (i) =>
+        setEligibilityPoints((p) => p.filter((_, x) => x !== i));
+    const handleEligibilityPointChange = (i, v) =>
+        setEligibilityPoints((p) => p.map((x, idx) => (idx === i ? v : x)));
+
+    // ---------- Exam Pattern ----------
+    const handleExamPatternChange = (f, v) =>
+        setExamPattern((p) => ({ ...p, [f]: v }));
+
+    const addExamQuestionType = () =>
+        setExamPattern((p) => ({ ...p, questionTypes: [...p.questionTypes, ""] }));
+    const removeExamQuestionType = (i) =>
+        setExamPattern((p) => ({
+            ...p,
+            questionTypes: p.questionTypes.filter((_, x) => x !== i),
+        }));
+    const handleExamQuestionTypeChange = (i, v) =>
+        setExamPattern((p) => ({
+            ...p,
+            questionTypes: p.questionTypes.map((x, idx) => (idx === i ? v : x)),
+        }));
+
+    const addExamPoint = () =>
+        setExamPattern((p) => ({ ...p, points: [...p.points, ""] }));
+    const removeExamPoint = (i) =>
+        setExamPattern((p) => ({
+            ...p,
+            points: p.points.filter((_, x) => x !== i),
+        }));
+    const handleExamPointChange = (i, v) =>
+        setExamPattern((p) => ({
+            ...p,
+            points: p.points.map((x, idx) => (idx === i ? v : x)),
+        }));
+
+    // ---------- LMS ----------
+    const handleLmsChange = (f, v) =>
+        setLms((p) => ({ ...p, [f]: v }));
+
+    const addLmsFeature = () =>
+        setLms((p) => ({ ...p, features: [...p.features, ""] }));
+    const removeLmsFeature = (i) =>
+        setLms((p) => ({
+            ...p,
+            features: p.features.filter((_, x) => x !== i),
+        }));
+    const handleLmsFeatureChange = (i, v) =>
+        setLms((p) => ({
+            ...p,
+            features: p.features.map((x, idx) => (idx === i ? v : x)),
+        }));
+
+    // ---------- EMI Options ----------
+    const handleEmiChange = (f, v) =>
+        setEmiOptions((p) => ({ ...p, [f]: v }));
+
+    const addEmiPoint = () =>
+        setEmiOptions((p) => ({ ...p, points: [...p.points, ""] }));
+    const removeEmiPoint = (i) =>
+        setEmiOptions((p) => ({
+            ...p,
+            points: p.points.filter((_, x) => x !== i),
+        }));
+    const handleEmiPointChange = (i, v) =>
+        setEmiOptions((p) => ({
+            ...p,
+            points: p.points.map((x, idx) => (idx === i ? v : x)),
+        }));
+
+    const addEmiPartner = () =>
+        setEmiOptions((p) => ({ ...p, partners: [...p.partners, ""] }));
+    const removeEmiPartner = (i) =>
+        setEmiOptions((p) => ({
+            ...p,
+            partners: p.partners.filter((_, x) => x !== i),
+        }));
+    const handleEmiPartnerChange = (i, v) =>
+        setEmiOptions((p) => ({
+            ...p,
+            partners: p.partners.map((x, idx) => (idx === i ? v : x)),
+        }));
+
+    // =====================================================
+    // RESET FORM
+    // =====================================================
     const resetForm = () => {
         setName(""); setDescription(""); setUniversityImage(null);
         setYoutubeLink(""); setShareDescription(""); setCardDescription("");
@@ -442,10 +642,29 @@ export default function AddUniversityPage() {
         setBackgroundImage(null); setBackgroundDescription("");
         setFaqs([{ ...initialFaq }]);
         setCourses([]); setCourseApiData([]); setSelectedCoursesFromApi({});
+
+        // ✅ NEW RESETS
+        setCareerVidyaHeading("Career Vidya Benefits");
+        setCareerVidyaSubHeading("");
+        setCareerVidyaDescription("");
+        setCareerBenefits([{ ...initialCareerBenefit }]);
+
+        setEligibilityHeading("Eligibility Criteria");
+        setEligibilitySubHeading("");
+        setEligibilityDescription("");
+        setEligibilityCriteria([{ ...initialEligibilityCriterion }]);
+        setEligibilityPoints([""]);
+
+        setExamPattern({ ...initialExamPattern });
+        setLms({ ...initialLms });
+        setEmiOptions({ ...initialEmiOptions });
+
         setFormKey((k) => k + 1);
     };
 
-    // --- SUBMIT ---
+    // =====================================================
+    // SUBMIT
+    // =====================================================
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
@@ -460,6 +679,7 @@ export default function AddUniversityPage() {
         try {
             const formData = new FormData();
 
+            // ---------- BASIC FIELDS ----------
             formData.append("name", name);
             formData.append("description", description);
             formData.append("youtubeLink", youtubeLink);
@@ -485,10 +705,12 @@ export default function AddUniversityPage() {
             );
             formData.append("faqs", JSON.stringify(cleanedFaqs));
 
+            // ---------- IMAGES ----------
             if (universityImage) formData.append("universityImage", universityImage);
             if (certificateImage) formData.append("certificateImage", certificateImage);
             if (backgroundImage) formData.append("backgroundImage", backgroundImage);
 
+            // ---------- APPROVALS ----------
             const approvalsForBody = approvals.map((a) => ({
                 name: a.name,
                 hasLogo: a.logo instanceof File,
@@ -501,6 +723,7 @@ export default function AddUniversityPage() {
                 }
             });
 
+            // ---------- COURSES ----------
             const coursesForBody = courses.map(({ logo, ...rest }) => ({
                 ...rest,
                 hasLogo: logo instanceof File,
@@ -513,13 +736,87 @@ export default function AddUniversityPage() {
                 }
             });
 
+            // =====================================================
+            // ✅ NEW SECTIONS
+            // =====================================================
+
+            // ---------- 1. CAREER VIDYA BENEFITS ----------
+            formData.append("careerVidyaHeading", careerVidyaHeading);
+            formData.append("careerVidyaSubHeading", careerVidyaSubHeading);
+            formData.append("careerVidyaDescription", careerVidyaDescription);
+
+            const careerBenefitsForBody = careerBenefits.map(
+                ({ icon, ...rest }) => ({
+                    ...rest,
+                    hasIcon: icon instanceof File,
+                })
+            );
+            formData.append(
+                "careerVidyaBenefits",
+                JSON.stringify(filterEmptyObjects(careerBenefitsForBody))
+            );
+
+            careerBenefits.forEach((benefit, index) => {
+                if (benefit.icon instanceof File) {
+                    formData.append(
+                        `careerVidyaBenefits[${index}][icon]`,
+                        benefit.icon
+                    );
+                }
+            });
+
+            // ---------- 2. ELIGIBILITY ----------
+            const eligibilityBody = {
+                heading: eligibilityHeading,
+                subHeading: eligibilitySubHeading,
+                description: eligibilityDescription,
+                criteria: eligibilityCriteria.filter(
+                    (c) => c.courseName.trim() !== "" || c.requirement.trim() !== ""
+                ),
+                points: filterEmptyObjects(eligibilityPoints),
+            };
+            formData.append("eligibility", JSON.stringify(eligibilityBody));
+
+            // ---------- 3. EXAMINATION PATTERN ----------
+            const examPatternBody = {
+                ...examPattern,
+                questionTypes: filterEmptyObjects(examPattern.questionTypes),
+                points: filterEmptyObjects(examPattern.points),
+            };
+            formData.append("examPattern", JSON.stringify(examPatternBody));
+
+            // ---------- 4. LMS ----------
+            const lmsBody = {
+                heading: lms.heading,
+                subHeading: lms.subHeading,
+                description: lms.description,
+                features: filterEmptyObjects(lms.features),
+            };
+            formData.append("lms", JSON.stringify(lmsBody));
+
+            if (lms.image instanceof File) {
+                formData.append("lmsImage", lms.image);
+            }
+
+            // ---------- 5. EMI OPTIONS ----------
+            const emiBody = {
+                ...emiOptions,
+                points: filterEmptyObjects(emiOptions.points),
+                partners: filterEmptyObjects(emiOptions.partners),
+            };
+            formData.append("emiOptions", JSON.stringify(emiBody));
+
+            // ---------- API CALL ----------
             await api.post("/api/v1/university", formData);
 
             setMessage("✅ University added successfully!");
             resetForm();
         } catch (error) {
             console.error("Submission Error:", error);
-            setMessage("❌ Error: " + (error.response?.data?.message || error.message));
+            setMessage(
+                "❌ Error: " +
+                    (error.response?.data?.message || error.message)
+            );
         } finally {
             setLoading(false);
         }
@@ -527,7 +824,8 @@ export default function AddUniversityPage() {
 
     // Shared classnames
     const labelCls = "block text-xs font-semibold mb-1 text-gray-700";
-    const inputCls = "w-full border rounded-lg p-2 border-gray-300 text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none";
+    const inputCls =
+        "w-full border rounded-lg p-2 border-gray-300 text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none";
 
     return (
         <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
@@ -536,18 +834,15 @@ export default function AddUniversityPage() {
             </h2>
 
             <form key={formKey} onSubmit={handleSubmit} className="space-y-6">
-
                 {/* =========================
                     ROW 1: ABOUT + HIGHLIGHT
                 ========================== */}
                 <div className="grid lg:grid-cols-2 gap-6">
-
                     {/* ABOUT US */}
                     <div className="p-5 border border-blue-200 rounded-xl bg-white shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-[#0056B3] border-b pb-2">
                             1. About Us
                         </h3>
-
                         <div className="space-y-3">
                             <div>
                                 <label className={labelCls}>University Name *</label>
@@ -559,7 +854,6 @@ export default function AddUniversityPage() {
                                     placeholder="e.g. Delhi University"
                                 />
                             </div>
-
                             <div>
                                 <label className={labelCls}>YouTube Video Link</label>
                                 <input
@@ -570,17 +864,17 @@ export default function AddUniversityPage() {
                                     placeholder="https://www.youtube.com/watch?v=..."
                                 />
                             </div>
-
                             <div>
                                 <label className={labelCls}>University Image</label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setUniversityImage(e.target.files?.[0] || null)}
+                                    onChange={(e) =>
+                                        setUniversityImage(e.target.files?.[0] || null)
+                                    }
                                     className="w-full text-sm text-gray-700 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-[#0056B3] hover:file:bg-blue-200 cursor-pointer"
                                 />
                             </div>
-
                             <div>
                                 <label className={labelCls}>Main Description</label>
                                 <RichTextField
@@ -597,7 +891,6 @@ export default function AddUniversityPage() {
                         <h3 className="font-bold text-lg mb-4 text-[#CC6600] border-b pb-2">
                             2. Key & Highlight
                         </h3>
-
                         <div className="space-y-3">
                             <div>
                                 <label className={labelCls}>Share Description</label>
@@ -607,9 +900,10 @@ export default function AddUniversityPage() {
                                     placeholder="Share Description"
                                 />
                             </div>
-
                             <div>
-                                <label className={labelCls}>Card Description</label>
+                                <label className={labelCls}>
+                                    Card Description / CV Benefits
+                                </label>
                                 <RichTextField
                                     value={cardDescription}
                                     onChange={setCardDescription}
@@ -624,13 +918,10 @@ export default function AddUniversityPage() {
                     ROW 2: BACKGROUND + FACTS
                 ========================== */}
                 <div className="grid lg:grid-cols-2 gap-6">
-
-                    {/* BACKGROUND */}
                     <div className="p-5 border border-gray-300 rounded-xl bg-white shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-gray-800 border-b pb-2">
                             3. Background Section
                         </h3>
-
                         <div className="space-y-3">
                             <div>
                                 <label className={labelCls}>Background Description</label>
@@ -640,27 +931,25 @@ export default function AddUniversityPage() {
                                     placeholder="Background Description"
                                 />
                             </div>
-
                             <div>
                                 <label className={labelCls}>Background Image</label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setBackgroundImage(e.target.files?.[0] || null)}
+                                    onChange={(e) =>
+                                        setBackgroundImage(e.target.files?.[0] || null)
+                                    }
                                     className="w-full text-sm text-gray-600 file:bg-blue-50 file:text-blue-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    {/* FACTS & PLACEMENT */}
                     <div className="p-5 border border-green-300 rounded-xl bg-white shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-[#006400] border-b pb-2">
                             4. Career Outcome & Placement
                         </h3>
-
                         <div className="space-y-4">
-                            {/* Highlights */}
                             <div className="p-3 border border-green-200 rounded-lg bg-green-50">
                                 <label className={labelCls}>Highlights Heading</label>
                                 <input
@@ -670,13 +959,14 @@ export default function AddUniversityPage() {
                                     className={`${inputCls} mb-3`}
                                     placeholder="Main Section Heading"
                                 />
-
                                 {points.map((point, index) => (
                                     <div key={`p-${index}`} className="flex gap-2 mb-2 items-center">
                                         <input
                                             type="text"
                                             value={point}
-                                            onChange={(e) => handlePointChange(index, e.target.value)}
+                                            onChange={(e) =>
+                                                handlePointChange(index, e.target.value)
+                                            }
                                             className={inputCls}
                                             placeholder={`Point ${index + 1}`}
                                         />
@@ -691,7 +981,6 @@ export default function AddUniversityPage() {
                                         )}
                                     </div>
                                 ))}
-
                                 <button
                                     type="button"
                                     onClick={addPoint}
@@ -701,7 +990,6 @@ export default function AddUniversityPage() {
                                 </button>
                             </div>
 
-                            {/* Facts */}
                             <div className="p-3 border border-green-200 rounded-lg bg-green-50">
                                 <div className="grid grid-cols-2 gap-2 mb-3">
                                     <input
@@ -719,13 +1007,14 @@ export default function AddUniversityPage() {
                                         placeholder="Sub-Heading"
                                     />
                                 </div>
-
                                 {factsPoints.map((point, index) => (
                                     <div key={`fp-${index}`} className="flex gap-2 mb-2 items-center">
                                         <input
                                             type="text"
                                             value={point}
-                                            onChange={(e) => handleFactsPointChange(index, e.target.value)}
+                                            onChange={(e) =>
+                                                handleFactsPointChange(index, e.target.value)
+                                            }
                                             className={inputCls}
                                         />
                                         {factsPoints.length > 1 && (
@@ -739,7 +1028,6 @@ export default function AddUniversityPage() {
                                         )}
                                     </div>
                                 ))}
-
                                 <button
                                     type="button"
                                     onClick={addFactsPoint}
@@ -756,13 +1044,10 @@ export default function AddUniversityPage() {
                     ROW 3: APPROVALS + RECOGNITION
                 ========================== */}
                 <div className="grid lg:grid-cols-2 gap-6">
-
-                    {/* APPROVALS */}
                     <div className="p-5 border border-red-300 rounded-xl bg-white shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-[#A00000] border-b pb-2">
                             5. University Approvals
                         </h3>
-
                         {approvals.map((approval, index) => (
                             <div
                                 key={`a-${index}`}
@@ -771,13 +1056,21 @@ export default function AddUniversityPage() {
                                 <input
                                     type="text"
                                     value={approval.name}
-                                    onChange={(e) => handleApprovalChange(index, "name", e.target.value)}
+                                    onChange={(e) =>
+                                        handleApprovalChange(index, "name", e.target.value)
+                                    }
                                     className={`${inputCls} col-span-5`}
                                     placeholder="Approval Name"
                                 />
                                 <input
                                     type="file"
-                                    onChange={(e) => handleApprovalChange(index, "logo", e.target.files?.[0] || null)}
+                                    onChange={(e) =>
+                                        handleApprovalChange(
+                                            index,
+                                            "logo",
+                                            e.target.files?.[0] || null
+                                        )
+                                    }
                                     className="col-span-5 text-[10px]"
                                 />
                                 {approvals.length > 1 && (
@@ -791,7 +1084,6 @@ export default function AddUniversityPage() {
                                 )}
                             </div>
                         ))}
-
                         <button
                             type="button"
                             onClick={addApproval}
@@ -801,12 +1093,10 @@ export default function AddUniversityPage() {
                         </button>
                     </div>
 
-                    {/* RECOGNITION */}
                     <div className="p-5 border border-teal-400 rounded-xl bg-white shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-[#008080] border-b pb-2">
                             6. University Recognition
                         </h3>
-
                         <div className="space-y-3">
                             <div>
                                 <label className={labelCls}>Recognition Heading</label>
@@ -818,7 +1108,6 @@ export default function AddUniversityPage() {
                                     placeholder="Recognition Heading"
                                 />
                             </div>
-
                             <div>
                                 <label className={labelCls}>Recognition Description</label>
                                 <RichTextField
@@ -827,13 +1116,14 @@ export default function AddUniversityPage() {
                                     placeholder="Recognition Description"
                                 />
                             </div>
-
                             {recognitionPoints.map((point, index) => (
                                 <div key={`rp-${index}`} className="flex gap-2 items-center">
                                     <input
                                         type="text"
                                         value={point}
-                                        onChange={(e) => handleRecognitionPointChange(index, e.target.value)}
+                                        onChange={(e) =>
+                                            handleRecognitionPointChange(index, e.target.value)
+                                        }
                                         className={inputCls}
                                     />
                                     {recognitionPoints.length > 1 && (
@@ -847,7 +1137,6 @@ export default function AddUniversityPage() {
                                     )}
                                 </div>
                             ))}
-
                             <button
                                 type="button"
                                 onClick={addRecognitionPoint}
@@ -855,13 +1144,14 @@ export default function AddUniversityPage() {
                             >
                                 + Add Recognition Point
                             </button>
-
                             <div>
                                 <label className={labelCls}>Certificate Image</label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setCertificateImage(e.target.files?.[0] || null)}
+                                    onChange={(e) =>
+                                        setCertificateImage(e.target.files?.[0] || null)
+                                    }
                                     className="block w-full text-sm"
                                 />
                             </div>
@@ -873,13 +1163,10 @@ export default function AddUniversityPage() {
                     ROW 4: ADMISSION + FAQ
                 ========================== */}
                 <div className="grid lg:grid-cols-2 gap-6">
-
-                    {/* ADMISSION */}
                     <div className="p-5 border border-orange-400 rounded-xl bg-white shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-[#FF4500] border-b pb-2">
                             7. Admission Process
                         </h3>
-
                         <div className="space-y-3">
                             <input
                                 type="text"
@@ -895,7 +1182,6 @@ export default function AddUniversityPage() {
                                 className={inputCls}
                                 placeholder="Sub-Heading"
                             />
-
                             <div>
                                 <label className={labelCls}>Admission Description</label>
                                 <RichTextField
@@ -904,13 +1190,14 @@ export default function AddUniversityPage() {
                                     placeholder="Admission Description"
                                 />
                             </div>
-
                             {admissionPoints.map((point, index) => (
                                 <div key={`ap-${index}`} className="flex gap-2 items-center">
                                     <input
                                         type="text"
                                         value={point}
-                                        onChange={(e) => handleAdmissionPointChange(index, e.target.value)}
+                                        onChange={(e) =>
+                                            handleAdmissionPointChange(index, e.target.value)
+                                        }
                                         className={inputCls}
                                         placeholder={`Step ${index + 1}`}
                                     />
@@ -925,7 +1212,6 @@ export default function AddUniversityPage() {
                                     )}
                                 </div>
                             ))}
-
                             <button
                                 type="button"
                                 onClick={addAdmissionPoint}
@@ -936,12 +1222,10 @@ export default function AddUniversityPage() {
                         </div>
                     </div>
 
-                    {/* FAQ */}
                     <div className="p-5 border border-indigo-400 rounded-xl bg-white shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-[#4B0082] border-b pb-2">
                             8. Frequently Asked Questions (FAQ)
                         </h3>
-
                         <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
                             {faqs.map((faq, index) => (
                                 <div
@@ -954,20 +1238,22 @@ export default function AddUniversityPage() {
                                     <input
                                         type="text"
                                         value={faq.question}
-                                        onChange={(e) => handleFaqChange(index, "question", e.target.value)}
+                                        onChange={(e) =>
+                                            handleFaqChange(index, "question", e.target.value)
+                                        }
                                         className={`${inputCls} mb-3`}
                                         placeholder="Enter question..."
                                     />
-
                                     <label className="block text-xs font-bold mb-1 text-indigo-700">
                                         Answer
                                     </label>
                                     <RichTextField
                                         value={faq.answer}
-                                        onChange={(val) => handleFaqChange(index, "answer", val)}
+                                        onChange={(val) =>
+                                            handleFaqChange(index, "answer", val)
+                                        }
                                         placeholder="Enter answer..."
                                     />
-
                                     {faqs.length > 1 && (
                                         <button
                                             type="button"
@@ -980,7 +1266,6 @@ export default function AddUniversityPage() {
                                 </div>
                             ))}
                         </div>
-
                         <button
                             type="button"
                             onClick={addFaq}
@@ -991,12 +1276,658 @@ export default function AddUniversityPage() {
                     </div>
                 </div>
 
+                {/* =====================================================
+                    ✅ NEW SECTION 1: CAREER VIDYA BENEFITS
+                ===================================================== */}
+                <div className="p-5 border border-pink-400 rounded-xl bg-white shadow-md">
+                    <h3 className="font-bold text-lg mb-4 text-[#C2185B] border-b pb-2">
+                        9. Career Vidya Benefits (NEW)
+                    </h3>
+
+                    <div className="grid md:grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label className={labelCls}>Heading</label>
+                            <input
+                                type="text"
+                                value={careerVidyaHeading}
+                                onChange={(e) => setCareerVidyaHeading(e.target.value)}
+                                className={inputCls}
+                                placeholder="Career Vidya Benefits"
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Sub Heading</label>
+                            <input
+                                type="text"
+                                value={careerVidyaSubHeading}
+                                onChange={(e) => setCareerVidyaSubHeading(e.target.value)}
+                                className={inputCls}
+                                placeholder="Why Choose Us?"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mb-4">
+                        <label className={labelCls}>Description</label>
+                        <RichTextField
+                            value={careerVidyaDescription}
+                            onChange={setCareerVidyaDescription}
+                            placeholder="Description"
+                        />
+                    </div>
+
+                    <h4 className="font-bold text-sm mb-2 text-[#C2185B]">
+                        Benefits List
+                    </h4>
+
+                    {careerBenefits.map((benefit, index) => (
+                        <div
+                            key={`cb-${index}`}
+                            className="grid grid-cols-12 gap-2 items-start mb-3 p-3 border rounded-lg border-pink-200 bg-pink-50"
+                        >
+                            <div className="col-span-4">
+                                <label className="block text-[10px] font-bold mb-1">
+                                    Title
+                                </label>
+                                <input
+                                    type="text"
+                                    value={benefit.title}
+                                    onChange={(e) =>
+                                        handleCareerBenefitChange(index, "title", e.target.value)
+                                    }
+                                    className={inputCls}
+                                    placeholder="Placement Support"
+                                />
+                            </div>
+                            <div className="col-span-4">
+                                <label className="block text-[10px] font-bold mb-1">
+                                    Description
+                                </label>
+                                <input
+                                    type="text"
+                                    value={benefit.description}
+                                    onChange={(e) =>
+                                        handleCareerBenefitChange(
+                                            index,
+                                            "description",
+                                            e.target.value
+                                        )
+                                    }
+                                    className={inputCls}
+                                    placeholder="3000+ companies"
+                                />
+                            </div>
+                            <div className="col-span-3">
+                                <label className="block text-[10px] font-bold mb-1">
+                                    Icon
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) =>
+                                        handleCareerBenefitChange(
+                                            index,
+                                            "icon",
+                                            e.target.files?.[0] || null
+                                        )
+                                    }
+                                    className="w-full text-[10px]"
+                                />
+                            </div>
+                            <div className="col-span-1 pt-5">
+                                {careerBenefits.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeCareerBenefit(index)}
+                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+
+                    <button
+                        type="button"
+                        onClick={addCareerBenefit}
+                        className="bg-[#C2185B] text-white px-3 py-1.5 rounded-lg text-xs"
+                    >
+                        + Add Benefit
+                    </button>
+                </div>
+
+                {/* =====================================================
+                    ✅ NEW SECTION 2: ELIGIBILITY
+                ===================================================== */}
+                <div className="p-5 border border-cyan-400 rounded-xl bg-white shadow-md">
+                    <h3 className="font-bold text-lg mb-4 text-[#00838F] border-b pb-2">
+                        10. Eligibility (NEW)
+                    </h3>
+
+                    <div className="grid md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label className={labelCls}>Heading</label>
+                            <input
+                                type="text"
+                                value={eligibilityHeading}
+                                onChange={(e) => setEligibilityHeading(e.target.value)}
+                                className={inputCls}
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Sub Heading</label>
+                            <input
+                                type="text"
+                                value={eligibilitySubHeading}
+                                onChange={(e) => setEligibilitySubHeading(e.target.value)}
+                                className={inputCls}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className={labelCls}>Description</label>
+                        <RichTextField
+                            value={eligibilityDescription}
+                            onChange={setEligibilityDescription}
+                            placeholder="Eligibility description"
+                        />
+                    </div>
+
+                    <h4 className="font-bold text-sm mb-2 text-[#00838F]">
+                        Course-wise Criteria
+                    </h4>
+
+                    {eligibilityCriteria.map((criteria, index) => (
+                        <div
+                            key={`ec-${index}`}
+                            className="grid grid-cols-12 gap-2 items-center mb-2 p-2 border rounded-lg border-cyan-200 bg-cyan-50"
+                        >
+                            <input
+                                type="text"
+                                value={criteria.courseName}
+                                onChange={(e) =>
+                                    handleEligibilityCriterionChange(
+                                        index,
+                                        "courseName",
+                                        e.target.value
+                                    )
+                                }
+                                className={`${inputCls} col-span-4`}
+                                placeholder="Course (e.g. MBA)"
+                            />
+                            <input
+                                type="text"
+                                value={criteria.requirement}
+                                onChange={(e) =>
+                                    handleEligibilityCriterionChange(
+                                        index,
+                                        "requirement",
+                                        e.target.value
+                                    )
+                                }
+                                className={`${inputCls} col-span-7`}
+                                placeholder="Requirement (e.g. 50% in Bachelor's)"
+                            />
+                            {eligibilityCriteria.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeEligibilityCriterion(index)}
+                                    className="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                    ))}
+
+                    <button
+                        type="button"
+                        onClick={addEligibilityCriterion}
+                        className="bg-[#00838F] text-white px-3 py-1.5 rounded-lg text-xs mb-3"
+                    >
+                        + Add Course Criteria
+                    </button>
+
+                    <div>
+                        <label className={labelCls}>Additional Points</label>
+                        {eligibilityPoints.map((point, index) => (
+                            <div key={`ep-${index}`} className="flex gap-2 mb-2 items-center">
+                                <input
+                                    type="text"
+                                    value={point}
+                                    onChange={(e) =>
+                                        handleEligibilityPointChange(index, e.target.value)
+                                    }
+                                    className={inputCls}
+                                />
+                                {eligibilityPoints.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeEligibilityPoint(index)}
+                                        className="text-red-600 text-xs px-2"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={addEligibilityPoint}
+                            className="bg-[#00838F] text-white px-3 py-1.5 rounded-lg text-xs"
+                        >
+                            + Add Point
+                        </button>
+                    </div>
+                </div>
+
+                {/* =====================================================
+                    ✅ NEW SECTION 3: EXAMINATION PATTERN
+                ===================================================== */}
+                <div className="p-5 border border-amber-400 rounded-xl bg-white shadow-md">
+                    <h3 className="font-bold text-lg mb-4 text-[#B45309] border-b pb-2">
+                        11. Examination Pattern (NEW)
+                    </h3>
+
+                    <div className="grid md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label className={labelCls}>Heading</label>
+                            <input
+                                type="text"
+                                value={examPattern.heading}
+                                onChange={(e) =>
+                                    handleExamPatternChange("heading", e.target.value)
+                                }
+                                className={inputCls}
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Sub Heading</label>
+                            <input
+                                type="text"
+                                value={examPattern.subHeading}
+                                onChange={(e) =>
+                                    handleExamPatternChange("subHeading", e.target.value)
+                                }
+                                className={inputCls}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className={labelCls}>Description</label>
+                        <RichTextField
+                            value={examPattern.description}
+                            onChange={(val) => handleExamPatternChange("description", val)}
+                            placeholder="Exam pattern description"
+                        />
+                    </div>
+
+                    <div className="grid md:grid-cols-4 gap-3 mb-3">
+                        <div>
+                            <label className={labelCls}>Mode</label>
+                            <input
+                                type="text"
+                                value={examPattern.mode}
+                                onChange={(e) =>
+                                    handleExamPatternChange("mode", e.target.value)
+                                }
+                                className={inputCls}
+                                placeholder="Online Proctored"
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Duration</label>
+                            <input
+                                type="text"
+                                value={examPattern.duration}
+                                onChange={(e) =>
+                                    handleExamPatternChange("duration", e.target.value)
+                                }
+                                className={inputCls}
+                                placeholder="2 Hours"
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Total Marks</label>
+                            <input
+                                type="text"
+                                value={examPattern.totalMarks}
+                                onChange={(e) =>
+                                    handleExamPatternChange("totalMarks", e.target.value)
+                                }
+                                className={inputCls}
+                                placeholder="100"
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Passing Marks</label>
+                            <input
+                                type="text"
+                                value={examPattern.passingMarks}
+                                onChange={(e) =>
+                                    handleExamPatternChange("passingMarks", e.target.value)
+                                }
+                                className={inputCls}
+                                placeholder="40"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-3">
+                        <div>
+                            <label className={labelCls}>Question Types</label>
+                            {examPattern.questionTypes.map((q, index) => (
+                                <div key={`qt-${index}`} className="flex gap-2 mb-2 items-center">
+                                    <input
+                                        type="text"
+                                        value={q}
+                                        onChange={(e) =>
+                                            handleExamQuestionTypeChange(index, e.target.value)
+                                        }
+                                        className={inputCls}
+                                        placeholder="MCQ, Descriptive..."
+                                    />
+                                    {examPattern.questionTypes.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeExamQuestionType(index)}
+                                            className="text-red-600 text-xs px-2"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={addExamQuestionType}
+                                className="bg-[#B45309] text-white px-3 py-1.5 rounded-lg text-xs"
+                            >
+                                + Add Question Type
+                            </button>
+                        </div>
+
+                        <div>
+                            <label className={labelCls}>Additional Points</label>
+                            {examPattern.points.map((p, index) => (
+                                <div key={`ep-${index}`} className="flex gap-2 mb-2 items-center">
+                                    <input
+                                        type="text"
+                                        value={p}
+                                        onChange={(e) =>
+                                            handleExamPointChange(index, e.target.value)
+                                        }
+                                        className={inputCls}
+                                    />
+                                    {examPattern.points.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeExamPoint(index)}
+                                            className="text-red-600 text-xs px-2"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={addExamPoint}
+                                className="bg-[#B45309] text-white px-3 py-1.5 rounded-lg text-xs"
+                            >
+                                + Add Point
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* =====================================================
+                    ✅ NEW SECTION 4: LMS
+                ===================================================== */}
+                <div className="p-5 border border-lime-400 rounded-xl bg-white shadow-md">
+                    <h3 className="font-bold text-lg mb-4 text-[#4D7C0F] border-b pb-2">
+                        12. LMS (Learning Management System) (NEW)
+                    </h3>
+
+                    <div className="grid md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label className={labelCls}>Heading</label>
+                            <input
+                                type="text"
+                                value={lms.heading}
+                                onChange={(e) => handleLmsChange("heading", e.target.value)}
+                                className={inputCls}
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Sub Heading</label>
+                            <input
+                                type="text"
+                                value={lms.subHeading}
+                                onChange={(e) => handleLmsChange("subHeading", e.target.value)}
+                                className={inputCls}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className={labelCls}>Description</label>
+                        <RichTextField
+                            value={lms.description}
+                            onChange={(val) => handleLmsChange("description", val)}
+                            placeholder="LMS description"
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className={labelCls}>LMS Image</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                                handleLmsChange("image", e.target.files?.[0] || null)
+                            }
+                            className="w-full text-sm"
+                        />
+                    </div>
+
+                    <label className={labelCls}>Features</label>
+                    {lms.features.map((f, index) => (
+                        <div key={`lf-${index}`} className="flex gap-2 mb-2 items-center">
+                            <input
+                                type="text"
+                                value={f}
+                                onChange={(e) => handleLmsFeatureChange(index, e.target.value)}
+                                className={inputCls}
+                                placeholder="Live Classes, E-Books..."
+                            />
+                            {lms.features.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeLmsFeature(index)}
+                                    className="text-red-600 text-xs px-2"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={addLmsFeature}
+                        className="bg-[#4D7C0F] text-white px-3 py-1.5 rounded-lg text-xs"
+                    >
+                        + Add Feature
+                    </button>
+                </div>
+
+                {/* =====================================================
+                    ✅ NEW SECTION 5: EMI OPTIONS
+                ===================================================== */}
+                <div className="p-5 border border-violet-400 rounded-xl bg-white shadow-md">
+                    <h3 className="font-bold text-lg mb-4 text-[#6D28D9] border-b pb-2">
+                        13. EMI & Education Loan Support (NEW)
+                    </h3>
+
+                    <div className="grid md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label className={labelCls}>Heading</label>
+                            <input
+                                type="text"
+                                value={emiOptions.heading}
+                                onChange={(e) => handleEmiChange("heading", e.target.value)}
+                                className={inputCls}
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Sub Heading</label>
+                            <input
+                                type="text"
+                                value={emiOptions.subHeading}
+                                onChange={(e) => handleEmiChange("subHeading", e.target.value)}
+                                className={inputCls}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className={labelCls}>Description</label>
+                        <RichTextField
+                            value={emiOptions.description}
+                            onChange={(val) => handleEmiChange("description", val)}
+                            placeholder="EMI description"
+                        />
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-3 mb-3">
+                        <div>
+                            <label className={labelCls}>Lenders Count</label>
+                            <input
+                                type="text"
+                                value={emiOptions.lendersCount}
+                                onChange={(e) =>
+                                    handleEmiChange("lendersCount", e.target.value)
+                                }
+                                className={inputCls}
+                                placeholder="20+ Lenders"
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Approval Time</label>
+                            <input
+                                type="text"
+                                value={emiOptions.approvalTime}
+                                onChange={(e) =>
+                                    handleEmiChange("approvalTime", e.target.value)
+                                }
+                                className={inputCls}
+                                placeholder="24 hours"
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>EMI Starting From</label>
+                            <input
+                                type="text"
+                                value={emiOptions.emiStartingFrom}
+                                onChange={(e) =>
+                                    handleEmiChange("emiStartingFrom", e.target.value)
+                                }
+                                className={inputCls}
+                                placeholder="₹5,000/month"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="flex items-center gap-2 text-sm font-semibold">
+                            <input
+                                type="checkbox"
+                                checked={emiOptions.noBankVisit}
+                                onChange={(e) =>
+                                    handleEmiChange("noBankVisit", e.target.checked)
+                                }
+                            />
+                            No Bank Visit Required
+                        </label>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-3">
+                        <div>
+                            <label className={labelCls}>Partners</label>
+                            {emiOptions.partners.map((p, index) => (
+                                <div key={`ep-${index}`} className="flex gap-2 mb-2 items-center">
+                                    <input
+                                        type="text"
+                                        value={p}
+                                        onChange={(e) =>
+                                            handleEmiPartnerChange(index, e.target.value)
+                                        }
+                                        className={inputCls}
+                                        placeholder="HDFC, ICICI..."
+                                    />
+                                    {emiOptions.partners.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeEmiPartner(index)}
+                                            className="text-red-600 text-xs px-2"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={addEmiPartner}
+                                className="bg-[#6D28D9] text-white px-3 py-1.5 rounded-lg text-xs"
+                            >
+                                + Add Partner
+                            </button>
+                        </div>
+
+                        <div>
+                            <label className={labelCls}>Additional Points</label>
+                            {emiOptions.points.map((p, index) => (
+                                <div key={`ep-${index}`} className="flex gap-2 mb-2 items-center">
+                                    <input
+                                        type="text"
+                                        value={p}
+                                        onChange={(e) =>
+                                            handleEmiPointChange(index, e.target.value)
+                                        }
+                                        className={inputCls}
+                                    />
+                                    {emiOptions.points.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeEmiPoint(index)}
+                                            className="text-red-600 text-xs px-2"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={addEmiPoint}
+                                className="bg-[#6D28D9] text-white px-3 py-1.5 rounded-lg text-xs"
+                            >
+                                + Add Point
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 {/* =========================
                     COURSE MANAGEMENT
                 ========================== */}
                 <div className="p-5 border border-purple-300 rounded-xl bg-white shadow-md">
                     <h3 className="font-bold text-lg mb-4 text-[#6A0DAD] border-b pb-2">
-                        9. Course Management
+                        14. Course Management
                     </h3>
 
                     <CourseApiSelector
@@ -1015,7 +1946,6 @@ export default function AddUniversityPage() {
                         <h4 className="font-bold text-md mb-3 text-[#0056B3]">
                             Final Courses List ({courses.length})
                         </h4>
-
                         {courses.length === 0 ? (
                             <p className="text-sm text-gray-500 italic">
                                 No courses added yet.
@@ -1029,11 +1959,19 @@ export default function AddUniversityPage() {
                                     >
                                         <div className="grid grid-cols-2 gap-2 mb-2">
                                             <div>
-                                                <label className="block text-[10px] font-bold mb-1">Name</label>
+                                                <label className="block text-[10px] font-bold mb-1">
+                                                    Name
+                                                </label>
                                                 <input
                                                     type="text"
                                                     value={course.name}
-                                                    onChange={(e) => handleCourseChange(index, "name", e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleCourseChange(
+                                                            index,
+                                                            "name",
+                                                            e.target.value
+                                                        )
+                                                    }
                                                     className={inputCls}
                                                 />
                                             </div>
@@ -1044,34 +1982,54 @@ export default function AddUniversityPage() {
                                                 <input
                                                     type="text"
                                                     value={course.courseSlug}
-                                                    onChange={(e) => handleCourseChange(index, "courseSlug", e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleCourseChange(
+                                                            index,
+                                                            "courseSlug",
+                                                            e.target.value
+                                                        )
+                                                    }
                                                     className={`${inputCls} border-blue-200`}
                                                     placeholder="mba-online"
                                                 />
                                             </div>
                                         </div>
-
                                         <div className="grid grid-cols-2 gap-2 mb-2">
                                             <div>
-                                                <label className="block text-[10px] font-bold mb-1">Duration</label>
+                                                <label className="block text-[10px] font-bold mb-1">
+                                                    Duration
+                                                </label>
                                                 <input
                                                     type="text"
                                                     value={course.duration}
-                                                    onChange={(e) => handleCourseChange(index, "duration", e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleCourseChange(
+                                                            index,
+                                                            "duration",
+                                                            e.target.value
+                                                        )
+                                                    }
                                                     className={inputCls}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] font-bold mb-1">Override Logo</label>
+                                                <label className="block text-[10px] font-bold mb-1">
+                                                    Override Logo
+                                                </label>
                                                 <input
                                                     type="file"
                                                     accept="image/*"
-                                                    onChange={(e) => handleCourseChange(index, "logo", e.target.files?.[0] || null)}
+                                                    onChange={(e) =>
+                                                        handleCourseChange(
+                                                            index,
+                                                            "logo",
+                                                            e.target.files?.[0] || null
+                                                        )
+                                                    }
                                                     className="w-full text-[10px]"
                                                 />
                                             </div>
                                         </div>
-
                                         <button
                                             type="button"
                                             onClick={() => removeCourse(index)}
@@ -1083,7 +2041,6 @@ export default function AddUniversityPage() {
                                 ))}
                             </div>
                         )}
-
                         <button
                             type="button"
                             onClick={addCourse}
@@ -1106,7 +2063,6 @@ export default function AddUniversityPage() {
                         >
                             {loading ? "Submitting Data..." : "🚀 Add University"}
                         </button>
-
                         <button
                             type="button"
                             onClick={resetForm}
@@ -1116,7 +2072,6 @@ export default function AddUniversityPage() {
                             Reset
                         </button>
                     </div>
-
                     {message && (
                         <p
                             className={`text-center mt-3 text-sm font-medium ${

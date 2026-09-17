@@ -1,40 +1,145 @@
 
 
+
 // import UniversityDetail from "@/app/university/UniversityDetail.jsx";
-// import { serverFetch } from "@/utlis/serverFetch";
+// import { serverFetch, resolveImageUrl } from "@/utlis/serverFetch";
 
-// export const dynamic = "force-dynamic";
+// /* =========================================================
+//    PAGE CONFIG
+// ========================================================= */
 
-// async function getUniversities() {
-//   const { ok, data } = await serverFetch("/api/v1/university", {
-//     next: { revalidate: 60 },
-//   });
+// export const revalidate = 3600;
 
-//   if (!ok) return [];
-//   return data?.data || [];
-// }
+// const SITE_URL = "https://careervidya.in";
+// const PAGE_URL = `${SITE_URL}/university`;
 
-// // ✅ This listing page had no metadata at all before — it was inheriting
-// // the generic root layout title/description for every visit.
+// const OG_IMAGE = `${SITE_URL}/images/universities-og.jpg`;
+
+// /* =========================================================
+//    SEO METADATA
+// ========================================================= */
+
 // export const metadata = {
-//   title: "Top Online Universities & Courses in India | CareerVidya",
+//   title: "Top Online Universities in India | CareerVidya",
 
 //   description:
-//     "Explore top UGC-recognized online universities and degree programs in India. Compare MBA, MCA, BBA, BCA, M.Com, and other online courses, fees, eligibility, and career options for students and working professionals.in india",
+//     "Explore top UGC-recognized online universities in India. Compare MBA, MCA, BBA, BCA, M.Com, and other online courses, fees, eligibility, and career opportunities.",
 
 //   alternates: {
-//     canonical: "https://careervidya.in/university",
+//     canonical: PAGE_URL,
+//   },
+
+//   robots: {
+//     index: true,
+//     follow: true,
+//   },
+
+//   openGraph: {
+//     title: "Top Online Universities in India | CareerVidya",
+
+//     description:
+//       "Explore top UGC-recognized online universities in India. Compare online courses, fees, eligibility, duration, and career opportunities.",
+
+//     url: PAGE_URL,
+
+//     siteName: "CareerVidya",
+
+//     locale: "en_IN",
+
+//     type: "website",
+
+//     images: [
+//       {
+//         url: OG_IMAGE,
+//         width: 1200,
+//         height: 630,
+//         alt: "Top Online Universities in India - CareerVidya",
+//       },
+//     ],
+//   },
+
+//   twitter: {
+//     card: "summary_large_image",
+
+//     title: "Top Online Universities in India | CareerVidya",
+
+//     description:
+//       "Explore top online universities and degree programs in India.",
+
+//     images: [OG_IMAGE],
 //   },
 // };
 
+// /* =========================================================
+//    GET UNIVERSITIES
+// ========================================================= */
+
+// async function getUniversities() {
+//   try {
+//     const { ok, data } = await serverFetch(
+//       "/api/v1/university",
+//       {
+//         next: {
+//           revalidate: 3600,
+//         },
+//       }
+//     );
+
+//     if (!ok) {
+//       return [];
+//     }
+
+//     const universities = data?.data || [];
+
+//     return universities
+//       .filter((university) => university?.slug)
+//       .map((university) => ({
+//         ...university,
+
+//         universityImageUrl: resolveImageUrl(
+//           university.universityImage,
+//           "/fallback-logo.png"
+//         ),
+//       }));
+//   } catch (error) {
+//     console.error(
+//       "Failed to fetch universities:",
+//       error
+//     );
+
+//     return [];
+//   }
+// }
+
+// /* =========================================================
+//    PAGE
+// ========================================================= */
+
 // export default async function Page() {
-//   const list = await getUniversities();
-//   return <UniversityDetail initialUniversities={list} />;
+//   const universities = await getUniversities();
+
+//   return (
+//     <main>
+//       {/* =====================================================
+//           SEO H1
+
+//           Only keep this if UniversityDetail does NOT already
+//           render an H1.
+//       ===================================================== */}
+
+//       <h1 className="sr-only">
+//         Top Online Universities in India
+//       </h1>
+
+//       <UniversityDetail
+//         initialUniversities={universities}
+//       />
+//     </main>
+//   );
 // }
 
 
-
-import UniversityDetail from "@/app/university/UniversityDetail.jsx";
+import UniversityList from "@/app/university/UniversityList.jsx"; // ✅ New component
 import { serverFetch, resolveImageUrl } from "@/utlis/serverFetch";
 
 /* =========================================================
@@ -45,7 +150,6 @@ export const revalidate = 3600;
 
 const SITE_URL = "https://careervidya.in";
 const PAGE_URL = `${SITE_URL}/university`;
-
 const OG_IMAGE = `${SITE_URL}/images/universities-og.jpg`;
 
 /* =========================================================
@@ -53,54 +157,72 @@ const OG_IMAGE = `${SITE_URL}/images/universities-og.jpg`;
 ========================================================= */
 
 export const metadata = {
-  title: "Top Online Universities in India | CareerVidya",
+    metadataBase: new URL(SITE_URL),  // ✅ Added
 
-  description:
-    "Explore top UGC-recognized online universities in India. Compare MBA, MCA, BBA, BCA, M.Com, and other online courses, fees, eligibility, and career opportunities.",
-
-  alternates: {
-    canonical: PAGE_URL,
-  },
-
-  robots: {
-    index: true,
-    follow: true,
-  },
-
-  openGraph: {
-    title: "Top Online Universities in India | CareerVidya",
+    title: "Top Online Universities in India 2025 | CareerVidya",
 
     description:
-      "Explore top UGC-recognized online universities in India. Compare online courses, fees, eligibility, duration, and career opportunities.",
+        "Explore top UGC-recognized online universities in India. Compare MBA, MCA, BBA, BCA, M.Com, and other online courses, fees, eligibility, and career opportunities.",
 
-    url: PAGE_URL,
-
-    siteName: "CareerVidya",
-
-    locale: "en_IN",
-
-    type: "website",
-
-    images: [
-      {
-        url: OG_IMAGE,
-        width: 1200,
-        height: 630,
-        alt: "Top Online Universities in India - CareerVidya",
-      },
+    // ✅ Added keywords
+    keywords: [
+        "top online universities in India",
+        "UGC recognized online universities",
+        "online degree programs",
+        "best online MBA universities",
+        "online MCA",
+        "online BBA",
+        "online BCA",
+        "online education India",
+        "distance education universities",
+        "CareerVidya universities",
     ],
-  },
 
-  twitter: {
-    card: "summary_large_image",
+    alternates: {
+        canonical: PAGE_URL,
+    },
 
-    title: "Top Online Universities in India | CareerVidya",
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+        },
+    },
 
-    description:
-      "Explore top online universities and degree programs in India.",
+    openGraph: {
+        title: "Top Online Universities in India 2025 | CareerVidya",
+        description:
+            "Explore top UGC-recognized online universities in India. Compare online courses, fees, eligibility, duration, and career opportunities.",
+        url: PAGE_URL,
+        siteName: "CareerVidya",
+        locale: "en_IN",
+        type: "website",
+        images: [
+            {
+                url: OG_IMAGE,
+                width: 1200,
+                height: 630,
+                alt: "Top Online Universities in India - CareerVidya",
+            },
+        ],
+    },
 
-    images: [OG_IMAGE],
-  },
+    twitter: {
+        card: "summary_large_image",
+        title: "Top Online Universities in India 2025 | CareerVidya",
+        description:
+            "Explore top online universities and degree programs in India.",
+        images: [OG_IMAGE],
+    },
+
+    authors: [{ name: "CareerVidya" }],
+    publisher: "CareerVidya",
+    category: "Education",
 };
 
 /* =========================================================
@@ -108,40 +230,28 @@ export const metadata = {
 ========================================================= */
 
 async function getUniversities() {
-  try {
-    const { ok, data } = await serverFetch(
-      "/api/v1/university",
-      {
-        next: {
-          revalidate: 3600,
-        },
-      }
-    );
+    try {
+        const { ok, data } = await serverFetch("/api/v1/university", {
+            next: { revalidate: 3600 },
+        });
 
-    if (!ok) {
-      return [];
+        if (!ok) return [];
+
+        const universities = data?.data || [];
+
+        return universities
+            .filter((university) => university?.slug)
+            .map((university) => ({
+                ...university,
+                universityImageUrl: resolveImageUrl(
+                    university.universityImage,
+                    "/fallback-logo.png"
+                ),
+            }));
+    } catch (error) {
+        console.error("Failed to fetch universities:", error);
+        return [];
     }
-
-    const universities = data?.data || [];
-
-    return universities
-      .filter((university) => university?.slug)
-      .map((university) => ({
-        ...university,
-
-        universityImageUrl: resolveImageUrl(
-          university.universityImage,
-          "/fallback-logo.png"
-        ),
-      }));
-  } catch (error) {
-    console.error(
-      "Failed to fetch universities:",
-      error
-    );
-
-    return [];
-  }
 }
 
 /* =========================================================
@@ -149,25 +259,75 @@ async function getUniversities() {
 ========================================================= */
 
 export default async function Page() {
-  const universities = await getUniversities();
+    const universities = await getUniversities();
 
-  return (
-    <main>
-      {/* =====================================================
-          SEO H1
+    // =====================================================
+    // ✅ SEO SCHEMAS
+    // =====================================================
 
-          Only keep this if UniversityDetail does NOT already
-          render an H1.
-      ===================================================== */}
+    // ---------- Breadcrumb Schema ----------
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: SITE_URL,
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: "Universities",
+                item: PAGE_URL,
+            },
+        ],
+    };
 
-      <h1 className="sr-only">
-        Top Online Universities in India
-      </h1>
+    // ---------- ItemList Schema (Universities Listing) ----------
+    const itemListSchema = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Top Online Universities in India",
+        description:
+            "List of top UGC-recognized online universities in India offering various online degree programs.",
+        numberOfItems: universities.length,
+        itemListElement: universities.map((uni, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            item: {
+                "@type": "EducationalOrganization",
+                name: uni.name,
+                url: `${SITE_URL}/university/${uni.slug}`,
+                logo: uni.universityImageUrl,
+            },
+        })),
+    };
 
-      <UniversityDetail
-        initialUniversities={universities}
-      />
-    </main>
-  );
+    return (
+        <main>
+            {/* ✅ SEO SCHEMAS */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(breadcrumbSchema),
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(itemListSchema),
+                }}
+            />
+
+            {/* ✅ H1 for SEO */}
+            <h1 className="sr-only">
+                Top Online Universities in India
+            </h1>
+
+            {/* ✅ Fixed: Alag listing component use karo */}
+            <UniversityList universities={universities} />
+        </main>
+    );
 }
-

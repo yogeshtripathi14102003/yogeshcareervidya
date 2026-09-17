@@ -1,208 +1,188 @@
-
-
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/utlis/api";
-import Image from "next/image";
+import { useState } from "react";
 import {
-  Globe,
-  Headset,
-  UserCheck,
-  CreditCard,
-  GraduationCap,
-  Briefcase,
-  Users,
-  Award,
-  FileText,
-  BookOpen,
-  Search,
-  CheckCircle2,
-  Download
+    GraduationCap,
+    BookOpen,
+    CheckCircle2,
+    UserCheck,
+    ClipboardList,
+    Target,
+    Award,
+    FileText,
+    Download,
+    Info,
+    School,
+    Briefcase,
 } from "lucide-react";
+import { cleanHtml } from "@/utlis/cleanHtml.js";
 
-const getSmartIcon = (text) => {
-  const t = text.toLowerCase();
-  if (t.includes("flexible") || t.includes("university")) return Globe;
-  if (t.includes("counselling") || t.includes("expert")) return Headset;
-  if (t.includes("one-on-one") || t.includes("advisor")) return UserCheck;
-  if (t.includes("emi") || t.includes("payment")) return CreditCard;
-  if (t.includes("loan") || t.includes("scholarship")) return GraduationCap;
-  if (t.includes("placement") || t.includes("job")) return Briefcase;
-  if (t.includes("alumni") || t.includes("network")) return Users;
-  if (t.includes("verified") || t.includes("degree")) return Award;
-  if (t.includes("admission") || t.includes("documentation")) return FileText;
-  if (t.includes("academic") || t.includes("post-admission")) return BookOpen;
-  if (t.includes("transparent") || t.includes("unbiased")) return Search;
-  return CheckCircle2;
+// =====================================================
+// SMART ICON (course name ke hisaab se)
+// =====================================================
+const getCourseIcon = (courseName) => {
+    const t = (courseName || "").toLowerCase();
+    if (t.includes("mba") || t.includes("management") || t.includes("bba")) return Briefcase;
+    if (t.includes("mca") || t.includes("bca") || t.includes("computer")) return BookOpen;
+    if (t.includes("ma") || t.includes("ba") || t.includes("arts")) return FileText;
+    if (t.includes("msc") || t.includes("bsc") || t.includes("science")) return Target;
+    if (t.includes("mcom") || t.includes("bcom") || t.includes("commerce")) return Award;
+    if (t.includes("bed") || t.includes("education")) return School;
+    return GraduationCap;
 };
 
-export default function OnlineExamPattern({ slug }) {
-  const [data, setData] = useState({
-    universityName: "",
-    shareDescription: "",
-    cardDescription: "",
-  });
+export default function EligibilitySection({ data }) {
+    const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  const [loading, setLoading] = useState(true);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+    const eligibility = data?.eligibility || {};
 
-  useEffect(() => {
-    if (!slug) return;
-    api.get(`/api/v1/university/slug/${slug}`)
-      .then((res) => {
-        setData({
-          universityName: res.data?.data?.name || "",
-          shareDescription: res.data?.data?.shareDescription || "",
-          cardDescription: res.data?.data?.cardDescription || "",
-        });
-      })
-      .finally(() => setLoading(false));
-  }, [slug]);
+    const heading = eligibility.heading || "Eligibility Criteria";
+    const subHeading = eligibility.subHeading || "";
+    const description = eligibility.description || "";
+    const criteria = Array.isArray(eligibility.criteria) ? eligibility.criteria : [];
+    const points = Array.isArray(eligibility.points) ? eligibility.points : [];
 
-  if (loading) return null;
+    const hasContent =
+        heading ||
+        description ||
+        criteria.length > 0 ||
+        points.length > 0;
 
-  const renderPoints = (text) => {
-    const lines = text.split("\n").filter(Boolean);
-    if (!lines.length) return null;
-
-    const firstLine = lines[0];
-    const remainingLines = lines.slice(1);
+    if (!hasContent) return null;
 
     return (
-      <div style={{ marginBottom: "20px" }}>
-        <p style={{
-          fontSize: "16px",
-          fontWeight: 500,
-          color: "#4b5563",
-          marginBottom: "12px",
-          lineHeight: "1.5",
-        }}>
-          {firstLine}
-        </p>
+        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            {/* ============ HEADER (Dark Blue - Website Style) ============ */}
+            <div className="bg-[#0b3a6f] px-6 md:px-8 py-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-xl md:text-2xl font-bold text-white">
+                            {heading}
+                        </h2>
+                        {subHeading && (
+                            <p className="text-blue-100 text-sm mt-1">
+                                {subHeading}
+                            </p>
+                        )}
+                    </div>
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", // 🔥 fix
-          gap: "12px",
-        }}>
-          {remainingLines.map((point, index) => {
-            const Icon = getSmartIcon(point);
-            const isHovered = hoveredIndex === index;
+                    <button className="shrink-0 flex items-center gap-2 bg-[#c15304] hover:bg-[#a04503] text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm">
+                        <Download size={14} />
+                        Download Brochure
+                    </button>
+                </div>
+            </div>
 
-            return (
-              <div
-                key={index}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                style={{
-                  padding: "12px",
-                  borderRadius: "10px",
-                  background: "#ffffff",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  boxShadow: isHovered
-                    ? "0 6px 16px rgba(30,58,138,0.12)"
-                    : "0 2px 6px rgba(0,0,0,0.04)",
-                  border: "1px solid",
-                  borderColor: isHovered ? "#1e3a8a" : "#e5e7eb",
-                }}
-              >
-                <div style={{
-                  minWidth: "30px",
-                  height: "30px",
-                  borderRadius: "6px",
-                  background: "#1e3a8a",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                }}>
-                  <Icon size={14} />
+            {/* ============ BODY ============ */}
+            <div className="p-6 md:p-8">
+                {/* Description */}
+                {description && (
+                    <div
+                        className="rich-content text-gray-700 text-sm leading-relaxed mb-6"
+                        dangerouslySetInnerHTML={{
+                            __html: cleanHtml(description),
+                        }}
+                    />
+                )}
+
+                {/* Course-wise Criteria */}
+                {criteria.length > 0 && (
+                    <div className="mb-8">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-[#0056D2] mb-3">
+                            <ClipboardList size={16} />
+                            Course-wise Eligibility
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {criteria.map((item, index) => {
+                                const Icon = getCourseIcon(item.courseName);
+                                const isHovered = hoveredIndex === index;
+
+                                return (
+                                    <div
+                                        key={index}
+                                        onMouseEnter={() => setHoveredIndex(index)}
+                                        onMouseLeave={() => setHoveredIndex(null)}
+                                        className={`flex items-start gap-3 p-4 rounded-xl bg-white border transition-all duration-200 ${
+                                            isHovered
+                                                ? "border-[#0056D2] shadow-md"
+                                                : "border-gray-200"
+                                        }`}
+                                    >
+                                        <div className="shrink-0 w-10 h-10 rounded-lg bg-blue-50 text-[#0056D2] flex items-center justify-center">
+                                            <Icon size={18} />
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            {item.courseName && (
+                                                <h4 className="text-sm font-bold text-gray-900 mb-1">
+                                                    {item.courseName}
+                                                </h4>
+                                            )}
+                                            {item.requirement && (
+                                                <p className="text-xs text-gray-600 leading-relaxed">
+                                                    {item.requirement}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Additional Points */}
+                {points.length > 0 && (
+                    <div className="mb-6">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-[#0056D2] mb-3">
+                            <Info size={16} />
+                            Additional Information
+                        </h3>
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5">
+                            <ul className="space-y-3">
+                                {points.map((point, index) => (
+                                    <li key={index} className="flex items-start gap-3">
+                                        <div className="shrink-0 w-5 h-5 rounded-full bg-blue-50 text-[#0056D2] flex items-center justify-center mt-0.5">
+                                            <CheckCircle2 size={12} />
+                                        </div>
+                                        <p className="text-sm leading-relaxed text-gray-700 flex-1">
+                                            {point}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
+
+                {/* Important Note */}
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 flex items-start gap-3">
+                    <div className="shrink-0 w-8 h-8 rounded-lg bg-white text-[#0056D2] flex items-center justify-center">
+                        <Info size={16} />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-[#0056D2] uppercase tracking-wide mb-0.5">
+                            Important Note
+                        </p>
+                        <p className="text-xs text-gray-700 leading-relaxed">
+                            Eligibility criteria may vary based on the course and specialization. Please verify the specific requirements for your chosen program before applying.
+                        </p>
+                    </div>
                 </div>
 
-                <p style={{
-                  fontSize: "13.5px",
-                  lineHeight: "1.4",
-                  fontWeight: 500,
-                  color: "#374151",
-                  margin: 0
-                }}>
-                  {point}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap gap-3 pt-2">
+                    <button className="flex items-center gap-2 bg-[#c15304] hover:bg-[#a04503] text-white px-5 py-2.5 rounded-lg text-sm font-bold transition shadow-sm">
+                        <UserCheck size={16} />
+                        Check Your Eligibility
+                    </button>
+                    <button className="flex items-center gap-2 bg-white border border-[#0056D2] text-[#0056D2] hover:bg-blue-50 px-5 py-2.5 rounded-lg text-sm font-bold transition shadow-sm">
+                        <Download size={16} />
+                        Download Brochure
+                    </button>
+                </div>
+            </div>
+        </section>
     );
-  };
-
-  return (
-    <section style={{ background: "#fcfdff", padding: "30px 12px" }}>
-      <div style={{ maxWidth: "1200px", margin: "auto" }}>
-
-        {/* HEADER */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
-          marginBottom: "20px"
-        }}>
-          <h2 style={{
-            fontSize: "clamp(20px, 5vw, 30px)", // 🔥 responsive font
-            fontWeight: 800,
-            color: "#111827",
-            margin: 0
-          }}>
-            {data.universityName} With Career Vidya Benefits
-          </h2>
-
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              backgroundColor: "#c15304",
-              color: "white",
-              padding: "10px 18px",
-              borderRadius: "40px",
-              fontSize: "14px",
-              fontWeight: "700",
-              border: "none",
-              cursor: "pointer",
-              width: "100%", // 🔥 mobile full width
-              maxWidth: "220px"
-            }}
-          >
-            <Download size={16} />
-            Download Brochure
-          </button>
-        </div>
-
-        <div style={{ display: "grid", gap: "10px" }}>
-          {data.shareDescription && renderPoints(data.shareDescription)}
-          {data.cardDescription && renderPoints(data.cardDescription)}
-        </div>
-
-        <div style={{ marginTop: "30px" }}>
-          <Image
-            src="/images/wpuni.webp"
-            alt="Career Vidya Benefits"
-            width={1400}
-            height={400}
-            style={{
-              borderRadius: "10px",
-              width: "100%",
-              height: "auto",
-            }}
-          />
-        </div>
-      </div>
-    </section>
-  );
 }

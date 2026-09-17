@@ -1,225 +1,144 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import api from "@/utlis/api";
-// import { CheckCircle, Send } from "lucide-react";
-// import Applicationpopup from "@/app/university/Applictionpopup.jsx";
-
-// export default function AdmissionProcess({ slug }) {
-//   const [admission, setAdmission] = useState({
-//     admissionHeading: "Admission Process",
-//     admissionSubHeading: "",
-//     admissionDescription: "",
-//     admissionPoints: [],
-//   });
-
-//   const [universityName, setUniversityName] = useState("");
-//   const [openPopup, setOpenPopup] = useState(false);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     if (!slug) return;
-
-//     const fetchData = async () => {
-//       try {
-//         setLoading(true);
-//         const res = await api.get(`/api/v1/university/slug/${slug}`);
-//         setAdmission(res.data?.data?.admission || {});
-//         setUniversityName(res.data?.data?.name || "");
-//       } catch (err) {
-//         console.error(err);
-//         setError("Failed to load admission details");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchData();
-//   }, [slug]);
-
-//   if (loading)
-//     return (
-//       <div className="text-center py-16 text-blue-600 font-medium italic">
-//         Loading admission process...
-//       </div>
-//     );
-
-//   if (error)
-//     return (
-//       <div className="text-center py-16 text-red-500 font-medium">
-//         {error}
-//       </div>
-//     );
-
-//   if (!admission?.admissionPoints?.length) return null;
-
-//   return (
-//     <section className="max-w-6xl mx-auto px-4 md:px-6 py-10">
-//       {/* Heading - Space reduced to mb-2 */}
-//       <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-//         {admission.admissionHeading}
-//       </h2>
-
-//       {/* Description Box with Expanded Width */}
-//       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 bg-gray-50 p-5 rounded-xl border border-gray-100">
-//         <div className="w-full md:flex-[2]"> {/* Isse left side ko zyada jagah milegi */}
-//           {admission.admissionSubHeading && (
-//             <p className="text-xl text-blue-700 font-semibold mb-1">
-//               {admission.admissionSubHeading}
-//             </p>
-//           )}
-
-//           {admission.admissionDescription && (
-//             <p className="text-gray-600 leading-relaxed max-w-4xl text-lg"> {/* Width badha kar max-w-4xl kiya */}
-//               {admission.admissionDescription}
-//             </p>
-//           )}
-//         </div>
-
-//         {/* Apply Now Button - Stays on right */}
-//         <div className="flex-shrink-0">
-//           <button
-//             onClick={() => setOpenPopup(true)}
-//             className="cursor-pointer bg-[#c15304] hover:bg-[#c15304] text-white px-10 py-3 rounded-3xl font-bold transition-all shadow-md flex items-center gap-2 w-full md:w-auto justify-center group"
-//           >
-//             Apply Now 
-//             <Send size={18} className="group-hover:translate-x-1 transition-transform" />
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Steps List */}
-//       <div className="grid gap-4">
-//         {admission.admissionPoints.map((point, index) => (
-//           <div
-//             key={index}
-//             className="flex items-start gap-4 p-5 rounded-xl border bg-white shadow-sm hover:border-blue-200 transition-colors"
-//           >
-//             <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-[#0b3a6f] font-bold border border-blue-100">
-//               {index + 1}
-//             </div>
-
-//             <div className="flex-1 pt-1">
-//               <p className="text-gray-800 text-lg leading-relaxed">
-//                 {point}
-//               </p>
-//             </div>
-
-//             <div className="pt-1 hidden sm:block">
-//               <CheckCircle className="text-green-500" size={22} />
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* Application Popup Component */}
-//       {openPopup && (
-//         <Applicationpopup
-//           open={openPopup}
-//           setOpen={setOpenPopup}
-//           universityName={universityName}
-//           course={{ name: "General Admission" }}
-//         />
-//       )}
-//     </section>
-//   );
-// }
-
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, Send } from "lucide-react";
+import { CheckCircle2, Send, ClipboardList, GraduationCap } from "lucide-react";
 import Applicationpopup from "@/app/university/Applictionpopup.jsx";
+import { cleanHtml } from "@/utlis/cleanHtml.js";
 
-// ✅ FIX: was self-fetching /api/v1/university/slug/{slug} again — same
-// data the parent (UniversityDetail) already fetched server-side. Removed
-// useEffect/api call/loading/error state; now renders synchronously from
-// the `data` prop, so this section is present in the initial SSR HTML.
-//
-// ✅ FIX: default/fallback heading was the hardcoded literal string
-// "Admission Process" — if any university's admin panel leaves
-// `admission.admissionHeading` empty, every such page renders identical
-// H2 text, which is exactly what triggers a "duplicate H2 across pages"
-// SEO flag. Fallback now includes the university name.
 export default function AdmissionProcess({ data }) {
-  const admission = data?.admission || {};
-  const universityName = data?.name || "This University";
+    const admission = data?.admission || {};
+    const universityName = data?.name || "This University";
 
-  const admissionHeading = admission.admissionHeading || `${universityName} Admission Process`;
+    const admissionHeading =
+        admission.admissionHeading || `${universityName} Admission Process`;
 
-  const [openPopup, setOpenPopup] = useState(false);
+    const [openPopup, setOpenPopup] = useState(false);
 
-  if (!admission?.admissionPoints?.length) return null;
+    // Dono me se kuch bhi nahi → section hide
+    if (
+        !admission?.admissionPoints?.length &&
+        !admission?.admissionDescription
+    )
+        return null;
 
-  return (
-    <section className="max-w-6xl mx-auto px-4 md:px-6 py-10">
-      {/* Heading - Space reduced to mb-2 */}
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-        {admissionHeading}
-      </h2>
+    return (
+        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            {/* ============ HEADER (Dark Blue - Website Style) ============ */}
+            <div className="bg-[#0b3a6f] px-6 md:px-8 py-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-xl md:text-2xl font-bold text-white">
+                            {admissionHeading}
+                        </h2>
+                        {admission.admissionSubHeading && (
+                            <p className="text-blue-100 text-sm mt-1 leading-relaxed">
+                                {admission.admissionSubHeading}
+                            </p>
+                        )}
+                    </div>
 
-      {/* Description Box with Expanded Width */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 bg-gray-50 p-5 rounded-xl border border-gray-100">
-        <div className="w-full md:flex-[2]"> {/* Isse left side ko zyada jagah milegi */}
-          {admission.admissionSubHeading && (
-            <p className="text-xl text-blue-700 font-semibold mb-1">
-              {admission.admissionSubHeading}
-            </p>
-          )}
-
-          {admission.admissionDescription && (
-            <p className="text-gray-600 leading-relaxed max-w-4xl text-lg"> {/* Width badha kar max-w-4xl kiya */}
-              {admission.admissionDescription}
-            </p>
-          )}
-        </div>
-
-        {/* Apply Now Button - Stays on right */}
-        <div className="flex-shrink-0">
-          <button
-            onClick={() => setOpenPopup(true)}
-            className="cursor-pointer bg-[#c15304] hover:bg-[#c15304] text-white px-10 py-3 rounded-3xl font-bold transition-all shadow-md flex items-center gap-2 w-full md:w-auto justify-center group"
-          >
-            Apply Now 
-            <Send size={18} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-      </div>
-
-      {/* Steps List */}
-      <div className="grid gap-4">
-        {admission.admissionPoints.map((point, index) => (
-          <div
-            key={index}
-            className="flex items-start gap-4 p-5 rounded-xl border bg-white shadow-sm hover:border-blue-200 transition-colors"
-          >
-            <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-[#0b3a6f] font-bold border border-blue-100">
-              {index + 1}
+                    {/* Apply Now Button */}
+                    <button
+                        onClick={() => setOpenPopup(true)}
+                        className="shrink-0 cursor-pointer bg-[#c15304] hover:bg-[#a04503] text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm flex items-center gap-2 group"
+                    >
+                        Apply Now
+                        <Send
+                            size={14}
+                            className="group-hover:translate-x-1 transition-transform"
+                        />
+                    </button>
+                </div>
             </div>
 
-            <div className="flex-1 pt-1">
-              <p className="text-gray-800 text-lg leading-relaxed">
-                {point}
-              </p>
+            {/* ============ BODY ============ */}
+            <div className="p-6 md:p-8">
+                {/* Description */}
+                {admission.admissionDescription && (
+                    <div className="mb-8">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-[#0056D2] mb-3">
+                            <ClipboardList size={16} />
+                            How to Apply
+                        </h3>
+                        <div
+                            className="rich-content text-gray-700 text-sm leading-relaxed bg-gray-50 border border-gray-100 rounded-xl p-5"
+                            dangerouslySetInnerHTML={{
+                                __html: cleanHtml(admission.admissionDescription),
+                            }}
+                        />
+                    </div>
+                )}
+
+                {/* Steps List */}
+                {admission.admissionPoints?.length > 0 && (
+                    <div>
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-[#0056D2] mb-4">
+                            <GraduationCap size={16} />
+                            Admission Steps
+                        </h3>
+
+                        <div className="grid gap-3">
+                            {admission.admissionPoints.map((point, index) => (
+                                <div
+                                    key={index}
+                                    className="group flex items-start gap-4 p-4 rounded-xl border border-gray-200 bg-white hover:border-[#0056D2] hover:shadow-md transition-all duration-200"
+                                >
+                                    {/* Step Number */}
+                                    <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50 text-[#0056D2] font-bold text-sm border border-blue-100">
+                                        {String(index + 1).padStart(2, "0")}
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 pt-1">
+                                        <div
+                                            className="rich-content text-gray-700 text-sm leading-relaxed"
+                                            dangerouslySetInnerHTML={{
+                                                __html: cleanHtml(point),
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Check Icon */}
+                                    <div className="shrink-0 pt-1.5 hidden sm:block">
+                                        <CheckCircle2
+                                            className="text-green-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            size={20}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Bottom CTA */}
+                <div className="mt-6 flex flex-wrap gap-3">
+                    <button
+                        onClick={() => setOpenPopup(true)}
+                        className="cursor-pointer flex items-center gap-2 bg-[#c15304] hover:bg-[#a04503] text-white px-5 py-2.5 rounded-lg text-sm font-bold transition shadow-sm group"
+                    >
+                        Start Your Application
+                        <Send
+                            size={16}
+                            className="group-hover:translate-x-1 transition-transform"
+                        />
+                    </button>
+                    <button className="flex items-center gap-2 bg-white border border-[#0056D2] text-[#0056D2] hover:bg-blue-50 px-5 py-2.5 rounded-lg text-sm font-bold transition shadow-sm">
+                        <ClipboardList size={16} />
+                        Download Prospectus
+                    </button>
+                </div>
             </div>
 
-            <div className="pt-1 hidden sm:block">
-              <CheckCircle className="text-green-500" size={22} />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Application Popup Component */}
-      {openPopup && (
-        <Applicationpopup
-          open={openPopup}
-          setOpen={setOpenPopup}
-          universityName={universityName}
-          course={{ name: "General Admission" }}
-        />
-      )}
-    </section>
-  );
+            {/* Popup */}
+            {openPopup && (
+                <Applicationpopup
+                    open={openPopup}
+                    setOpen={setOpenPopup}
+                    universityName={universityName}
+                    course={{ name: "General Admission" }}
+                />
+            )}
+        </section>
+    );
 }
