@@ -475,59 +475,101 @@
 // };
 
 
+
 import Course from "../models/Admin/Course.js";
+import University from "../models/Admin/University.js";   // ✅ NEW IMPORT
 import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
+import buildUniversitySnapshots from "../utilities/buildUniversitySnapshots.js";
+
 
 // ======================================================
-// Update the list of universities attached to a course
+// 🎯 Helper: University DB se data fetch + merge
 // ======================================================
-export const updateCourseUniversities = async (req, res) => {
-  try {
-    const { universities } = req.body;
+// const buildUniversitySnapshots = async (selectedUniversities = []) => {
+//   if (!Array.isArray(selectedUniversities) || selectedUniversities.length === 0) {
+//     return [];
+//   }
 
-    if (!Array.isArray(universities)) {
-      return res.status(400).json({
-        success: false,
-        message: "universities must be an array",
-      });
-    }
+//   // Saari university IDs nikaalo
+//   const universityIds = selectedUniversities
+//     .map((u) => u.universityId)
+//     .filter(Boolean);
 
-    const course = await Course.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          universities: universities.map((u) => ({
-            universityId: u.universityId,
-            name: u.name,
-            universitySlug: u.universitySlug,
-            approvals: u.approvals || [],
-          })),
-        },
-      },
-      { new: true, runValidators: true }
-    );
+//   // Ek hi query me saari universities fetch karo
+//   const universityDocs = await University.find({
+//     _id: { $in: universityIds },
+//   }).lean();
 
-    if (!course) {
-      return res.status(404).json({ success: false, message: "Course not found" });
-    }
+//   // Map banao: { id: doc }
+//   const universityMap = {};
+//   universityDocs.forEach((u) => {
+//     universityMap[u._id.toString()] = u;
+//   });
 
-    return res.status(200).json({ success: true, data: course });
-  } catch (error) {
-    console.error("updateCourseUniversities error:", error);
-    return res.status(500).json({ success: false, message: error.message });
-  }
-};
+//   // Har selected university ka snapshot banao
+//   const snapshots = selectedUniversities
+//     .map((selected) => {
+//       const uniDoc = universityMap[selected.universityId?.toString()];
+//       if (!uniDoc) return null; // invalid ID skip
+
+//       return {
+//         // ---- University DB se AUTO-FETCH ----
+//         universityId: uniDoc._id,
+//         name: uniDoc.name,
+//         slug: uniDoc.slug,
+//         universityImage: uniDoc.universityImage || null,
+//         cardDescription: uniDoc.cardDescription || uniDoc.description || "",
+//         rating: uniDoc.rating || 0,
+//         reviewsCount: uniDoc.reviewsCount || 0,
+//         approvals: (uniDoc.approvals || []).map((a) => ({
+//           name: a.name,
+//           logo: a.logo || null,
+//         })),
+
+//         // ---- Admin form se COURSE-SPECIFIC ----
+//         courseFees: {
+//           total: selected.courseFees?.total || "",
+//           perSemester: selected.courseFees?.perSemester || "",
+//           registration: selected.courseFees?.registration || "",
+//           emiStartsFrom: selected.courseFees?.emiStartsFrom || "",
+//         },
+//         duration: selected.duration || "",
+//         specializations: Array.isArray(selected.specializations)
+//           ? selected.specializations
+//           : [],
+//         mode: selected.mode || "Online",
+//         eligibility: selected.eligibility || "",
+//         applyLink: selected.applyLink || "",
+//         brochureLink: selected.brochureLink || "",
+
+//         // ---- Display control ----
+//         displayOrder: Number(selected.displayOrder) || 0,
+//         isTopRated: Boolean(selected.isTopRated),
+//         badgeText: selected.badgeText || "",
+//       };
+//     })
+//     .filter(Boolean);
+
+//   // Sort by displayOrder
+//   snapshots.sort((a, b) => a.displayOrder - b.displayOrder);
+
+//   return snapshots;
+// };
 
 // ======================================================
-// Helpers
+// Helpers (Existing)
 // ======================================================
 const parseArrayField = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
   if (typeof data === "string") {
-    try { const p = JSON.parse(data); return Array.isArray(p) ? p : []; }
-    catch { return []; }
+    try {
+      const p = JSON.parse(data);
+      return Array.isArray(p) ? p : [];
+    } catch {
+      return [];
+    }
   }
   return [];
 };
@@ -536,20 +578,13 @@ const parseObjectField = (data) => {
   if (!data) return {};
   if (typeof data === "object" && !Array.isArray(data)) return data;
   if (typeof data === "string") {
-    try { return JSON.parse(data); } catch { return {}; }
+    try {
+      return JSON.parse(data);
+    } catch {
+      return {};
+    }
   }
   return {};
-};
-
-const parseUniversitiesField = (data) => {
-  return parseArrayField(data).map((uni) => ({
-    name: uni?.name || "",
-    universitySlug: uni?.name ? slugify(uni.name, { lower: true, strict: true }) : "",
-    approvals: parseArrayField(uni?.approvals).map((appr) => ({
-      name: appr?.name || "",
-      logo: appr?.logo || null,
-    })),
-  }));
 };
 
 const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] }) => {
@@ -582,10 +617,11 @@ const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] 
   return result;
 };
 
-const LIST_FIELDS = "name slug category duration tag courseLogo.url createdAt specializations";
+const LIST_FIELDS =
+  "name slug category duration tag courseLogo.url createdAt specializations";
 
 // ======================================================
-// ✅ DB INDEXES
+// DB INDEXES
 // ======================================================
 const ensureIndexes = async () => {
   try {
@@ -594,6 +630,10 @@ const ensureIndexes = async () => {
       Course.collection.createIndex({ category: 1, createdAt: -1 }, { background: true }),
       Course.collection.createIndex({ createdAt: -1 }, { background: true }),
       Course.collection.createIndex({ tag: 1 }, { background: true }),
+      Course.collection.createIndex(
+        { "universities.universityId": 1 },
+        { background: true }
+      ),
     ]);
     console.log("✅ Course indexes ensured");
   } catch (err) {
@@ -601,6 +641,44 @@ const ensureIndexes = async () => {
   }
 };
 ensureIndexes();
+
+// ======================================================
+// 🎯 UPDATE COURSE UNIVERSITIES (specific endpoint)
+// ======================================================
+export const updateCourseUniversities = async (req, res) => {
+  try {
+    const { universities } = req.body;
+
+    if (!Array.isArray(universities)) {
+      return res.status(400).json({
+        success: false,
+        message: "universities must be an array",
+      });
+    }
+
+    // ✅ NEW: University DB se data fetch karke snapshot banao
+    const snapshots = await buildUniversitySnapshots(universities);
+
+    const course = await Course.findByIdAndUpdate(
+      req.params.id,
+      { $set: { universities: snapshots } },
+      { new: true, runValidators: true }
+    );
+
+    if (!course) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
+    }
+
+    return res.status(200).json({ success: true, data: course });
+  } catch (error) {
+    console.error("updateCourseUniversities error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: error.message });
+  }
+};
 
 // ======================================================
 // CREATE COURSE
@@ -612,19 +690,32 @@ export const createCourse = async (req, res) => {
       goodThings, topUniversities, keyHighlights, syllabus, offeredCourses,
       onlineEligibility, feeStructureSidebar, detailedFees, onlineCourseWorthIt,
       jobOpportunities, universities, topRecruiters,
-      Careervidyabenifit, faqs, // ✅ NEW
+      Careervidyabenifit, faqs,
+      // ✅ NEW fields
+      admissionProcess, specializationDetails, emiOptions, scholarships,
+      courseTestimonials, placementSupport,
     } = req.body;
 
-    if (!name) return res.status(400).json({ success: false, message: "Course name is required" });
+    if (!name) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Course name is required" });
+    }
 
+    // Slug generate
     let baseSlug = slugify(name, { lower: true, strict: true });
     let slug = baseSlug;
     let counter = 1;
-    while (await Course.findOne({ slug }).select("_id").lean()) slug = `${baseSlug}-${counter++}`;
+    while (await Course.findOne({ slug }).select("_id").lean()) {
+      slug = `${baseSlug}-${counter++}`;
+    }
 
+    // Files upload
     const [logoResult, pdfResult] = await Promise.all([
       req.files?.courseLogo?.[0]
-        ? cloudinary.uploader.upload(req.files.courseLogo[0].path, { folder: "courses/logos" })
+        ? cloudinary.uploader.upload(req.files.courseLogo[0].path, {
+            folder: "courses/logos",
+          })
         : null,
       req.files?.syllabusPdf?.[0]
         ? cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
@@ -635,34 +726,62 @@ export const createCourse = async (req, res) => {
         : null,
     ]);
 
-    const courseLogo = logoResult ? { public_id: logoResult.public_id, url: logoResult.secure_url } : null;
-    const syllabusPdf = pdfResult ? { public_id: pdfResult.public_id, url: pdfResult.secure_url } : null;
+    const courseLogo = logoResult
+      ? { public_id: logoResult.public_id, url: logoResult.secure_url }
+      : null;
+    const syllabusPdf = pdfResult
+      ? { public_id: pdfResult.public_id, url: pdfResult.secure_url }
+      : null;
 
+    // Overview images
     let parsedOverview = parseArrayField(overview);
     if (req.files?.overviewImages?.length > 0) {
       const uploaded = await Promise.all(
-        req.files.overviewImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/overview" }))
+        req.files.overviewImages.map((f) =>
+          cloudinary.uploader.upload(f.path, { folder: "courses/overview" })
+        )
       );
-      parsedOverview = await mapImagesToItems({ items: parsedOverview, uploaded, existingItems: [] });
+      parsedOverview = await mapImagesToItems({
+        items: parsedOverview,
+        uploaded,
+        existingItems: [],
+      });
     }
 
+    // Why Choose Us images
     let parsedWhy = parseArrayField(whyChooseUs);
     if (req.files?.whyChooseUsImages?.length > 0) {
       const uploaded = await Promise.all(
-        req.files.whyChooseUsImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" }))
+        req.files.whyChooseUsImages.map((f) =>
+          cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" })
+        )
       );
-      parsedWhy = await mapImagesToItems({ items: parsedWhy, uploaded, existingItems: [] });
+      parsedWhy = await mapImagesToItems({
+        items: parsedWhy,
+        uploaded,
+        existingItems: [],
+      });
     }
 
+    // Worth It image
     let parsedOCW = parseObjectField(onlineCourseWorthIt);
     if (req.files?.onlineCourseWorthItImage?.[0]) {
-      const up = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, { folder: "courses/worthit" });
+      const up = await cloudinary.uploader.upload(
+        req.files.onlineCourseWorthItImage[0].path,
+        { folder: "courses/worthit" }
+      );
       parsedOCW.image = { public_id: up.public_id, url: up.secure_url };
     }
+
+    // ✅ NEW: University snapshots fetch karo
+    const parsedUniversities = await buildUniversitySnapshots(
+      parseArrayField(universities)
+    );
 
     const newCourse = new Course({
       name, slug, category, duration, tag,
       specializations: parseArrayField(specializations),
+      specializationDetails: parseArrayField(specializationDetails),   // ✅ NEW
       overview: parsedOverview,
       whyChooseUs: parsedWhy,
       goodThings: parseArrayField(goodThings),
@@ -671,20 +790,29 @@ export const createCourse = async (req, res) => {
       syllabus: parseArrayField(syllabus),
       offeredCourses: parseArrayField(offeredCourses),
       onlineEligibility: parseArrayField(onlineEligibility),
+      admissionProcess: parseArrayField(admissionProcess),              // ✅ NEW
       feeStructureSidebar: parseArrayField(feeStructureSidebar),
       detailedFees: parseArrayField(detailedFees),
+      emiOptions: parseObjectField(emiOptions),                         // ✅ NEW
+      scholarships: parseArrayField(scholarships),                      // ✅ NEW
       onlineCourseWorthIt: parsedOCW,
       jobOpportunities: parseArrayField(jobOpportunities),
       topRecruiters: parseArrayField(topRecruiters),
-      universities: parseUniversitiesField(universities),
-      Careervidyabenifit: parseArrayField(Careervidyabenifit), // ✅ NEW
-      faqs: parseArrayField(faqs), // ✅ NEW
+      placementSupport: parseObjectField(placementSupport),             // ✅ NEW
+      courseTestimonials: parseArrayField(courseTestimonials),          // ✅ NEW
+      universities: parsedUniversities,                                 // ✅ UPDATED
+      Careervidyabenifit: parseArrayField(Careervidyabenifit),
+      faqs: parseArrayField(faqs),
       courseLogo,
       syllabusPdf,
     });
 
     await newCourse.save();
-    res.status(201).json({ success: true, message: "Course created successfully", course: newCourse });
+    res.status(201).json({
+      success: true,
+      message: "Course created successfully",
+      course: newCourse,
+    });
   } catch (error) {
     console.error("Create Course Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -698,8 +826,10 @@ export const getCourses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 50, 50);
-    const filter = req.query.category && req.query.category !== "All"
-      ? { category: req.query.category } : {};
+    const filter =
+      req.query.category && req.query.category !== "All"
+        ? { category: req.query.category }
+        : {};
 
     const [totalCourses, courses] = await Promise.all([
       Course.countDocuments(filter),
@@ -730,7 +860,10 @@ export const getCourses = async (req, res) => {
 export const getCourseBySlug = async (req, res) => {
   try {
     const course = await Course.findOne({ slug: req.params.slug }).lean();
-    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
+    if (!course)
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
 
     res.set("Cache-Control", "public, max-age=300");
     res.status(200).json({ success: true, course });
@@ -745,13 +878,18 @@ export const getCourseBySlug = async (req, res) => {
 export const getCourseById = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id).lean();
-    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
+    if (!course)
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
 
     res.set("Cache-Control", "no-store");
     res.status(200).json({ success: true, data: course });
   } catch (error) {
     if (error.kind === "ObjectId")
-      return res.status(400).json({ success: false, message: "Invalid Course ID format." });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Course ID format." });
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -763,45 +901,85 @@ export const updateCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const existing = await Course.findById(id);
-    if (!existing) return res.status(404).json({ success: false, message: "Course not found" });
+    if (!existing)
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
 
     const data = { ...req.body };
 
+    // Array fields parse karo
     const arrayFields = [
       "specializations", "goodThings", "topUniversities", "keyHighlights",
       "syllabus", "offeredCourses", "onlineEligibility", "feeStructureSidebar",
       "detailedFees", "jobOpportunities", "topRecruiters",
-      "Careervidyabenifit", "faqs", // ✅ NEW
+      "Careervidyabenifit", "faqs",
+      // ✅ NEW
+      "admissionProcess", "specializationDetails", "scholarships", "courseTestimonials",
     ];
     arrayFields.forEach((field) => {
-      if (data[field] !== undefined) data[field] = parseArrayField(data[field]);
+      if (data[field] !== undefined)
+        data[field] = parseArrayField(data[field]);
     });
 
+    // Object fields parse karo
+    const objectFields = ["emiOptions", "placementSupport"];
+    objectFields.forEach((field) => {
+      if (data[field] !== undefined)
+        data[field] = parseObjectField(data[field]);
+    });
+
+    // ✅ NEW: University snapshots fetch karo
     if (data.universities !== undefined) {
-      data.universities = parseUniversitiesField(data.universities);
+      data.universities = await buildUniversitySnapshots(
+        parseArrayField(data.universities)
+      );
     }
 
+    // Logo + Syllabus PDF upload
     const [logoResult, pdfResult] = await Promise.all([
       req.files?.courseLogo?.[0]
         ? (existing.courseLogo?.public_id
             ? cloudinary.uploader.destroy(existing.courseLogo.public_id)
             : Promise.resolve()
-          ).then(() => cloudinary.uploader.upload(req.files.courseLogo[0].path, { folder: "courses/logos" }))
+          ).then(() =>
+            cloudinary.uploader.upload(req.files.courseLogo[0].path, {
+              folder: "courses/logos",
+            })
+          )
         : null,
       req.files?.syllabusPdf?.[0]
         ? (existing.syllabusPdf?.public_id
-            ? cloudinary.uploader.destroy(existing.syllabusPdf.public_id, { resource_type: "raw" })
+            ? cloudinary.uploader.destroy(existing.syllabusPdf.public_id, {
+                resource_type: "raw",
+              })
             : Promise.resolve()
-          ).then(() => cloudinary.uploader.upload(req.files.syllabusPdf[0].path, { folder: "courses/syllabus", resource_type: "raw" }))
+          ).then(() =>
+            cloudinary.uploader.upload(req.files.syllabusPdf[0].path, {
+              folder: "courses/syllabus",
+              resource_type: "raw",
+            })
+          )
         : null,
     ]);
 
-    if (logoResult) data.courseLogo = { public_id: logoResult.public_id, url: logoResult.secure_url };
-    if (pdfResult) data.syllabusPdf = { public_id: pdfResult.public_id, url: pdfResult.secure_url };
+    if (logoResult)
+      data.courseLogo = {
+        public_id: logoResult.public_id,
+        url: logoResult.secure_url,
+      };
+    if (pdfResult)
+      data.syllabusPdf = {
+        public_id: pdfResult.public_id,
+        url: pdfResult.secure_url,
+      };
 
+    // Overview images
     if (req.files?.overviewImages) {
       const uploaded = await Promise.all(
-        req.files.overviewImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/overview" }))
+        req.files.overviewImages.map((f) =>
+          cloudinary.uploader.upload(f.path, { folder: "courses/overview" })
+        )
       );
       data.overview = await mapImagesToItems({
         items: parseArrayField(data.overview),
@@ -812,9 +990,12 @@ export const updateCourse = async (req, res) => {
       data.overview = parseArrayField(data.overview);
     }
 
+    // Why Choose Us images
     if (req.files?.whyChooseUsImages) {
       const uploaded = await Promise.all(
-        req.files.whyChooseUsImages.map((f) => cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" }))
+        req.files.whyChooseUsImages.map((f) =>
+          cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" })
+        )
       );
       data.whyChooseUs = await mapImagesToItems({
         items: parseArrayField(data.whyChooseUs),
@@ -825,13 +1006,19 @@ export const updateCourse = async (req, res) => {
       data.whyChooseUs = parseArrayField(data.whyChooseUs);
     }
 
+    // Worth It image
     if (data.onlineCourseWorthIt !== undefined) {
       const worthIt = parseObjectField(data.onlineCourseWorthIt);
       if (req.files?.onlineCourseWorthItImage?.[0]) {
         if (existing.onlineCourseWorthIt?.image?.public_id) {
-          await cloudinary.uploader.destroy(existing.onlineCourseWorthIt.image.public_id);
+          await cloudinary.uploader.destroy(
+            existing.onlineCourseWorthIt.image.public_id
+          );
         }
-        const up = await cloudinary.uploader.upload(req.files.onlineCourseWorthItImage[0].path, { folder: "courses/worthit" });
+        const up = await cloudinary.uploader.upload(
+          req.files.onlineCourseWorthItImage[0].path,
+          { folder: "courses/worthit" }
+        );
         worthIt.image = { public_id: up.public_id, url: up.secure_url };
       } else {
         worthIt.image = existing.onlineCourseWorthIt?.image || null;
@@ -839,7 +1026,11 @@ export const updateCourse = async (req, res) => {
       data.onlineCourseWorthIt = worthIt;
     }
 
-    const updated = await Course.findByIdAndUpdate(id, { $set: data }, { new: true, runValidators: false });
+    const updated = await Course.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, runValidators: false }
+    );
     res.status(200).json({ success: true, course: updated });
   } catch (error) {
     console.error("Update Error:", error);
@@ -854,32 +1045,47 @@ export const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const course = await Course.findById(id);
-    if (!course) return res.status(404).json({ success: false, message: "Course not found" });
+    if (!course)
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
 
     const deletePromises = [];
 
     if (course.courseLogo?.public_id)
-      deletePromises.push(cloudinary.uploader.destroy(course.courseLogo.public_id));
+      deletePromises.push(
+        cloudinary.uploader.destroy(course.courseLogo.public_id)
+      );
     if (course.syllabusPdf?.public_id)
-      deletePromises.push(cloudinary.uploader.destroy(course.syllabusPdf.public_id, { resource_type: "raw" }));
+      deletePromises.push(
+        cloudinary.uploader.destroy(course.syllabusPdf.public_id, {
+          resource_type: "raw",
+        })
+      );
     if (course.onlineCourseWorthIt?.image?.public_id)
-      deletePromises.push(cloudinary.uploader.destroy(course.onlineCourseWorthIt.image.public_id));
+      deletePromises.push(
+        cloudinary.uploader.destroy(course.onlineCourseWorthIt.image.public_id)
+      );
 
     (course.overview || []).forEach((item) => {
-      if (item.image?.public_id) deletePromises.push(cloudinary.uploader.destroy(item.image.public_id));
+      if (item.image?.public_id)
+        deletePromises.push(
+          cloudinary.uploader.destroy(item.image.public_id)
+        );
     });
     (course.whyChooseUs || []).forEach((item) => {
-      if (item.image?.public_id) deletePromises.push(cloudinary.uploader.destroy(item.image.public_id));
-    });
-    (course.universities || []).forEach((uni) => {
-      (uni.approvals || []).forEach((appr) => {
-        if (appr.logo?.public_id) deletePromises.push(cloudinary.uploader.destroy(appr.logo.public_id));
-      });
+      if (item.image?.public_id)
+        deletePromises.push(
+          cloudinary.uploader.destroy(item.image.public_id)
+        );
     });
 
     await Promise.allSettled(deletePromises);
     await course.deleteOne();
-    res.status(200).json({ success: true, message: "Course and all associated images deleted" });
+    res.status(200).json({
+      success: true,
+      message: "Course and all associated images deleted",
+    });
   } catch (error) {
     console.error("Delete Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -893,8 +1099,10 @@ export const getCoursesShort = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 12, 50);
-    const filter = req.query.category && req.query.category !== "All"
-      ? { category: req.query.category } : {};
+    const filter =
+      req.query.category && req.query.category !== "All"
+        ? { category: req.query.category }
+        : {};
 
     const [total, courses] = await Promise.all([
       Course.countDocuments(filter),
@@ -930,23 +1138,19 @@ export const searchCourses = async (req, res) => {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    // SAFETY FIX ONLY: escape regex special characters so a search like
-    // "c++" or "a(b" can't crash the query or behave unexpectedly.
-    // Behavior for a normal search term is unchanged.
     const safeQuery = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const courses = await Course.find({
       name: { $regex: safeQuery, $options: "i" },
     })
-      .select("name slug category duration tag courseLogo.url createdAt specializations universities")
+      .select(
+        "name slug category duration tag courseLogo.url createdAt specializations universities"
+      )
       .limit(Math.min(Number(limit) || 50, 100))
       .lean();
 
     res.set("Cache-Control", "public, max-age=30");
-    res.status(200).json({
-      success: true,
-      data: courses,
-    });
+    res.status(200).json({ success: true, data: courses });
   } catch (error) {
     console.error("searchCourses Error:", error);
     res.status(500).json({ success: false, message: error.message });

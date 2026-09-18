@@ -211,6 +211,8 @@
 //     </>
 //   );
 // }
+
+
 "use client";
 
 import React, { useEffect } from "react";
@@ -238,6 +240,7 @@ import CourseOverview from "@/app/course/CourseOverview.jsx";
 import DiscountPopup from "@/app/components/DiscountPopup";
 import Studentimageslider from "@/app/components/Studentimageslider.jsx";
 import Careervidyabenifit from "@/app/course/Careervidyabenifit.jsx";
+import CourseFAQ from "@/app/course/CourseFAQ.jsx";
 
 // ======================================================
 // HTML ENTITY DECODER
@@ -258,7 +261,6 @@ function decodeHtmlEntities(value) {
       (match, entity) => {
         const lower = entity.toLowerCase();
 
-        // Common HTML entities
         if (lower === "nbsp" || lower === "#160") {
           return " ";
         }
@@ -283,7 +285,6 @@ function decodeHtmlEntities(value) {
           return "'";
         }
 
-        // Hexadecimal numeric entity
         if (lower.startsWith("#x")) {
           const code = parseInt(lower.substring(2), 16);
 
@@ -292,7 +293,6 @@ function decodeHtmlEntities(value) {
           }
         }
 
-        // Decimal numeric entity
         if (lower.startsWith("#")) {
           const code = parseInt(lower.substring(1), 10);
 
@@ -317,17 +317,6 @@ function decodeHtmlEntities(value) {
 
 // ======================================================
 // RICH TEXT -> NORMAL TEXT
-//
-// Handles:
-// <p>...</p>
-// <strong>...</strong>
-// <b>...</b>
-// <br>
-// <ul>
-// <ol>
-// <li>
-// &nbsp;
-// encoded HTML
 // ======================================================
 
 function normalizeRichText(value) {
@@ -341,39 +330,24 @@ function normalizeRichText(value) {
 
   let text = value;
 
-  // Decode entities first
   text = decodeHtmlEntities(text);
 
-  // Convert common HTML structures into readable text
   text = text
-    // Paragraphs
     .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
-
-    // Divs
     .replace(/<\/div>\s*<div[^>]*>/gi, "\n")
-
-    // Line breaks
     .replace(/<br\s*\/?>/gi, "\n")
-
-    // List items
     .replace(/<li[^>]*>/gi, "• ")
     .replace(/<\/li>/gi, "\n")
-
-    // Tables
     .replace(/<\/td>\s*<td[^>]*>/gi, " | ")
     .replace(/<\/th>\s*<th[^>]*>/gi, " | ")
     .replace(/<\/tr>/gi, "\n");
 
-  // Remove all remaining HTML tags
   text = text.replace(/<[^>]*>/g, "");
 
-  // Decode again because HTML may have been encoded multiple times
   text = decodeHtmlEntities(text);
 
-  // Replace non-breaking spaces
   text = text.replace(/\u00a0/g, " ");
 
-  // Normalize spaces
   text = text
     .replace(/[ \t]+/g, " ")
     .replace(/ *\n */g, "\n")
@@ -385,14 +359,6 @@ function normalizeRichText(value) {
 
 // ======================================================
 // NORMALIZE OVERVIEW
-//
-// Supports both:
-//
-// OLD:
-// "The executive One Year MBA..."
-//
-// NEW EDITOR DATA:
-// "<p>The&nbsp;executive&nbsp;<strong>One&nbsp;Year...</strong></p>"
 // ======================================================
 
 function normalizeOverview(overview) {
@@ -433,9 +399,6 @@ function normalizeOverview(overview) {
 
 // ======================================================
 // NORMALIZE WHY CHOOSE US
-//
-// This also protects this section if editor data
-// has been saved there later.
 // ======================================================
 
 function normalizeWhyChooseUs(data) {
@@ -480,11 +443,6 @@ export default function CourseDetailClient({ course }) {
       courseSlug: course?.slug,
     });
 
-    console.log(
-      "Careervidyabenifit data:",
-      course?.Careervidyabenifit
-    );
-
     return () => {
       endCourseView();
     };
@@ -528,6 +486,18 @@ export default function CourseDetailClient({ course }) {
     whyChooseUs: normalizedWhyChooseUs,
   };
 
+  // ====================================================
+  // SAFE FAQS (Fallback support: faqs | FAQ | faq)
+  // ====================================================
+
+  const safeFaqs = Array.isArray(course?.faqs)
+    ? course.faqs
+    : Array.isArray(course?.FAQ)
+    ? course.FAQ
+    : Array.isArray(course?.faq)
+    ? course.faq
+    : [];
+
   return (
     <>
       <Header />
@@ -543,11 +513,6 @@ export default function CourseDetailClient({ course }) {
           -ms-user-select: none;
         }
 
-        /*
-          Prevent long database content from breaking
-          the existing layout.
-        */
-
         .course-content-safe {
           width: 100%;
           max-width: 100%;
@@ -557,18 +522,10 @@ export default function CourseDetailClient({ course }) {
           white-space: normal;
         }
 
-        /*
-          Images inside dynamic content
-        */
-
         .course-content-safe img {
           max-width: 100%;
           height: auto;
         }
-
-        /*
-          Mobile protection
-        */
 
         @media (max-width: 640px) {
           .course-content-safe {
@@ -581,543 +538,324 @@ export default function CourseDetailClient({ course }) {
 
       <main className="min-h-screen bg-white">
 
-        {/* =================================================
-            SEO PRIMARY H1
-        ================================================== */}
+        {/* SEO PRIMARY H1 */}
+        <h1 className="sr-only">{course?.name}</h1>
 
-        <h1 className="sr-only">
-          {course?.name}
-        </h1>
-
-        {/* =================================================
-            DETAIL SIGNUP
-        ================================================== */}
-
+        {/* DETAIL SIGNUP */}
         {!skipDetailSignupSlugs.includes(course?.slug) && (
           <Detailsignup />
         )}
 
-        {/* =================================================
-            OVERVIEW
-        ================================================== */}
-
+        {/* OVERVIEW */}
         {normalizedOverview?.length > 0 && (
           <div className="course-content-safe">
-            <CourseOverview
-              course={safeCourse}
-            />
+            <CourseOverview course={safeCourse} />
           </div>
         )}
 
-        {/* =================================================
-            WHY CHOOSE US
-        ================================================== */}
-
+        {/* WHY CHOOSE US */}
         {normalizedWhyChooseUs?.length > 0 && (
           <section className="relative w-full py-12 bg-white overflow-hidden">
-
             <div className="max-w-[1800px] w-full px-6 mx-auto">
-
               <div className="text-center mb-8">
-
                 <h2 className="text-3xl md:text-2xl font-black text-[#002147] mb-3">
                   Why {course?.name} ?
                 </h2>
-
                 <div className="w-16 h-1 bg-[#002147] mx-auto rounded-full" />
-
               </div>
 
               <div className="space-y-8">
+                {normalizedWhyChooseUs.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
+                      i % 2 !== 0 ? "lg:flex-row-reverse" : ""
+                    }`}
+                  >
+                    <div className="w-full lg:w-1/2 flex flex-col justify-center py-2 min-w-0">
+                      <div className="relative min-w-0">
+                        <span className="absolute -top-8 -left-6 text-7xl text-slate-100 font-serif leading-none select-none -z-10">
+                          "
+                        </span>
 
-                {normalizedWhyChooseUs.map(
-                  (item, i) => (
-
-                    <div
-                      key={i}
-                      className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
-                        i % 2 !== 0
-                          ? "lg:flex-row-reverse"
-                          : ""
-                      }`}
-                    >
-
-                      {/* TEXT */}
-
-                      <div className="w-full lg:w-1/2 flex flex-col justify-center py-2 min-w-0">
-
-                        <div className="relative min-w-0">
-
-                          <span className="absolute -top-8 -left-6 text-7xl text-slate-100 font-serif leading-none select-none -z-10">
-                            “
-                          </span>
-
-                          <p className="course-content-safe text-gray-600 text-sm md:text-base leading-relaxed text-justify font-medium">
-                            {item?.description || ""}
-                          </p>
-
-                        </div>
-
-                        <div className="mt-4 flex items-center gap-4 text-[#002147] font-bold">
-
-                          <span className="h-[2px] w-10 bg-[#002147]" />
-
-                          <span className="uppercase text-[10px] tracking-widest">
-                            Career Vidya Excellence
-                          </span>
-
-                        </div>
-
+                        <p className="course-content-safe text-gray-600 text-sm md:text-base leading-relaxed text-justify font-medium">
+                          {item?.description || ""}
+                        </p>
                       </div>
 
-                      {/* IMAGE */}
-
-                      {item?.image?.url && (
-                        <div className="w-full lg:w-1/2 group min-w-0">
-
-                          <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
-
-                            <Image
-                              src={item.image.url}
-                              alt="Why Choose Us"
-                              fill
-                              sizes="(min-width: 1024px) 50vw, 100vw"
-                              className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
-                            />
-
-                          </div>
-
-                        </div>
-                      )}
-
+                      <div className="mt-4 flex items-center gap-4 text-[#002147] font-bold">
+                        <span className="h-[2px] w-10 bg-[#002147]" />
+                        <span className="uppercase text-[10px] tracking-widest">
+                          Career Vidya Excellence
+                        </span>
+                      </div>
                     </div>
 
-                  )
-                )}
-
+                    {item?.image?.url && (
+                      <div className="w-full lg:w-1/2 group min-w-0">
+                        <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
+                          <Image
+                            src={item.image.url}
+                            alt="Why Choose Us"
+                            fill
+                            sizes="(min-width: 1024px) 50vw, 100vw"
+                            className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-
             </div>
-
           </section>
         )}
 
-        {/* =================================================
-            UNIVERSITY COMPANY
-        ================================================== */}
-
+        {/* UNIVERSITY COMPANY */}
         {!skipUniversityCompSlugs.includes(course?.slug) && (
           <Universitycompeney />
         )}
 
-        {/* =================================================
-            GOOD THINGS / HIGHLIGHTS
-        ================================================== */}
-
+        {/* GOOD THINGS / HIGHLIGHTS */}
         {course?.goodThings?.length > 0 && (
-
           <section className="w-full py-16 bg-white border-t border-slate-100">
-
             <div className="max-w-[1800px] mx-auto px-6 md:px-12">
-
               <div className="mb-10 border-b border-slate-100 pb-6">
-
                 <h2 className="text-3xl font-bold text-[#002147] text-center tracking-tight">
                   {course?.name} Program Highlights
                 </h2>
-
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 items-start">
-
-                {course.goodThings.map(
-                  (g, i) => (
-
-                    <div
-                      key={i}
-                      className="group relative p-8 rounded-2xl border border-slate-200 bg-white transition-all duration-300 flex flex-col hover:border-[#2f6fed] hover:shadow-lg"
-                    >
-
-                      <div className="relative flex flex-col gap-4">
-
-                        <div className="flex items-center justify-between">
-
-                          <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-widest">
-                            Key Advantage {i + 1}
-                          </h3>
-
-                        </div>
-
-                        <p className="text-[#002147] text-[16px] leading-relaxed font-normal text-left break-words">
-                          {typeof g === "string"
-                            ? normalizeRichText(g)
-                            : g}
-                        </p>
-
+                {course.goodThings.map((g, i) => (
+                  <div
+                    key={i}
+                    className="group relative p-8 rounded-2xl border border-slate-200 bg-white transition-all duration-300 flex flex-col hover:border-[#2f6fed] hover:shadow-lg"
+                  >
+                    <div className="relative flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-widest">
+                          Key Advantage {i + 1}
+                        </h3>
                       </div>
 
+                      <p className="text-[#002147] text-[16px] leading-relaxed font-normal text-left break-words">
+                        {typeof g === "string"
+                          ? normalizeRichText(g)
+                          : g}
+                      </p>
                     </div>
-
-                  )
-                )}
-
+                  </div>
+                ))}
               </div>
-
             </div>
-
           </section>
         )}
 
-        {/* =================================================
-            SECOND DETAIL SIGNUP
-        ================================================== */}
-
+        {/* SECOND DETAIL SIGNUP */}
         {!skipDetailSignupSlugs.includes(course?.slug) && (
           <Detailsignup />
         )}
 
-        {/* =================================================
-            KEY HIGHLIGHTS
-        ================================================== */}
-
+        {/* KEY HIGHLIGHTS */}
         {course?.keyHighlights?.length > 0 && (
-          <CourseKeyHighlights
-            course={safeCourse}
-          />
+          <CourseKeyHighlights course={safeCourse} />
         )}
 
-        {/* =================================================
-            SYLLABUS
-        ================================================== */}
-
+        {/* SYLLABUS */}
         {course?.syllabus?.length > 0 && (
-
           <section className="mt-10 w-full flex justify-center bg-white py-10">
-
             <div className="w-full max-w-[1800px] px-4 md:px-10">
-
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-10">
-
                 <h2 className="text-2xl md:text-2xl font-extrabold mb-8 text-center text-[#002D62]">
                   Course Subjects / Syllabus
                 </h2>
 
                 <div className="overflow-x-auto">
-
                   <table className="w-full border-collapse border border-gray-300 bg-white">
-
                     <thead>
-
                       <tr className="bg-[#002D62] text-white">
-
                         <th
                           colSpan={2}
                           className="text-center py-4 text-lg font-semibold border border-[#002D62]"
                         >
                           Comprehensive Course Syllabus
                         </th>
-
                       </tr>
-
                     </thead>
 
                     <tbody>
+                      {[0, 2, 4, 6].map((startIndex, rowIndex) => {
+                        const sem1 = course.syllabus[startIndex];
+                        const sem2 = course.syllabus[startIndex + 1];
 
-                      {[0, 2, 4, 6].map(
-                        (startIndex, rowIndex) => {
-
-                          const sem1 =
-                            course.syllabus[startIndex];
-
-                          const sem2 =
-                            course.syllabus[startIndex + 1];
-
-                          if (!sem1 && !sem2) {
-                            return null;
-                          }
-
-                          return (
-
-                            <React.Fragment
-                              key={rowIndex}
-                            >
-
-                              <tr className="bg-gray-50">
-
-                                <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
-
-                                  {sem1?.semester ||
-                                    "N/A"}
-
-                                </th>
-
-                                <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
-
-                                  {sem2?.semester ||
-                                    "N/A"}
-
-                                </th>
-
-                              </tr>
-
-                              <tr>
-
-                                <td className="border border-gray-300 p-6 align-top bg-white">
-
-                                  {sem1 && (
-
-                                    <ul className="list-disc ml-5 space-y-2 text-gray-700">
-
-                                      {Array.isArray(
-                                        sem1.subjects
-                                      ) &&
-                                        sem1.subjects.map(
-                                          (sub, j) => (
-
-                                            <li
-                                              key={j}
-                                              className="text-[13px] md:text-sm font-medium break-words"
-                                            >
-                                              {typeof sub ===
-                                              "string"
-                                                ? normalizeRichText(
-                                                    sub
-                                                  )
-                                                : sub}
-                                            </li>
-
-                                          )
-                                        )}
-
-                                    </ul>
-
-                                  )}
-
-                                </td>
-
-                                <td className="border border-gray-300 p-6 align-top bg-white">
-
-                                  {sem2 && (
-
-                                    <ul className="list-disc ml-5 space-y-2 text-gray-700">
-
-                                      {Array.isArray(
-                                        sem2.subjects
-                                      ) &&
-                                        sem2.subjects.map(
-                                          (sub, j) => (
-
-                                            <li
-                                              key={j}
-                                              className="text-[13px] md:text-sm font-medium break-words"
-                                            >
-                                              {typeof sub ===
-                                              "string"
-                                                ? normalizeRichText(
-                                                    sub
-                                                  )
-                                                : sub}
-                                            </li>
-
-                                          )
-                                        )}
-
-                                    </ul>
-
-                                  )}
-
-                                </td>
-
-                              </tr>
-
-                            </React.Fragment>
-
-                          );
+                        if (!sem1 && !sem2) {
+                          return null;
                         }
-                      )}
 
+                        return (
+                          <React.Fragment key={rowIndex}>
+                            <tr className="bg-gray-50">
+                              <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
+                                {sem1?.semester || "N/A"}
+                              </th>
+                              <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
+                                {sem2?.semester || "N/A"}
+                              </th>
+                            </tr>
+
+                            <tr>
+                              <td className="border border-gray-300 p-6 align-top bg-white">
+                                {sem1 && (
+                                  <ul className="list-disc ml-5 space-y-2 text-gray-700">
+                                    {Array.isArray(sem1.subjects) &&
+                                      sem1.subjects.map((sub, j) => (
+                                        <li
+                                          key={j}
+                                          className="text-[13px] md:text-sm font-medium break-words"
+                                        >
+                                          {typeof sub === "string"
+                                            ? normalizeRichText(sub)
+                                            : sub}
+                                        </li>
+                                      ))}
+                                  </ul>
+                                )}
+                              </td>
+
+                              <td className="border border-gray-300 p-6 align-top bg-white">
+                                {sem2 && (
+                                  <ul className="list-disc ml-5 space-y-2 text-gray-700">
+                                    {Array.isArray(sem2.subjects) &&
+                                      sem2.subjects.map((sub, j) => (
+                                        <li
+                                          key={j}
+                                          className="text-[13px] md:text-sm font-medium break-words"
+                                        >
+                                          {typeof sub === "string"
+                                            ? normalizeRichText(sub)
+                                            : sub}
+                                        </li>
+                                      ))}
+                                  </ul>
+                                )}
+                              </td>
+                            </tr>
+                          </React.Fragment>
+                        );
+                      })}
                     </tbody>
-
                   </table>
-
                 </div>
-
               </div>
-
             </div>
-
           </section>
-
         )}
 
-        {/* =================================================
-            SPECIALIZATIONS
-        ================================================== */}
-
+        {/* SPECIALIZATIONS */}
         {Array.isArray(course?.specializations) &&
           course.specializations.length > 0 && (
-
             <section className="mt-10 w-full flex justify-center bg-white py-10">
-
               <div className="w-full max-w-[1600px] px-4 md:px-10">
-
                 <h2 className="text-2xl md:text-2xl font-bold mb-8 text-[#002147]">
-                  Top Specializations for{" "}
-                  {course?.name}
+                  Top Specializations for {course?.name}
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
+                  {course.specializations.map((sp, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between items-center bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-[#1E90FF] transition-all cursor-pointer group"
+                    >
+                      <span className="text-gray-900 font-bold text-sm md:text-base pr-3 leading-tight break-words">
+                        {typeof sp === "string"
+                          ? normalizeRichText(sp)
+                          : sp}
+                      </span>
 
-                  {course.specializations.map(
-                    (sp, i) => (
-
-                      <div
-                        key={i}
-                        className="flex justify-between items-center bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-[#1E90FF] transition-all cursor-pointer group"
-                      >
-
-                        <span className="text-gray-900 font-bold text-sm md:text-base pr-3 leading-tight break-words">
-                          {typeof sp === "string"
-                            ? normalizeRichText(sp)
-                            : sp}
-                        </span>
-
-                        <span className="w-9 h-9 min-w-[36px] bg-[#1E90FF] group-hover:bg-[#002147] text-white rounded-full flex justify-center items-center transition-all shadow-md">
-                          →
-                        </span>
-
-                      </div>
-
-                    )
-                  )}
-
+                      <span className="w-9 h-9 min-w-[36px] bg-[#1E90FF] group-hover:bg-[#002147] text-white rounded-full flex justify-center items-center transition-all shadow-md">
+                        →
+                      </span>
+                    </div>
+                  ))}
                 </div>
-
               </div>
-
             </section>
-
           )}
 
-        {/* =================================================
-            OFFERED COURSES
-        ================================================== */}
-
+        {/* OFFERED COURSES */}
         <Offerdcourse
-          offeredCourses={
-            course?.offeredCourses
-          }
+          offeredCourses={course?.offeredCourses}
           courseName={course?.name}
         />
 
-        {/* =================================================
-            CAREER VIDYA BENEFITS
-        ================================================== */}
-
+        {/* CAREER VIDYA BENEFITS */}
         {course?.Careervidyabenifit?.length > 0 && (
-
           <Careervidyabenifit
-            courseBenifit={
-              course.Careervidyabenifit
-            }
+            courseBenifit={course.Careervidyabenifit}
             courseTitle={course?.name}
           />
-
         )}
 
-        {/* =================================================
-            ONLINE ELIGIBILITY
-        ================================================== */}
-
+        {/* ONLINE ELIGIBILITY */}
         {course?.onlineEligibility?.length > 0 && (
-
           <OnlineCourseEligibility
-            onlineEligibility={
-              course.onlineEligibility
-            }
+            onlineEligibility={course.onlineEligibility}
             courseTitle={course?.name}
           />
-
         )}
 
-        {/* =================================================
-            FEE STRUCTURE
-        ================================================== */}
-
+        {/* FEE STRUCTURE */}
         {(course?.feeStructureSidebar?.length > 0 ||
           course?.detailedFees?.length > 0) && (
-
           <FeeStructure
             courseTitle={course?.name}
-            feeStructureSidebar={
-              course.feeStructureSidebar
-            }
-            detailedFees={
-              course.detailedFees
-            }
+            feeStructureSidebar={course.feeStructureSidebar}
+            detailedFees={course.detailedFees}
           />
-
         )}
 
-        {/* =================================================
-            COURSE WORTH IT
-        ================================================== */}
-
+        {/* COURSE WORTH IT */}
         {course?.onlineCourseWorthIt && (
-
           <CourseWorthIt
-            onlineCourseWorthIt={
-              course.onlineCourseWorthIt
-            }
+            onlineCourseWorthIt={course.onlineCourseWorthIt}
             courseTitle={course?.name}
           />
-
         )}
 
-        {/* =================================================
-            JOB OPPORTUNITIES
-        ================================================== */}
-
+        {/* JOB OPPORTUNITIES */}
         {course?.jobOpportunities?.length > 0 && (
-
           <JobOpportunities
-            jobOpportunities={
-              course.jobOpportunities
-            }
+            jobOpportunities={course.jobOpportunities}
             courseTitle={course?.name}
           />
+        )}
 
+        {/* TOP RECRUITERS */}
+        {course?.topRecruiters?.length > 0 && (
+          <TopRecruiters
+            topRecruiters={course.topRecruiters}
+            courseTitle={course?.name}
+          />
         )}
 
         {/* =================================================
-            TOP RECRUITERS
+            FAQ SECTION  ✅ ADDED PROPERLY
         ================================================== */}
 
-        {course?.topRecruiters?.length > 0 && (
-
-          <TopRecruiters
-            topRecruiters={
-              course.topRecruiters
-            }
+        {safeFaqs.length > 0 && (
+          <CourseFAQ
+            faqs={safeFaqs}
             courseTitle={course?.name}
           />
-
         )}
 
       </main>
 
-      {/* =================================================
-          FOOTER COMPONENTS
-      ================================================== */}
-
       <Studentimageslider />
-
       <Getintuch />
-
       <Footer />
-
       <DiscountPopup />
-
     </>
   );
 }
