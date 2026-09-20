@@ -677,8 +677,8 @@ const AdminShell = ({ children }) => {
     { href: "/admin/visitors", label: "Visitors", icon: Users },
 
     {
-      id: "queryadmission",
-      label: "queryadmission",
+      id: "Queryadmission",
+      label: "Queryadmission",
       icon: BarChart3,
       children: [
         { href: "/admin/Getalluser", label: "All Students", icon: Users },
@@ -692,10 +692,10 @@ const AdminShell = ({ children }) => {
       label: "courseAndUniversity",
       icon: GraduationCap,
       children: [
-        { href: "/admin/getonlinecourese", label: "Online Courses", icon: BookOpen },
-        { href: "/admin/getonelyonline", label: "OnlyL Online", icon: BookOpen },
-        { href: "/admin/adduniversitydata", label: "Universities", icon: GraduationCap },
-        { href: "/admin/getuniversites", label: "Universities Data", icon: BarChart3 },
+        { href: "/admin/getonlinecourese", label: " Add Online Courses", icon: BookOpen },
+        { href: "/admin/getonelyonline", label: "Edit Online Course", icon: BookOpen },
+        { href: "/admin/adduniversitydata", label: " Add Universities", icon: GraduationCap },
+        { href: "/admin/getuniversites", label: " Edit   Universities Data", icon: BarChart3 },
         { href: "/admin/addblog", label: "Add Blog", icon: Newspaper },
         { href: "/admin/getbloglist", label: "Get Blog List", icon: FileText },
         { href: "/admin/placestudent", label: "Placed Students", icon: Award },

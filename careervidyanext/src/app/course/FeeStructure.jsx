@@ -1,893 +1,803 @@
-// // src/app/course/FeeStructure.jsx
 
-// import React from 'react';
 
-// /**
-//  * Renders the complete Fee Structure section.
-//  */
-// export default function FeeStructure({ 
-//     courseTitle, 
-//     feeStructureSidebar, 
-//     detailedFees 
+// "use client";
+
+// import { useState } from "react";
+// import Signup from "@/app/signup/page.jsx";
+
+// /* ================= LOGIN CHECK ================= */
+// const isLoggedIn = () => {
+//   if (typeof window === "undefined") return false;
+//   return !!localStorage.getItem("accessToken");
+// };
+
+// export default function FeeStructure({
+//   courseTitle,
+//   feeStructureSidebar,
+//   detailedFees,
+//   emiOptions,
+//   scholarships,
 // }) {
-    
-//     const dynamicCourseTitle = courseTitle || "Online Course";
+//   const [showSignup, setShowSignup] = useState(false);
 
-//     return (
-//         <section className="mt-12 w-full flex justify-center py-10 bg-gray-50">
-//             {/* Width updated to 1600px */}
-//             <div className="w-full max-w-[1600px] px-4">
+//   const hasSidebar = feeStructureSidebar?.length > 0;
+//   const hasDetailed = detailedFees?.length > 0;
+//   const hasEmi = emiOptions?.enabled;
+//   const hasScholarships = scholarships?.length > 0;
 
-//                 {/* --- Main Grid Layout --- */}
-//                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+//   if (!hasSidebar && !hasDetailed && !hasEmi && !hasScholarships) {
+//     return null;
+//   }
 
-//                     {/* === COLUMN 1: Detailed Fee Table === */}
-//                     <div className="lg:col-span-2 space-y-10">
-//                         {detailedFees?.map((section, sectionIndex) => (
-//                             <div key={sectionIndex} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                                
-//                                 <h3 className="text-2xl font-semibold mb-4 text-gray-800">
-//                                     {section.heading || `Fee Structure Details ${sectionIndex + 1}`}
-//                                 </h3>
-                                
-//                                 {section.description && (
-//                                     <p className="text-gray-600 mb-6 leading-relaxed">
-//                                         {section.description}
-//                                     </p>
+//   /* ================= SEO SCHEMA ================= */
+//   const schema = {
+//     "@context": "https://schema.org",
+//     "@type": "Course",
+//     name: courseTitle || "Course",
+//     ...(hasDetailed && {
+//       offers: detailedFees.flatMap((section) =>
+//         (section.table || []).map((row) => ({
+//           "@type": "Offer",
+//           name: `${courseTitle} at ${row.universityName}`,
+//           category: "Tuition Fee",
+//           ...(row.courseFees && {
+//             priceSpecification: {
+//               "@type": "PriceSpecification",
+//               price: row.courseFees,
+//               priceCurrency: "INR",
+//             },
+//           }),
+//         }))
+//       ),
+//     }),
+//   };
+
+//   /* ================= APPLY CLICK ================= */
+//   const handleApplyClick = () => {
+//     if (!isLoggedIn()) {
+//       setShowSignup(true);
+//       return;
+//     }
+//     const target =
+//       document.getElementById("apply") || document.getElementById("signup");
+//     if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+//     else window.location.hash = "#apply";
+//   };
+
+//   return (
+//     <>
+//       <script
+//         type="application/ld+json"
+//         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+//       />
+
+//       <section
+//         aria-labelledby="fee-heading"
+//         className="w-full py-12 md:py-16 bg-white font-sans overflow-hidden"
+//       >
+//         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12">
+//           {/* ============ HEADER ============ */}
+//           <header className="text-center mb-10 md:mb-12">
+//             <h2
+//               id="fee-heading"
+//               className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#002147] leading-tight mb-4 px-2"
+//             >
+//               Fee Structure for {courseTitle || "this Course"}
+//             </h2>
+
+//             <div
+//               aria-hidden="true"
+//               className="w-16 h-1 bg-[#002147] mx-auto rounded-full"
+//             />
+//           </header>
+
+//           {/* ============ SIDEBAR + DETAILED ============ */}
+//           {(hasSidebar || hasDetailed) && (
+//             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 mb-10 md:mb-12">
+//               {/* ---------- SIDEBAR ---------- */}
+//               {hasSidebar && (
+//                 <aside className="lg:col-span-4 xl:col-span-3">
+//                   <div className="lg:sticky lg:top-24 space-y-3">
+//                     {feeStructureSidebar.map((item, i) => (
+//                       <div
+//                         key={i}
+//                         className="rounded-xl p-4 sm:p-5 bg-[#002147] text-white"
+//                       >
+//                         <h3 className="text-[11px] font-bold uppercase tracking-widest text-blue-300 mb-2.5">
+//                           {item.heading}
+//                         </h3>
+
+//                         {item.points?.length > 0 && (
+//                           <ul className="space-y-1.5 list-none p-0 m-0">
+//                             {item.points.map((point, j) => (
+//                               <li
+//                                 key={j}
+//                                 className="flex items-start gap-2 text-sm leading-snug"
+//                               >
+//                                 <span
+//                                   aria-hidden="true"
+//                                   className="flex-shrink-0 w-1 h-1 rounded-full bg-[#c15304] mt-2"
+//                                 />
+//                                 <span className="text-white/90">{point}</span>
+//                               </li>
+//                             ))}
+//                           </ul>
+//                         )}
+//                       </div>
+//                     ))}
+
+//                     <button
+//                       type="button"
+//                       onClick={handleApplyClick}
+//                       className="block w-full text-center bg-[#c15304] hover:bg-[#a34403] text-white font-bold text-sm py-2.5 rounded-lg transition-colors"
+//                     >
+//                       Apply Now →
+//                     </button>
+//                   </div>
+//                 </aside>
+//               )}
+
+//               {/* ---------- DETAILED FEES ---------- */}
+//               {hasDetailed && (
+//                 <div
+//                   className={
+//                     hasSidebar
+//                       ? "lg:col-span-8 xl:col-span-9 space-y-4"
+//                       : "lg:col-span-12 space-y-4"
+//                   }
+//                 >
+//                   {detailedFees.map((section, i) => (
+//                     <article
+//                       key={i}
+//                       className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+//                     >
+//                       {/* Section header */}
+//                       <div className="px-5 sm:px-6 py-4 border-b border-slate-100 bg-slate-50">
+//                         <h3 className="text-base sm:text-lg font-bold text-[#002147]">
+//                           {section.heading}
+//                         </h3>
+
+//                         {section.description && (
+//                           <div
+//                             className="text-xs sm:text-sm text-gray-500 mt-1 prose prose-sm max-w-none"
+//                             dangerouslySetInnerHTML={{
+//                               __html: section.description,
+//                             }}
+//                           />
+//                         )}
+//                       </div>
+
+//                       {/* Table — responsive */}
+//                       {section.table?.length > 0 && (
+//                         <>
+//                           {/* Desktop table */}
+//                           <div className="hidden md:block overflow-x-auto">
+//                             <table className="w-full border-collapse">
+//                               <thead>
+//                                 <tr className="bg-white border-b border-slate-200">
+//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+//                                     University
+//                                   </th>
+//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+//                                     Course Fees
+//                                   </th>
+//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+//                                     Details
+//                                   </th>
+//                                 </tr>
+//                               </thead>
+//                               <tbody>
+//                                 {section.table.map((row, j) => (
+//                                   <tr
+//                                     key={j}
+//                                     className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors"
+//                                   >
+//                                     <td className="px-5 py-3.5 font-semibold text-sm text-[#002147]">
+//                                       {row.universityName}
+//                                     </td>
+//                                     <td className="px-5 py-3.5">
+//                                       <span className="inline-block px-2.5 py-1 rounded-md bg-[#002147] text-white font-bold text-xs">
+//                                         {row.courseFees}
+//                                       </span>
+//                                     </td>
+//                                     <td className="px-5 py-3.5 text-xs text-gray-600">
+//                                       {row.detailedFeeStructure || "—"}
+//                                     </td>
+//                                   </tr>
+//                                 ))}
+//                               </tbody>
+//                             </table>
+//                           </div>
+
+//                           {/* Mobile cards */}
+//                           <div className="md:hidden divide-y divide-slate-100">
+//                             {section.table.map((row, j) => (
+//                               <div key={j} className="p-4">
+//                                 <p className="font-semibold text-sm text-[#002147] mb-2">
+//                                   {row.universityName}
+//                                 </p>
+//                                 <div className="flex items-center justify-between gap-2 mb-1">
+//                                   <span className="text-[10px] uppercase tracking-widest text-gray-500">
+//                                     Course Fees
+//                                   </span>
+//                                   <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#002147] text-white font-bold text-[11px]">
+//                                     {row.courseFees}
+//                                   </span>
+//                                 </div>
+//                                 {row.detailedFeeStructure && (
+//                                   <p className="text-xs text-gray-500 mt-1">
+//                                     {row.detailedFeeStructure}
+//                                   </p>
 //                                 )}
-
-//                                 {section.table?.length > 0 && (
-//                                     <div className="overflow-x-auto">
-//                                         <table className="min-w-full border border-gray-300">
-//                                             <thead>
-//                                                 <tr className="bg-[#002D62] text-white">
-//                                                     <th colSpan={3} className="text-center py-3 text-lg font-semibold">
-//                                                         Top Universities of {dynamicCourseTitle} Course Fees
-//                                                     </th>
-//                                                 </tr>
-//                                                 <tr className="bg-[#E8F4FF] border-b border-gray-300 text-gray-800">
-//                                                     <th className="p-3 text-left font-semibold border-r border-gray-300">List of Universities</th>
-//                                                     <th className="p-3 text-left font-semibold border-r border-gray-300">Course Fees</th>
-//                                                     <th className="p-3 text-left font-semibold">Detailed Fee Structure</th>
-//                                                 </tr>
-//                                             </thead>
-                                            
-//                                             <tbody>
-//                                                 {section.table.map((row, rowIndex) => (
-//                                                     <tr key={rowIndex} className="border-b border-gray-300 hover:bg-gray-50">
-//                                                         <td className="p-4 border-r border-gray-300">
-//                                                             <a href="#" className="text-blue-700 underline cursor-pointer hover:text-blue-500">
-//                                                                 {row.universityName}
-//                                                             </a>
-//                                                         </td>
-//                                                         <td className="p-4 border-r border-gray-300 font-medium">{row.courseFees}</td>
-//                                                         <td className="p-4 text-sm text-gray-700">{row.detailedFeeStructure}</td>
-//                                                     </tr>
-//                                                 ))}
-//                                             </tbody>
-//                                         </table>
-//                                     </div>
-//                                 )}
-//                             </div>
-//                         ))}
-//                     </div>
-
-//                     {/* === COLUMN 2: Sidebar === */}
-//                     <div className="lg:col-span-1 space-y-8 h-fit sticky top-4">
-                        
-//                         {/* 2. Benefits of learning from us - ACTIVE */}
-//                         <div className="bg-white p-6 rounded-xl shadow-lg border">
-//                             <h3 className="text-xl font-bold mb-4 text-gray-800">
-//                                 Benefits of learning from us
-//                             </h3>
-//                             <ul className="list-none space-y-3">
-//                                 <li>{renderSidebarPoint("Soft Community for peers")}</li>
-//                                 <li>{renderSidebarPoint("Get placement support via webinars")}</li>
-//                                 <li>{renderSidebarPoint("Dedicated buddy for doubt solving")}</li>
-//                                 <li>{renderSidebarPoint("A career advisor for life")}</li>
-//                             </ul>
-//                         </div>
-//                     </div>
-
+//                               </div>
+//                             ))}
+//                           </div>
+//                         </>
+//                       )}
+//                     </article>
+//                   ))}
 //                 </div>
+//               )}
 //             </div>
-//         </section>
-//     );
+//           )}
+
+//           {/* ============ EMI OPTIONS ============ */}
+//           {hasEmi && (
+//             <article className="mb-10 md:mb-12 rounded-2xl overflow-hidden border border-slate-200">
+//               <div className="grid grid-cols-1 md:grid-cols-12">
+//                 {/* Left: Info */}
+//                 <div className="md:col-span-7 p-5 sm:p-6 md:p-8">
+//                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-3">
+//                     Easy EMI Options Available
+//                   </h3>
+
+//                   <p className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed mb-4">
+//                     Pay in easy monthly installments with{" "}
+//                     <strong className="text-[#002147]">
+//                       {emiOptions.interestRate || "0%"} interest
+//                     </strong>
+//                     . Don&apos;t let fees stop your career.
+//                   </p>
+
+//                   {emiOptions.tenureMonths?.length > 0 && (
+//                     <div className="flex flex-wrap gap-2">
+//                       {emiOptions.tenureMonths.map((months, i) => (
+//                         <span
+//                           key={i}
+//                           className="px-3 py-1.5 rounded-md bg-slate-100 text-[#002147] text-[11px] font-bold"
+//                         >
+//                           {months} Months
+//                         </span>
+//                       ))}
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 {/* Right: Amount */}
+//                 <div className="md:col-span-5 flex items-center justify-center bg-[#002147] p-5 sm:p-6 md:p-8">
+//                   <div className="text-center text-white">
+//                     <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-300 mb-1.5">
+//                       Starting from
+//                     </p>
+
+//                     <p className="text-3xl sm:text-4xl md:text-5xl font-bold leading-none mb-1.5">
+//                       {emiOptions.minMonthly || "₹3,000"}
+//                     </p>
+
+//                     <p className="text-xs sm:text-sm text-white/80 mb-4">
+//                       per month
+//                       {emiOptions.maxMonthly && (
+//                         <> — up to {emiOptions.maxMonthly}</>
+//                       )}
+//                     </p>
+
+//                     <button
+//                       type="button"
+//                       onClick={handleApplyClick}
+//                       className="inline-block bg-[#c15304] hover:bg-[#a34403] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
+//                     >
+//                       Check Eligibility →
+//                     </button>
+//                   </div>
+//                 </div>
+//               </div>
+//             </article>
+//           )}
+
+//           {/* ============ SCHOLARSHIPS ============ */}
+//           {hasScholarships && (
+//             <article className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6 md:p-8">
+//               {/* Header */}
+//               <header className="text-center mb-6 md:mb-8">
+//                 <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-2 leading-tight">
+//                   Scholarships & Financial Aid
+//                 </h3>
+
+//                 <div
+//                   aria-hidden="true"
+//                   className="w-12 h-1 bg-[#002147] mx-auto rounded-full"
+//                 />
+
+//                 <p className="text-gray-600 text-xs sm:text-sm md:text-base max-w-2xl mx-auto mt-3">
+//                   Avail exclusive discounts and scholarships to reduce your fees.
+//                 </p>
+//               </header>
+
+//               {/* Scholarship cards — compact */}
+//               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+//                 {scholarships.map((s, i) => (
+//                   <div
+//                     key={i}
+//                     className="group relative bg-white rounded-xl p-4 sm:p-5 border border-slate-200 hover:border-[#c15304]/40 hover:shadow-md transition-all"
+//                   >
+//                     {/* Discount badge */}
+//                     {s.discount && (
+//                       <span className="inline-block bg-[#c15304] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded mb-3">
+//                         {s.discount}
+//                       </span>
+//                     )}
+
+//                     {/* Title */}
+//                     {s.title && (
+//                       <h4 className="text-sm sm:text-base font-bold text-[#002147] mb-1.5 leading-snug">
+//                         {s.title}
+//                       </h4>
+//                     )}
+
+//                     {/* Description */}
+//                     {s.description && (
+//                       <div
+//                         className="text-gray-600 text-xs leading-relaxed prose prose-sm max-w-none [&_p]:my-0"
+//                         dangerouslySetInnerHTML={{ __html: s.description }}
+//                       />
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+
+//               {/* Footer CTA */}
+//               <div className="mt-6 text-center">
+//                 <button
+//                   type="button"
+//                   onClick={handleApplyClick}
+//                   className="inline-flex items-center gap-2 bg-[#c15304] hover:bg-[#a34403] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
+//                 >
+//                   Check Scholarship Eligibility
+//                   <svg
+//                     className="w-3.5 h-3.5"
+//                     fill="none"
+//                     stroke="currentColor"
+//                     viewBox="0 0 24 24"
+//                     aria-hidden="true"
+//                   >
+//                     <path
+//                       strokeLinecap="round"
+//                       strokeLinejoin="round"
+//                       strokeWidth={2}
+//                       d="M13 7l5 5m0 0l-5 5m5-5H6"
+//                     />
+//                   </svg>
+//                 </button>
+//               </div>
+//             </article>
+//           )}
+//         </div>
+//       </section>
+
+//       {/* SIGNUP MODAL */}
+//       {showSignup && (
+//         <Signup
+//           onClose={() => setShowSignup(false)}
+//           courseName={courseTitle}
+//         />
+//       )}
+//     </>
+//   );
 // }
-
-// // Helper for rendering a sidebar point
-// const renderSidebarPoint = (text) => (
-//     <div className="flex items-start text-gray-700 space-x-2 text-sm">
-//         <span className="text-blue-500 mt-0.5">☑️</span>
-//         <p className="leading-snug flex-1">{text}</p>
-//     </div>
-// );
-
-// src/app/course/FeeStructure.jsx
-
 
 "use client";
 
-import React from "react";
+import { useState } from "react";
+import Signup from "@/app/signup/page.jsx";
 
-/* =========================================================
-   HTML ENTITY DECODER
-   IMPORTANT:
-   Do NOT use window/document/DOMParser here.
+/* ================= LOGIN CHECK ================= */
+const isLoggedIn = () => {
+  if (typeof window === "undefined") return false;
+  return !!localStorage.getItem("accessToken");
+};
 
-   This function is SSR + Client safe, so hydration mismatch
-   nahi hoga.
-========================================================= */
-function decodeHtmlEntities(value) {
-    if (value === null || value === undefined) {
-        return "";
-    }
-
-    if (typeof value !== "string") {
-        return String(value);
-    }
-
-    let result = value;
-
-    // Decode common named entities
-    const namedEntities = {
-        "&nbsp;": " ",
-        "&amp;": "&",
-        "&lt;": "<",
-        "&gt;": ">",
-        "&quot;": '"',
-        "&#39;": "'",
-        "&apos;": "'",
-        "&cent;": "¢",
-        "&pound;": "£",
-        "&yen;": "¥",
-        "&euro;": "€",
-        "&copy;": "©",
-        "&reg;": "®",
-        "&trade;": "™",
-    };
-
-    // Decode repeatedly because some old database records
-    // may have been encoded more than once.
-    for (let round = 0; round < 3; round++) {
-        const previous = result;
-
-        Object.entries(namedEntities).forEach(([entity, character]) => {
-            result = result.split(entity).join(character);
-        });
-
-        // Numeric decimal entities: &#160;
-        result = result.replace(/&#(\d+);/g, (_, code) => {
-            const number = Number(code);
-
-            if (
-                Number.isNaN(number) ||
-                number < 0 ||
-                number > 0x10ffff
-            ) {
-                return _;
-            }
-
-            try {
-                return String.fromCodePoint(number);
-            } catch {
-                return _;
-            }
-        });
-
-        // Numeric hexadecimal entities: &#xA0;
-        result = result.replace(/&#x([0-9a-f]+);/gi, (_, code) => {
-            const number = parseInt(code, 16);
-
-            if (
-                Number.isNaN(number) ||
-                number < 0 ||
-                number > 0x10ffff
-            ) {
-                return _;
-            }
-
-            try {
-                return String.fromCodePoint(number);
-            } catch {
-                return _;
-            }
-        });
-
-        if (result === previous) {
-            break;
-        }
-    }
-
-    return result;
-}
-
-/* =========================================================
-   BASIC HTML CLEANER
-   Database me editor content aa raha hai.
-
-   Dangerous tags remove kar rahe hain.
-========================================================= */
-function sanitizeHtml(html) {
-    if (!html) {
-        return "";
-    }
-
-    return html
-        // script
-        .replace(
-            /<script\b[^>]*>[\s\S]*?<\/script>/gi,
-            ""
-        )
-
-        // iframe
-        .replace(
-            /<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi,
-            ""
-        )
-
-        // object
-        .replace(
-            /<object\b[^>]*>[\s\S]*?<\/object>/gi,
-            ""
-        )
-
-        // embed
-        .replace(
-            /<embed\b[^>]*>/gi,
-            ""
-        )
-
-        // form
-        .replace(
-            /<form\b[^>]*>[\s\S]*?<\/form>/gi,
-            ""
-        )
-
-        // inline event handlers
-        .replace(
-            /\s(on[a-z]+)\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi,
-            ""
-        )
-
-        // javascript:
-        .replace(
-            /javascript\s*:/gi,
-            ""
-        )
-
-        // vbscript:
-        .replace(
-            /vbscript\s*:/gi,
-            ""
-        );
-}
-
-/* =========================================================
-   RICH TEXT RENDERER
-
-   Supports:
-   - Old plain text
-   - ReactQuill HTML
-   - Encoded HTML
-   - &nbsp;
-   - Double/triple encoded HTML
-========================================================= */
-function RichText({
-    content,
-    className = "",
-}) {
-    if (
-        content === null ||
-        content === undefined
-    ) {
-        return null;
-    }
-
-    if (typeof content !== "string") {
-        return (
-            <span className={className}>
-                {String(content)}
-            </span>
-        );
-    }
-
-    if (!content.trim()) {
-        return null;
-    }
-
-    // Decode database content
-    let decoded = decodeHtmlEntities(content);
-
-    // Decode again if required
-    decoded = decodeHtmlEntities(decoded);
-
-    // Clean dangerous HTML
-    const cleanHtml = sanitizeHtml(decoded);
-
-    // Check whether actual HTML exists
-    const hasHtml =
-        /<\/?[a-z][\s\S]*>/i.test(cleanHtml);
-
-    /* =====================================================
-       OLD PLAIN TEXT
-    ===================================================== */
-    if (!hasHtml) {
-        return (
-            <p className={className}>
-                {decoded}
-            </p>
-        );
-    }
-
-    /* =====================================================
-       RICH HTML
-    ===================================================== */
-    return (
-        <div
-            className={`course-rich-text ${className}`}
-            dangerouslySetInnerHTML={{
-                __html: cleanHtml,
-            }}
-        />
-    );
-}
-
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
 export default function FeeStructure({
-    courseTitle,
-    feeStructureSidebar,
-    detailedFees,
+  courseTitle,
+  feeStructureSidebar,
+  detailedFees,
+  emiOptions,
+  scholarships,
 }) {
-    const dynamicCourseTitle =
-        courseTitle || "Online Course";
+  const [showSignup, setShowSignup] = useState(false);
 
-    const hasDetailedFees =
-        Array.isArray(detailedFees) &&
-        detailedFees.length > 0;
+  const hasSidebar = feeStructureSidebar?.length > 0;
+  const hasDetailed = detailedFees?.length > 0;
+  const hasEmi = emiOptions?.enabled;
+  const hasScholarships = scholarships?.length > 0;
 
-    const hasSidebar =
-        Array.isArray(feeStructureSidebar) &&
-        feeStructureSidebar.length > 0;
+  if (!hasSidebar && !hasDetailed && !hasEmi && !hasScholarships) {
+    return null;
+  }
 
-    // If absolutely no data, don't render empty section
-    if (!hasDetailedFees && !hasSidebar) {
-        return null;
+  /* ================= SEO SCHEMA ================= */
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: courseTitle || "Course",
+    ...(hasDetailed && {
+      offers: detailedFees.flatMap((section) =>
+        (section.table || []).map((row) => ({
+          "@type": "Offer",
+          name: `${courseTitle} at ${row.universityName}`,
+          category: "Tuition Fee",
+          ...(row.courseFees && {
+            priceSpecification: {
+              "@type": "PriceSpecification",
+              price: row.courseFees,
+              priceCurrency: "INR",
+            },
+          }),
+        }))
+      ),
+    }),
+  };
+
+  /* ================= APPLY CLICK ================= */
+  const handleApplyClick = () => {
+    if (!isLoggedIn()) {
+      setShowSignup(true);
+      return;
     }
+    const target =
+      document.getElementById("apply") || document.getElementById("signup");
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    else window.location.hash = "#apply";
+  };
 
-    return (
-        <section className="mt-12 w-full flex justify-center py-10 bg-gray-50">
-            <div className="w-full max-w-[1600px] px-4 md:px-6">
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
 
-                {/* =====================================================
-                    SECTION HEADING
-                ====================================================== */}
-                <h2 className="text-2xl md:text-3xl font-bold text-[#002147] mb-8">
-                    {dynamicCourseTitle} Fee Structure
-                </h2>
+      <section
+        aria-labelledby="fee-heading"
+        className="w-full py-12 md:py-16 bg-slate-50 font-sans overflow-hidden"
+      >
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12">
+          {/* ============ HEADER ============ */}
+          <header className="text-center mb-10 md:mb-12">
+            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-[#c15304] uppercase mb-2.5">
+              Transparent Pricing
+            </span>
 
-                {/* =====================================================
-                    MAIN GRID
-                ====================================================== */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <h2
+              id="fee-heading"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#002147] leading-tight mb-4 px-2"
+            >
+              Fee Structure for {courseTitle || "this Course"}
+            </h2>
 
-                    {/* =================================================
-                        LEFT - DETAILED FEES
-                    ================================================== */}
-                    <div className="lg:col-span-2 space-y-10">
+            <div
+              aria-hidden="true"
+              className="w-16 h-1 bg-[#002147] mx-auto rounded-full"
+            />
+          </header>
 
-                        {hasDetailedFees &&
-                            detailedFees.map(
-                                (section, sectionIndex) => {
+          {/* ============ SIDEBAR + DETAILED ============ */}
+          {(hasSidebar || hasDetailed) && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 mb-10 md:mb-12">
+              {/* ---------- SIDEBAR ---------- */}
+              {hasSidebar && (
+                <aside className="lg:col-span-4 xl:col-span-3">
+                  <div className="lg:sticky lg:top-24 space-y-3">
+                    {feeStructureSidebar.map((item, i) => (
+                      <div
+                        key={i}
+                        className="rounded-xl p-4 sm:p-5 bg-white border border-slate-200 border-l-4 border-l-[#002147] shadow-sm hover:shadow-md transition-all"
+                      >
+                        <h3 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#c15304] mb-2.5">
+                          {item.heading}
+                        </h3>
 
-                                    if (!section) {
-                                        return null;
-                                    }
+                        {item.points?.length > 0 && (
+                          <ul className="space-y-1.5 list-none p-0 m-0">
+                            {item.points.map((point, j) => (
+                              <li
+                                key={j}
+                                className="flex items-start gap-2 text-sm leading-snug text-[#002147] font-semibold"
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#c15304] mt-1.5"
+                                />
+                                <span>{point}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
 
-                                    const table =
-                                        Array.isArray(section.table)
-                                            ? section.table
-                                            : [];
+                    <button
+                      type="button"
+                      onClick={handleApplyClick}
+                      className="block w-full text-center bg-[#c15304] hover:bg-[#a34403] text-white font-bold text-sm py-2.5 rounded-lg transition-colors"
+                    >
+                      Apply Now →
+                    </button>
+                  </div>
+                </aside>
+              )}
 
-                                    return (
-                                        <div
-                                            key={
-                                                section._id ||
-                                                section.id ||
-                                                sectionIndex
-                                            }
-                                            className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 min-w-0"
-                                        >
+              {/* ---------- DETAILED FEES ---------- */}
+              {hasDetailed && (
+                <div
+                  className={
+                    hasSidebar
+                      ? "lg:col-span-8 xl:col-span-9 space-y-4"
+                      : "lg:col-span-12 space-y-4"
+                  }
+                >
+                  {detailedFees.map((section, i) => (
+                    <article
+                      key={i}
+                      className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+                    >
+                      {/* Section header */}
+                      <div className="px-5 sm:px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-[#002147] to-[#003366]">
+                        <h3 className="text-base sm:text-lg font-bold text-white">
+                          {section.heading}
+                        </h3>
 
-                                            {/* =========================
-                                                SECTION HEADING
-                                            ========================== */}
-                                            <h3 className="text-2xl font-semibold mb-4 text-gray-800">
-                                                {decodeHtmlEntities(
-                                                    section.heading ||
-                                                    `Fee Structure Details ${
-                                                        sectionIndex + 1
-                                                    }`
-                                                )}
-                                            </h3>
+                        {section.description && (
+                          <div
+                            className="text-xs sm:text-sm text-blue-100 mt-1 prose prose-sm prose-invert max-w-none"
+                            dangerouslySetInnerHTML={{
+                              __html: section.description,
+                            }}
+                          />
+                        )}
+                      </div>
 
-                                            {/* =========================
-                                                DESCRIPTION
-                                            ========================== */}
-                                            {section.description && (
-                                                <RichText
-                                                    content={
-                                                        section.description
-                                                    }
-                                                    className="text-gray-600 mb-6 leading-relaxed"
-                                                />
-                                            )}
+                      {/* Table — responsive */}
+                      {section.table?.length > 0 && (
+                        <>
+                          {/* Desktop table */}
+                          <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full border-collapse">
+                              <thead>
+                                <tr className="bg-slate-100 border-b border-slate-200">
+                                  <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
+                                    University
+                                  </th>
+                                  <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
+                                    Course Fees
+                                  </th>
+                                  <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
+                                    Details
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {section.table.map((row, j) => (
+                                  <tr
+                                    key={j}
+                                    className="border-b border-slate-100 last:border-0 hover:bg-orange-50/40 transition-colors"
+                                  >
+                                    <td className="px-5 py-4 font-semibold text-sm text-[#002147]">
+                                      {row.universityName}
+                                    </td>
+                                    <td className="px-5 py-4">
+                                      <span className="inline-block px-3 py-1 rounded-md bg-[#c15304] text-white font-bold text-xs">
+                                        {row.courseFees}
+                                      </span>
+                                    </td>
+                                    <td className="px-5 py-4 text-xs text-gray-600">
+                                      {row.detailedFeeStructure || "—"}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
 
-                                            {/* =========================
-                                                TABLE
-                                            ========================== */}
-                                            {table.length > 0 && (
-                                                <div className="w-full overflow-x-auto rounded-lg">
-                                                    <table className="w-full min-w-[850px] border-collapse border border-gray-300 bg-white">
+                          {/* Mobile cards */}
+                          <div className="md:hidden divide-y divide-slate-100">
+                            {section.table.map((row, j) => (
+                              <div key={j} className="p-4">
+                                <p className="font-semibold text-sm text-[#002147] mb-2">
+                                  {row.universityName}
+                                </p>
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                                    Course Fees
+                                  </span>
+                                  <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#c15304] text-white font-bold text-[11px]">
+                                    {row.courseFees}
+                                  </span>
+                                </div>
+                                {row.detailedFeeStructure && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {row.detailedFeeStructure}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-                                                        <thead>
+          {/* ============ EMI OPTIONS ============ */}
+          {hasEmi && (
+            <article className="mb-10 md:mb-12 rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
+              <div className="grid grid-cols-1 md:grid-cols-12">
+                {/* Left: Info */}
+                <div className="md:col-span-7 p-5 sm:p-6 md:p-8">
+                  <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[#c15304] mb-2">
+                    Flexible Payment
+                  </span>
 
-                                                            {/* Main table heading */}
-                                                            <tr className="bg-[#002D62] text-white">
-                                                                <th
-                                                                    colSpan={3}
-                                                                    className="text-center py-3 px-4 text-lg font-semibold border border-[#002D62]"
-                                                                >
-                                                                    Top Universities of{" "}
-                                                                    {dynamicCourseTitle}{" "}
-                                                                    Course Fees
-                                                                </th>
-                                                            </tr>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-3">
+                    Easy EMI Options Available
+                  </h3>
 
-                                                            {/* Column headings */}
-                                                            <tr className="bg-[#E8F4FF] border-b border-gray-300 text-gray-800">
+                  <p className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed mb-4">
+                    Pay in easy monthly installments with{" "}
+                    <strong className="text-[#002147]">
+                      {emiOptions.interestRate || "0%"} interest
+                    </strong>
+                    . Don&apos;t let fees stop your career.
+                  </p>
 
-                                                                <th className="p-3 text-left font-semibold border-r border-gray-300">
-                                                                    List of Universities
-                                                                </th>
-
-                                                                <th className="p-3 text-left font-semibold border-r border-gray-300">
-                                                                    Course Fees
-                                                                </th>
-
-                                                                <th className="p-3 text-left font-semibold">
-                                                                    Detailed Fee Structure
-                                                                </th>
-
-                                                            </tr>
-                                                        </thead>
-
-                                                        <tbody>
-
-                                                            {table.map(
-                                                                (
-                                                                    row,
-                                                                    rowIndex
-                                                                ) => {
-
-                                                                    if (!row) {
-                                                                        return null;
-                                                                    }
-
-                                                                    const universityName =
-                                                                        decodeHtmlEntities(
-                                                                            row.universityName ||
-                                                                            "University"
-                                                                        );
-
-                                                                    const courseFees =
-                                                                        decodeHtmlEntities(
-                                                                            row.courseFees ||
-                                                                            "-"
-                                                                        );
-
-                                                                    return (
-                                                                        <tr
-                                                                            key={
-                                                                                row._id ||
-                                                                                row.id ||
-                                                                                rowIndex
-                                                                            }
-                                                                            className="border-b border-gray-300 hover:bg-gray-50 transition-colors"
-                                                                        >
-
-                                                                            {/* UNIVERSITY */}
-                                                                            <td className="p-4 border-r border-gray-300 align-top">
-
-                                                                                <span className="text-blue-700 font-medium">
-                                                                                    {
-                                                                                        universityName
-                                                                                    }
-                                                                                </span>
-
-                                                                            </td>
-
-                                                                            {/* COURSE FEES */}
-                                                                            <td className="p-4 border-r border-gray-300 font-medium text-gray-800 align-top whitespace-nowrap">
-
-                                                                                {
-                                                                                    courseFees
-                                                                                }
-
-                                                                            </td>
-
-                                                                            {/* DETAILED FEE */}
-                                                                            <td className="p-4 text-sm text-gray-700 align-top min-w-0">
-
-                                                                                {row.detailedFeeStructure ? (
-                                                                                    <RichText
-                                                                                        content={
-                                                                                            row.detailedFeeStructure
-                                                                                        }
-                                                                                        className="leading-relaxed"
-                                                                                    />
-                                                                                ) : (
-                                                                                    <span>
-                                                                                        -
-                                                                                    </span>
-                                                                                )}
-
-                                                                            </td>
-
-                                                                        </tr>
-                                                                    );
-                                                                }
-                                                            )}
-
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            )}
-
-                                        </div>
-                                    );
-                                }
-                            )}
-
+                  {emiOptions.tenureMonths?.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {emiOptions.tenureMonths.map((months, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 rounded-md bg-[#002147] text-white text-[11px] font-bold"
+                        >
+                          {months} Months
+                        </span>
+                      ))}
                     </div>
-
-                    {/* =================================================
-                        RIGHT SIDEBAR
-                    ================================================== */}
-                    <div className="lg:col-span-1 space-y-8 h-fit lg:sticky lg:top-24">
-
-                        {/* =================================================
-                            BENEFITS
-                        ================================================== */}
-                        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-
-                            <h3 className="text-xl font-bold mb-5 text-gray-800">
-                                Benefits of learning from us
-                            </h3>
-
-                            <ul className="list-none space-y-4">
-
-                                <li>
-                                    <SidebarPoint>
-                                        Soft Community for peers
-                                    </SidebarPoint>
-                                </li>
-
-                                <li>
-                                    <SidebarPoint>
-                                        Get placement support via webinars
-                                    </SidebarPoint>
-                                </li>
-
-                                <li>
-                                    <SidebarPoint>
-                                        Dedicated buddy for doubt solving
-                                    </SidebarPoint>
-                                </li>
-
-                                <li>
-                                    <SidebarPoint>
-                                        A career advisor for life
-                                    </SidebarPoint>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </div>
-
+                  )}
                 </div>
 
-            </div>
-
-            {/* =========================================================
-                RICH TEXT GLOBAL CSS
-            ========================================================== */}
-            <style jsx global>{`
-
-                .course-rich-text {
-                    width: 100%;
-                    max-width: 100%;
-                    min-width: 0;
-
-                    overflow-wrap: anywhere;
-                    word-break: break-word;
-
-                    white-space: normal;
-
-                    line-height: 1.7;
-                }
-
-                .course-rich-text p {
-                    margin: 0 0 10px 0;
-                }
-
-                .course-rich-text p:last-child {
-                    margin-bottom: 0;
-                }
-
-                .course-rich-text strong,
-                .course-rich-text b {
-                    font-weight: 700;
-                }
-
-                .course-rich-text em,
-                .course-rich-text i {
-                    font-style: italic;
-                }
-
-                .course-rich-text u {
-                    text-decoration: underline;
-                }
-
-                .course-rich-text s,
-                .course-rich-text strike {
-                    text-decoration: line-through;
-                }
-
-                /* =========================
-                   LISTS
-                ========================== */
-
-                .course-rich-text ul {
-                    list-style-type: disc;
-                    padding-left: 1.5rem;
-                    margin: 10px 0;
-                }
-
-                .course-rich-text ol {
-                    list-style-type: decimal;
-                    padding-left: 1.5rem;
-                    margin: 10px 0;
-                }
-
-                .course-rich-text li {
-                    margin-bottom: 5px;
-                }
-
-                .course-rich-text li:last-child {
-                    margin-bottom: 0;
-                }
-
-                /* =========================
-                   HEADINGS
-                ========================== */
-
-                .course-rich-text h1,
-                .course-rich-text h2,
-                .course-rich-text h3,
-                .course-rich-text h4,
-                .course-rich-text h5,
-                .course-rich-text h6 {
-                    font-weight: 700;
-                    line-height: 1.4;
-                    margin-top: 12px;
-                    margin-bottom: 8px;
-                }
-
-                .course-rich-text h1 {
-                    font-size: 1.8rem;
-                }
-
-                .course-rich-text h2 {
-                    font-size: 1.5rem;
-                }
-
-                .course-rich-text h3 {
-                    font-size: 1.25rem;
-                }
-
-                .course-rich-text h4 {
-                    font-size: 1.1rem;
-                }
-
-                .course-rich-text h5 {
-                    font-size: 1rem;
-                }
-
-                .course-rich-text h6 {
-                    font-size: 0.95rem;
-                }
-
-                /* =========================
-                   LINKS
-                ========================== */
-
-                .course-rich-text a {
-                    color: #2563eb;
-                    text-decoration: underline;
-
-                    overflow-wrap: anywhere;
-                    word-break: break-word;
-                }
-
-                /* =========================
-                   IMAGES
-                ========================== */
-
-                .course-rich-text img {
-                    display: block;
-
-                    max-width: 100%;
-                    width: auto;
-                    height: auto;
-
-                    margin: 10px 0;
-
-                    border-radius: 8px;
-                }
-
-                /* =========================
-                   TABLES
-                ========================== */
-
-                .course-rich-text table {
-                    width: 100%;
-                    max-width: 100%;
-
-                    border-collapse: collapse;
-
-                    margin: 12px 0;
-                }
-
-                .course-rich-text th,
-                .course-rich-text td {
-                    border: 1px solid #d1d5db;
-
-                    padding: 8px;
-
-                    text-align: left;
-
-                    word-break: break-word;
-                }
-
-                /* =========================
-                   BLOCKQUOTE
-                ========================== */
-
-                .course-rich-text blockquote {
-                    border-left: 4px solid #002147;
-
-                    padding-left: 12px;
-
-                    margin: 12px 0;
-
-                    color: #4b5563;
-                }
-
-                /* =========================
-                   CODE
-                ========================== */
-
-                .course-rich-text pre {
-                    max-width: 100%;
-
-                    overflow-x: auto;
-
-                    white-space: pre-wrap;
-
-                    word-break: break-word;
-
-                    padding: 10px;
-
-                    background: #f3f4f6;
-
-                    border-radius: 8px;
-                }
-
-                .course-rich-text code {
-                    word-break: break-word;
-                }
-
-                /* =========================
-                   MOBILE
-                ========================== */
-
-                @media (max-width: 640px) {
-
-                    .course-rich-text {
-                        font-size: 14px;
-                        line-height: 1.65;
-                    }
-
-                    .course-rich-text h1 {
-                        font-size: 1.5rem;
-                    }
-
-                    .course-rich-text h2 {
-                        font-size: 1.3rem;
-                    }
-
-                    .course-rich-text h3 {
-                        font-size: 1.15rem;
-                    }
-
-                    .course-rich-text h4 {
-                        font-size: 1rem;
-                    }
-
-                    .course-rich-text ul,
-                    .course-rich-text ol {
-                        padding-left: 1.25rem;
-                    }
-
-                    .course-rich-text table {
-                        display: block;
-
-                        width: 100%;
-
-                        overflow-x: auto;
-
-                        -webkit-overflow-scrolling: touch;
-                    }
-
-                    .course-rich-text img {
-                        max-width: 100%;
-                        height: auto;
-                    }
-
-                    .course-rich-text iframe,
-                    .course-rich-text video {
-                        width: 100%;
-                        max-width: 100%;
-                    }
-                }
-
-                /* =========================
-                   EXTRA PROTECTION
-                ========================== */
-
-                .course-rich-text span,
-                .course-rich-text div {
-                    max-width: 100%;
-
-                    overflow-wrap: anywhere;
-                    word-break: break-word;
-                }
-
-            `}</style>
-        </section>
-    );
-}
-
-/* =========================================================
-   SIDEBAR POINT
-========================================================= */
-function SidebarPoint({ children }) {
-    return (
-        <div className="flex items-start text-gray-700 space-x-3 text-sm">
-
-            <span className="text-blue-500 mt-0.5 flex-shrink-0">
-                ☑️
-            </span>
-
-            <p className="leading-snug flex-1">
-                {children}
-            </p>
-
+                {/* Right: Amount */}
+                <div className="md:col-span-5 flex items-center justify-center bg-gradient-to-br from-[#c15304] to-[#a34403] p-5 sm:p-6 md:p-8">
+                  <div className="text-center text-white">
+                    <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-orange-100 mb-1.5">
+                      Starting from
+                    </p>
+
+                    <p className="text-3xl sm:text-4xl md:text-5xl font-bold leading-none mb-1.5">
+                      {emiOptions.minMonthly || "₹3,000"}
+                    </p>
+
+                    <p className="text-xs sm:text-sm text-orange-100 mb-4">
+                      per month
+                      {emiOptions.maxMonthly && (
+                        <> — up to {emiOptions.maxMonthly}</>
+                      )}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={handleApplyClick}
+                      className="inline-block bg-white text-[#c15304] hover:bg-orange-50 text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
+                    >
+                      Check Eligibility →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          )}
+
+          {/* ============ SCHOLARSHIPS ============ */}
+          {hasScholarships && (
+            <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 md:p-8 shadow-sm">
+              {/* Header */}
+              <header className="text-center mb-6 md:mb-8">
+                <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#c15304] mb-2">
+                  Save More
+                </span>
+
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-2 leading-tight">
+                  Scholarships & Financial Aid
+                </h3>
+
+                <div
+                  aria-hidden="true"
+                  className="w-12 h-1 bg-[#002147] mx-auto rounded-full"
+                />
+
+                <p className="text-gray-600 text-xs sm:text-sm md:text-base max-w-2xl mx-auto mt-3">
+                  Avail exclusive discounts and scholarships to reduce your fees.
+                </p>
+              </header>
+
+              {/* Scholarship cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {scholarships.map((s, i) => (
+                  <div
+                    key={i}
+                    className="group relative bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200 border-t-4 border-t-[#c15304] hover:shadow-md transition-all"
+                  >
+                    {/* Discount badge */}
+                    {s.discount && (
+                      <span className="inline-block bg-[#c15304] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-3">
+                        {s.discount}
+                      </span>
+                    )}
+
+                    {/* Title */}
+                    {s.title && (
+                      <h4 className="text-sm sm:text-base font-bold text-[#002147] mb-1.5 leading-snug">
+                        {s.title}
+                      </h4>
+                    )}
+
+                    {/* Description */}
+                    {s.description && (
+                      <div
+                        className="text-gray-600 text-xs leading-relaxed prose prose-sm max-w-none [&_p]:my-0"
+                        dangerouslySetInnerHTML={{ __html: s.description }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer CTA */}
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={handleApplyClick}
+                  className="inline-flex items-center gap-2 bg-[#c15304] hover:bg-[#a34403] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
+                >
+                  Check Scholarship Eligibility
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </article>
+          )}
         </div>
-    );
+      </section>
+
+      {/* SIGNUP MODAL */}
+      {showSignup && (
+        <Signup
+          onClose={() => setShowSignup(false)}
+          courseName={courseTitle}
+        />
+      )}
+    </>
+  );
 }
