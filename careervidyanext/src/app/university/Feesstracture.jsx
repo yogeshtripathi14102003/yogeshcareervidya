@@ -106,19 +106,55 @@
 import { useState } from "react";
 import Applicationpopup from "@/app/university/Applictionpopup.jsx";
 import { cleanHtml } from "@/utlis/cleanHtml.js";
+// ✅ FIX: wrong path before ("@/app/university/AuthModal.jsx").
+// Your real AuthModal lives in "@/app/components/AuthModal.jsx".
+import AuthModal from "@/app/university/AuthModal.jsx";
+// ✅ FIX: this file used `authOpen`, `setAuthOpen`, `pendingAction`,
+// `handleAuthSuccess` in JSX without ever declaring them — that's what
+// crashed the whole page with a 500 error. Added useAuth + the missing
+// state below.
+import { useAuth } from "@/context/AuthContext.jsx";
 
 export default function FeesStructureSection({ data, courseTitle }) {
     const courses = data?.courses || [];
     const universityName = data?.name || "";
+
+    // ✅ AUTH
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
+    const [authOpen, setAuthOpen] = useState(false);
+    const [pendingAction, setPendingAction] = useState(null);
 
     const [openPopup, setOpenPopup] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
 
     if (!courses.length) return null;
 
+    // =====================================================
+    // ✅ SMART POPUP OPENER (Auth-aware)
+    // Remembers which course was clicked so that after login the
+    // Application popup opens for the SAME course, not a blank one.
+    // =====================================================
     const handleOpenPopup = (course) => {
-        setSelectedCourse(course);
-        setOpenPopup(true);
+        if (authLoading) return;
+
+        if (isAuthenticated) {
+            setSelectedCourse(course);
+            setOpenPopup(true);
+        } else {
+            setPendingAction(course);
+            setAuthOpen(true);
+        }
+    };
+
+    const handleAuthSuccess = () => {
+        setAuthOpen(false);
+        if (pendingAction) {
+            setTimeout(() => {
+                setSelectedCourse(pendingAction);
+                setOpenPopup(true);
+                setPendingAction(null);
+            }, 250);
+        }
     };
 
     return (
@@ -161,7 +197,8 @@ export default function FeesStructureSection({ data, courseTitle }) {
                                     <td className="p-4">
                                         <button
                                             onClick={() => handleOpenPopup(course)}
-                                            className="text-blue-600 font-medium underline text-left cursor-pointer"
+                                            disabled={authLoading}
+                                            className="text-blue-600 font-medium underline text-left cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                                         >
                                             {course.name}
                                         </button>
@@ -185,6 +222,24 @@ export default function FeesStructureSection({ data, courseTitle }) {
                 </div>
             </section>
 
+            {/* =====================================================
+                ✅ AUTH MODAL (only when not logged in)
+            ===================================================== */}
+            {authOpen && (
+                <AuthModal
+                    onClose={() => {
+                        setAuthOpen(false);
+                        setPendingAction(null);
+                    }}
+                    defaultTab="login"
+                    onSuccess={handleAuthSuccess}
+                    universityName={universityName}
+                />
+            )}
+
+            {/* =====================================================
+                ✅ APPLICATION POPUP (only when logged in)
+            ===================================================== */}
             {openPopup && (
                 <Applicationpopup
                     open={openPopup}

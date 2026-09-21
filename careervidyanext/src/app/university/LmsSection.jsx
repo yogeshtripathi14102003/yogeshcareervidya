@@ -22,7 +22,7 @@ import { cleanHtml } from "@/utlis/cleanHtml.js";
 
 // Auth
 import { useAuth } from "@/context/AuthContext.jsx";
-
+import AuthModal from "@/app/university/AuthModal.jsx";
 // ✅ Popup
 import Applictionpopup from "@/app/university/Applictionpopup.jsx";
 
@@ -216,6 +216,17 @@ export default function LmsSection({ data }) {
                 ✅ AUTH MODAL (if not logged in)
             ===================================================== */}
           
+   {authOpen && (
+                <AuthModal
+                    onClose={() => {
+                        setAuthOpen(false);
+                        setPendingAction(null);
+                    }}
+                    defaultTab="login"
+                    onSuccess={handleAuthSuccess}
+                    universityName={data?.name || ""}
+                />
+            )}
 
             {/* =====================================================
                 ✅ APPLICATION POPUP (if logged in)

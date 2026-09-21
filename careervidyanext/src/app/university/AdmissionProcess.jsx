@@ -5,7 +5,7 @@ import { CheckCircle2, Send, ClipboardList, GraduationCap } from "lucide-react";
 import Applicationpopup from "@/app/university/Applictionpopup.jsx";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { cleanHtml } from "@/utlis/cleanHtml.js";
-
+import AuthModal from "@/app/university/AuthModal.jsx";
 export default function AdmissionProcess({ data }) {
     const admission = data?.admission || {};
     const universityName = data?.name || "This University";
@@ -186,7 +186,18 @@ export default function AdmissionProcess({ data }) {
             {/* =====================================================
                 ✅ AUTH MODAL
             ===================================================== */}
-           
+            {authOpen && (
+                <AuthModal
+                    onClose={() => {
+                        setAuthOpen(false);
+                        setPendingAction(null);
+                    }}
+                    defaultTab="login"
+                    onSuccess={handleAuthSuccess}
+                    universityName={data?.name || ""}
+                />
+            )}
+
 
             {/* =====================================================
                 ✅ APPLICATION POPUP — with proper close

@@ -16,6 +16,7 @@ import {
     Download,
 } from "lucide-react";
 import { cleanHtml } from "@/utlis/cleanHtml.js";
+import AuthModal from "@/app/university/AuthModal.jsx";
 
 // Auth
 import { useAuth } from "@/context/AuthContext.jsx";
@@ -325,7 +326,18 @@ export default function ExamPatternSection({ data }) {
             {/* =====================================================
                 ✅ AUTH MODAL (if not logged in)
             ===================================================== */}
-         
+            {authOpen && (
+                <AuthModal
+                    onClose={() => {
+                        setAuthOpen(false);
+                        setPendingAction(null);
+                    }}
+                    defaultTab="login"
+                    onSuccess={handleAuthSuccess}
+                    universityName={data?.name || ""}
+                />
+            )}
+
 
             {/* =====================================================
                 ✅ APPLICATION POPUP (if logged in)

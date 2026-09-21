@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import api from "@/utlis/api";
-import { useRouter } from "next/navigation"; // Dashboard redirect ke liye
+import { useRouter } from "next/navigation";
 
 const AuthModal = ({ onClose, universityName }) => {
   const router = useRouter();
@@ -22,12 +22,11 @@ const AuthModal = ({ onClose, universityName }) => {
     gender: "",
     branch: "",
     addresses: "",
-    description: universityName || "", // auto-fill university name
+    description: universityName || "",
   });
 
-  // Update description if universityName changes
   useEffect(() => {
-    setFormData(prev => ({ ...prev, description: universityName || "" }));
+    setFormData((prev) => ({ ...prev, description: universityName || "" }));
   }, [universityName]);
 
   const handleChange = (e) => {
@@ -46,7 +45,6 @@ const AuthModal = ({ onClose, universityName }) => {
     return true;
   };
 
-  // --- SIGNUP LOGIC ---
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!otpSent) {
@@ -55,7 +53,7 @@ const AuthModal = ({ onClose, universityName }) => {
       try {
         await api.post("/api/v1/send-otp", {
           emailOrPhone: formData.email || formData.mobileNumber,
-          purpose: "register"
+          purpose: "register",
         });
         alert("OTP sent successfully!");
         setOtpSent(true);
@@ -70,7 +68,7 @@ const AuthModal = ({ onClose, universityName }) => {
         await api.post("/api/v1/verify-otp", {
           ...formData,
           emailOrPhone: formData.email || formData.mobileNumber,
-          purpose: "register"
+          purpose: "register",
         });
         alert("Registration successful!");
         onClose?.();
@@ -82,7 +80,6 @@ const AuthModal = ({ onClose, universityName }) => {
     }
   };
 
-  // --- LOGIN LOGIC (Step 1: Send OTP) ---
   const handleLoginSendOtp = async (e) => {
     e.preventDefault();
     if (!formData.email) return alert("Enter Email or Mobile Number");
@@ -102,14 +99,13 @@ const AuthModal = ({ onClose, universityName }) => {
     }
   };
 
-  // --- LOGIN LOGIC (Step 2: Verify & Redirect) ---
   const handleLoginVerifyOtp = async (e) => {
     e.preventDefault();
     if (!formData.otp) return alert("Please enter OTP");
 
     setLoading(true);
     try {
-      const res = await api.post("/api/v1/verify-otp", {
+      await api.post("/api/v1/verify-otp", {
         emailOrPhone: formData.email,
         otp: formData.otp,
         purpose: "login",
@@ -117,12 +113,10 @@ const AuthModal = ({ onClose, universityName }) => {
 
       alert("Login successful!");
 
-      // ✅ Safe redirect: first push, then close modal
       setTimeout(() => {
-        router.push("/user"); // dashboard
+        router.push("/user");
         onClose?.();
       }, 100);
-
     } catch (err) {
       alert("Invalid OTP.");
     } finally {
@@ -130,7 +124,6 @@ const AuthModal = ({ onClose, universityName }) => {
     }
   };
 
-  // Tab change
   const switchTab = (tab) => {
     setActiveTab(tab);
     setOtpSent(false);
@@ -138,68 +131,104 @@ const AuthModal = ({ onClose, universityName }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-3"
+      onClick={onClose}
+    >
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-[700px] overflow-hidden relative animate-fadeIn"
+        className="bg-white rounded-lg shadow-2xl w-full max-w-[520px] overflow-hidden relative animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold z-10"
+          className=" cursor-pointer  absolute top-2 right-3 text-gray-400 hover:text-gray-800 text-xl font-bold z-10"
         >
           ✕
         </button>
 
         {/* HEADER */}
-        <div className="p-4 border-b border-gray-100 flex items-center">
+        <div className="p-2.5 border-b border-gray-100 flex items-center">
           <div className="w-1/4">
-             <Image src="/images/n12.png" alt="Career Vidya" width={4500} height={4500} className="max-h-12 w-auto object-contain" />
+            <Image
+              src="/images/n12.png"
+              alt="Career Vidya"
+              width={200}
+              height={50}
+              className="max-h-14 w-auto object-contain"
+            />
           </div>
           <div className="w-2/4 text-center">
-             <h2 className="text-[#05347f] font-bold text-lg leading-tight">#VidyaHaiTohSuccessHai</h2>
-             <p className="text-gray-500 text-[10px] md:text-xs">Students’ most trusted guide for education</p>
+            <h2 className="text-[#05347f] font-bold text-sm leading-tight">
+              #VidyaHaiTohSuccessHai
+            </h2>
+            <p className="text-gray-500 text-[9px] md:text-[10px]">
+              Students’ most trusted guide for education
+            </p>
           </div>
           <div className="w-1/4"></div>
         </div>
 
         {/* USP SECTION */}
-        <div className="bg-white border-b border-gray-100 p-3">
-            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 text-[10px] md:text-[13px] font-semibold text-green-700">
-                <div className="flex items-center gap-1"><span>✅</span> <span>No-Cost EMI Available</span></div>
-                <div className="h-4 w-[1px] bg-green-300 hidden md:block"></div>
-                <div className="flex items-center gap-1"><span>🎓</span> <span>Govt-Approved Universities</span></div>
-                <div className="h-4 w-[1px] bg-green-300 hidden md:block"></div>
-                <div className="flex items-center gap-1"><span>💼</span> <span>EMI Facility | Loan Facility</span></div>
+        <div className="bg-white border-b border-gray-100 py-1.5 px-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 md:gap-3 text-[9px] md:text-[11px] font-semibold text-green-700">
+            <div className="flex items-center gap-1">
+              <span>✅</span> <span>No-Cost EMI Available</span>
             </div>
+            <div className="h-3 w-[1px] bg-green-300 hidden md:block"></div>
+            <div className="flex items-center gap-1">
+              <span>🎓</span> <span>Govt-Approved Universities</span>
+            </div>
+            <div className="h-3 w-[1px] bg-green-300 hidden md:block"></div>
+            <div className="flex items-center gap-1">
+              <span>💼</span> <span>EMI | Loan Facility</span>
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b">
+        <div className="flex border-b text-xs">
           <button
             onClick={() => switchTab("signup")}
-            className={`flex-1 p-4 font-bold text-center transition ${
-              activeTab === "signup" ? "text-[#05347f] border-b-2 border-[#05347f]" : "text-gray-400"
+            className={`flex-1 py-2.5 font-bold text-center transition ${
+              activeTab === "signup"
+                ? "text-[#05347f] border-b-2 border-[#05347f]"
+                : "text-gray-400"
             }`}
           >
             SIGNUP
           </button>
           <button
             onClick={() => switchTab("login")}
-            className={`flex-1 p-4 font-bold text-center transition ${
-              activeTab === "login" ? "text-[#05347f] border-b-2 border-[#05347f]" : "text-gray-400"
+            className={`flex-1 py-2.5 font-bold text-center transition ${
+              activeTab === "login"
+                ? "text-[#05347f] border-b-2 border-[#05347f]"
+                : "text-gray-400"
             }`}
           >
             LOGIN
           </button>
         </div>
 
-        {/* FORM */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto no-scrollbar">
+        {/* FORM CONTAINER */}
+        <div className="p-4 max-h-[75vh] overflow-y-auto no-scrollbar">
           {activeTab === "signup" ? (
-            <form onSubmit={handleSignup} className="space-y-4">
-              <input type="text" name="name" placeholder="Name" className="inputBox" onChange={handleChange} required />
-              <div className="flex space-x-3">
-                <select name="gender" className="inputBox flex-1" onChange={handleChange} value={formData.gender}>
+            <form onSubmit={handleSignup} className="space-y-2.5">
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                className="inputBox"
+                onChange={handleChange}
+                required
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  name="gender"
+                  className="inputBox"
+                  onChange={handleChange}
+                  value={formData.gender}
+                >
                   <option value="">Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -210,48 +239,119 @@ const AuthModal = ({ onClose, universityName }) => {
                   type="text"
                   name="description"
                   placeholder="Short Description"
-                  className="inputBox flex-1 bg-gray-50 cursor-not-allowed"
+                  className="inputBox bg-gray-50 cursor-not-allowed text-gray-500"
                   value={formData.description}
                   readOnly
                 />
               </div>
 
               <div className="relative">
-                <div className="flex space-x-2 items-center">
-                  <span className="p-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700">+91</span>
-                  <input type="tel" name="mobileNumber" placeholder="Mobile Number" className="inputBox flex-1" onChange={handleChange} required />
+                <div className="flex space-x-1.5 items-center">
+                  <span className="p-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 text-xs">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    name="mobileNumber"
+                    placeholder="Mobile Number"
+                    className="inputBox flex-1"
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-                <span className="absolute right-1/26 -translate-x-1/2 -bottom-2 bg-white px-3 py-[0px] text-xs text-green-600 border border-green-400 rounded-full z-10">✔ We Do Not Spam</span>
+                <span className="absolute right-3 -bottom-1.5 bg-white px-1.5 text-[9px] text-green-600 border border-green-400 rounded-full z-10 leading-tight">
+                  ✔ We Do Not Spam
+                </span>
               </div>
 
               <div className="relative">
-                <input type="email" name="email" placeholder="Email" className="inputBox" onChange={handleChange} required />
-                <span className="absolute right-1/26 -translate-x-1/2 -bottom-2 bg-white px-3 py-[0px] text-xs text-green-600 border border-green-400 rounded-full z-10">✔ We Do Not Spam</span>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  className="inputBox"
+                  onChange={handleChange}
+                  required
+                />
+                <span className="absolute right-3 -bottom-1.5 bg-white px-1.5 text-[9px] text-green-600 border border-green-400 rounded-full z-10 leading-tight">
+                  ✔ We Do Not Spam
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <input type="text" name="course" placeholder="Course" className="inputBox" onChange={handleChange} />
-                <input type="text" name="branch" placeholder="Branch" className="inputBox" onChange={handleChange} />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  name="course"
+                  placeholder="Course"
+                  className="inputBox"
+                  onChange={handleChange}
+                />
+                <input
+                  type="text"
+                  name="branch"
+                  placeholder="Branch"
+                  className="inputBox"
+                  onChange={handleChange}
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <input type="text" name="state" placeholder="State" className="inputBox" onChange={handleChange} />
-                <input type="text" name="city" placeholder="City" className="inputBox" onChange={handleChange} />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  name="state"
+                  placeholder="State"
+                  className="inputBox"
+                  onChange={handleChange}
+                />
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  className="inputBox"
+                  onChange={handleChange}
+                />
               </div>
 
-              <textarea name="addresses" placeholder="Address" className="inputBox h-20" onChange={handleChange}></textarea>
+              <textarea
+                name="addresses"
+                placeholder="Address"
+                className="inputBox h-14 resize-none"
+                onChange={handleChange}
+              ></textarea>
 
               {otpSent && (
-                <input type="text" name="otp" placeholder="Enter OTP" className="inputBox border-2 border-[#1E90FF] text-center font-bold tracking-widest" onChange={handleChange} required />
+                <input
+                  type="text"
+                  name="otp"
+                  placeholder="Enter OTP"
+                  className="inputBox border-2 border-[#1E90FF] text-center font-bold tracking-widest"
+                  onChange={handleChange}
+                  required
+                />
               )}
 
-              <button type="submit" disabled={loading} className="w-full p-3 rounded-md font-bold text-white bg-[#bf5004]">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-md font-bold text-white bg-[#bf5004] text-xs transition-opacity hover:opacity-90"
+              >
                 {loading ? "Processing..." : !otpSent ? "SEND OTP" : "VERIFY & REGISTER"}
               </button>
-              <p className="text-center text-[12px] mt-2">Already have an account? <span className="text-blue-600 font-bold cursor-pointer" onClick={() => switchTab("login")}>Login</span></p>
+              <p className="text-center text-[11px] mt-1">
+                Already have an account?{" "}
+                <span
+                  className="text-blue-600 font-bold cursor-pointer"
+                  onClick={() => switchTab("login")}
+                >
+                  Login
+                </span>
+              </p>
             </form>
           ) : (
-            <form onSubmit={otpSent ? handleLoginVerifyOtp : handleLoginSendOtp} className="space-y-4 py-4">
+            <form
+              onSubmit={otpSent ? handleLoginVerifyOtp : handleLoginSendOtp}
+              className="space-y-3 py-2"
+            >
               <div className="relative">
                 <input
                   type="text"
@@ -263,7 +363,9 @@ const AuthModal = ({ onClose, universityName }) => {
                   disabled={otpSent}
                 />
                 {!otpSent && (
-                  <span className="absolute right-1/26 -translate-x-1/2 -bottom-2 bg-white px-3 py-[0px] text-xs text-green-600 border border-green-400 rounded-full">✔ We Do Not Spam</span>
+                  <span className="absolute right-3 -bottom-1.5 bg-white px-1.5 text-[9px] text-green-600 border border-green-400 rounded-full leading-tight">
+                    ✔ We Do Not Spam
+                  </span>
                 )}
               </div>
 
@@ -281,31 +383,68 @@ const AuthModal = ({ onClose, universityName }) => {
                 </div>
               )}
 
-              <button type="submit" disabled={loading} className="w-full p-3 rounded-md font-bold text-white bg-[#bf5004]">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-md font-bold text-white bg-[#bf5004] text-xs transition-opacity hover:opacity-90"
+              >
                 {loading ? "Processing..." : otpSent ? "VERIFY & LOGIN" : "SEND OTP"}
               </button>
 
-              <p className="text-center font-bold text-[14px] mt-2">
-                Don’t have an account? <span className="text-blue-600 font-bold cursor-pointer" onClick={() => switchTab("signup")}>Create Account</span>
+              <p className="text-center font-bold text-[12px] mt-1">
+                Don’t have an account?{" "}
+                <span
+                  className="text-blue-600 font-bold cursor-pointer"
+                  onClick={() => switchTab("signup")}
+                >
+                  Create Account
+                </span>
               </p>
             </form>
           )}
 
-          <p className="bg-green-50 text-center text-[10px] text-gray-400 mt-6 py-1 uppercase tracking-wider rounded">Secure SSL Encryption Enabled</p>
+          <p className="bg-green-50 text-center text-[9px] text-gray-500 mt-3 py-1 uppercase tracking-wider rounded">
+            Secure SSL Encryption Enabled
+          </p>
         </div>
       </div>
 
       <style jsx>{`
-        .inputBox { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 14px; }
-        .inputBox:focus { border-color: rgba(255, 146, 30, 1); box-shadow: 0 0 0 2px rgba(189, 116, 6, 0.1); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .inputBox {
+          width: 100%;
+          padding: 8px 10px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          outline: none;
+          font-size: 13px;
+        }
+        .inputBox:focus {
+          border-color: rgba(255, 146, 30, 1);
+          box-shadow: 0 0 0 2px rgba(189, 116, 6, 0.1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.96);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
       `}</style>
     </div>
   );
 };
 
 export default AuthModal;
-

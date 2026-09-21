@@ -1617,6 +1617,7 @@
 
 // ===================================================== */
 
+
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -1629,7 +1630,12 @@ import Footer from "@/app/layout/Footer.jsx";
 
 // Auth
 import { useAuth } from "@/context/AuthContext.jsx";
-// import AuthModal from "@/app/components/AuthModal.jsx";
+// ✅ FIX #1: this import was commented out, so `authOpen && <AuthModal .../>`
+// crashed the whole component with "AuthModal is not defined" the moment a
+// logged-out user tapped "Apply Now" / "Talk to University". That crash is
+// why nothing appeared to open — most on mobile, since mobile sessions are
+// far more likely to be logged out than your desktop test session.
+import AuthModal from "@/app/university/AuthModal.jsx";
 
 // Popups
 import Applictionpopup from "@/app/university/Applictionpopup.jsx";
@@ -1861,13 +1867,42 @@ export default function UniversityDetail({ initialData }) {
     }, [scrollToSlug]);
 
     // ============ LOCK BODY SCROLL WHEN POPUP OPEN ============
+    // ✅ FIX #2: plain `overflow: hidden` does NOT reliably stop scroll on
+    // iOS Safari / mobile Chrome — the background can still scroll/bounce
+    // behind the popup, which makes it look like the popup "didn't open"
+    // on phones even though it actually mounted. Using position:fixed with
+    // the saved scroll offset locks the body consistently on every device,
+    // and restores the exact scroll position on close.
     useEffect(() => {
-        if (popupOpen || authOpen) {
+        const isLocked = popupOpen || authOpen;
+
+        if (isLocked) {
+            const scrollY = window.scrollY;
+            document.body.dataset.scrollY = String(scrollY);
+            document.body.style.position = "fixed";
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.left = "0";
+            document.body.style.right = "0";
+            document.body.style.width = "100%";
             document.body.style.overflow = "hidden";
         } else {
+            const scrollY = parseInt(document.body.dataset.scrollY || "0", 10);
+            document.body.style.position = "";
+            document.body.style.top = "";
+            document.body.style.left = "";
+            document.body.style.right = "";
+            document.body.style.width = "";
             document.body.style.overflow = "";
+            delete document.body.dataset.scrollY;
+            window.scrollTo(0, scrollY);
         }
+
         return () => {
+            document.body.style.position = "";
+            document.body.style.top = "";
+            document.body.style.left = "";
+            document.body.style.right = "";
+            document.body.style.width = "";
             document.body.style.overflow = "";
         };
     }, [popupOpen, authOpen]);
