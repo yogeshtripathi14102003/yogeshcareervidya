@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import api from "@/utlis/api";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Dashboard redirect ke liye
 
 const AuthModal = ({ onClose, universityName }) => {
   const router = useRouter();
@@ -22,9 +22,10 @@ const AuthModal = ({ onClose, universityName }) => {
     gender: "",
     branch: "",
     addresses: "",
-    description: universityName || "",
+    description: universityName || "", // auto-fill university name
   });
 
+  // Update description if universityName changes
   useEffect(() => {
     setFormData((prev) => ({ ...prev, description: universityName || "" }));
   }, [universityName]);
@@ -45,6 +46,7 @@ const AuthModal = ({ onClose, universityName }) => {
     return true;
   };
 
+  // --- SIGNUP LOGIC ---
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!otpSent) {
@@ -80,6 +82,7 @@ const AuthModal = ({ onClose, universityName }) => {
     }
   };
 
+  // --- LOGIN LOGIC (Step 1: Send OTP) ---
   const handleLoginSendOtp = async (e) => {
     e.preventDefault();
     if (!formData.email) return alert("Enter Email or Mobile Number");
@@ -99,13 +102,14 @@ const AuthModal = ({ onClose, universityName }) => {
     }
   };
 
+  // --- LOGIN LOGIC (Step 2: Verify & Redirect) ---
   const handleLoginVerifyOtp = async (e) => {
     e.preventDefault();
     if (!formData.otp) return alert("Please enter OTP");
 
     setLoading(true);
     try {
-      await api.post("/api/v1/verify-otp", {
+      const res = await api.post("/api/v1/verify-otp", {
         emailOrPhone: formData.email,
         otp: formData.otp,
         purpose: "login",
@@ -113,8 +117,9 @@ const AuthModal = ({ onClose, universityName }) => {
 
       alert("Login successful!");
 
+      // ✅ Safe redirect: first push, then close modal
       setTimeout(() => {
-        router.push("/user");
+        router.push("/user"); // dashboard
         onClose?.();
       }, 100);
     } catch (err) {
@@ -124,6 +129,7 @@ const AuthModal = ({ onClose, universityName }) => {
     }
   };
 
+  // Tab change
   const switchTab = (tab) => {
     setActiveTab(tab);
     setOtpSent(false);
@@ -136,12 +142,12 @@ const AuthModal = ({ onClose, universityName }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-2xl w-full max-w-[520px] overflow-hidden relative animate-fadeIn"
+        className="bg-white rounded-lg shadow-2xl w-full max-w-[480px] overflow-hidden relative animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className=" cursor-pointer  absolute top-2 right-3 text-gray-400 hover:text-gray-800 text-xl font-bold z-10"
+          className="absolute top-2 right-3 text-gray-400 hover:text-gray-800 text-xl font-bold z-10"
         >
           ✕
         </button>
@@ -152,9 +158,9 @@ const AuthModal = ({ onClose, universityName }) => {
             <Image
               src="/images/n12.png"
               alt="Career Vidya"
-              width={200}
-              height={50}
-              className="max-h-14 w-auto object-contain"
+              width={4500}
+              height={4500}
+              className="max-h-8 w-auto object-contain"
             />
           </div>
           <div className="w-2/4 text-center">
@@ -180,7 +186,7 @@ const AuthModal = ({ onClose, universityName }) => {
             </div>
             <div className="h-3 w-[1px] bg-green-300 hidden md:block"></div>
             <div className="flex items-center gap-1">
-              <span>💼</span> <span>EMI | Loan Facility</span>
+              <span>💼</span> <span>EMI Facility | Loan Facility</span>
             </div>
           </div>
         </div>
@@ -189,7 +195,7 @@ const AuthModal = ({ onClose, universityName }) => {
         <div className="flex border-b text-xs">
           <button
             onClick={() => switchTab("signup")}
-            className={`flex-1 py-2.5 font-bold text-center transition ${
+            className={`flex-1 py-2 font-bold text-center transition ${
               activeTab === "signup"
                 ? "text-[#05347f] border-b-2 border-[#05347f]"
                 : "text-gray-400"
@@ -199,7 +205,7 @@ const AuthModal = ({ onClose, universityName }) => {
           </button>
           <button
             onClick={() => switchTab("login")}
-            className={`flex-1 py-2.5 font-bold text-center transition ${
+            className={`flex-1 py-2 font-bold text-center transition ${
               activeTab === "login"
                 ? "text-[#05347f] border-b-2 border-[#05347f]"
                 : "text-gray-400"
@@ -209,8 +215,8 @@ const AuthModal = ({ onClose, universityName }) => {
           </button>
         </div>
 
-        {/* FORM CONTAINER */}
-        <div className="p-4 max-h-[75vh] overflow-y-auto no-scrollbar">
+        {/* FORM */}
+        <div className="p-3.5 max-h-[75vh] overflow-y-auto no-scrollbar">
           {activeTab === "signup" ? (
             <form onSubmit={handleSignup} className="space-y-2.5">
               <input
@@ -221,11 +227,10 @@ const AuthModal = ({ onClose, universityName }) => {
                 onChange={handleChange}
                 required
               />
-
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex space-x-2">
                 <select
                   name="gender"
-                  className="inputBox"
+                  className="inputBox flex-1"
                   onChange={handleChange}
                   value={formData.gender}
                 >
@@ -239,7 +244,7 @@ const AuthModal = ({ onClose, universityName }) => {
                   type="text"
                   name="description"
                   placeholder="Short Description"
-                  className="inputBox bg-gray-50 cursor-not-allowed text-gray-500"
+                  className="inputBox flex-1 bg-gray-50 cursor-not-allowed"
                   value={formData.description}
                   readOnly
                 />
@@ -247,7 +252,7 @@ const AuthModal = ({ onClose, universityName }) => {
 
               <div className="relative">
                 <div className="flex space-x-1.5 items-center">
-                  <span className="p-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 text-xs">
+                  <span className="p-1.5 border border-gray-300 rounded-md bg-gray-50 text-gray-700 text-xs">
                     +91
                   </span>
                   <input
@@ -315,7 +320,7 @@ const AuthModal = ({ onClose, universityName }) => {
               <textarea
                 name="addresses"
                 placeholder="Address"
-                className="inputBox h-14 resize-none"
+                className="inputBox h-12 resize-none"
                 onChange={handleChange}
               ></textarea>
 
@@ -333,9 +338,13 @@ const AuthModal = ({ onClose, universityName }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 rounded-md font-bold text-white bg-[#bf5004] text-xs transition-opacity hover:opacity-90"
+                className="w-full py-2 rounded-md font-bold text-white bg-[#bf5004] text-xs transition-opacity hover:opacity-90"
               >
-                {loading ? "Processing..." : !otpSent ? "SEND OTP" : "VERIFY & REGISTER"}
+                {loading
+                  ? "Processing..."
+                  : !otpSent
+                  ? "SEND OTP"
+                  : "VERIFY & REGISTER"}
               </button>
               <p className="text-center text-[11px] mt-1">
                 Already have an account?{" "}
@@ -386,9 +395,13 @@ const AuthModal = ({ onClose, universityName }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 rounded-md font-bold text-white bg-[#bf5004] text-xs transition-opacity hover:opacity-90"
+                className="w-full py-2 rounded-md font-bold text-white bg-[#bf5004] text-xs transition-opacity hover:opacity-90"
               >
-                {loading ? "Processing..." : otpSent ? "VERIFY & LOGIN" : "SEND OTP"}
+                {loading
+                  ? "Processing..."
+                  : otpSent
+                  ? "VERIFY & LOGIN"
+                  : "SEND OTP"}
               </button>
 
               <p className="text-center font-bold text-[12px] mt-1">
@@ -403,7 +416,7 @@ const AuthModal = ({ onClose, universityName }) => {
             </form>
           )}
 
-          <p className="bg-green-50 text-center text-[9px] text-gray-500 mt-3 py-1 uppercase tracking-wider rounded">
+          <p className="bg-green-50 text-center text-[9px] text-gray-400 mt-3 py-1 uppercase tracking-wider rounded">
             Secure SSL Encryption Enabled
           </p>
         </div>
@@ -412,11 +425,11 @@ const AuthModal = ({ onClose, universityName }) => {
       <style jsx>{`
         .inputBox {
           width: 100%;
-          padding: 8px 10px;
+          padding: 7px 10px;
           border: 1px solid #ddd;
           border-radius: 6px;
           outline: none;
-          font-size: 13px;
+          font-size: 12px;
         }
         .inputBox:focus {
           border-color: rgba(255, 146, 30, 1);

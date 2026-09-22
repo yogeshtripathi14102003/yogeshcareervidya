@@ -26,6 +26,7 @@ const PRIORITY_UNIS = [
   "noida-international-university",
   "manipal-university-jaipur",
   "srm-university",
+  "shoolini-university-online",
   "sikkim-manipal-university",
   "amrita-vishwa-vidyapeetham",
   "lovely-professional-university",

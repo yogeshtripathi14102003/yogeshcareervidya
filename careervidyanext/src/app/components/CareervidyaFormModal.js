@@ -2798,7 +2798,7 @@ export default function CareerVidyaPremiumWidget() {
                 style={previewVideoStyle}
               >
                 <source
-                  src="/video/home.mp4"
+                  src="/video/home1.mp4"
                   type="video/mp4"
                 />
               </video>
@@ -2849,7 +2849,7 @@ export default function CareerVidyaPremiumWidget() {
                 style={videoStyle}
               >
                 <source
-                  src="/video/home.mp4"
+                  src="/video/home1.mp4"
                   type="video/mp4"
                 />
               </video>
