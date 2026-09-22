@@ -719,6 +719,7 @@ const AdminShell = ({ children }) => {
       children: [
         { href: "/admin/Addcounsler", label: "Addcounselor", icon: UserPlus },
         { href: "/admin/CounselorsReprt", label: "Counselor Report", icon: FileText },
+        {href:"/admin/Adminremark", label: "Detail Report", icon: FileText},
         { href: "/admin/LeadAnalytics", label: "Lead Analytics", icon: TrendingUp, id: "leadanalytics" },
         { href: "/admin/CounselorLeaderboard", label: "Counselor Leaderboard", icon: Trophy, id: "counselorleaderboard" },
         { href: "/admin/AssignmentConfig", label: "Smart Assignment", icon: Settings2, id: "assignmentconfig" },

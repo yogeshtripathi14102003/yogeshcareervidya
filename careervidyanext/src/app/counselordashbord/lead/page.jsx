@@ -1,3 +1,6 @@
+
+
+
 // "use client";
 
 // import React, { useEffect, useState, useCallback } from "react";
@@ -30,17 +33,20 @@
 //   return new Date(dateString).toDateString() === new Date().toDateString();
 // };
 
-// const isRemarkUpdatedToday = (remarkString) => {
-//   if (!remarkString) return false;
-//   const today = new Date().toDateString();
-//   const matches = [...remarkString.matchAll(/\[(.+?)\]:/g)];
-//   if (matches.length === 0) return false;
-//   const lastTimestamp = matches[matches.length - 1][1];
-//   try {
-//     return new Date(lastTimestamp).toDateString() === today;
-//   } catch {
-//     return false;
-//   }
+// // ✅ UPDATED: historyByDate se check karta hai (remark string parse nahi karta)
+// const isRemarkUpdatedToday = (lead) => {
+//   if (!lead?.historyByDate || !Array.isArray(lead.historyByDate)) return false;
+//   const todayIST = new Date().toLocaleDateString("en-CA", {
+//     timeZone: "Asia/Kolkata",
+//   });
+//   return lead.historyByDate.some((day) => day.date === todayIST);
+// };
+
+// // ✅ NEW: latest remark nikalo historyByDate se
+// const getLatestRemark = (lead) => {
+//   if (!lead?.historyByDate?.length) return lead?.remark || "";
+//   const latestDay = lead.historyByDate[0];
+//   return latestDay.entries?.[0]?.remark || lead?.remark || "";
 // };
 
 // const formatDateLabel = (dateStr) => {
@@ -86,7 +92,7 @@
 //   const [leads, setLeads] = useState([]);
 //   const [totalLeads, setTotalLeads] = useState(0);
 //   const [stats, setStats] = useState([]);
-//   const [todayStats, setTodayStats] = useState([]); // ← NEW: aaj ke status changes
+//   const [todayStats, setTodayStats] = useState([]);
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [filterStatus, setFilterStatus] = useState("");
 //   const [loading, setLoading] = useState(false);
@@ -123,8 +129,6 @@
 //         setLeads(res.data.data || []);
 //         setTotalLeads(res.data.total || 0);
 //         setStats(res.data.stats || []);
-//         // ← Backend se todayStats bhi aani chahiye
-//         // Expected format: [{ _id: "Hot Lead", count: 3 }, ...]
 //         setTodayStats(res.data.todayStats || []);
 //       }
 //     } catch (err) {
@@ -172,18 +176,24 @@
 
 //       if (res.data.success && res.data.data.length > 0) {
 //         const allLeads = res.data.data;
-//         const dataToExport = allLeads.map((lead) => ({
-//           "Lead Name": lead.name || "",
-//           "Phone Number": lead.phone || lead.mobile || lead.contactNo || "",
-//           Course: lead.course || "",
-//           City: lead.city || "",
-//           Status: lead.status === "Not Picked" ? "Dead Lead" : lead.status,
-//           "Remark History": lead.remark || "",
-//           "Next Follow-up": lead.followUpDate
-//             ? new Date(lead.followUpDate).toLocaleString()
-//             : "N/A",
-//           "Created At": new Date(lead.createdAt).toLocaleDateString(),
-//         }));
+//         const dataToExport = allLeads.map((lead) => {
+//           // ✅ Latest remark historyByDate se
+//           const latestRemark = getLatestRemark(lead);
+//           return {
+//             "Lead Name": lead.name || "",
+//             "Phone Number": lead.phone || lead.mobile || lead.contactNo || "",
+//             Course: lead.course || "",
+//             City: lead.city || "",
+//             Status: lead.status === "Not Picked" ? "Dead Lead" : lead.status,
+//             "Remark Count": lead.remarkCount || 0,
+//             "Latest Remark": latestRemark || "",
+//             "Next Follow-up": lead.followUpDate
+//               ? new Date(lead.followUpDate).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+//               : "N/A",
+//             "Created At": new Date(lead.createdAt).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }),
+//             "Last Updated (IST)": lead.updatedAtIST || "",
+//           };
+//         });
 
 //         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
 //         const workbook = XLSX.utils.book_new();
@@ -209,6 +219,8 @@
 //   /* ================= UPDATE LEAD ================= */
 //   const updateLeadAPI = async (id, data) => {
 //     try {
+//       // ✅ data me sirf: { status, remark, followUpDate }
+//       // ❌ followUpHistory KABHI mat bhejo — backend khud $push karega
 //       const res = await api.put(`/api/v1/leads/${id}`, data);
 //       if (res.data.success) {
 //         fetchMyLeads();
@@ -303,7 +315,6 @@
 //           ── AAJ KI REPORT (Today's Report) ──
 //       ══════════════════════════════════════════ */}
 //       <div className="bg-white border rounded-lg shadow-sm mb-4 overflow-hidden">
-//         {/* Header */}
 //         <div className="flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600">
 //           <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-wider">
 //             <TrendingUp size={15} />
@@ -319,11 +330,10 @@
 //           </div>
 //         </div>
 
-//         {/* Today's Status Badges */}
 //         <div className="p-3 flex flex-wrap gap-2">
 //           {todayTotal === 0 ? (
 //             <p className="text-xs text-gray-400 font-bold py-1 px-2">
-//               Today no status changes have been made. 🛠️ Testing Phase: This section was intentionally added for evaluation—don't panic, it's not a bug!
+//               Today no status changes have been made. 🛠️
 //             </p>
 //           ) : (
 //             STATUS.map((s) => {
@@ -439,7 +449,6 @@
 //   </div>
 // );
 
-// /* ── NEW: Today's Status Badge ── */
 // const TodayStatBadge = ({ label, count, colors }) => (
 //   <div
 //     className="flex items-center gap-2 px-3 py-1.5 rounded-lg border font-bold text-[11px] shadow-sm"
@@ -463,10 +472,12 @@
 //   const [localStatus, setLocalStatus] = useState(lead.status);
 //   const [localRemark, setLocalRemark] = useState("");
 //   const [localDate, setLocalDate] = useState(formatForInput(lead.followUpDate));
-  
+
 //   const [showAdmission, setShowAdmission] = useState(false);
 //   const [showTimeline, setShowTimeline] = useState(false);
-//   const [savedRemark, setSavedRemark] = useState(lead.remark || "");
+
+//   // ✅ Latest remark from historyByDate
+//   const latestRemark = getLatestRemark(lead);
 
 //   const phoneNumber = lead.phone || lead.mobile || lead.contactNo;
 //   const hasChange =
@@ -474,7 +485,8 @@
 //     localRemark.trim() !== "" ||
 //     localDate !== formatForInput(lead.followUpDate);
 
-//   const remarkUpdatedToday = isRemarkUpdatedToday(savedRemark);
+//   // ✅ Updated: historyByDate based check
+//   const remarkUpdatedToday = isRemarkUpdatedToday(lead);
 
 //   const rowClass = isToday(lead.followUpDate)
 //     ? "bg-rose-50/60 border-l-4 border-rose-400"
@@ -492,18 +504,11 @@
 //       }
 //     }
 
-//     let finalRemark = savedRemark;
-//     if (localRemark.trim() !== "") {
-//       const timestamp = new Date().toISOString();
-//       finalRemark = finalRemark
-//         ? `${finalRemark}\n[${timestamp}]: ${localRemark}`
-//         : `[${timestamp}]: ${localRemark}`;
-//     }
-
-//     setSavedRemark(finalRemark);
+//     // ✅ Backend ko sirf remark + status + followUpDate bhejo
+//     // ❌ followUpHistory KABHI mat bhejo — backend khud $push karega
 //     onSave(lead._id, {
 //       status: localStatus,
-//       remark: finalRemark,
+//       remark: localRemark.trim() || undefined, // khali ho to bhejo hi nahi
 //       followUpDate: localDate ? new Date(localDate).toISOString() : null,
 //     });
 //     setLocalRemark("");
@@ -591,9 +596,17 @@
 //                 ✅ Updated Today
 //               </span>
 //             )}
+
+//             {/* ✅ NEW: Remark Count Badge */}
+//             <span className="text-[9px] font-black text-blue-700 bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded w-fit">
+//               {lead.remarkCount || 0} Updates
+//             </span>
+
+//             {/* ✅ Latest Remark from historyByDate */}
 //             <div className="text-[9px] text-blue-800 font-semibold bg-blue-50/50 p-1 rounded border border-blue-100 max-h-12 overflow-y-auto whitespace-pre-wrap">
-//               {savedRemark || "No remarks"}
+//               {latestRemark || "No remarks"}
 //             </div>
+
 //             <input
 //               type="text"
 //               value={localRemark}
@@ -641,7 +654,7 @@
 //         </td>
 //       </tr>
 
-//       {/* Activity Timeline Modal — FIX: wrapped in <tr><td> so no <div> is a direct child of <tbody> */}
+//       {/* Activity Timeline Modal */}
 //       {showTimeline && (
 //         <tr>
 //           <td colSpan="6" className="p-0 border-none">
@@ -684,7 +697,7 @@
 
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import api from "@/utlis/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 import * as XLSX from "xlsx";
@@ -694,10 +707,21 @@ import LeadTimelineModal from "@/app/counselordashbord/components/LeadTimelineMo
 import {
   Search, X, Save,
   ChevronLeft, ChevronRight, MapPin, BookOpen, Smartphone, Calendar,
-  TrendingUp, Clock
+  TrendingUp, Clock, RefreshCw
 } from "lucide-react";
 
 /* ================= HELPERS ================= */
+const todayISTString = () =>
+  new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+
+const formatISTDate = (date) =>
+  new Date(date).toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
 const formatForInput = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -711,19 +735,17 @@ const formatForInput = (dateString) => {
 
 const isToday = (dateString) => {
   if (!dateString) return false;
-  return new Date(dateString).toDateString() === new Date().toDateString();
-};
-
-// ✅ UPDATED: historyByDate se check karta hai (remark string parse nahi karta)
-const isRemarkUpdatedToday = (lead) => {
-  if (!lead?.historyByDate || !Array.isArray(lead.historyByDate)) return false;
-  const todayIST = new Date().toLocaleDateString("en-CA", {
+  const d = new Date(dateString).toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
   });
-  return lead.historyByDate.some((day) => day.date === todayIST);
+  return d === todayISTString();
 };
 
-// ✅ NEW: latest remark nikalo historyByDate se
+const isRemarkUpdatedToday = (lead) => {
+  if (!lead?.historyByDate || !Array.isArray(lead.historyByDate)) return false;
+  return lead.historyByDate.some((day) => day.date === todayISTString());
+};
+
 const getLatestRemark = (lead) => {
   if (!lead?.historyByDate?.length) return lead?.remark || "";
   const latestDay = lead.historyByDate[0];
@@ -733,6 +755,7 @@ const getLatestRemark = (lead) => {
 const formatDateLabel = (dateStr) => {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata",
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -740,20 +763,11 @@ const formatDateLabel = (dateStr) => {
 };
 
 const STATUS = [
-  "New",
-  "Not Interested",
-  "Details Shared",
-  "Follow-up",
-  "Hot Lead",
-  "University Issue",
-  "Fee Issue",
-  "Distance Issue",
-  "Language Issue",
-  "Not Picked",
-  "Admission Done",
+  "New", "Not Interested", "Details Shared", "Follow-up",
+  "Hot Lead", "University Issue", "Fee Issue", "Distance Issue",
+  "Language Issue", "Not Picked", "Admission Done",
 ];
 
-// Color map for today's status badges
 const STATUS_COLORS = {
   "New": { bg: "#dbeafe", text: "#1d4ed8", border: "#93c5fd" },
   "Not Interested": { bg: "#fee2e2", text: "#b91c1c", border: "#fca5a5" },
@@ -774,6 +788,7 @@ const LeadsPage = () => {
   const [totalLeads, setTotalLeads] = useState(0);
   const [stats, setStats] = useState([]);
   const [todayStats, setTodayStats] = useState([]);
+  const [todayDateIST, setTodayDateIST] = useState(todayISTString());
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -786,6 +801,9 @@ const LeadsPage = () => {
   const [toDate, setToDate] = useState("");
   const [appliedFrom, setAppliedFrom] = useState("");
   const [appliedTo, setAppliedTo] = useState("");
+
+  // ✅ Track if it's the first load
+  const isFirstLoad = useRef(true);
 
   /* ================= FETCH LEADS ================= */
   const fetchMyLeads = useCallback(async () => {
@@ -811,23 +829,112 @@ const LeadsPage = () => {
         setTotalLeads(res.data.total || 0);
         setStats(res.data.stats || []);
         setTodayStats(res.data.todayStats || []);
+        setTodayDateIST(res.data.todayDateIST || todayISTString());
       }
     } catch (err) {
       console.error("Fetch error", err);
     } finally {
       setLoading(false);
+      isFirstLoad.current = false;
     }
   }, [currentPage, searchTerm, filterStatus, appliedFrom, appliedTo, authUser]);
 
+  // ✅ Fetch on mount + when filters change
   useEffect(() => {
     fetchMyLeads();
   }, [fetchMyLeads]);
+
+  /* ================= UPDATE LEAD (LOCAL) ================= */
+  // ✅ KEY: Update karte waqt poori list refresh NA karo
+  // Sirf us lead ko locally update karo — apni jagah rahe
+  const updateLeadAPI = async (id, data) => {
+    try {
+      const res = await api.put(`/api/v1/leads/${id}`, data);
+
+      if (res.data.success) {
+        // ✅ Update response se naya lead lo
+        const updatedLead = res.data.data;
+
+        // ✅ Sirf us lead ko update karo — list ka order nahi badlega
+        setLeads((prevLeads) =>
+          prevLeads.map((lead) =>
+            lead._id === id
+              ? {
+                  ...lead,
+                  ...updatedLead,
+                  // ✅ Preserve computed fields jo backend bhejta hai
+                  remarkCount:
+                    updatedLead.remarkCount ??
+                    (updatedLead.followUpHistory?.length || 0),
+                  historyByDate:
+                    updatedLead.historyByDate || lead.historyByDate,
+                  updatedAtIST: updatedLead.updatedAtIST || lead.updatedAtIST,
+                }
+              : lead
+          )
+        );
+
+        // ✅ Stats + todayStats locally update karo (refresh nahi)
+        updateStatsLocally(id, updatedLead, data);
+
+        // ✅ Success feedback
+        console.log(`✅ Lead ${id} updated locally`);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Update failed");
+    }
+  };
+
+  /* ================= LOCAL STATS UPDATE ================= */
+  // ✅ Stats ko locally update karo bina refresh ke
+  const updateStatsLocally = (leadId, updatedLead, updateData) => {
+    // Find old lead
+    const oldLead = leads.find((l) => l._id === leadId);
+    if (!oldLead) return;
+
+    const oldStatus = oldLead.status;
+    const newStatus = updateData.status || oldLead.status;
+
+    // ✅ Status change hua?
+    if (oldStatus !== newStatus) {
+      setStats((prevStats) => {
+        const updated = [...prevStats];
+        const oldStat = updated.find((s) => s._id === oldStatus);
+        const newStat = updated.find((s) => s._id === newStatus);
+
+        if (oldStat) oldStat.count = Math.max(0, oldStat.count - 1);
+        if (newStat) newStat.count += 1;
+        else updated.push({ _id: newStatus, count: 1 });
+
+        return updated;
+      });
+
+      // ✅ Today stats bhi update karo (agar aaj ka update hai)
+      setTodayStats((prevStats) => {
+        const updated = [...prevStats];
+        const oldStat = updated.find((s) => s._id === oldStatus);
+        const newStat = updated.find((s) => s._id === newStatus);
+
+        if (oldStat) oldStat.count = Math.max(0, oldStat.count - 1);
+        if (newStat) newStat.count += 1;
+        else updated.push({ _id: newStatus, count: 1 });
+
+        return updated;
+      });
+    }
+  };
+
+  /* ================= MANUAL REFRESH ================= */
+  const handleManualRefresh = () => {
+    fetchMyLeads();
+  };
 
   /* ================= APPLY / CLEAR FILTER ================= */
   const handleApplyFilter = () => {
     setAppliedFrom(fromDate);
     setAppliedTo(toDate);
     setCurrentPage(1);
+    // Filter change pe fetch automatic hoga (useEffect se)
   };
 
   const handleClearFilter = () => {
@@ -858,7 +965,6 @@ const LeadsPage = () => {
       if (res.data.success && res.data.data.length > 0) {
         const allLeads = res.data.data;
         const dataToExport = allLeads.map((lead) => {
-          // ✅ Latest remark historyByDate se
           const latestRemark = getLatestRemark(lead);
           return {
             "Lead Name": lead.name || "",
@@ -869,9 +975,13 @@ const LeadsPage = () => {
             "Remark Count": lead.remarkCount || 0,
             "Latest Remark": latestRemark || "",
             "Next Follow-up": lead.followUpDate
-              ? new Date(lead.followUpDate).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+              ? new Date(lead.followUpDate).toLocaleString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                })
               : "N/A",
-            "Created At": new Date(lead.createdAt).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }),
+            "Created At": new Date(lead.createdAt).toLocaleDateString("en-IN", {
+              timeZone: "Asia/Kolkata",
+            }),
             "Last Updated (IST)": lead.updatedAtIST || "",
           };
         });
@@ -897,31 +1007,17 @@ const LeadsPage = () => {
     }
   };
 
-  /* ================= UPDATE LEAD ================= */
-  const updateLeadAPI = async (id, data) => {
-    try {
-      // ✅ data me sirf: { status, remark, followUpDate }
-      // ❌ followUpHistory KABHI mat bhejo — backend khud $push karega
-      const res = await api.put(`/api/v1/leads/${id}`, data);
-      if (res.data.success) {
-        fetchMyLeads();
-      }
-    } catch (err) {
-      alert(err.response?.data?.message || "Update failed");
-    }
-  };
-
   const totalPages = Math.ceil(totalLeads / itemsPerPage);
-
-  // Today's total updated leads
-  const todayTotal = todayStats.reduce((sum, s) => sum + (s.count || 0), 0);
+  const todayTotal = useMemo(
+    () => todayStats.reduce((sum, s) => sum + (s.count || 0), 0),
+    [todayStats]
+  );
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen text-gray-800">
 
       {/* ── Top Bar ── */}
       <div className="bg-white border p-3 rounded-lg shadow-sm mb-4 flex flex-wrap gap-3 items-center justify-between">
-        {/* Date Range Filter */}
         <div className="flex items-center gap-2 text-xs flex-wrap">
           <div className="flex items-center gap-1.5 text-blue-700 font-bold uppercase">
             <Calendar size={14} /> Date Range:
@@ -961,14 +1057,26 @@ const LeadsPage = () => {
           )}
         </div>
 
-        {/* Export Button */}
-        <button
-          onClick={handleExportExcel}
-          disabled={loading}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95 shadow-md disabled:opacity-50"
-        >
-          <FaFileExcel /> {loading ? "Processing..." : "Export Excel"}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* ✅ Manual Refresh Button */}
+          <button
+            onClick={handleManualRefresh}
+            disabled={loading}
+            title="Refresh list"
+            className="flex items-center gap-1.5 bg-slate-500 hover:bg-slate-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+            Refresh
+          </button>
+
+          <button
+            onClick={handleExportExcel}
+            disabled={loading}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95 shadow-md disabled:opacity-50"
+          >
+            <FaFileExcel /> {loading ? "Processing..." : "Export"}
+          </button>
+        </div>
       </div>
 
       {/* ── Overall Stats Grid ── */}
@@ -992,9 +1100,7 @@ const LeadsPage = () => {
         ))}
       </div>
 
-      {/* ══════════════════════════════════════════
-          ── AAJ KI REPORT (Today's Report) ──
-      ══════════════════════════════════════════ */}
+      {/* ── Today Report ── */}
       <div className="bg-white border rounded-lg shadow-sm mb-4 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600">
           <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-wider">
@@ -1003,7 +1109,13 @@ const LeadsPage = () => {
           </div>
           <div className="flex items-center gap-1.5 text-violet-100 text-[10px] font-bold">
             <Clock size={11} />
-            {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+            {todayDateIST
+              ? new Date(todayDateIST + "T00:00:00+05:30").toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })
+              : formatISTDate(new Date())}
             {" · "}
             <span className="bg-white/20 px-2 py-0.5 rounded-full text-white font-black">
               {todayTotal} Total Updates
@@ -1014,7 +1126,7 @@ const LeadsPage = () => {
         <div className="p-3 flex flex-wrap gap-2">
           {todayTotal === 0 ? (
             <p className="text-xs text-gray-400 font-bold py-1 px-2">
-              Today no status changes have been made. 🛠️
+              Aaj abhi tak koi status change nahi hua. 🛠️
             </p>
           ) : (
             STATUS.map((s) => {
@@ -1076,6 +1188,10 @@ const LeadsPage = () => {
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-sm bg-green-200 border border-green-400 inline-block"></span>
           Remark Updated Today
+        </div>
+        <div className="flex items-center gap-1.5 text-blue-600">
+          <span className="w-3 h-3 rounded-sm bg-blue-100 border border-blue-400 inline-block"></span>
+          Update hone pe list order same rehta hai
         </div>
       </div>
 
@@ -1157,16 +1273,14 @@ const LeadRow = ({ lead, onSave }) => {
   const [showAdmission, setShowAdmission] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
 
-  // ✅ Latest remark from historyByDate
   const latestRemark = getLatestRemark(lead);
-
   const phoneNumber = lead.phone || lead.mobile || lead.contactNo;
+
   const hasChange =
     localStatus !== lead.status ||
     localRemark.trim() !== "" ||
     localDate !== formatForInput(lead.followUpDate);
 
-  // ✅ Updated: historyByDate based check
   const remarkUpdatedToday = isRemarkUpdatedToday(lead);
 
   const rowClass = isToday(lead.followUpDate)
@@ -1174,6 +1288,12 @@ const LeadRow = ({ lead, onSave }) => {
     : remarkUpdatedToday
     ? "bg-green-50 border-l-4 border-green-400"
     : "";
+
+  // ✅ Sync local state when lead prop changes (after backend update)
+  useEffect(() => {
+    setLocalStatus(lead.status);
+    setLocalDate(formatForInput(lead.followUpDate));
+  }, [lead.status, lead.followUpDate]);
 
   const handleUpdate = () => {
     if (localStatus === "Not Picked") {
@@ -1185,11 +1305,9 @@ const LeadRow = ({ lead, onSave }) => {
       }
     }
 
-    // ✅ Backend ko sirf remark + status + followUpDate bhejo
-    // ❌ followUpHistory KABHI mat bhejo — backend khud $push karega
     onSave(lead._id, {
       status: localStatus,
-      remark: localRemark.trim() || undefined, // khali ho to bhejo hi nahi
+      remark: localRemark.trim() || undefined,
       followUpDate: localDate ? new Date(localDate).toISOString() : null,
     });
     setLocalRemark("");
@@ -1198,7 +1316,6 @@ const LeadRow = ({ lead, onSave }) => {
   return (
     <>
       <tr className={`hover:bg-blue-50/40 transition-colors ${rowClass}`}>
-        {/* Lead Details */}
         <td className="p-3 border-r border-gray-50">
           <div className="flex flex-col gap-1.5">
             <span className="font-bold text-gray-900 text-[12px] uppercase flex items-center gap-1.5">
@@ -1238,7 +1355,6 @@ const LeadRow = ({ lead, onSave }) => {
           </div>
         </td>
 
-        {/* Course & Location */}
         <td className="p-3 border-r border-gray-50">
           <div className="flex flex-col gap-1.5">
             {lead.course && (
@@ -1254,7 +1370,6 @@ const LeadRow = ({ lead, onSave }) => {
           </div>
         </td>
 
-        {/* Status */}
         <td className="border-r border-gray-50 px-2">
           <select
             value={localStatus}
@@ -1269,7 +1384,6 @@ const LeadRow = ({ lead, onSave }) => {
           </select>
         </td>
 
-        {/* Remark */}
         <td className="p-2 border-r border-gray-50">
           <div className="flex flex-col gap-1">
             {remarkUpdatedToday && (
@@ -1277,17 +1391,12 @@ const LeadRow = ({ lead, onSave }) => {
                 ✅ Updated Today
               </span>
             )}
-
-            {/* ✅ NEW: Remark Count Badge */}
             <span className="text-[9px] font-black text-blue-700 bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded w-fit">
-              {lead.remarkCount || 0} Updates
+              {lead.remarkCount || (lead.followUpHistory?.length || 0)} Updates
             </span>
-
-            {/* ✅ Latest Remark from historyByDate */}
             <div className="text-[9px] text-blue-800 font-semibold bg-blue-50/50 p-1 rounded border border-blue-100 max-h-12 overflow-y-auto whitespace-pre-wrap">
               {latestRemark || "No remarks"}
             </div>
-
             <input
               type="text"
               value={localRemark}
@@ -1298,7 +1407,6 @@ const LeadRow = ({ lead, onSave }) => {
           </div>
         </td>
 
-        {/* Next Follow-up */}
         <td className="border-r border-gray-50 px-2">
           <input
             type="datetime-local"
@@ -1308,7 +1416,6 @@ const LeadRow = ({ lead, onSave }) => {
           />
         </td>
 
-        {/* Actions */}
         <td className="p-3 text-center">
           <div className="flex gap-2 justify-center">
             <button
@@ -1335,7 +1442,6 @@ const LeadRow = ({ lead, onSave }) => {
         </td>
       </tr>
 
-      {/* Activity Timeline Modal */}
       {showTimeline && (
         <tr>
           <td colSpan="6" className="p-0 border-none">
@@ -1344,7 +1450,6 @@ const LeadRow = ({ lead, onSave }) => {
         </tr>
       )}
 
-      {/* Student Admission Modal */}
       {showAdmission && (
         <tr>
           <td colSpan="6" className="p-0 border-none">
