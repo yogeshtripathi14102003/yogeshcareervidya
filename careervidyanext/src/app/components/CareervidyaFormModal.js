@@ -2860,7 +2860,7 @@ export default function CareerVidyaPremiumWidget() {
             <div style={contentAreaStyle}>
 
               <h3 style={titleStyle}>
-                Need Expert Career Advice?
+                Get Free  Expert Career Advice?
               </h3>
 
               <div style={dividerStyle}>

@@ -506,7 +506,7 @@ export default function TeamSliderClient({ team = [] }) {
 
                     {/* Action Link Button */}
                     <div className="w-full mt-auto py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#3498db] text-white text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-white/10 group-hover:border-[#3498db]">
-                        <span>Book Consultation</span>
+                        <span>Career Advisor</span>
                         <ChevronRightIcon
                             size={14}
                             className="group-hover:translate-x-1 transition-transform"
