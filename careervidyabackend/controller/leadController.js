@@ -1226,6 +1226,1125 @@
 //   }
 // };
 
+
+
+// import Lead from "../models/counselor/Lead.js";
+// import Counselor from "../models/counselor/Counselor.js";
+// import XLSX from "xlsx";
+// import mongoose from "mongoose";
+// import { getViewableCounselorIds } from "../utilities/teamScope.js";
+// import { ADMITTED_STATUS, LOST_STATUSES } from "../constant/leadStatus.js";
+// import { autoAssignLead, getAssignmentConfig } from "../utilities/leadAssignmentEngine.js";
+// import { notifyCounselor } from "../utilities/notifyCounselor.js";
+// import { recalculateLeadScore, recalculateAllOpenLeadScores } from "../utilities/leadScoringEngine.js";
+// import { getTierFromScore, TIER_LABELS } from "../constant/leadScoring.js";
+// import { groupHistoryByDate, toIST } from "../utilities/groupHistoryByDate.js";
+
+// /* =====================================================
+//    LEADS
+// ===================================================== */
+
+// export const getLeads = async (req, res) => {
+//   try {
+//     const {
+//       page = 1,
+//       limit,
+//       searchTerm,
+//       status,
+//       fromDate,
+//       toDate,
+//       counselorId,
+//       unassignedOnly,
+//       date,
+//     } = req.query;
+
+//     let query = {};
+
+//     if (status) query.status = status;
+
+//     const viewableIds = await getViewableCounselorIds(req.user);
+//     if (viewableIds === null) {
+//       if (counselorId) query.assignedTo = counselorId;
+//       if (unassignedOnly === "true") query.assignedTo = { $exists: false };
+//     } else {
+//       query.assignedTo = { $in: viewableIds.map((id) => new mongoose.Types.ObjectId(id)) };
+//     }
+
+//     if (searchTerm) {
+//       query.$or = [
+//         { name: { $regex: searchTerm, $options: "i" } },
+//         { phone: { $regex: searchTerm, $options: "i" } },
+//         { city: { $regex: searchTerm, $options: "i" } },
+//       ];
+//     }
+
+//     if (date) {
+//       const startIST = new Date(`${date}T00:00:00+05:30`);
+//       const endIST = new Date(`${date}T23:59:59.999+05:30`);
+//       query.updatedAt = { $gte: startIST, $lte: endIST };
+//     }
+
+//     if (!date && (fromDate || toDate)) {
+//       query.createdAt = {};
+//       if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+//       if (toDate) query.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+//     }
+
+//     let leadsQuery = Lead.find(query)
+//       .populate("assignedTo", "name email")
+//       .sort({ updatedAt: -1 });
+
+//     if (limit !== "all") {
+//       const pageSize = parseInt(limit) || 40;
+//       const skip = (parseInt(page) - 1) * pageSize;
+//       leadsQuery = leadsQuery.skip(skip).limit(pageSize);
+//     }
+
+//     const [rawLeads, total, statusStats] = await Promise.all([
+//       leadsQuery.lean(),
+//       Lead.countDocuments(query),
+//       Lead.aggregate([
+//         { $match: query },
+//         { $group: { _id: "$status", count: { $sum: 1 } } },
+//       ]),
+//     ]);
+
+//     // Enrich: remarkCount + historyByDate + IST timestamps
+//     const leads = rawLeads.map((lead) => ({
+//       ...lead,
+//       remarkCount: (lead.followUpHistory || []).length,
+//       historyByDate: groupHistoryByDate(lead.followUpHistory),
+//       createdAtIST: toIST(lead.createdAt),
+//       updatedAtIST: toIST(lead.updatedAt),
+//       lastFollowUpAtIST: toIST(lead.lastFollowUpAt),
+//     }));
+
+//     const finalLimit = limit === "all" ? total : parseInt(limit) || 40;
+
+//     res.json({
+//       success: true,
+//       total,
+//       data: leads,
+//       stats: statusStats,
+//       totalPages: Math.ceil(total / finalLimit) || 1,
+//       currentPage: parseInt(page),
+//     });
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error fetching leads: " + err.message });
+//   }
+// };
+
+// export const getLead = async (req, res) => {
+//   try {
+//     if (!req.user || !req.user._id) {
+//       return res
+//         .status(401)
+//         .json({ success: false, message: "User not authenticated" });
+//     }
+
+//     const lead = await Lead.findById(req.params.id).lean();
+
+//     if (!lead) {
+//       return res.status(404).json({ success: false, message: "Lead not found" });
+//     }
+
+//     const viewableIds = await getViewableCounselorIds(req.user);
+//     if (viewableIds !== null && !viewableIds.includes(String(lead.assignedTo))) {
+//       return res.status(403).json({ success: false, message: "Access denied" });
+//     }
+
+//     return res.json({
+//       success: true,
+//       data: {
+//         ...lead,
+//         remarkCount: (lead.followUpHistory || []).length,
+//         historyByDate: groupHistoryByDate(lead.followUpHistory),
+//         createdAtIST: toIST(lead.createdAt),
+//         updatedAtIST: toIST(lead.updatedAt),
+//         lastFollowUpAtIST: toIST(lead.lastFollowUpAt),
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Error in getLead:", err);
+//     res.status(500).json({ success: false, message: "Server Error: " + err.message });
+//   }
+// };
+
+// const VALID_SOURCES = ["Website Inquiry", "Website Registration", "Manual Upload", "Imported Lead", "Referral", "Campaign", "Other"];
+
+// export const createLead = async (req, res) => {
+//   try {
+//     const source = VALID_SOURCES.includes(req.body.source) ? req.body.source : "Manual Upload";
+//     let assignedTo = req.body.assignedTo || null;
+//     let assignedToName = req.body.assignedToName || "";
+
+//     if (!assignedTo) {
+//       const config = await getAssignmentConfig();
+//       if (config.autoAssignOnCreate) {
+//         const assignment = await autoAssignLead({
+//           state: req.body.state,
+//           city: req.body.city,
+//           course: req.body.course,
+//           universityName: req.body.universityName,
+//           leadScore: 0,
+//         });
+//         if (assignment) {
+//           assignedTo = assignment.counselorId;
+//           assignedToName = assignment.counselorName;
+//         }
+//       }
+//     }
+
+//     const lead = await Lead.create({
+//       name: req.body.name,
+//       phone: req.body.phone,
+//       email: req.body.email,
+//       course: req.body.course,
+//       city: req.body.city,
+//       state: req.body.state,
+
+//       referralName: req.body.referralName,
+//       studentName: req.body.studentName,
+//       referralMobile: req.body.referralMobile,
+//       branch: req.body.branch,
+//       universityName: req.body.universityName,
+
+//       remark: req.body.remark,
+//       action: req.body.action,
+
+//       followUpDate: req.body.followUpDate,
+//       reminderDate: req.body.reminderDate,
+//       reminderTime: req.body.reminderTime,
+
+//       // ✅ Khali history — pehli entry tab banegi jab counselor pehli baar update kare
+//       followUpHistory: [],
+
+//       source,
+//       assignedTo,
+//       assignedToName,
+//       assignedAt: assignedTo ? new Date() : null,
+//     });
+
+//     if (assignedTo) {
+//       notifyCounselor(assignedTo, {
+//         type: "lead_assigned",
+//         title: "New Lead Assigned",
+//         message: `${lead.name || "A new lead"}${lead.course ? ` (${lead.course})` : ""} has been assigned to you.`,
+//         lead: lead._id,
+//       });
+//     }
+
+//     res.json({ success: true, data: lead });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const updateLead = async (req, res) => {
+//   try {
+//     const existing = await Lead.findById(req.params.id);
+//     if (!existing) {
+//       return res.status(404).json({ success: false, message: "Lead not found" });
+//     }
+
+//     const updates = { ...req.body };
+
+//     // ✅ CRITICAL: client se aaya followUpHistory KABHI mat lo
+//     //    Warna existing data overwrite ho jayega.
+//     delete updates.followUpHistory;
+
+//     // Server-computed fields bhi delete karo (client inhe overwrite na kar sake)
+//     delete updates.leadScore;
+//     delete updates.firstResponseAt;
+//     delete updates.assignedAt;
+//     delete updates.resolvedAt;
+//     delete updates.firedAutomationSteps;
+
+//     const now = new Date();
+//     const isCounselorAction =
+//       "status" in updates || "remark" in updates || "action" in updates;
+
+//     // ✅ History me sirf nayi entry push hogi (append-only, existing safe)
+//     let historyEntry = null;
+//     if (isCounselorAction && (updates.remark || updates.status)) {
+//       historyEntry = {
+//         date: now,
+//         remark: updates.remark ?? existing.remark ?? "",
+//         status: updates.status ?? existing.status ?? "New",
+//       };
+//     }
+
+//     if (isCounselorAction && !existing.firstResponseAt) {
+//       updates.firstResponseAt = now;
+//     }
+
+//     if (isCounselorAction) {
+//       updates.lastFollowUpAt = now;
+//       updates.firedAutomationSteps = [];
+//     }
+
+//     if ("status" in updates) {
+//       if (LOST_STATUSES.includes(updates.status) && existing.status !== updates.status) {
+//         updates.lostReason = updates.remark?.trim() ? updates.remark : updates.status;
+//       } else if (!LOST_STATUSES.includes(updates.status)) {
+//         updates.lostReason = null;
+//       }
+
+//       const isTerminal = updates.status === ADMITTED_STATUS || LOST_STATUSES.includes(updates.status);
+//       if (isTerminal && existing.status !== updates.status && !existing.resolvedAt) {
+//         updates.resolvedAt = now;
+//       } else if (!isTerminal) {
+//         updates.resolvedAt = null;
+//       }
+//     }
+
+//     let reassignedTo = null;
+//     if ("assignedTo" in updates && String(updates.assignedTo || "") !== String(existing.assignedTo || "")) {
+//       updates.assignedAt = now;
+//       reassignedTo = updates.assignedTo;
+//     }
+
+//     // ✅ $set + optional $push — existing history untouched
+//     const updatePayload = { $set: updates };
+//     if (historyEntry) {
+//       updatePayload.$push = { followUpHistory: historyEntry };
+//     }
+
+//     const updated = await Lead.findByIdAndUpdate(
+//       req.params.id,
+//       updatePayload,
+//       { new: true, runValidators: true }
+//     );
+
+//     if (reassignedTo) {
+//       notifyCounselor(reassignedTo, {
+//         type: "lead_assigned",
+//         title: "New Lead Assigned",
+//         message: `${updated.name || "A lead"}${updated.course ? ` (${updated.course})` : ""} has been assigned to you.`,
+//         lead: updated._id,
+//       });
+//     }
+
+//     const leanUpdated = updated.toObject();
+//     res.json({
+//       success: true,
+//       data: {
+//         ...leanUpdated,
+//         remarkCount: (leanUpdated.followUpHistory || []).length,
+//         historyByDate: groupHistoryByDate(leanUpdated.followUpHistory),
+//         updatedAtIST: toIST(leanUpdated.updatedAt),
+//       },
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const deleteLead = async (req, res) => {
+//   try {
+//     await Lead.findByIdAndDelete(req.params.id);
+//     res.json({ success: true, message: "Lead deleted" });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const bulkDeleteLeads = async (req, res) => {
+//   try {
+//     const { status, counselorId } = req.query;
+
+//     if (!status || !counselorId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Status and Counselor ID are required",
+//       });
+//     }
+
+//     const result = await Lead.deleteMany({
+//       status: status,
+//       assignedTo: counselorId,
+//     });
+
+//     res.json({
+//       success: true,
+//       message: `${result.deletedCount} leads deleted successfully`,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// /* =====================================================
+//    UPLOAD EXCEL
+// ===================================================== */
+
+// export const uploadLeads = async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "File required" });
+//     }
+
+//     const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+//     const sheet = XLSX.utils.sheet_to_json(
+//       workbook.Sheets[workbook.SheetNames[0]]
+//     );
+
+//     const normalizeRow = (row) => {
+//       const out = {};
+//       for (const key of Object.keys(row)) {
+//         out[key.trim().toLowerCase().replace(/\s+/g, "")] = row[key];
+//       }
+//       return out;
+//     };
+
+//     const get = (row, ...variants) => {
+//       for (const v of variants) {
+//         const key = v.trim().toLowerCase().replace(/\s+/g, "");
+//         if (
+//           row[key] !== undefined &&
+//           row[key] !== null &&
+//           String(row[key]).trim() !== ""
+//         ) {
+//           return String(row[key]).trim();
+//         }
+//       }
+//       return "";
+//     };
+
+//     const batchSource = VALID_SOURCES.includes(req.body?.source) ? req.body.source : null;
+
+//     const leads = sheet
+//       .map((rawRow) => {
+//         const l = normalizeRow(rawRow);
+//         const rowSource = get(l, "source", "leadsource", "lead source");
+//         return {
+//           name: get(l, "name", "fullname", "full name", "studentname", "student name"),
+//           phone: get(l, "phone", "phoneno", "phone no", "mobile", "mobileno", "mobile no", "contact", "contactno"),
+//           email: get(l, "email", "emailid", "email id", "email address"),
+//           course: get(l, "course", "program", "programme", "stream"),
+//           city: get(l, "city", "location", "address", "district"),
+//           state: get(l, "state", "region"),
+//           referralName: get(l, "referralname", "referral name", "referral", "referredby", "referred by"),
+//           studentName: get(l, "studentname", "student name", "student"),
+//           referralMobile: get(l, "referralmobile", "referral mobile", "referralphone", "referral phone"),
+//           branch: get(l, "branch", "centre", "center"),
+//           universityName: get(l, "universityname", "university name", "university", "college", "collegename", "college name"),
+//           remark: get(l, "remark", "remarks", "note", "notes", "comment", "comments"),
+//           action: get(l, "action", "actions", "nextstep", "next step"),
+//           status: "New",
+//           source: VALID_SOURCES.includes(rowSource) ? rowSource : batchSource || "Imported Lead",
+//           followUpHistory: [], // ✅ khali — existing safe, naye leads bhi khali
+//         };
+//       })
+//       .filter((l) => l.phone && l.phone.length >= 6);
+
+//     if (!leads.length) {
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "No valid leads found. Check that your Excel has a 'phone' column with data.",
+//       });
+//     }
+
+//     const explicitAutoAssign = req.body?.autoAssign === "true" || req.body?.autoAssign === true;
+
+//     if (explicitAutoAssign) {
+//       const assignedCountByCounselor = {};
+//       for (const lead of leads) {
+//         const assignment = await autoAssignLead(lead);
+//         if (assignment) {
+//           lead.assignedTo = assignment.counselorId;
+//           lead.assignedToName = assignment.counselorName;
+//           lead.assignedAt = new Date();
+//           assignedCountByCounselor[assignment.counselorId] =
+//             (assignedCountByCounselor[assignment.counselorId] || 0) + 1;
+//         }
+//       }
+
+//       const inserted = await Lead.insertMany(leads, { ordered: false });
+
+//       Object.entries(assignedCountByCounselor).forEach(([counselorId, count]) => {
+//         notifyCounselor(counselorId, {
+//           type: "lead_assigned",
+//           title: "New Leads Assigned",
+//           message: `${count} new lead${count > 1 ? "s" : ""} from a bulk upload ${count > 1 ? "have" : "has"} been assigned to you.`,
+//           meta: { count },
+//         });
+//       });
+
+//       return res.json({
+//         success: true,
+//         total: inserted.length,
+//         skipped: leads.length - inserted.length,
+//       });
+//     }
+
+//     const inserted = await Lead.insertMany(leads, { ordered: false });
+//     res.json({
+//       success: true,
+//       total: inserted.length,
+//       skipped: leads.length - inserted.length,
+//     });
+//   } catch (err) {
+//     if (err.name === "BulkWriteError") {
+//       return res.json({
+//         success: true,
+//         total: err.result?.nInserted || 0,
+//         message: `Inserted with some duplicates skipped`,
+//       });
+//     }
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// /* =====================================================
+//    ASSIGN LEADS
+// ===================================================== */
+
+// export const assignSelectedLeads = async (req, res) => {
+//   try {
+//     const { leadIds, assignments } = req.body;
+
+//     if (!leadIds?.length || !assignments) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "leadIds & assignments required",
+//       });
+//     }
+
+//     let shuffled = [...leadIds].sort(() => Math.random() - 0.5);
+
+//     for (const [counselorId, count] of Object.entries(assignments)) {
+//       if (!count || count <= 0) continue;
+
+//       const counselor = await Counselor.findById(counselorId);
+//       if (!counselor) continue;
+
+//       const selected = shuffled.splice(0, count);
+//       if (!selected.length) break;
+
+//       await Lead.updateMany(
+//         { _id: { $in: selected }, assignedTo: null },
+//         {
+//           $set: {
+//             assignedTo: counselor._id,
+//             assignedToName: counselor.name,
+//             assignedAt: new Date(),
+//           },
+//         }
+//       );
+
+//       if (selected.length > 0) {
+//         notifyCounselor(counselor._id, {
+//           type: "lead_assigned",
+//           title: "New Leads Assigned",
+//           message: `${selected.length} new lead${selected.length > 1 ? "s" : ""} ${selected.length > 1 ? "have" : "has"} been assigned to you.`,
+//           meta: { count: selected.length },
+//         });
+//       }
+//     }
+
+//     const today = new Date();
+//     today.setHours(0, 0, 0, 0);
+//     const todayAssigned = await Lead.countDocuments({
+//       assignedTo: { $ne: null },
+//       updatedAt: { $gte: today },
+//     });
+
+//     res.json({
+//       success: true,
+//       message: "Leads assigned successfully",
+//       todayAssigned,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const getLeadsByCounselorId = async (req, res) => {
+//   try {
+//     const {
+//       page = 1,
+//       limit = 30,
+//       searchTerm,
+//       status,
+//       fromDate,
+//       toDate,
+//     } = req.query;
+
+//     const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+//     let id;
+//     if (isStaffAdmin) {
+//       id = req.query.id;
+//     } else {
+//       const viewableIds = await getViewableCounselorIds(req.user);
+//       const requestedId = req.query.id ? String(req.query.id) : String(req.user._id);
+//       if (!viewableIds.includes(requestedId)) {
+//         return res.status(403).json({ success: false, message: "Access denied" });
+//       }
+//       id = requestedId;
+//     }
+
+//     if (!id)
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Counselor ID is required" });
+
+//     const skip = (parseInt(page) - 1) * parseInt(limit);
+//     let query = { assignedTo: id };
+
+//     if (status) query.status = status;
+
+//     const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+//     if (searchTerm) {
+//       const safeSearchTerm = escapeRegex(searchTerm.trim());
+//       query.$or = [
+//         { name: { $regex: safeSearchTerm, $options: "i" } },
+//         { phone: { $regex: safeSearchTerm, $options: "i" } },
+//         { city: { $regex: safeSearchTerm, $options: "i" } },
+//       ];
+//     }
+
+//     if (fromDate || toDate) {
+//       query.createdAt = {};
+//       if (fromDate) query.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+//       if (toDate)   query.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+//     }
+
+//     // IST midnight → UTC
+//     const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+//     const todayIST = new Date(nowIST);
+//     todayIST.setHours(0, 0, 0, 0);
+//     const todayStartUTC = new Date(todayIST.getTime() - (5.5 * 60 * 60 * 1000));
+
+//     const [rawLeads, total, statusStats, todayStats] = await Promise.all([
+//       Lead.find(query)
+//         .sort({ createdAt: -1 })
+//         .skip(limit === "all" ? 0 : skip)
+//         .limit(limit === "all" ? 0 : parseInt(limit))
+//         .lean(),
+//       Lead.countDocuments(query),
+
+//       Lead.aggregate([
+//         { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
+//         { $group: { _id: "$status", count: { $sum: 1 } } },
+//       ]),
+
+//       Lead.aggregate([
+//         {
+//           $match: {
+//             assignedTo: new mongoose.Types.ObjectId(id),
+//             updatedAt: { $gte: todayStartUTC },
+//           },
+//         },
+//         { $group: { _id: "$status", count: { $sum: 1 } } },
+//       ]),
+//     ]);
+
+//     const leads = rawLeads.map((lead) => ({
+//       ...lead,
+//       remarkCount: (lead.followUpHistory || []).length,
+//       historyByDate: groupHistoryByDate(lead.followUpHistory),
+//       createdAtIST: toIST(lead.createdAt),
+//       updatedAtIST: toIST(lead.updatedAt),
+//       lastFollowUpAtIST: toIST(lead.lastFollowUpAt),
+//     }));
+
+//     res.json({
+//       success: true,
+//       total,
+//       data: leads,
+//       stats: statusStats,
+//       todayStats,
+//       totalPages: Math.ceil(total / (limit === "all" ? total : parseInt(limit))) || 1,
+//       currentPage: parseInt(page),
+//     });
+//   } catch (err) {
+//     console.error("Error in getLeadsByCounselorId:", err);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Backend Error: " + err.message });
+//   }
+// };
+
+// /* =====================================================
+//    🔥 COUNSELOR DAILY REMARKS & ACTIONS REPORT
+// ===================================================== */
+// export const getCounselorDailyReport = async (req, res) => {
+//   try {
+//     const { counselorId, targetDate } = req.query;
+
+//     if (!counselorId || !targetDate) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Counselor ID and targetDate (YYYY-MM-DD) are required",
+//       });
+//     }
+
+//     const startIST = new Date(`${targetDate}T00:00:00+05:30`);
+//     const endIST = new Date(`${targetDate}T23:59:59.999+05:30`);
+
+//     const report = await Lead.aggregate([
+//       {
+//         $match: {
+//           assignedTo: new mongoose.Types.ObjectId(counselorId),
+//           "followUpHistory.date": { $gte: startIST, $lte: endIST },
+//         },
+//       },
+//       { $unwind: "$followUpHistory" },
+//       {
+//         $match: {
+//           "followUpHistory.date": { $gte: startIST, $lte: endIST },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           leadName: "$name",
+//           leadPhone: "$phone",
+//           course: "$course",
+//           city: "$city",
+//           remarkAtThatTime: "$followUpHistory.remark",
+//           statusAtThatTime: "$followUpHistory.status",
+//           changedAt: "$followUpHistory.date",
+//         },
+//       },
+//       { $sort: { changedAt: -1 } },
+//     ]);
+
+//     const enrichedReport = report.map((r) => ({
+//       ...r,
+//       changedAtIST: toIST(r.changedAt),
+//     }));
+
+//     res.json({
+//       success: true,
+//       date: targetDate,
+//       counselorId,
+//       totalRemarksChanged: enrichedReport.length,
+//       data: enrichedReport,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Error generating daily report: " + err.message,
+//     });
+//   }
+// };
+
+// /* =====================================================
+//    🔥 TRANSFER LEADS
+// ===================================================== */
+// export const transferLeads = async (req, res) => {
+//   try {
+//     const {
+//       fromCounselorId,
+//       toCounselorId,
+//       status,
+//       targetDate,
+//       month,
+//       year,
+//       count,
+//       dateField = "createdAt",
+//     } = req.body;
+
+//     if (!fromCounselorId || !toCounselorId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "fromCounselorId and toCounselorId are required",
+//       });
+//     }
+
+//     if (fromCounselorId === toCounselorId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "fromCounselorId and toCounselorId cannot be the same",
+//       });
+//     }
+
+//     if (!targetDate && !(month && year)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Provide either targetDate (day-wise) OR month & year (month-wise)",
+//       });
+//     }
+
+//     const toCounselor = await Counselor.findById(toCounselorId);
+//     if (!toCounselor) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Target counselor (toCounselorId) not found",
+//       });
+//     }
+
+//     let startIST, endIST;
+
+//     if (targetDate) {
+//       startIST = new Date(`${targetDate}T00:00:00+05:30`);
+//       endIST = new Date(`${targetDate}T23:59:59.999+05:30`);
+//     } else {
+//       const m = parseInt(month);
+//       const y = parseInt(year);
+
+//       if (m < 1 || m > 12) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "month must be between 1 and 12",
+//         });
+//       }
+
+//       const mm = String(m).padStart(2, "0");
+//       startIST = new Date(`${y}-${mm}-01T00:00:00+05:30`);
+//       const nextMonth = m === 12 ? 1 : m + 1;
+//       const nextYear = m === 12 ? y + 1 : y;
+//       const nmm = String(nextMonth).padStart(2, "0");
+//       endIST = new Date(
+//         new Date(`${nextYear}-${nmm}-01T00:00:00+05:30`).getTime() - 1
+//       );
+//     }
+
+//     let query = {
+//       assignedTo: fromCounselorId,
+//       [dateField]: { $gte: startIST, $lte: endIST },
+//     };
+
+//     if (status) query.status = status;
+
+//     let leadsQuery = Lead.find(query).sort({ [dateField]: 1 });
+
+//     const parsedCount = parseInt(count);
+//     if (count && parsedCount > 0) {
+//       leadsQuery = leadsQuery.limit(parsedCount);
+//     }
+
+//     const matchedLeads = await leadsQuery.select("_id status").lean();
+
+//     if (!matchedLeads.length) {
+//       return res.json({
+//         success: true,
+//         message: "No matching leads found to transfer",
+//         totalTransferred: 0,
+//         statusBreakdown: [],
+//       });
+//     }
+
+//     const leadIds = matchedLeads.map((l) => l._id);
+
+//     await Lead.updateMany(
+//       { _id: { $in: leadIds } },
+//       {
+//         $set: {
+//           assignedTo: toCounselor._id,
+//           assignedToName: toCounselor.name,
+//           assignedAt: new Date(),
+//         },
+//       }
+//     );
+
+//     if (leadIds.length > 0) {
+//       notifyCounselor(toCounselor._id, {
+//         type: "lead_assigned",
+//         title: "Leads Transferred To You",
+//         message: `${leadIds.length} lead${leadIds.length > 1 ? "s" : ""} ${leadIds.length > 1 ? "have" : "has"} been transferred to you.`,
+//         meta: { count: leadIds.length },
+//       });
+//     }
+
+//     const statusBreakdown = matchedLeads.reduce((acc, lead) => {
+//       const key = lead.status || "Unknown";
+//       acc[key] = (acc[key] || 0) + 1;
+//       return acc;
+//     }, {});
+
+//     const statusBreakdownArr = Object.entries(statusBreakdown).map(
+//       ([status, count]) => ({ status, count })
+//     );
+
+//     res.json({
+//       success: true,
+//       message: `${leadIds.length} leads transferred successfully`,
+//       from: fromCounselorId,
+//       to: { id: toCounselor._id, name: toCounselor.name },
+//       mode: targetDate ? "day-wise" : "month-wise",
+//       range: targetDate ? { targetDate } : { month, year },
+//       statusFilter: status || "all",
+//       totalTransferred: leadIds.length,
+//       statusBreakdown: statusBreakdownArr,
+//     });
+//   } catch (err) {
+//     console.error("Error in transferLeads:", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error transferring leads: " + err.message,
+//     });
+//   }
+// };
+
+// /* =====================================================
+//    MODULE 4 — LEAD ANALYTICS
+// ===================================================== */
+// export const getLeadAnalytics = async (req, res) => {
+//   try {
+//     const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+//     let scopeFilter = {};
+
+//     if (!isStaffAdmin) {
+//       const viewableIds = await getViewableCounselorIds(req.user);
+//       scopeFilter = { assignedTo: { $in: viewableIds } };
+//     }
+
+//     const { fromDate, toDate } = req.query;
+//     if (fromDate || toDate) {
+//       scopeFilter.createdAt = {};
+//       if (fromDate) scopeFilter.createdAt.$gte = new Date(`${fromDate}T00:00:00+05:30`);
+//       if (toDate) scopeFilter.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
+//     }
+
+//     const leads = await Lead.find(scopeFilter)
+//       .select("source status createdAt assignedAt firstResponseAt lastFollowUpAt lostReason leadScore")
+//       .lean();
+
+//     const totalLeads = leads.length;
+//     const admittedCount = leads.filter((l) => l.status === ADMITTED_STATUS).length;
+//     const overallConversionRate = totalLeads > 0 ? +((admittedCount / totalLeads) * 100).toFixed(2) : 0;
+
+//     const bySourceMap = {};
+//     leads.forEach((l) => {
+//       const src = l.source || "Website";
+//       if (!bySourceMap[src]) bySourceMap[src] = { source: src, total: 0, admitted: 0 };
+//       bySourceMap[src].total += 1;
+//       if (l.status === ADMITTED_STATUS) bySourceMap[src].admitted += 1;
+//     });
+//     const bySource = Object.values(bySourceMap).map((s) => ({
+//       ...s,
+//       conversionRate: s.total > 0 ? +((s.admitted / s.total) * 100).toFixed(2) : 0,
+//     }));
+
+//     const statusFunnelMap = {};
+//     leads.forEach((l) => {
+//       const st = l.status || "New";
+//       statusFunnelMap[st] = (statusFunnelMap[st] || 0) + 1;
+//     });
+//     const statusFunnel = Object.entries(statusFunnelMap).map(([status, count]) => ({ status, count }));
+
+//     const lostReasonsMap = {};
+//     leads
+//       .filter((l) => LOST_STATUSES.includes(l.status))
+//       .forEach((l) => {
+//         const reason = l.lostReason || l.status;
+//         lostReasonsMap[reason] = (lostReasonsMap[reason] || 0) + 1;
+//       });
+//     const lostReasons = Object.entries(lostReasonsMap).map(([reason, count]) => ({ reason, count }));
+
+//     const responded = leads.filter((l) => l.firstResponseAt);
+//     const avgFirstResponseMinutes =
+//       responded.length > 0
+//         ? Math.round(
+//             responded.reduce(
+//               (sum, l) => sum + (new Date(l.firstResponseAt) - new Date(l.createdAt)) / 60000,
+//               0
+//             ) / responded.length
+//           )
+//         : null;
+
+//     const openLeads = leads.filter((l) => l.status !== ADMITTED_STATUS && !LOST_STATUSES.includes(l.status));
+//     const now = Date.now();
+//     const avgLeadAgeDays =
+//       openLeads.length > 0
+//         ? +(
+//             openLeads.reduce((sum, l) => sum + (now - new Date(l.createdAt).getTime()) / 86400000, 0) /
+//             openLeads.length
+//           ).toFixed(1)
+//         : null;
+
+//     res.status(200).json({
+//       success: true,
+//       data: {
+//         totalLeads,
+//         admittedCount,
+//         overallConversionRate,
+//         avgFirstResponseMinutes,
+//         avgLeadAgeDays,
+//         bySource,
+//         statusFunnel,
+//         lostReasons,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("getLeadAnalytics error:", err);
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// /* =====================================================
+//    MODULE 5 — SMART LEAD ASSIGNMENT
+// ===================================================== */
+
+// const notifyBulkAssignments = (countByCounselor, title) => {
+//   Object.entries(countByCounselor).forEach(([counselorId, count]) => {
+//     notifyCounselor(counselorId, {
+//       type: "lead_assigned",
+//       title,
+//       message: `${count} lead${count > 1 ? "s" : ""} ${count > 1 ? "have" : "has"} been assigned to you.`,
+//       meta: { count },
+//     });
+//   });
+// };
+
+// export const autoAssignSingleLead = async (req, res) => {
+//   try {
+//     const lead = await Lead.findById(req.params.id);
+//     if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+
+//     const assignment = await autoAssignLead(lead.toObject());
+//     if (!assignment) {
+//       return res.status(200).json({
+//         success: false,
+//         message: "No eligible active counselor found for this lead right now.",
+//       });
+//     }
+
+//     lead.assignedTo = assignment.counselorId;
+//     lead.assignedToName = assignment.counselorName;
+//     lead.assignedAt = new Date();
+//     await lead.save();
+
+//     notifyCounselor(assignment.counselorId, {
+//       type: "lead_assigned",
+//       title: "New Lead Assigned",
+//       message: `${lead.name || "A lead"}${lead.course ? ` (${lead.course})` : ""} has been assigned to you.`,
+//       lead: lead._id,
+//     });
+
+//     res.status(200).json({ success: true, data: lead });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const bulkAutoAssignUnassigned = async (req, res) => {
+//   try {
+//     const unassigned = await Lead.find({ assignedTo: null }).limit(1000);
+
+//     let assignedCount = 0;
+//     const countByCounselor = {};
+//     for (const lead of unassigned) {
+//       const assignment = await autoAssignLead(lead.toObject());
+//       if (!assignment) continue;
+//       lead.assignedTo = assignment.counselorId;
+//       lead.assignedToName = assignment.counselorName;
+//       lead.assignedAt = new Date();
+//       await lead.save();
+//       assignedCount += 1;
+//       countByCounselor[assignment.counselorId] = (countByCounselor[assignment.counselorId] || 0) + 1;
+//     }
+
+//     notifyBulkAssignments(countByCounselor, "New Leads Assigned");
+
+//     res.status(200).json({
+//       success: true,
+//       message: `${assignedCount} of ${unassigned.length} unassigned leads were assigned.`,
+//       totalUnassigned: unassigned.length,
+//       assignedCount,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const reassignLeadsFromInactiveCounselors = async (req, res) => {
+//   try {
+//     const inactiveCounselors = await Counselor.find({ status: { $ne: "active" } }).select("_id");
+//     const inactiveIds = inactiveCounselors.map((c) => c._id);
+
+//     if (!inactiveIds.length) {
+//       return res.status(200).json({ success: true, message: "No inactive counselors found.", reassignedCount: 0 });
+//     }
+
+//     const stuckLeads = await Lead.find({
+//       assignedTo: { $in: inactiveIds },
+//       status: { $nin: [ADMITTED_STATUS, ...LOST_STATUSES] },
+//     }).limit(1000);
+
+//     let reassignedCount = 0;
+//     const countByCounselor = {};
+//     for (const lead of stuckLeads) {
+//       const assignment = await autoAssignLead(lead.toObject());
+//       if (!assignment) continue;
+//       lead.assignedTo = assignment.counselorId;
+//       lead.assignedToName = assignment.counselorName;
+//       lead.assignedAt = new Date();
+//       await lead.save();
+//       reassignedCount += 1;
+//       countByCounselor[assignment.counselorId] = (countByCounselor[assignment.counselorId] || 0) + 1;
+//     }
+
+//     notifyBulkAssignments(countByCounselor, "Leads Reassigned To You");
+
+//     res.status(200).json({
+//       success: true,
+//       message: `${reassignedCount} of ${stuckLeads.length} leads stuck with inactive counselors were reassigned.`,
+//       totalStuck: stuckLeads.length,
+//       reassignedCount,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// /* =====================================================
+//    MODULE 11 — AI LEAD SCORING
+// ===================================================== */
+
+// export const getLeadScoreDetail = async (req, res) => {
+//   try {
+//     const lead = await Lead.findById(req.params.id);
+//     if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
+
+//     const result = await recalculateLeadScore(lead);
+//     res.status(200).json({ success: true, ...result, tierLabel: TIER_LABELS[result.tier] });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const rescoreAllLeads = async (req, res) => {
+//   try {
+//     const result = await recalculateAllOpenLeadScores();
+//     res.status(200).json({ success: true, ...result });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
+// export const getScoreBreakdown = async (req, res) => {
+//   try {
+//     const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+//     let filter = { status: { $nin: [ADMITTED_STATUS, ...LOST_STATUSES] } };
+
+//     if (!isStaffAdmin) {
+//       const viewableIds = await getViewableCounselorIds(req.user);
+//       filter.assignedTo = { $in: viewableIds };
+//     }
+
+//     const leads = await Lead.find(filter).select("leadScore").lean();
+
+//     const breakdown = { cold: 0, warm: 0, hot: 0, priority: 0 };
+//     leads.forEach((l) => {
+//       breakdown[getTierFromScore(l.leadScore || 0)] += 1;
+//     });
+
+//     res.status(200).json({ success: true, data: breakdown, total: leads.length });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
 import Lead from "../models/counselor/Lead.js";
 import Counselor from "../models/counselor/Counselor.js";
 import XLSX from "xlsx";
@@ -1237,6 +2356,31 @@ import { notifyCounselor } from "../utilities/notifyCounselor.js";
 import { recalculateLeadScore, recalculateAllOpenLeadScores } from "../utilities/leadScoringEngine.js";
 import { getTierFromScore, TIER_LABELS } from "../constant/leadScoring.js";
 import { groupHistoryByDate, toIST } from "../utilities/groupHistoryByDate.js";
+
+/* =====================================================
+   ✅ HELPER: Lead ko enrich karo — remark history se override
+   Ye helper har lead ke liye:
+   - followUpHistory se latest remark nikalta hai
+   - remark field ko override karta hai (purana string hata deta hai)
+   - remarkCount, historyByDate, IST timestamps add karta hai
+===================================================== */
+const enrichLead = (lead) => {
+  const history = lead.followUpHistory || [];
+  const latestEntry = history.length > 0 ? history[history.length - 1] : null;
+
+  return {
+    ...lead,
+    // ✅ CRITICAL: remark field ko history se override karo
+    // Purana string remark kabhi frontend pe nahi jayega
+    remark: latestEntry?.remark || "",
+
+    remarkCount: history.length,
+    historyByDate: groupHistoryByDate(history),
+    createdAtIST: toIST(lead.createdAt),
+    updatedAtIST: toIST(lead.updatedAt),
+    lastFollowUpAtIST: toIST(lead.lastFollowUpAt),
+  };
+};
 
 /* =====================================================
    LEADS
@@ -1307,15 +2451,8 @@ export const getLeads = async (req, res) => {
       ]),
     ]);
 
-    // Enrich: remarkCount + historyByDate + IST timestamps
-    const leads = rawLeads.map((lead) => ({
-      ...lead,
-      remarkCount: (lead.followUpHistory || []).length,
-      historyByDate: groupHistoryByDate(lead.followUpHistory),
-      createdAtIST: toIST(lead.createdAt),
-      updatedAtIST: toIST(lead.updatedAt),
-      lastFollowUpAtIST: toIST(lead.lastFollowUpAt),
-    }));
+    // ✅ FIX: enrichLead use karo (remark override)
+    const leads = rawLeads.map(enrichLead);
 
     const finalLimit = limit === "all" ? total : parseInt(limit) || 40;
 
@@ -1353,16 +2490,10 @@ export const getLead = async (req, res) => {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
+    // ✅ FIX: enrichLead use karo
     return res.json({
       success: true,
-      data: {
-        ...lead,
-        remarkCount: (lead.followUpHistory || []).length,
-        historyByDate: groupHistoryByDate(lead.followUpHistory),
-        createdAtIST: toIST(lead.createdAt),
-        updatedAtIST: toIST(lead.updatedAt),
-        lastFollowUpAtIST: toIST(lead.lastFollowUpAt),
-      },
+      data: enrichLead(lead),
     });
   } catch (err) {
     console.error("Error in getLead:", err);
@@ -1447,6 +2578,18 @@ export const updateLead = async (req, res) => {
       return res.status(404).json({ success: false, message: "Lead not found" });
     }
 
+    // ✅ CRITICAL: Ownership check — Counselor sirf apni lead update kar sakta hai
+    const isStaffAdmin = ["admin", "subadmin"].includes(req.user?.role);
+    if (!isStaffAdmin) {
+      const viewableIds = await getViewableCounselorIds(req.user);
+      if (viewableIds && !viewableIds.includes(String(existing.assignedTo))) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied — ye lead aapki nahi hai",
+        });
+      }
+    }
+
     const updates = { ...req.body };
 
     // ✅ CRITICAL: client se aaya followUpHistory KABHI mat lo
@@ -1525,15 +2668,11 @@ export const updateLead = async (req, res) => {
       });
     }
 
+    // ✅ FIX: enrichLead use karo (remark override)
     const leanUpdated = updated.toObject();
     res.json({
       success: true,
-      data: {
-        ...leanUpdated,
-        remarkCount: (leanUpdated.followUpHistory || []).length,
-        historyByDate: groupHistoryByDate(leanUpdated.followUpHistory),
-        updatedAtIST: toIST(leanUpdated.updatedAt),
-      },
+      data: enrichLead(leanUpdated),
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -1793,7 +2932,7 @@ export const getLeadsByCounselorId = async (req, res) => {
         .json({ success: false, message: "Counselor ID is required" });
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    let query = { assignedTo: id };
+    let query = { assignedTo: new mongoose.Types.ObjectId(id) };
 
     if (status) query.status = status;
 
@@ -1814,13 +2953,20 @@ export const getLeadsByCounselorId = async (req, res) => {
       if (toDate)   query.createdAt.$lte = new Date(`${toDate}T23:59:59.999+05:30`);
     }
 
-    // IST midnight → UTC
-    const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-    const todayIST = new Date(nowIST);
-    todayIST.setHours(0, 0, 0, 0);
-    const todayStartUTC = new Date(todayIST.getTime() - (5.5 * 60 * 60 * 1000));
+    // ✅ IST midnight helper
+    const getISTStartOfDay = () => {
+      const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+      const now = new Date();
+      const ist = new Date(now.getTime() + IST_OFFSET_MS);
+      ist.setHours(0, 0, 0, 0);
+      return new Date(ist.getTime() - IST_OFFSET_MS);
+    };
+    const todayStartUTC = getISTStartOfDay();
 
-    const [rawLeads, total, statusStats, todayStats] = await Promise.all([
+    // Stats base query — sirf counselor, koi filter nahi
+    const statsBaseQuery = { assignedTo: new mongoose.Types.ObjectId(id) };
+
+    const [rawLeads, total, statusStats, todayStats, totalOverall] = await Promise.all([
       Lead.find(query)
         .sort({ createdAt: -1 })
         .skip(limit === "all" ? 0 : skip)
@@ -1829,7 +2975,7 @@ export const getLeadsByCounselorId = async (req, res) => {
       Lead.countDocuments(query),
 
       Lead.aggregate([
-        { $match: { assignedTo: new mongoose.Types.ObjectId(id) } },
+        { $match: statsBaseQuery },
         { $group: { _id: "$status", count: { $sum: 1 } } },
       ]),
 
@@ -1842,23 +2988,23 @@ export const getLeadsByCounselorId = async (req, res) => {
         },
         { $group: { _id: "$status", count: { $sum: 1 } } },
       ]),
+
+      Lead.countDocuments(statsBaseQuery),
     ]);
 
-    const leads = rawLeads.map((lead) => ({
-      ...lead,
-      remarkCount: (lead.followUpHistory || []).length,
-      historyByDate: groupHistoryByDate(lead.followUpHistory),
-      createdAtIST: toIST(lead.createdAt),
-      updatedAtIST: toIST(lead.updatedAt),
-      lastFollowUpAtIST: toIST(lead.lastFollowUpAt),
-    }));
+    // ✅ FIX: enrichLead use karo (remark override)
+    const leads = rawLeads.map(enrichLead);
 
     res.json({
       success: true,
       total,
+      totalOverall,
       data: leads,
       stats: statusStats,
       todayStats,
+      todayDateIST: new Date().toLocaleDateString("en-CA", {
+        timeZone: "Asia/Kolkata",
+      }),
       totalPages: Math.ceil(total / (limit === "all" ? total : parseInt(limit))) || 1,
       currentPage: parseInt(page),
     });

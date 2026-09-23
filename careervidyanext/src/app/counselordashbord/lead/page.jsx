@@ -694,10 +694,9 @@
 
 // export default LeadsPage;
 
-
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import api from "@/utlis/api.js";
 import { useAuth } from "@/context/AuthContext.jsx";
 import * as XLSX from "xlsx";
@@ -707,13 +706,16 @@ import LeadTimelineModal from "@/app/counselordashbord/components/LeadTimelineMo
 import {
   Search, X, Save,
   ChevronLeft, ChevronRight, MapPin, BookOpen, Smartphone, Calendar,
-  TrendingUp, Clock, RefreshCw
+  TrendingUp, Clock
 } from "lucide-react";
 
 /* ================= HELPERS ================= */
+
+// ✅ IST me aaj ki date string — "2026-09-23"
 const todayISTString = () =>
   new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
+// ✅ IST me formatted date — "23 Sept 2026"
 const formatISTDate = (date) =>
   new Date(date).toLocaleDateString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -733,6 +735,7 @@ const formatForInput = (dateString) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
+// ✅ IST-aware isToday
 const isToday = (dateString) => {
   if (!dateString) return false;
   const d = new Date(dateString).toLocaleDateString("en-CA", {
@@ -741,15 +744,24 @@ const isToday = (dateString) => {
   return d === todayISTString();
 };
 
+// ✅ historyByDate se check karta hai (IST-aware)
 const isRemarkUpdatedToday = (lead) => {
   if (!lead?.historyByDate || !Array.isArray(lead.historyByDate)) return false;
   return lead.historyByDate.some((day) => day.date === todayISTString());
 };
 
+// ✅ NEW: Latest remark nikalo SIRF historyByDate se (fallback nahi)
 const getLatestRemark = (lead) => {
-  if (!lead?.historyByDate?.length) return lead?.remark || "";
+  if (!lead?.historyByDate?.length) return "";
   const latestDay = lead.historyByDate[0];
-  return latestDay.entries?.[0]?.remark || lead?.remark || "";
+  return latestDay.entries?.[0]?.remark || "";
+};
+
+// ✅ NEW: Remark count nikalo SIRF historyByDate se
+const getRemarkCount = (lead) => {
+  if (typeof lead?.remarkCount === "number") return lead.remarkCount;
+  if (lead?.followUpHistory?.length) return lead.followUpHistory.length;
+  return 0;
 };
 
 const formatDateLabel = (dateStr) => {
@@ -763,11 +775,20 @@ const formatDateLabel = (dateStr) => {
 };
 
 const STATUS = [
-  "New", "Not Interested", "Details Shared", "Follow-up",
-  "Hot Lead", "University Issue", "Fee Issue", "Distance Issue",
-  "Language Issue", "Not Picked", "Admission Done",
+  "New",
+  "Not Interested",
+  "Details Shared",
+  "Follow-up",
+  "Hot Lead",
+  "University Issue",
+  "Fee Issue",
+  "Distance Issue",
+  "Language Issue",
+  "Not Picked",
+  "Admission Done",
 ];
 
+// Color map for today's status badges
 const STATUS_COLORS = {
   "New": { bg: "#dbeafe", text: "#1d4ed8", border: "#93c5fd" },
   "Not Interested": { bg: "#fee2e2", text: "#b91c1c", border: "#fca5a5" },
@@ -802,9 +823,6 @@ const LeadsPage = () => {
   const [appliedFrom, setAppliedFrom] = useState("");
   const [appliedTo, setAppliedTo] = useState("");
 
-  // ✅ Track if it's the first load
-  const isFirstLoad = useRef(true);
-
   /* ================= FETCH LEADS ================= */
   const fetchMyLeads = useCallback(async () => {
     setLoading(true);
@@ -826,7 +844,7 @@ const LeadsPage = () => {
 
       if (res.data.success) {
         setLeads(res.data.data || []);
-        setTotalLeads(res.data.total || 0);
+        setTotalLeads(res.data.totalOverall || res.data.total || 0);
         setStats(res.data.stats || []);
         setTodayStats(res.data.todayStats || []);
         setTodayDateIST(res.data.todayDateIST || todayISTString());
@@ -835,106 +853,18 @@ const LeadsPage = () => {
       console.error("Fetch error", err);
     } finally {
       setLoading(false);
-      isFirstLoad.current = false;
     }
   }, [currentPage, searchTerm, filterStatus, appliedFrom, appliedTo, authUser]);
 
-  // ✅ Fetch on mount + when filters change
   useEffect(() => {
     fetchMyLeads();
   }, [fetchMyLeads]);
-
-  /* ================= UPDATE LEAD (LOCAL) ================= */
-  // ✅ KEY: Update karte waqt poori list refresh NA karo
-  // Sirf us lead ko locally update karo — apni jagah rahe
-  const updateLeadAPI = async (id, data) => {
-    try {
-      const res = await api.put(`/api/v1/leads/${id}`, data);
-
-      if (res.data.success) {
-        // ✅ Update response se naya lead lo
-        const updatedLead = res.data.data;
-
-        // ✅ Sirf us lead ko update karo — list ka order nahi badlega
-        setLeads((prevLeads) =>
-          prevLeads.map((lead) =>
-            lead._id === id
-              ? {
-                  ...lead,
-                  ...updatedLead,
-                  // ✅ Preserve computed fields jo backend bhejta hai
-                  remarkCount:
-                    updatedLead.remarkCount ??
-                    (updatedLead.followUpHistory?.length || 0),
-                  historyByDate:
-                    updatedLead.historyByDate || lead.historyByDate,
-                  updatedAtIST: updatedLead.updatedAtIST || lead.updatedAtIST,
-                }
-              : lead
-          )
-        );
-
-        // ✅ Stats + todayStats locally update karo (refresh nahi)
-        updateStatsLocally(id, updatedLead, data);
-
-        // ✅ Success feedback
-        console.log(`✅ Lead ${id} updated locally`);
-      }
-    } catch (err) {
-      alert(err.response?.data?.message || "Update failed");
-    }
-  };
-
-  /* ================= LOCAL STATS UPDATE ================= */
-  // ✅ Stats ko locally update karo bina refresh ke
-  const updateStatsLocally = (leadId, updatedLead, updateData) => {
-    // Find old lead
-    const oldLead = leads.find((l) => l._id === leadId);
-    if (!oldLead) return;
-
-    const oldStatus = oldLead.status;
-    const newStatus = updateData.status || oldLead.status;
-
-    // ✅ Status change hua?
-    if (oldStatus !== newStatus) {
-      setStats((prevStats) => {
-        const updated = [...prevStats];
-        const oldStat = updated.find((s) => s._id === oldStatus);
-        const newStat = updated.find((s) => s._id === newStatus);
-
-        if (oldStat) oldStat.count = Math.max(0, oldStat.count - 1);
-        if (newStat) newStat.count += 1;
-        else updated.push({ _id: newStatus, count: 1 });
-
-        return updated;
-      });
-
-      // ✅ Today stats bhi update karo (agar aaj ka update hai)
-      setTodayStats((prevStats) => {
-        const updated = [...prevStats];
-        const oldStat = updated.find((s) => s._id === oldStatus);
-        const newStat = updated.find((s) => s._id === newStatus);
-
-        if (oldStat) oldStat.count = Math.max(0, oldStat.count - 1);
-        if (newStat) newStat.count += 1;
-        else updated.push({ _id: newStatus, count: 1 });
-
-        return updated;
-      });
-    }
-  };
-
-  /* ================= MANUAL REFRESH ================= */
-  const handleManualRefresh = () => {
-    fetchMyLeads();
-  };
 
   /* ================= APPLY / CLEAR FILTER ================= */
   const handleApplyFilter = () => {
     setAppliedFrom(fromDate);
     setAppliedTo(toDate);
     setCurrentPage(1);
-    // Filter change pe fetch automatic hoga (useEffect se)
   };
 
   const handleClearFilter = () => {
@@ -972,7 +902,7 @@ const LeadsPage = () => {
             Course: lead.course || "",
             City: lead.city || "",
             Status: lead.status === "Not Picked" ? "Dead Lead" : lead.status,
-            "Remark Count": lead.remarkCount || 0,
+            "Remark Count": getRemarkCount(lead),
             "Latest Remark": latestRemark || "",
             "Next Follow-up": lead.followUpDate
               ? new Date(lead.followUpDate).toLocaleString("en-IN", {
@@ -1007,7 +937,93 @@ const LeadsPage = () => {
     }
   };
 
+  /* ================= UPDATE LEAD (LOCAL) ================= */
+  // ✅ KEY: Update karte waqt poori list refresh NA karo
+  // Sirf us lead ko locally update karo — apni jagah rahe
+  const updateLeadAPI = async (id, data) => {
+    try {
+      const res = await api.put(`/api/v1/leads/${id}`, data);
+
+      if (res.data.success) {
+        const updatedLead = res.data.data;
+
+        // ✅ Sirf us lead ko update karo — list ka order nahi badlega
+        setLeads((prevLeads) =>
+          prevLeads.map((lead) =>
+            lead._id === id
+              ? {
+                  ...lead,
+                  ...updatedLead,
+                  remarkCount:
+                    updatedLead.remarkCount ??
+                    (updatedLead.followUpHistory?.length || 0),
+                  historyByDate:
+                    updatedLead.historyByDate || lead.historyByDate,
+                  updatedAtIST: updatedLead.updatedAtIST || lead.updatedAtIST,
+                }
+              : lead
+          )
+        );
+
+        // ✅ Stats + todayStats locally update karo (refresh nahi)
+        updateStatsLocally(id, updatedLead, data);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Update failed");
+    }
+  };
+
+  /* ================= LOCAL STATS UPDATE ================= */
+  const updateStatsLocally = (leadId, updatedLead, updateData) => {
+    const oldLead = leads.find((l) => l._id === leadId);
+    if (!oldLead) return;
+
+    const oldStatus = oldLead.status;
+    const newStatus = updateData.status || oldLead.status;
+
+    // ✅ Status change hua?
+    if (oldStatus !== newStatus) {
+      setStats((prevStats) => {
+        const updated = [...prevStats];
+        const oldStat = updated.find((s) => s._id === oldStatus);
+        const newStat = updated.find((s) => s._id === newStatus);
+
+        if (oldStat) oldStat.count = Math.max(0, oldStat.count - 1);
+        if (newStat) newStat.count += 1;
+        else updated.push({ _id: newStatus, count: 1 });
+
+        return updated;
+      });
+
+      // ✅ Today stats bhi update karo
+      setTodayStats((prevStats) => {
+        const updated = [...prevStats];
+        const oldStat = updated.find((s) => s._id === oldStatus);
+        const newStat = updated.find((s) => s._id === newStatus);
+
+        if (oldStat) oldStat.count = Math.max(0, oldStat.count - 1);
+        if (newStat) newStat.count += 1;
+        else updated.push({ _id: newStatus, count: 1 });
+
+        return updated;
+      });
+    } else {
+      // ✅ Same status — sirf today stats me increment karo (agar aaj ka update hai)
+      setTodayStats((prevStats) => {
+        const updated = [...prevStats];
+        const stat = updated.find((s) => s._id === newStatus);
+
+        if (stat) stat.count += 1;
+        else updated.push({ _id: newStatus, count: 1 });
+
+        return updated;
+      });
+    }
+  };
+
   const totalPages = Math.ceil(totalLeads / itemsPerPage);
+
+  // Today's total updated leads
   const todayTotal = useMemo(
     () => todayStats.reduce((sum, s) => sum + (s.count || 0), 0),
     [todayStats]
@@ -1018,6 +1034,7 @@ const LeadsPage = () => {
 
       {/* ── Top Bar ── */}
       <div className="bg-white border p-3 rounded-lg shadow-sm mb-4 flex flex-wrap gap-3 items-center justify-between">
+        {/* Date Range Filter */}
         <div className="flex items-center gap-2 text-xs flex-wrap">
           <div className="flex items-center gap-1.5 text-blue-700 font-bold uppercase">
             <Calendar size={14} /> Date Range:
@@ -1057,26 +1074,14 @@ const LeadsPage = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* ✅ Manual Refresh Button */}
-          <button
-            onClick={handleManualRefresh}
-            disabled={loading}
-            title="Refresh list"
-            className="flex items-center gap-1.5 bg-slate-500 hover:bg-slate-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
-          >
-            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
-            Refresh
-          </button>
-
-          <button
-            onClick={handleExportExcel}
-            disabled={loading}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95 shadow-md disabled:opacity-50"
-          >
-            <FaFileExcel /> {loading ? "Processing..." : "Export"}
-          </button>
-        </div>
+        {/* Export Button */}
+        <button
+          onClick={handleExportExcel}
+          disabled={loading}
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95 shadow-md disabled:opacity-50"
+        >
+          <FaFileExcel /> {loading ? "Processing..." : "Export Excel"}
+        </button>
       </div>
 
       {/* ── Overall Stats Grid ── */}
@@ -1100,7 +1105,9 @@ const LeadsPage = () => {
         ))}
       </div>
 
-      {/* ── Today Report ── */}
+      {/* ══════════════════════════════════════════
+          ── AAJ KI REPORT (Today's Report) ──
+      ══════════════════════════════════════════ */}
       <div className="bg-white border rounded-lg shadow-sm mb-4 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600">
           <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-wider">
@@ -1109,6 +1116,7 @@ const LeadsPage = () => {
           </div>
           <div className="flex items-center gap-1.5 text-violet-100 text-[10px] font-bold">
             <Clock size={11} />
+            {/* ✅ IST date exact dikhao */}
             {todayDateIST
               ? new Date(todayDateIST + "T00:00:00+05:30").toLocaleDateString("en-IN", {
                   day: "numeric",
@@ -1188,10 +1196,6 @@ const LeadsPage = () => {
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-sm bg-green-200 border border-green-400 inline-block"></span>
           Remark Updated Today
-        </div>
-        <div className="flex items-center gap-1.5 text-blue-600">
-          <span className="w-3 h-3 rounded-sm bg-blue-100 border border-blue-400 inline-block"></span>
-          Update hone pe list order same rehta hai
         </div>
       </div>
 
@@ -1273,9 +1277,11 @@ const LeadRow = ({ lead, onSave }) => {
   const [showAdmission, setShowAdmission] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
 
+  // ✅ Latest remark from historyByDate (sirf)
   const latestRemark = getLatestRemark(lead);
-  const phoneNumber = lead.phone || lead.mobile || lead.contactNo;
+  const remarkCount = getRemarkCount(lead);
 
+  const phoneNumber = lead.phone || lead.mobile || lead.contactNo;
   const hasChange =
     localStatus !== lead.status ||
     localRemark.trim() !== "" ||
@@ -1305,6 +1311,7 @@ const LeadRow = ({ lead, onSave }) => {
       }
     }
 
+    // ✅ Backend ko sirf remark + status + followUpDate bhejo
     onSave(lead._id, {
       status: localStatus,
       remark: localRemark.trim() || undefined,
@@ -1316,6 +1323,7 @@ const LeadRow = ({ lead, onSave }) => {
   return (
     <>
       <tr className={`hover:bg-blue-50/40 transition-colors ${rowClass}`}>
+        {/* Lead Details */}
         <td className="p-3 border-r border-gray-50">
           <div className="flex flex-col gap-1.5">
             <span className="font-bold text-gray-900 text-[12px] uppercase flex items-center gap-1.5">
@@ -1355,6 +1363,7 @@ const LeadRow = ({ lead, onSave }) => {
           </div>
         </td>
 
+        {/* Course & Location */}
         <td className="p-3 border-r border-gray-50">
           <div className="flex flex-col gap-1.5">
             {lead.course && (
@@ -1370,6 +1379,7 @@ const LeadRow = ({ lead, onSave }) => {
           </div>
         </td>
 
+        {/* Status */}
         <td className="border-r border-gray-50 px-2">
           <select
             value={localStatus}
@@ -1384,6 +1394,7 @@ const LeadRow = ({ lead, onSave }) => {
           </select>
         </td>
 
+        {/* Remark */}
         <td className="p-2 border-r border-gray-50">
           <div className="flex flex-col gap-1">
             {remarkUpdatedToday && (
@@ -1391,12 +1402,17 @@ const LeadRow = ({ lead, onSave }) => {
                 ✅ Updated Today
               </span>
             )}
+
+            {/* ✅ Remark Count Badge */}
             <span className="text-[9px] font-black text-blue-700 bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded w-fit">
-              {lead.remarkCount || (lead.followUpHistory?.length || 0)} Updates
+              {remarkCount} Updates
             </span>
+
+            {/* ✅ Latest Remark from historyByDate */}
             <div className="text-[9px] text-blue-800 font-semibold bg-blue-50/50 p-1 rounded border border-blue-100 max-h-12 overflow-y-auto whitespace-pre-wrap">
               {latestRemark || "No remarks"}
             </div>
+
             <input
               type="text"
               value={localRemark}
@@ -1407,6 +1423,7 @@ const LeadRow = ({ lead, onSave }) => {
           </div>
         </td>
 
+        {/* Next Follow-up */}
         <td className="border-r border-gray-50 px-2">
           <input
             type="datetime-local"
@@ -1416,6 +1433,7 @@ const LeadRow = ({ lead, onSave }) => {
           />
         </td>
 
+        {/* Actions */}
         <td className="p-3 text-center">
           <div className="flex gap-2 justify-center">
             <button
@@ -1442,6 +1460,7 @@ const LeadRow = ({ lead, onSave }) => {
         </td>
       </tr>
 
+      {/* Activity Timeline Modal */}
       {showTimeline && (
         <tr>
           <td colSpan="6" className="p-0 border-none">
@@ -1450,6 +1469,7 @@ const LeadRow = ({ lead, onSave }) => {
         </tr>
       )}
 
+      {/* Student Admission Modal */}
       {showAdmission && (
         <tr>
           <td colSpan="6" className="p-0 border-none">
