@@ -80,27 +80,35 @@ export default function AboutContent() {
         }}
       />
 
-      {/* Banner Section */}
-      <section className="relative w-full md:h-[60vh] h-[40vh] bg-white overflow-hidden">
-        <Image
-          src="/images/offce.png"
-          alt="Career Vidya team providing professional education guidance"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-50"
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="max-w-3xl px-6 text-center">
-            <h1 className="text-3xl md:text-5xl font-black text-[#0056B3] uppercase mb-4">
-              About Career Vidya
-            </h1>
-            <h2 className="text-lg md:text-xl font-medium text-slate-800 italic">
-              Transforming ideas into impactful digital learning solutions with trust, innovation, and excellence.
-            </h2>
-          </div>
-        </div>
-      </section>
+    {/* Banner Section - Full Image Without Crop */}
+<section className="relative w-full bg-white overflow-hidden">
+  <Image
+    src="/images/office.jpeg"
+    alt="Career Vidya team providing professional education guidance"
+    width={1920}
+    height={700}
+    priority
+    sizes="100vw"
+    className="w-full h-auto object-contain"
+  />
+
+  {/* Light overlay for text readability */}
+  <div className="absolute inset-0 bg-white/20" />
+
+  {/* Banner Content */}
+  <div className="absolute inset-0 flex items-center justify-center">
+    {/* <div className="max-w-4xl px-6 text-center">
+      <h1 className="text-3xl md:text-5xl font-black text-[#0056B3] uppercase mb-4 drop-shadow-sm">
+        About Career Vidya
+      </h1>
+
+      <h2 className="text-base md:text-xl font-medium text-slate-800 italic drop-shadow-sm">
+        Transforming ideas into impactful digital learning solutions with
+        trust, innovation, and excellence.
+      </h2>
+    </div> */}
+  </div>
+</section>
 
       <Counter />
 

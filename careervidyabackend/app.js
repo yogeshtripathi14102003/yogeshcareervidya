@@ -170,6 +170,7 @@ import qaRoutes from "./router/qaRoutes.js";
 import securityConfigRoutes from "./router/securityConfigRoutes.js";
 import { globalBackstopLimiter } from "./middelware/rateLimiter.js";
 import sanitizeInputs from "./middelware/sanitize.js";
+import callbackRoutes from "./router/callbackRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -266,6 +267,7 @@ app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/reports", reportsRoutes);
 app.use("/api/v1/qa", qaRoutes);
 app.use("/api/v1/security-config", securityConfigRoutes);
+app.use("api/v1/callback", callbackRoutes);
 
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");
