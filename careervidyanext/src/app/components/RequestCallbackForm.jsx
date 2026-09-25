@@ -2,35 +2,85 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import api from "@/utlis/api.js";
-import {
-  FaUser,
-  FaEnvelope,
-  FaPhoneAlt,
-  FaVenusMars,
-  FaBook,
-  FaMapMarkerAlt,
-  FaHome,
-  FaCalendarAlt,
-  FaClock,
-  FaPaperPlane,
-  FaSpinner,
-} from "react-icons/fa";
+import axios from "axios";
+import { FaArrowRight, FaSpinner } from "react-icons/fa";
 
-export default function RequestCallbackForm() {
-  const [inquiryType, setInquiryType] = useState("Request Call Back");
+// ============================================================
+// 🔌 API CONFIG (api.js integrated)
+// ============================================================
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_VERSION = "/api/v1";
+
+const apiClient = axios.create({
+  baseURL: `${API_BASE_URL}${API_VERSION}`,
+  headers: { "Content-Type": "application/json" },
+  timeout: 15000,
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Something went wrong";
+    return Promise.reject(new Error(message));
+  }
+);
+
+// ============================================================
+// 📡 CALLBACK API ENDPOINTS
+// ============================================================
+const callbackAPI = {
+  create: async (payload) => {
+    const { data } = await apiClient.post("/callback/request", payload);
+    return data;
+  },
+  getAll: async () => {
+    const { data } = await apiClient.get("/callback/all");
+    return data;
+  },
+  getById: async (id) => {
+    const { data } = await apiClient.get(`/callback/${id}`);
+    return data;
+  },
+  update: async (id, payload) => {
+    const { data } = await apiClient.put(`/callback/${id}`, payload);
+    return data;
+  },
+  delete: async (id) => {
+    const { data } = await apiClient.delete(`/callback/${id}`);
+    return data;
+  },
+  updateStatus: async (id, status) => {
+    const { data } = await apiClient.patch(`/callback/${id}/status`, {
+      status,
+    });
+    return data;
+  },
+};
+
+// ============================================================
+// 🏠 MAIN PAGE
+// ============================================================
+export default function HomePage() {
+  return <RequestCallbackSection />;
+}
+
+/* ============================================================
+   📝 REQUEST CALL BACK SECTION (Image jaisa exact)
+============================================================ */
+function RequestCallbackSection() {
   const [loading, setLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     mobileNumber: "",
-    gender: "",
     course: "",
     state: "",
     fullAddress: "",
-    preferredDate: "",
-    preferredTime: "",
+    gender: "",
   });
 
   const handleChange = (e) => {
@@ -45,10 +95,10 @@ export default function RequestCallbackForm() {
       !formData.fullName ||
       !formData.email ||
       !formData.mobileNumber ||
-      !formData.gender ||
       !formData.course ||
       !formData.state ||
-      !formData.fullAddress
+      !formData.fullAddress ||
+      !formData.gender
     ) {
       toast.error("Please fill all required fields!");
       return;
@@ -67,12 +117,21 @@ export default function RequestCallbackForm() {
     setLoading(true);
 
     try {
-      // ✅ Using centralized api.js
-      const payload = { ...formData, inquiryType };
+      const payload = {
+        fullName: formData.fullName,
+        email: formData.email,
+        mobileNumber: formData.mobileNumber,
+        course: formData.course,
+        state: formData.state,
+        fullAddress: formData.fullAddress,
+        gender: formData.gender,
+        inquiryType: "Request Call Back",
+      };
+
       const data = await callbackAPI.create(payload);
 
       toast.success(
-        data.message || "Request submitted! We'll contact you soon 🎉"
+        data?.message || "Request submitted! We'll call you back soon 🎉"
       );
 
       // Reset
@@ -80,14 +139,11 @@ export default function RequestCallbackForm() {
         fullName: "",
         email: "",
         mobileNumber: "",
-        gender: "",
         course: "",
         state: "",
         fullAddress: "",
-        preferredDate: "",
-        preferredTime: "",
+        gender: "",
       });
-      setInquiryType("Request Call Back");
     } catch (error) {
       toast.error(error.message || "Failed to submit request");
     } finally {
@@ -96,213 +152,176 @@ export default function RequestCallbackForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-4">
-      <div className="w-full max-w-2xl bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
-            Get in Touch
-          </h1>
-          <p className="text-white/80 mt-2 text-sm sm:text-base">
-            Fill the form and our team will reach out to you shortly
-          </p>
-        </div>
-
-        {/* Toggle */}
-        <div className="flex bg-white/20 backdrop-blur-md rounded-xl p-1 mb-6">
-          {["Request Call Back", "Book Counselling"].map((type) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => setInquiryType(type)}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 ${
-                inquiryType === type
-                  ? "bg-white text-indigo-700 shadow-lg scale-[1.02]"
-                  : "text-white/90 hover:bg-white/10"
-              }`}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <InputField
-            icon={<FaUser />}
-            name="fullName"
-            placeholder="Full Name"
-            value={formData.fullName}
-            onChange={handleChange}
+    <section className="min-h-screen bg-[#FAF7F0] flex items-center justify-center p-4 sm:p-8">
+      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+        
+        {/* ========== LEFT SIDE - Illustration ========== */}
+        <div className="flex justify-center items-center order-2 lg:order-1">
+          <img
+            src="/images/inquiry-illustration.png"
+            alt="Request Call Back Illustration"
+            className="w-full max-w-md lg:max-w-xl h-auto object-contain"
           />
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <InputField
-              icon={<FaEnvelope />}
-              name="email"
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <InputField
-              icon={<FaPhoneAlt />}
-              name="mobileNumber"
-              type="tel"
-              placeholder="Mobile Number"
-              value={formData.mobileNumber}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="pt-2">
-            <p className="text-white/90 font-semibold text-sm mb-3">
-              Academic & Location Details
-            </p>
-            <div className="h-px bg-white/20 mb-4"></div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <SelectField
-              icon={<FaVenusMars />}
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              options={["Male", "Female", "Other"]}
-              placeholder="Gender"
-            />
-            <SelectField
-              icon={<FaBook />}
-              name="course"
-              value={formData.course}
-              onChange={handleChange}
-              options={[
-                "B.Tech",
-                "M.Tech",
-                "BBA",
-                "MBA",
-                "B.Com",
-                "M.Com",
-                "BCA",
-                "MCA",
-                "Other",
-              ]}
-              placeholder="Course"
-            />
-            <SelectField
-              icon={<FaMapMarkerAlt />}
-              name="state"
-              value={formData.state}
-              onChange={handleChange}
-              options={[
-                "Delhi",
-                "Uttar Pradesh",
-                "Maharashtra",
-                "Karnataka",
-                "Tamil Nadu",
-                "Gujarat",
-                "Rajasthan",
-                "Other",
-              ]}
-              placeholder="State"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute left-4 top-4 text-white/60">
-              <FaHome />
+        {/* ========== RIGHT SIDE - Form Card ========== */}
+        <div className="order-1 lg:order-2">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 lg:p-10">
+            
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                Request Call Back
+              </h1>
+              <p className="text-gray-500 text-sm sm:text-base">
+                Fill the form and our team will call you back shortly.
+              </p>
             </div>
-            <textarea
-              name="fullAddress"
-              placeholder="Full Address"
-              value={formData.fullAddress}
-              onChange={handleChange}
-              rows={3}
-              className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/70 transition-all resize-none"
-            />
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* Row 1: Full Name + Email */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <FormField
+                  label="Full Name"
+                  name="fullName"
+                  placeholder="name"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                />
+                <FormField
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  placeholder="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* Row 2: Mobile + Course */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <FormField
+                  label="Mobile Number"
+                  name="mobileNumber"
+                  type="tel"
+                  placeholder="mobile"
+                  value={formData.mobileNumber}
+                  onChange={handleChange}
+                  required
+                />
+                <FormField
+                  label="Course"
+                  name="course"
+                  placeholder="course"
+                  value={formData.course}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* Row 3: Gender + State */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <SelectField
+                  label="Gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  options={["Male", "Female", "Other"]}
+                  placeholder="select gender"
+                  required
+                />
+                <FormField
+                  label="State"
+                  name="state"
+                  placeholder="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* Row 4: Full Address */}
+              <div>
+                <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+                  Full Address <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="fullAddress"
+                  placeholder="address"
+                  value={formData.fullAddress}
+                  onChange={handleChange}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all resize-none"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base sm:text-lg py-3.5 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <FaSpinner className="animate-spin" /> Submitting...
+                  </>
+                ) : (
+                  <>
+                    Request Call Back <FaArrowRight className="text-sm" />
+                  </>
+                )}
+              </button>
+            </form>
           </div>
-
-          {/* Show only for Book Counselling */}
-          {inquiryType === "Book Counselling" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fadeIn">
-              <InputField
-                icon={<FaCalendarAlt />}
-                name="preferredDate"
-                type="date"
-                placeholder="Preferred Date"
-                value={formData.preferredDate}
-                onChange={handleChange}
-              />
-              <InputField
-                icon={<FaClock />}
-                name="preferredTime"
-                type="time"
-                placeholder="Preferred Time"
-                value={formData.preferredTime}
-                onChange={handleChange}
-              />
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-4 bg-white text-indigo-700 font-bold py-3.5 rounded-xl hover:bg-indigo-50 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-2xl disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <>
-                <FaSpinner className="animate-spin" /> Submitting...
-              </>
-            ) : (
-              <>
-                <FaPaperPlane /> Submit Request
-              </>
-            )}
-          </button>
-        </form>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-// ============ Reusable Input ============
-function InputField({ icon, ...props }) {
+/* ============================================================
+   🔤 REUSABLE FORM FIELD
+============================================================ */
+function FormField({ label, required, ...props }) {
   return (
-    <div className="relative">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60">
-        {icon}
-      </div>
+    <div>
+      <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
       <input
         {...props}
-        className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/70 transition-all"
+        className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all"
       />
     </div>
   );
 }
 
-// ============ Reusable Select ============
-function SelectField({ icon, options, placeholder, ...props }) {
+/* ============================================================
+   🔽 REUSABLE SELECT
+============================================================ */
+function SelectField({ label, options, placeholder, required, ...props }) {
   return (
-    <div className="relative">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 z-10">
-        {icon}
-      </div>
+    <div>
+      <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
       <select
         {...props}
-        className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/70 transition-all appearance-none cursor-pointer"
+        className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all appearance-none cursor-pointer bg-white"
       >
-        <option value="" disabled className="text-gray-800">
+        <option value="" disabled>
           {placeholder}
         </option>
         {options.map((opt) => (
-          <option key={opt} value={opt} className="text-gray-800">
+          <option key={opt} value={opt}>
             {opt}
           </option>
         ))}
       </select>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none">
-        ▼
-      </div>
     </div>
   );
 }
