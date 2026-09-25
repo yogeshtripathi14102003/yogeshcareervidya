@@ -8,7 +8,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
-  z-index: 50; /* ✅ 500 tha, 100 karo bas */
+  z-index: 50;
 }
 
 .header-inner {
@@ -79,23 +79,8 @@
 }
 
 /* ================================================= */
-/* NAV — CENTERED (FIXED: no `transform` here anymore) */
+/* NAV — CENTERED */
 /* ================================================= */
-/*
-  BUGFIX NOTE:
-  Previously this rule used `transform: translateX(-50%)` to center
-  the nav. Any `transform` on an ancestor creates a NEW containing
-  block for descendants that use `position: fixed` (per CSS spec).
-  Since `.mega-panel` inside `.mega-menu-wrap` relies on
-  `position: fixed` to span the FULL viewport width and sit right
-  below the header, having `transform` on `.nav-center` broke that:
-  the panel was being positioned relative to `.nav-center`'s box
-  instead of the viewport — causing the narrow, mis-placed dropdown
-  seen in the screenshots.
-
-  Fix: center `.nav-center` WITHOUT using `transform`, so `.mega-panel`
-  keeps the real viewport as its containing block.
-*/
 .nav-center {
   position: absolute;
   left: 0;
@@ -109,8 +94,10 @@
   white-space: nowrap;
 }
 
+/* ✅ UPDATED: added `> span` so "MORE" (span trigger) gets identical styling */
 .nav-center > a,
-.nav-center > .mega-menu-wrap > a {
+.nav-center > .mega-menu-wrap > a,
+.nav-center > .mega-menu-wrap > span {
   text-decoration: none;
   color: #222;
   font-weight: 600;
@@ -121,10 +108,13 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: pointer;
+  user-select: none;
 }
 
 .nav-center > a:hover,
-.nav-center > .mega-menu-wrap > a:hover {
+.nav-center > .mega-menu-wrap > a:hover,
+.nav-center > .mega-menu-wrap > span:hover {
   color: #04458b;
   background: #f0f5ff;
 }
@@ -297,88 +287,61 @@
 }
 
 /* ================================================= */
-/* MEGA MENU WRAP — the trigger item itself           */
+/* MEGA MENU WRAP — the trigger item itself */
 /* ================================================= */
-/*
-  UPDATED:
-  Changed from `position: static` to `position: relative`.
-  The mega-panel below is no longer `position: fixed` spanning
-  the full viewport — it's now `position: absolute`, anchored
-  directly under THIS wrapper. So this wrapper must establish
-  the containing block for it.
-*/
 .mega-menu-wrap {
   position: relative;
 }
-.mega-menu-wrap > a {
+
+/* ✅ UPDATED: added `> span` so "MORE" span trigger gets same flex layout */
+.mega-menu-wrap > a,
+.mega-menu-wrap > span {
   display: flex;
   align-items: center;
   gap: 3px;
 }
+
 .mega-menu-wrap:hover .chevron-icon { transform: rotate(180deg); }
 .chevron-icon { transition: transform .25s ease; }
 
 /* ================================================= */
-/* MEGA MENU PANEL — auto-sized to its own content,   */
-/* anchored under the trigger, NEVER cropped/overflow */
+/* MEGA MENU PANEL */
 /* ================================================= */
-/*
-  UPDATED (bugfix):
-  1) Previously `position: fixed; left:0; right:0; width:100%`
-     made the dropdown always cover the FULL screen width,
-     regardless of how much content it actually had.
-  2) Then a fixed `width: 720px` was used — better, but still
-     not "content-sized", and could get clipped by the viewport
-     edge on smaller desktop widths.
-
-  Fix: `position: absolute` relative to `.mega-menu-wrap`
-  (which is `position: relative`), with NO explicit width set.
-  An absolutely-positioned element with only `left` (or only
-  `right`) set shrink-wraps to its content by default — so the
-  panel is only ever as wide as it needs to be ("jitne me utna").
-  A `max-width` safety cap + per-column `minmax()` keeps it from
-  overflowing the viewport on any screen size, and each of the
-  3 triggers anchors its panel so it always stays fully visible
-  (left-aligned, centered, or right-aligned as appropriate).
-*/
 .mega-panel {
   position: absolute;
   top: calc(100% + 14px);
-  max-width: min(760px, 94vw);   /* ceiling only — real width = content */
+  max-width: min(760px, 94vw);
 
   background: #fff;
   border: 1px solid #e8e8e8;
   border-radius: 12px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, .10);
-  z-index: 490;        /* below header but above page content */
+  z-index: 490;
 
-  /* Show/hide */
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
   transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
 
-  /* Internal layout */
   display: flex;
   justify-content: center;
-  overflow: hidden;     /* extra safety net against any content overflow */
+  overflow: hidden;
 }
 
-/* Visible when parent .mega-menu-wrap is hovered */
 .mega-menu-wrap:hover .mega-panel {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
 
-/* 1st item ("Explore Programs") — leftmost trigger → anchor left */
+/* ✅ UPDATED: 3 dropdowns — Explore Programs / Top Universities / More */
+
+/* 1st dropdown ("Explore Programs") — anchor LEFT */
 .nav-center > .mega-menu-wrap:nth-of-type(1) .mega-panel {
   left: 0;
 }
 
-/* 2nd item ("Free Counselling") — sits near the center of the
-   nav → center the panel under its own trigger, regardless of
-   how wide the panel's content ends up being */
+/* 2nd dropdown ("Top Universities") — anchor CENTER */
 .nav-center > .mega-menu-wrap:nth-of-type(2) .mega-panel {
   left: 50%;
   transform: translateX(-50%) translateY(-6px);
@@ -387,15 +350,13 @@
   transform: translateX(-50%) translateY(0);
 }
 
-/* 3rd item ("Top Universities") — rightmost trigger → anchor
-   right, so it never runs off the right edge of the screen */
+/* 3rd dropdown ("More") — anchor RIGHT */
 .nav-center > .mega-menu-wrap:nth-of-type(3) .mega-panel {
   left: auto;
   right: 0;
 }
 
-/* Inner container: content grid — columns only take the space
-   they actually need (minmax), so the whole panel shrink-wraps */
+/* Inner container: content grid */
 .mega-panel-inner {
   width: max-content;
   max-width: min(760px, 94vw);
@@ -406,7 +367,7 @@
   box-sizing: border-box;
 }
 
-/* "View All" row that spans all 3 columns */
+/* "View All" row that spans all columns */
 .mega-panel-footer {
   grid-column: 1 / -1;
   padding-top: 16px;
@@ -434,15 +395,6 @@
   flex-shrink: 0;
   border-radius: 2px;
 }
-/*
-  SEO FIX: renamed from `.mega-col-heading h4` to `.mega-col-heading-text`.
-  The JSX now renders these mega-menu column labels ("Quick Links",
-  "Get in Touch", "Top Ranked", etc.) as <p className="mega-col-heading-text">
-  instead of <h4>, since they are decorative dropdown labels, not real
-  content headings — and Header (which contains them) renders on every
-  page before that page's own <h1>. Same visual styling, just no longer
-  part of the page's semantic heading outline.
-*/
 .mega-col-heading-text {
   font-size: 15px;
   font-weight: 700;
@@ -488,7 +440,7 @@
 .chip-purple  { background: #faf5ff; color: #7c3aed; }
 .chip-orange  { background: #fff7ed; color: #ea580c; }
 
-/* ── Stats 2×2 grid (Explore Programs – col 2) ── */
+/* ── Stats 2×2 grid (More panel – col 2) ── */
 .mega-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -519,7 +471,7 @@
 .mega-stat-num   { font-size: 17px; font-weight: 900; color: #002D62; line-height: 1; }
 .mega-stat-label { font-size: 9px;  font-weight: 700; color: #6b7280; text-transform: uppercase; margin-top: 4px; letter-spacing: .5px; }
 
-/* ── Contact card (Free Counselling – col 3) ── */
+/* ── Contact card ── */
 .mega-contact-card {
   background: #f9fafb;
   border-radius: 12px;
@@ -788,7 +740,8 @@
 /* ================================================= */
 @media (min-width: 1024px) and (max-width: 1200px) {
   .nav-center > a,
-  .nav-center > .mega-menu-wrap > a {
+  .nav-center > .mega-menu-wrap > a,
+  .nav-center > .mega-menu-wrap > span {
     font-size: 12.5px;
     padding: 7px 7px;
   }
@@ -816,7 +769,8 @@
 
 @media (min-width: 1200px) and (max-width: 1380px) {
   .nav-center > a,
-  .nav-center > .mega-menu-wrap > a {
+  .nav-center > .mega-menu-wrap > a,
+  .nav-center > .mega-menu-wrap > span {
     font-size: 13px;
     padding: 7px 9px;
   }
@@ -826,11 +780,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-   Styles for the mobile "Popular Courses" collapsible
-   section inside .mobile-nav-links. Colors, sizes, and
-   spacing are matched exactly to your existing
-   .mobile-nav-links a rules so it looks native, not bolted on.
-   (UNCHANGED — mobile view same rehne diya gaya hai)
+   MOBILE COLLAPSIBLE SECTIONS
    ══════════════════════════════════════════════════════════ */
 
 .mobile-collapsible-trigger {
@@ -876,7 +826,7 @@
   font-size: 14px;
   font-weight: 500;
   color: #444;
-  padding: 12px 12px 12px 28px; /* extra left indent to show nesting */
+  padding: 12px 12px 12px 28px;
   border-bottom: 1px solid #f3f3f3;
   transition: background 0.2s, color 0.2s, padding-left 0.2s;
 }

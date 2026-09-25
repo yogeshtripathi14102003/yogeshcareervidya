@@ -20,26 +20,29 @@ const callbackRequestSchema = new mongoose.Schema({
   gender: {
     type: String,
     enum: ['Male', 'Female', 'Other'],
-    required: true
+    default: 'Other'
+    // 👆 required hata diya, sirf default rakha
   },
   course: {
     type: String,
-    required: true
+    default: 'Not Specified'
+    // 👆 required hata diya
   },
   state: {
     type: String,
-    required: true
+    default: 'Not Specified'
+    // 👆 required hata diya
   },
   fullAddress: {
     type: String,
-    required: true
+    default: 'Not Provided'
+    // 👆 required hata diya
   },
   inquiryType: {
     type: String,
     enum: ['Request Call Back', 'Book Counselling'],
     default: 'Request Call Back'
   },
-  // Book Counselling ke liye extra fields
   preferredDate: {
     type: Date,
     default: null

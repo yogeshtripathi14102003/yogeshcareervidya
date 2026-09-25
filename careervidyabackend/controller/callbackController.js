@@ -19,22 +19,33 @@ export const createRequest = async (req, res) => {
       preferredTime
     } = req.body;
 
-    if (!fullName || !email || !mobileNumber || !course || !state) {
+    // 🔹 Common validation — sabke liye zaroori
+    if (!fullName || !email || !mobileNumber) {
       return res.status(400).json({
         success: false,
         message: "Please fill all required fields."
       });
     }
 
+    // 🔹 Sirf "Book Counselling" ke liye extra fields mandatory
+    if (inquiryType === "Book Counselling") {
+      if (!gender || !course || !state || !fullAddress) {
+        return res.status(400).json({
+          success: false,
+          message: "Please fill all fields for booking counselling."
+        });
+      }
+    }
+
     const newRequest = new CallbackRequest({
       fullName,
       email,
       mobileNumber,
-      gender,
-      course,
-      state,
-      fullAddress,
-      inquiryType: inquiryType || 'Request Call Back',
+      gender: gender || "Other",
+      course: course || "Not Specified",
+      state: state || "Not Specified",
+      fullAddress: fullAddress || "Not Provided",
+      inquiryType: inquiryType || "Request Call Back",
       preferredDate: preferredDate || null,
       preferredTime: preferredTime || null
     });
@@ -49,6 +60,14 @@ export const createRequest = async (req, res) => {
 
   } catch (error) {
     console.error("Error in createRequest:", error);
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: Object.values(error.errors)[0].message
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "Server Error",

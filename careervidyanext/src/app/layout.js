@@ -152,7 +152,7 @@ const geistMono = Geist_Mono({
 const SITE_URL = "https://careervidya.in";
 
 const DEFAULT_TITLE =
-    "CareerVidya: Best Career Guidance & Online Education Platform India";
+    "CareerVidya: Find the Right Course, University & Career Path";
 const DEFAULT_DESC =
     "CareerVidya — India's leading platform for online MBA, BBA & BCA admissions. Compare top universities, get expert advice, and secure your admission today.";
 
@@ -167,7 +167,7 @@ export const metadata = {
     description: DEFAULT_DESC,
 
     keywords:
-        "CareerVidya, career guidance, online education platform, mentorship programs, student career planning, job placement assistance, top online courses in India",
+        "Compare online courses and universities, understand fees and eligibility, and get personalized guidance from CareerVidya experts.",
 
     robots: {
         index: true,

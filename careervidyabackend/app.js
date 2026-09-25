@@ -267,7 +267,7 @@ app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/reports", reportsRoutes);
 app.use("/api/v1/qa", qaRoutes);
 app.use("/api/v1/security-config", securityConfigRoutes);
-app.use("api/v1/callback", callbackRoutes);
+app.use("/api/v1/callback", callbackRoutes);
 
 app.get("/ping", (req, res) => {
   res.send("pong 🏓");

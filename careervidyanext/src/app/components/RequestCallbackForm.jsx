@@ -1,86 +1,137 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "react-hot-toast";
-import axios from "axios";
-import { FaArrowRight, FaSpinner } from "react-icons/fa";
-
-// ============================================================
-// 🔌 API CONFIG (api.js integrated)
-// ============================================================
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-const API_VERSION = "/api/v1";
-
-const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}${API_VERSION}`,
-  headers: { "Content-Type": "application/json" },
-  timeout: 15000,
-});
-
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message =
-      error?.response?.data?.message ||
-      error?.message ||
-      "Something went wrong";
-    return Promise.reject(new Error(message));
-  }
-);
-
-// ============================================================
-// 📡 CALLBACK API ENDPOINTS
-// ============================================================
-const callbackAPI = {
-  create: async (payload) => {
-    const { data } = await apiClient.post("/callback/request", payload);
-    return data;
-  },
-  getAll: async () => {
-    const { data } = await apiClient.get("/callback/all");
-    return data;
-  },
-  getById: async (id) => {
-    const { data } = await apiClient.get(`/callback/${id}`);
-    return data;
-  },
-  update: async (id, payload) => {
-    const { data } = await apiClient.put(`/callback/${id}`, payload);
-    return data;
-  },
-  delete: async (id) => {
-    const { data } = await apiClient.delete(`/callback/${id}`);
-    return data;
-  },
-  updateStatus: async (id, status) => {
-    const { data } = await apiClient.patch(`/callback/${id}/status`, {
-      status,
-    });
-    return data;
-  },
-};
+import { useState, useEffect } from "react";
+import { Toaster, toast } from "react-hot-toast";
+import { FaTimes, FaSpinner } from "react-icons/fa";
+import api from "@/utlis/api.js"; // 👈 aapka existing api.js
 
 // ============================================================
 // 🏠 MAIN PAGE
 // ============================================================
 export default function HomePage() {
-  return <RequestCallbackSection />;
+  const [isModalOpen, setIsModalOpen] = useState(true);
+
+  return (
+    <>
+      <Toaster position="top-right" />
+
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all"
+        >
+          Open Form
+        </button>
+
+        <CallbackModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      </div>
+    </>
+  );
 }
 
 /* ============================================================
-   📝 REQUEST CALL BACK SECTION (Image jaisa exact)
+   🪟 MODAL — Left Blue Panel + Right Form
 ============================================================ */
-function RequestCallbackSection() {
+function CallbackModal({ isOpen, onClose }) {
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "auto";
+
+    const handleEsc = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", handleEsc);
+
+    return () => {
+      document.body.style.overflow = "auto";
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn" />
+
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-slideUp my-8"
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-700 transition-all"
+          aria-label="Close"
+        >
+          <FaTimes className="text-lg" />
+        </button>
+
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          {/* LEFT — Blue Panel */}
+          <div className="bg-[#0B1437] text-white p-6 sm:p-8 lg:p-10">
+            <h3 className="text-lg sm:text-xl font-bold mb-6">
+              Why register with Career Vidya?
+            </h3>
+
+            <ul className="space-y-5 text-sm sm:text-base leading-relaxed text-gray-200">
+              <li className="flex gap-3">
+                <span className="text-white mt-1.5">•</span>
+                <span>
+                  <strong className="text-white">25000+</strong> Students
+                  Counselled, Absolutely Free of Cost
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-white mt-1.5">•</span>
+                <span>
+                  Get help from our experts in finding the right college for you
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-white mt-1.5">•</span>
+                <span>
+                  With totally online Admission Process we help you get college
+                  admission without having to step out
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-white mt-1.5">•</span>
+                <span>You won't get unwanted calls from third parties</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* RIGHT — Form */}
+          <div className="p-6 sm:p-8 lg:p-10">
+            <CallbackForm onSuccess={onClose} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   📝 FORM — Request Call Back / Book Counselling
+============================================================ */
+function CallbackForm({ onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const [inquiryType, setInquiryType] = useState("Request Call Back");
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     mobileNumber: "",
+    gender: "",
     course: "",
     state: "",
     fullAddress: "",
-    gender: "",
+    preferredDate: "",
+    preferredTime: "",
   });
 
   const handleChange = (e) => {
@@ -90,16 +141,8 @@ function RequestCallbackSection() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.mobileNumber ||
-      !formData.course ||
-      !formData.state ||
-      !formData.fullAddress ||
-      !formData.gender
-    ) {
+    // 🔹 Common fields (dono tab ke liye)
+    if (!formData.fullName || !formData.email || !formData.mobileNumber) {
       toast.error("Please fill all required fields!");
       return;
     }
@@ -114,24 +157,60 @@ function RequestCallbackSection() {
       return;
     }
 
+    // 🔹 Book Counselling ke extra validations
+    if (inquiryType === "Book Counselling") {
+      if (
+        !formData.gender ||
+        !formData.course ||
+        !formData.state ||
+        !formData.fullAddress
+      ) {
+        toast.error("Please fill all required fields!");
+        return;
+      }
+
+      if (!formData.preferredDate || !formData.preferredTime) {
+        toast.error("Please select preferred date & time!");
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
+      // 🔹 Payload — model ke hisaab se
       const payload = {
         fullName: formData.fullName,
         email: formData.email,
         mobileNumber: formData.mobileNumber,
-        course: formData.course,
-        state: formData.state,
-        fullAddress: formData.fullAddress,
-        gender: formData.gender,
-        inquiryType: "Request Call Back",
+        inquiryType: inquiryType,
+
+        // Book Counselling ke liye hi bhejna
+        gender:
+          inquiryType === "Book Counselling" ? formData.gender : "Other",
+        course:
+          inquiryType === "Book Counselling"
+            ? formData.course
+            : "Not Specified",
+        state:
+          inquiryType === "Book Counselling"
+            ? formData.state
+            : "Not Specified",
+        fullAddress:
+          inquiryType === "Book Counselling"
+            ? formData.fullAddress
+            : "Not Provided",
+        preferredDate:
+          inquiryType === "Book Counselling" ? formData.preferredDate : null,
+        preferredTime:
+          inquiryType === "Book Counselling" ? formData.preferredTime : null,
       };
 
-      const data = await callbackAPI.create(payload);
+      const res = await api.post("/api/v1/callback/request", payload);
+      const data = res.data;
 
       toast.success(
-        data?.message || "Request submitted! We'll call you back soon 🎉"
+        data?.message || "Request submitted! We'll contact you soon 🎉"
       );
 
       // Reset
@@ -139,11 +218,16 @@ function RequestCallbackSection() {
         fullName: "",
         email: "",
         mobileNumber: "",
+        gender: "",
         course: "",
         state: "",
         fullAddress: "",
-        gender: "",
+        preferredDate: "",
+        preferredTime: "",
       });
+      setInquiryType("Request Call Back");
+
+      setTimeout(() => onSuccess?.(), 1200);
     } catch (error) {
       toast.error(error.message || "Failed to submit request");
     } finally {
@@ -151,177 +235,170 @@ function RequestCallbackSection() {
     }
   };
 
+  const isCounselling = inquiryType === "Book Counselling";
+
   return (
-    <section className="min-h-screen bg-[#FAF7F0] flex items-center justify-center p-4 sm:p-8">
-      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-        
-        {/* ========== LEFT SIDE - Illustration ========== */}
-        <div className="flex justify-center items-center order-2 lg:order-1">
-          <img
-            src="/images/inquiry-illustration.png"
-            alt="Request Call Back Illustration"
-            className="w-full max-w-md lg:max-w-xl h-auto object-contain"
+    <div className="h-full flex flex-col">
+      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 leading-snug">
+        Get college counselling from experts, free of cost !
+      </h2>
+
+      {/* Toggle Tabs */}
+      <div className="flex bg-gray-100 rounded-lg p-1 mb-5">
+        {["Request Call Back", "Book Counselling"].map((type) => (
+          <button
+            key={type}
+            type="button"
+            onClick={() => setInquiryType(type)}
+            className={`flex-1 py-2 px-3 rounded-md text-xs sm:text-sm font-semibold transition-all ${
+              inquiryType === type
+                ? "bg-[#3B4FE4] text-white shadow"
+                : "text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {type}
+          </button>
+        ))}
+      </div>
+
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-3 flex-1 overflow-y-auto pr-1"
+      >
+        {/* Common: Name */}
+        <input
+          type="text"
+          name="fullName"
+          placeholder="Full Name"
+          value={formData.fullName}
+          onChange={handleChange}
+          className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        />
+
+        {/* Common: Email */}
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        />
+
+        {/* Common: Mobile with +91 */}
+        <div className="flex gap-2">
+          <div className="flex items-center px-3 py-3 border border-gray-300 rounded-md text-gray-700 bg-gray-50 text-sm font-medium">
+            +91
+          </div>
+          <input
+            type="tel"
+            name="mobileNumber"
+            placeholder="Mobile Number"
+            value={formData.mobileNumber}
+            onChange={handleChange}
+            maxLength={10}
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
 
-        {/* ========== RIGHT SIDE - Form Card ========== */}
-        <div className="order-1 lg:order-2">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 lg:p-10">
-            
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-                Request Call Back
-              </h1>
-              <p className="text-gray-500 text-sm sm:text-base">
-                Fill the form and our team will call you back shortly.
-              </p>
+        {/* Only for Book Counselling — Extra fields */}
+        {isCounselling && (
+          <div className="space-y-3 animate-fadeIn">
+            {/* Gender — Dropdown */}
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+            >
+              <option value="" disabled>
+                Gender
+              </option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+
+            {/* Course — Text Input */}
+            <input
+              type="text"
+              name="course"
+              placeholder="Course"
+              value={formData.course}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+
+            {/* State — Text Input */}
+            <input
+              type="text"
+              name="state"
+              placeholder="State"
+              value={formData.state}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+
+            {/* Full Address */}
+            <textarea
+              name="fullAddress"
+              placeholder="Full Address"
+              value={formData.fullAddress}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+            />
+
+            {/* Date + Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="date"
+                name="preferredDate"
+                value={formData.preferredDate}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              <input
+                type="time"
+                name="preferredTime"
+                value={formData.preferredTime}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
             </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Row 1: Full Name + Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <FormField
-                  label="Full Name"
-                  name="fullName"
-                  placeholder="name"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  required
-                />
-                <FormField
-                  label="Email Address"
-                  name="email"
-                  type="email"
-                  placeholder="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Row 2: Mobile + Course */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <FormField
-                  label="Mobile Number"
-                  name="mobileNumber"
-                  type="tel"
-                  placeholder="mobile"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  required
-                />
-                <FormField
-                  label="Course"
-                  name="course"
-                  placeholder="course"
-                  value={formData.course}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Row 3: Gender + State */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <SelectField
-                  label="Gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  options={["Male", "Female", "Other"]}
-                  placeholder="select gender"
-                  required
-                />
-                <FormField
-                  label="State"
-                  name="state"
-                  placeholder="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Row 4: Full Address */}
-              <div>
-                <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
-                  Full Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="fullAddress"
-                  placeholder="address"
-                  value={formData.fullAddress}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all resize-none"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base sm:text-lg py-3.5 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <FaSpinner className="animate-spin" /> Submitting...
-                  </>
-                ) : (
-                  <>
-                    Request Call Back <FaArrowRight className="text-sm" />
-                  </>
-                )}
-              </button>
-            </form>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+        )}
 
-/* ============================================================
-   🔤 REUSABLE FORM FIELD
-============================================================ */
-function FormField({ label, required, ...props }) {
-  return (
-    <div>
-      <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        {...props}
-        className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all"
-      />
-    </div>
-  );
-}
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full mt-2 bg-[#3B4FE4] hover:bg-[#2d3fd0] text-white font-semibold text-base py-3.5 rounded-md transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <FaSpinner className="animate-spin" /> Submitting...
+            </>
+          ) : isCounselling ? (
+            "Book Counselling"
+          ) : (
+            "Request A Callback"
+          )}
+        </button>
 
-/* ============================================================
-   🔽 REUSABLE SELECT
-============================================================ */
-function SelectField({ label, options, placeholder, required, ...props }) {
-  return (
-    <div>
-      <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <select
-        {...props}
-        className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all appearance-none cursor-pointer bg-white"
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
+        {/* Terms */}
+        <p className="text-xs text-gray-500 text-center pt-2 leading-relaxed">
+          By proceeding ahead you expressly agree to the Career Vidya{" "}
+          <a href="#" className="text-blue-600 hover:underline">
+            Terms & Conditions
+          </a>{" "}
+          and{" "}
+          <a href="#" className="text-blue-600 hover:underline">
+            Privacy Policy
+          </a>
+        </p>
+      </form>
     </div>
   );
 }

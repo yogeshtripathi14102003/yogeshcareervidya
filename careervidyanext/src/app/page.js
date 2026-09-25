@@ -1790,7 +1790,6 @@ import ServiceSlider from "./components/ServiceSlider";
 import Notification from "../app/components/Notification";
 import VideoSlider from "./components/VideoSlider";
 import CareervidyaFromModal from "./components/CareervidyaFormModal";
-//  import CareervidyaFormModal from "./components/CareervidyaFormModal";
 
 // ✅ Forces this page to render on every request (SSR) instead of being
 // pre-rendered at build time. Needed because HeroSlider/LogoSlider fetch
@@ -1827,7 +1826,6 @@ export default function Home() {
 
       <QueryPopup />
 
-      {/* <CareervidyaFormModal /> */}
 
       {/* <CardSlider /> */}
       <VideoSlider />
