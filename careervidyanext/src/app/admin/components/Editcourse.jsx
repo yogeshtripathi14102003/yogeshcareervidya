@@ -2008,10 +2008,11 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
   const prepareArrayForSubmission = (arr, fileFieldName, formDataKey, formData) => {
     const data = arr.map((item) => {
       const hasNewFile = item[fileFieldName] instanceof File;
+      // Destructure to remove image_old and isNew from the payload
+      const { image_old, isNew, ...rest } = item;
       return {
-        ...item,
-        isNew: hasNewFile,
-        [fileFieldName]: hasNewFile ? "" : item[`${fileFieldName}_old`] || null,
+        ...rest,
+        [fileFieldName]: hasNewFile ? "" : image_old || null,
       };
     });
     arr.forEach((item) => {
@@ -2095,12 +2096,11 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
         JSON.stringify(specializationDetails.filter((s) => s.name && s.description))
       );
 
-      // Worth It
+      // Worth It — fixed: strip isNew
       const worthItData = {
         description: worthItDescription,
         topics: filterEmptyObjects(worthItTopics),
         image: worthItImage instanceof File ? "" : worthItImage_old,
-        isNew: worthItImage instanceof File,
       };
       formData.append("onlineCourseWorthIt", JSON.stringify(worthItData));
       if (worthItImage instanceof File)
@@ -2161,10 +2161,10 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
       // Placement
       formData.append("placementSupport", JSON.stringify(placementSupport));
 
-      // Testimonials
+      // Testimonials — fixed: strip image_old as well as image
       const testimonialTextData = courseTestimonials
         .filter((t) => t.name && t.review)
-        .map(({ image, ...rest }) => rest);
+        .map(({ image, image_old, ...rest }) => rest);
       formData.append("courseTestimonials", JSON.stringify(testimonialTextData));
       courseTestimonials.forEach((t) => {
         if (t.image instanceof File)

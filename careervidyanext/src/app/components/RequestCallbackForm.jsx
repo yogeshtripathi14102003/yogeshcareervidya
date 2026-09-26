@@ -1,46 +1,42 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Toaster, toast } from "react-hot-toast";
-import { FaTimes, FaSpinner } from "react-icons/fa";
-import api from "@/utlis/api.js"; // 👈 aapka existing api.js
+import {
+  FaPhoneAlt,
+  FaUser,
+  FaGraduationCap,
+  FaClock,
+  FaArrowRight,
+  FaShieldAlt,
+  FaSpinner,
+  FaArrowLeft,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaVenusMars,
+  FaTimes,
+} from "react-icons/fa";
+import api from "@/utlis/api.js";
 
 // ============================================================
-// 🏠 MAIN PAGE
+// 🪟 REQUEST CALLBACK FORM — Modal Popup
 // ============================================================
-export default function HomePage() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+export default function RequestCallbackForm({ isOpen, onClose }) {
+  const [view, setView] = useState("callback");
 
-  return (
-    <>
-      <Toaster position="top-right" />
-
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all"
-        >
-          Open Form
-        </button>
-
-        <CallbackModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
-      </div>
-    </>
-  );
-}
-
-/* ============================================================
-   🪟 MODAL — Left Blue Panel + Right Form
-============================================================ */
-function CallbackModal({ isOpen, onClose }) {
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "auto";
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      setView("callback");
+    } else {
+      document.body.style.overflow = "auto";
+    }
 
-    const handleEsc = (e) => e.key === "Escape" && onClose();
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
     window.addEventListener("keydown", handleEsc);
 
     return () => {
@@ -52,76 +48,248 @@ function CallbackModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
-      onClick={onClose}
-    >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn" />
+    <>
+      <Toaster position="top-right" />
 
       <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-slideUp my-8"
+        className="fixed inset-0 z-[999] flex items-center justify-center p-3 overflow-y-auto"
+        onClick={onClose}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-20 w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-700 transition-all"
-          aria-label="Close"
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-[#082451]/70 backdrop-blur-sm" />
+
+        {/* Modal - Compact Width & Border Radius */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-[760px] bg-white rounded-xl shadow-[0_20px_50px_rgba(0,39,100,0.25)] overflow-hidden my-auto"
         >
-          <FaTimes className="text-lg" />
-        </button>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-2.5 right-2.5 z-50 w-7 h-7 flex items-center justify-center rounded-full bg-white/80 border border-gray-200 text-[#174685] hover:bg-white hover:scale-105 transition-all shadow-sm"
+            aria-label="Close"
+          >
+            <FaTimes className="text-[11px]" />
+          </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* LEFT — Blue Panel */}
-          <div className="bg-[#0B1437] text-white p-6 sm:p-8 lg:p-10">
-            <h3 className="text-lg sm:text-xl font-bold mb-6">
-              Why register with Career Vidya?
-            </h3>
+          <div className="grid grid-cols-1 md:grid-cols-[42%_58%]">
+            {/* ==================================================
+                LEFT SIDE
+            ================================================== */}
+            <div className="hidden md:flex flex-col bg-[#EEF7FF] p-6 justify-between">
+              <div>
+                {/* CTA Badge */}
+                <div className="inline-flex items-center gap-1.5 bg-[#F58220] text-white px-2.5 py-1 rounded-full text-[10px] font-bold mb-3 shadow-sm">
+                  <FaPhoneAlt className="text-[8px]" />
+                  Free Career Guidance
+                </div>
 
-            <ul className="space-y-5 text-sm sm:text-base leading-relaxed text-gray-200">
-              <li className="flex gap-3">
-                <span className="text-white mt-1.5">•</span>
-                <span>
-                  <strong className="text-white">25000+</strong> Students
-                  Counselled, Absolutely Free of Cost
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-white mt-1.5">•</span>
-                <span>
-                  Get help from our experts in finding the right college for you
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-white mt-1.5">•</span>
-                <span>
-                  With totally online Admission Process we help you get college
-                  admission without having to step out
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-white mt-1.5">•</span>
-                <span>You won't get unwanted calls from third parties</span>
-              </li>
-            </ul>
-          </div>
+                {/* Heading */}
+                <h2 className="text-[22px] leading-snug font-extrabold text-[#173F7A]">
+                  Talk to Our <br />
+                  <span className="text-[#1264C5]">Career </span>
+                  <span className="text-[#F58220]">Counsellor</span>
+                </h2>
 
-          {/* RIGHT — Form */}
-          <div className="p-6 sm:p-8 lg:p-10">
-            <CallbackForm onSuccess={onClose} />
+                <p className="mt-1.5 text-[12px] leading-relaxed text-[#55739E]">
+                  Personalized guidance for courses, fees & admissions.
+                </p>
+
+                {/* Logo - Text ke niche Shifted */}
+                <div className="mt-4">
+                  <Image
+                    src="/images/n12.png"
+                    alt="CareerVidya"
+                    width={130}
+                    height={45}
+                    priority
+                    className="w-[110px] h-auto object-contain"
+                  />
+                </div>
+              </div>
+
+              {/* Vector Image */}
+              <div className="pt-2 flex justify-center">
+                <Image
+                  src="/images/inquiry.png"
+                  alt="CareerVidya counselling"
+                  width={280}
+                  height={200}
+                  priority
+                  className="w-full max-w-[210px] h-auto object-contain"
+                />
+              </div>
+            </div>
+
+            {/* ==================================================
+                RIGHT SIDE
+            ================================================== */}
+            <div className="bg-white p-5 sm:p-6 flex items-center">
+              <div className="w-full">
+                {view === "callback" ? (
+                  <CallbackForm
+                    onBookCounselling={() => setView("counselling")}
+                    onClose={onClose}
+                  />
+                ) : (
+                  <CounsellingForm
+                    onBack={() => setView("callback")}
+                    onClose={onClose}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 /* ============================================================
-   📝 FORM — Request Call Back / Book Counselling
+   📞 CALLBACK FORM (Compact)
 ============================================================ */
-function CallbackForm({ onSuccess }) {
+function CallbackForm({ onBookCounselling, onClose }) {
   const [loading, setLoading] = useState(false);
-  const [inquiryType, setInquiryType] = useState("Request Call Back");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    mobileNumber: "",
+    preferredTime: "",
+  });
 
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.fullName || !formData.mobileNumber || !formData.preferredTime) {
+      toast.error("Please fill all fields!");
+      return;
+    }
+
+    if (!/^[0-9]{10}$/.test(formData.mobileNumber)) {
+      toast.error("Please enter a valid 10-digit mobile number!");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        fullName: formData.fullName,
+        email: "notprovided@carrervidya.com",
+        mobileNumber: formData.mobileNumber,
+        inquiryType: "Request Call Back",
+        gender: "Other",
+        course: "Not Specified",
+        state: "Not Specified",
+        fullAddress: "Not Provided",
+        preferredDate: null,
+        preferredTime: formData.preferredTime,
+      };
+
+      const res = await api.post("/api/v1/callback/request", payload);
+
+      toast.success(
+        res.data?.message || "Request submitted! We'll contact you soon 🎉"
+      );
+
+      setFormData({
+        fullName: "",
+        mobileNumber: "",
+        preferredTime: "",
+      });
+
+      setTimeout(() => onClose?.(), 1200);
+    } catch (error) {
+      toast.error(error.message || "Failed to submit request");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="mb-3">
+        <h3 className="text-[20px] font-bold text-[#174685] leading-tight">
+          Request a Callback
+        </h3>
+        <p className="mt-0.5 text-[12px] text-[#6680A5]">
+          Select your timing and we will get back to you.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-2.5">
+        <InputField
+          icon={<FaUser />}
+          name="fullName"
+          placeholder="Full Name"
+          value={formData.fullName}
+          onChange={handleChange}
+        />
+
+        <InputField
+          icon={<FaPhoneAlt />}
+          name="mobileNumber"
+          placeholder="Mobile Number"
+          value={formData.mobileNumber}
+          onChange={handleChange}
+          type="tel"
+          maxLength={10}
+        />
+
+        <SelectField
+          icon={<FaClock />}
+          name="preferredTime"
+          value={formData.preferredTime}
+          onChange={handleChange}
+          placeholder="Preferred Callback Time"
+          options={["9 AM - 12 PM", "12 PM - 3 PM", "3 PM - 6 PM", "6 PM - 9 PM"]}
+        />
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full mt-1 bg-[#F58220] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <FaSpinner className="animate-spin text-[12px]" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <FaPhoneAlt className="text-[10px]" />
+              Request Callback
+              <FaArrowRight className="text-[10px]" />
+            </>
+          )}
+        </button>
+      </form>
+
+      <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[10.5px] text-[#7186A5]">
+        <FaShieldAlt className="text-[#174685] text-[11px]" />
+        Your privacy is completely safe with us.
+      </div>
+
+      {/* Book Free Counselling Option */}
+      <button
+        type="button"
+        onClick={onBookCounselling}
+        className="w-full mt-3 border border-[#1264C5] text-[#1264C5] hover:bg-[#1264C5] hover:text-white font-semibold text-[12px] py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5"
+      >
+        <span>📅</span> Book Free Counselling
+      </button>
+    </>
+  );
+}
+
+/* ============================================================
+   📅 COUNSELLING FORM (Compact)
+============================================================ */
+function CounsellingForm({ onBack, onClose }) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -134,17 +302,29 @@ function CallbackForm({ onSuccess }) {
     preferredTime: "",
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔹 Common fields (dono tab ke liye)
-    if (!formData.fullName || !formData.email || !formData.mobileNumber) {
-      toast.error("Please fill all required fields!");
-      return;
+    const required = [
+      "fullName",
+      "email",
+      "mobileNumber",
+      "gender",
+      "course",
+      "state",
+      "fullAddress",
+      "preferredDate",
+      "preferredTime",
+    ];
+
+    for (const key of required) {
+      if (!formData[key]) {
+        toast.error("Please fill all fields!");
+        return;
+      }
     }
 
     if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
@@ -157,63 +337,15 @@ function CallbackForm({ onSuccess }) {
       return;
     }
 
-    // 🔹 Book Counselling ke extra validations
-    if (inquiryType === "Book Counselling") {
-      if (
-        !formData.gender ||
-        !formData.course ||
-        !formData.state ||
-        !formData.fullAddress
-      ) {
-        toast.error("Please fill all required fields!");
-        return;
-      }
-
-      if (!formData.preferredDate || !formData.preferredTime) {
-        toast.error("Please select preferred date & time!");
-        return;
-      }
-    }
-
     setLoading(true);
-
     try {
-      // 🔹 Payload — model ke hisaab se
-      const payload = {
-        fullName: formData.fullName,
-        email: formData.email,
-        mobileNumber: formData.mobileNumber,
-        inquiryType: inquiryType,
+      const res = await api.post("/api/v1/callback/request", {
+        ...formData,
+        inquiryType: "Book Counselling",
+      });
 
-        // Book Counselling ke liye hi bhejna
-        gender:
-          inquiryType === "Book Counselling" ? formData.gender : "Other",
-        course:
-          inquiryType === "Book Counselling"
-            ? formData.course
-            : "Not Specified",
-        state:
-          inquiryType === "Book Counselling"
-            ? formData.state
-            : "Not Specified",
-        fullAddress:
-          inquiryType === "Book Counselling"
-            ? formData.fullAddress
-            : "Not Provided",
-        preferredDate:
-          inquiryType === "Book Counselling" ? formData.preferredDate : null,
-        preferredTime:
-          inquiryType === "Book Counselling" ? formData.preferredTime : null,
-      };
+      toast.success(res.data?.message || "Counselling booked! 🎉");
 
-      const res = await api.post("/api/v1/callback/request", payload);
-      const data = res.data;
-
-      toast.success(
-        data?.message || "Request submitted! We'll contact you soon 🎉"
-      );
-
-      // Reset
       setFormData({
         fullName: "",
         email: "",
@@ -225,9 +357,8 @@ function CallbackForm({ onSuccess }) {
         preferredDate: "",
         preferredTime: "",
       });
-      setInquiryType("Request Call Back");
 
-      setTimeout(() => onSuccess?.(), 1200);
+      setTimeout(() => onClose?.(), 1200);
     } catch (error) {
       toast.error(error.message || "Failed to submit request");
     } finally {
@@ -235,170 +366,187 @@ function CallbackForm({ onSuccess }) {
     }
   };
 
-  const isCounselling = inquiryType === "Book Counselling";
-
   return (
-    <div className="h-full flex flex-col">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 leading-snug">
-        Get college counselling from experts, free of cost !
-      </h2>
-
-      {/* Toggle Tabs */}
-      <div className="flex bg-gray-100 rounded-lg p-1 mb-5">
-        {["Request Call Back", "Book Counselling"].map((type) => (
-          <button
-            key={type}
-            type="button"
-            onClick={() => setInquiryType(type)}
-            className={`flex-1 py-2 px-3 rounded-md text-xs sm:text-sm font-semibold transition-all ${
-              inquiryType === type
-                ? "bg-[#3B4FE4] text-white shadow"
-                : "text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {type}
-          </button>
-        ))}
+    <>
+      <div className="mb-2.5">
+        <h3 className="text-[19px] font-bold text-[#174685] leading-tight">
+          Book Free Counselling
+        </h3>
+        <p className="mt-0.5 text-[11.5px] text-gray-500">
+          Schedule a 1-on-1 session with our expert.
+        </p>
       </div>
 
-      {/* Form */}
       <form
         onSubmit={handleSubmit}
-        className="space-y-3 flex-1 overflow-y-auto pr-1"
+        className="space-y-2 max-h-[60vh] overflow-y-auto pr-1"
       >
-        {/* Common: Name */}
-        <input
-          type="text"
+        <InputField
+          icon={<FaUser />}
           name="fullName"
           placeholder="Full Name"
           value={formData.fullName}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
         />
 
-        {/* Common: Email */}
-        <input
-          type="email"
+        <InputField
+          icon={<FaEnvelope />}
           name="email"
-          placeholder="Email"
+          placeholder="Email Address"
           value={formData.email}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          type="email"
         />
 
-        {/* Common: Mobile with +91 */}
-        <div className="flex gap-2">
-          <div className="flex items-center px-3 py-3 border border-gray-300 rounded-md text-gray-700 bg-gray-50 text-sm font-medium">
-            +91
-          </div>
-          <input
-            type="tel"
-            name="mobileNumber"
-            placeholder="Mobile Number"
-            value={formData.mobileNumber}
+        <InputField
+          icon={<FaPhoneAlt />}
+          name="mobileNumber"
+          placeholder="Mobile Number"
+          value={formData.mobileNumber}
+          onChange={handleChange}
+          type="tel"
+          maxLength={10}
+        />
+
+        <div className="grid grid-cols-2 gap-2">
+          <SelectField
+            icon={<FaVenusMars />}
+            name="gender"
+            value={formData.gender}
             onChange={handleChange}
-            maxLength={10}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="Gender"
+            options={["Male", "Female", "Other"]}
+          />
+          <InputField
+            icon={<FaGraduationCap />}
+            name="course"
+            placeholder="Course"
+            value={formData.course}
+            onChange={handleChange}
           />
         </div>
 
-        {/* Only for Book Counselling — Extra fields */}
-        {isCounselling && (
-          <div className="space-y-3 animate-fadeIn">
-            {/* Gender — Dropdown */}
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
-            >
-              <option value="" disabled>
-                Gender
-              </option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
+        <InputField
+          icon={<FaMapMarkerAlt />}
+          name="state"
+          placeholder="State"
+          value={formData.state}
+          onChange={handleChange}
+        />
 
-            {/* Course — Text Input */}
-            <input
-              type="text"
-              name="course"
-              placeholder="Course"
-              value={formData.course}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
+        <textarea
+          name="fullAddress"
+          placeholder="Full Address"
+          value={formData.fullAddress}
+          onChange={handleChange}
+          rows={2}
+          className="w-full px-3 py-2 border border-gray-200 bg-gray-50/50 rounded-md text-[12px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#174685] transition-all resize-none"
+        />
 
-            {/* State — Text Input */}
-            <input
-              type="text"
-              name="state"
-              placeholder="State"
-              value={formData.state}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="date"
+            name="preferredDate"
+            value={formData.preferredDate}
+            onChange={handleChange}
+            className="w-full px-2.5 py-2 border border-gray-200 bg-gray-50/50 rounded-md text-[12px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#174685]"
+          />
+          <input
+            type="time"
+            name="preferredTime"
+            value={formData.preferredTime}
+            onChange={handleChange}
+            className="w-full px-2.5 py-2 border border-gray-200 bg-gray-50/50 rounded-md text-[12px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#174685]"
+          />
+        </div>
 
-            {/* Full Address */}
-            <textarea
-              name="fullAddress"
-              placeholder="Full Address"
-              value={formData.fullAddress}
-              onChange={handleChange}
-              rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-            />
-
-            {/* Date + Time */}
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="date"
-                name="preferredDate"
-                value={formData.preferredDate}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              <input
-                type="time"
-                name="preferredTime"
-                value={formData.preferredTime}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full mt-2 bg-[#3B4FE4] hover:bg-[#2d3fd0] text-white font-semibold text-base py-3.5 rounded-md transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full bg-[#F58220] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
         >
           {loading ? (
             <>
-              <FaSpinner className="animate-spin" /> Submitting...
+              <FaSpinner className="animate-spin text-[12px]" />
+              Submitting...
             </>
-          ) : isCounselling ? (
-            "Book Counselling"
           ) : (
-            "Request A Callback"
+            "Book Counselling"
           )}
         </button>
 
-        {/* Terms */}
-        <p className="text-xs text-gray-500 text-center pt-2 leading-relaxed">
-          By proceeding ahead you expressly agree to the Career Vidya{" "}
-          <a href="#" className="text-blue-600 hover:underline">
-            Terms & Conditions
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-blue-600 hover:underline">
-            Privacy Policy
-          </a>
-        </p>
+        <button
+          type="button"
+          onClick={onBack}
+          className="w-full text-[11px] text-gray-500 hover:text-[#174685] transition-all flex items-center justify-center gap-1 pt-0.5"
+        >
+          <FaArrowLeft className="text-[8px]" />
+          Back to Request Callback
+        </button>
       </form>
+    </>
+  );
+}
+
+/* ============================================================
+   🧩 REUSABLE INPUT (Compact)
+============================================================ */
+function InputField({
+  icon,
+  name,
+  placeholder,
+  value,
+  onChange,
+  type = "text",
+  maxLength,
+}) {
+  return (
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#617EA7] text-[11px] pointer-events-none">
+        {icon}
+      </div>
+      <input
+        type={type}
+        name={name}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        maxLength={maxLength}
+        className="w-full pl-8 pr-3 py-2 border border-[#D6E0EC] bg-white rounded-md text-[12px] text-gray-800 placeholder-[#7388A7] focus:outline-none focus:ring-1 focus:ring-[#174685] focus:border-[#174685] transition-all"
+      />
+    </div>
+  );
+}
+
+/* ============================================================
+   🧩 REUSABLE SELECT (Compact)
+============================================================ */
+function SelectField({ icon, name, value, onChange, placeholder, options }) {
+  return (
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#617EA7] text-[11px] pointer-events-none z-10">
+        {icon}
+      </div>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full pl-8 pr-6 py-2 border border-[#D6E0EC] bg-white rounded-md text-[12px] focus:outline-none focus:ring-1 focus:ring-[#174685] focus:border-[#174685] transition-all appearance-none cursor-pointer ${
+          value ? "text-gray-800" : "text-[#7388A7]"
+        }`}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((opt) => (
+          <option key={opt} value={opt} className="text-gray-800">
+            {opt}
+          </option>
+        ))}
+      </select>
+      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#617EA7] text-[8px] pointer-events-none">
+        ▼
+      </div>
     </div>
   );
 }

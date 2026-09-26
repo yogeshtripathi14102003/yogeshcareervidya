@@ -685,6 +685,8 @@ const AdminShell = ({ children }) => {
         { href: "/admin/getquery", label: "Get Queries", icon: MessageSquare },
         { href: "/admin/applyadmission", label: "Apply Admission", icon: ClipboardCheck },
         { href: "/admin/add-subsid", label: "Add Subsidy", icon: FileText },
+         {href:"/admin/callbacks",label: "Callback", icon: FileText},
+
       ],
     },
     {
@@ -736,7 +738,6 @@ const AdminShell = ({ children }) => {
       label: "Document Management",
       icon: FileText,
       children: [
-        { href: "/admin/Adminremark", label: "Adminremark", icon: FileText },
         { href: "/admin/AdminDocumentcheck", label: "AdminDocumentcheck", icon: ClipboardCheck },
         { href: "/admin/DocumentDelete", label: "Document Delete", icon: Trash2, id: "DocumentDelete" },
         { href: "/admin/DocReport", label: "DocReport", icon: BarChart3, id: "DocReport" },

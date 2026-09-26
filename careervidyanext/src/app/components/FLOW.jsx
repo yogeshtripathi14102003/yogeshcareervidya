@@ -937,137 +937,264 @@
 
 
 
-"use client";
+// "use client";
+// import React, { useState } from "react";
+// import Siginup from "@/app/signup/Siginup.jsx";
+
+// // 🔥 EXACT CONTENT FROM SCREENSHOT
+// const comparisonSteps = [
+//   {
+//     id: 1,
+//     title: "Get Your Career Match",
+//     description:
+//       "Take our free career compass personality quiz and get top career options for you.",
+//     icon: (
+//       <svg
+//         className="w-8 h-8 text-slate-800"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth="1.5"
+//         viewBox="0 0 24 24"
+//       >
+//         <path
+//           strokeLinecap="round"
+//           strokeLinejoin="round"
+//           d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+//         />
+//       </svg>
+//     ),
+//   },
+//   {
+//     id: 2,
+//     title: "Apply With One Form",
+//     description:
+//       "One platform to apply to 2000+ esteemed universities",
+//     icon: (
+//       <svg
+//         className="w-8 h-8 text-slate-800"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth="1.5"
+//         viewBox="0 0 24 24"
+//       >
+//         <path
+//           strokeLinecap="round"
+//           strokeLinejoin="round"
+//           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+//         />
+//       </svg>
+//     ),
+//   },
+//   {
+//     id: 3,
+//     title: "Track Applications in One Place",
+//     description:
+//       "Apply to and manage all university applications through My Profile",
+//     icon: (
+//       <svg
+//         className="w-8 h-8 text-slate-800"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth="1.5"
+//         viewBox="0 0 24 24"
+//       >
+//         <path
+//           strokeLinecap="round"
+//           strokeLinejoin="round"
+//           d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+//         />
+//       </svg>
+//     ),
+//   },
+//   {
+//     id: 4,
+//     title: "Talk to Admission Experts",
+//     description:
+//       "Get free personalised expert guidance on universities & courses",
+//     icon: (
+//       <svg
+//         className="w-8 h-8 text-slate-800"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth="1.5"
+//         viewBox="0 0 24 24"
+//       >
+//         <path
+//           strokeLinecap="round"
+//           strokeLinejoin="round"
+//           d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+//         />
+//       </svg>
+//     ),
+//   },
+//   {
+//     id: 5,
+//     title: "Easy Apply in 5 mins",
+//     description:
+//       "Fill your university applications in 5 minutes or less.",
+//     icon: (
+//       <svg
+//         className="w-8 h-8 text-slate-800"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth="1.5"
+//         viewBox="0 0 24 24"
+//       >
+//         <path
+//           strokeLinecap="round"
+//           strokeLinejoin="round"
+//           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+//         />
+//       </svg>
+//     ),
+//   },
+//   {
+//     id: 6,
+//     title: "Get Exciting Rewards",
+//     description:
+//       "Win amazing rewards and cash-backs while applying",
+//     icon: (
+//       <svg
+//         className="w-8 h-8 text-slate-800"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth="1.5"
+//         viewBox="0 0 24 24"
+//       >
+//         <path
+//           strokeLinecap="round"
+//           strokeLinejoin="round"
+//           d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+//         />
+//       </svg>
+//     ),
+//   },
+// ];
+
+// export default function CounsellingCompareSimple() {
+//   const [openSignup, setOpenSignup] = useState(false);
+
+//   return (
+//     <>
+//       <section className="w-full bg-[#FAF8F5] py-12 md:py-16 font-sans">
+//         {/* HEADING */}
+//         <div className="max-w-3xl mx-auto px-4 text-center">
+//           <h2 className="text-2xl md:text-2xl font-bold text-[#0056B3] leading-tight">
+// Choosing the Right University for Your Career Can Be Confusing          </h2>
+//           <p className="text-sm text-slate-500 mt-3 font-medium">
+//             We're here to guide you at every step of your journey.
+//           </p>
+//         </div>
+
+//         {/* 🔥 BLUE CARDS GRID (Exact Screenshot Style) */}
+//         <div className="max-w-6xl mx-auto px-4 mt-10">
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+//             {comparisonSteps.map((step) => (
+//               <SimpleCard key={step.id} item={step} />
+//             ))}
+//           </div>
+//         </div>
+
+//         {/* DO BUTTONS */}
+//         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 px-4">
+//           {/* Button 1: Primary (Orange) */}
+//           <button
+//             onClick={() => setOpenSignup(true)}
+//             className="w-full sm:w-auto bg-[#c15304] hover:bg-[#a04503] text-white font-bold px-8 py-3.5 rounded-md text-sm transition-all duration-300 shadow-md hover:shadow-lg active:scale-95"
+//           >
+//             Let's start your application
+//           </button>
+
+//           {/* Button 2: Secondary (Outline) */}
+//           <button
+//             onClick={() => {
+//               console.log("Talk to a college expert clicked");
+//             }}
+//             className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 font-bold px-8 py-3.5 rounded-md text-sm border-2 border-slate-300 hover:border-[#0056B3] transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
+//           >
+//             Talk to a  expert
+//           </button>
+//         </div>
+//       </section>
+
+//       {openSignup && <Siginup onClose={() => setOpenSignup(false)} />}
+//     </>
+//   );
+// }
+
+// // 🔥 CARD COMPONENT (Blue Background, Text Left, Icon Right)
+// function SimpleCard({ item }) {
+//   return (
+//     <div className="bg-[#4356D6] rounded-md p-5 flex items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+//       {/* Left Side: Text */}
+//       <div className="flex-1">
+//         <h3 className="text-white font-bold text-base leading-tight mb-1.5">
+//           {item.title}
+//         </h3>
+//         <p className="text-blue-100 text-xs leading-relaxed font-normal">
+//           {item.description}
+//         </p>
+//       </div>
+
+//       {/* Right Side: Icon in White Box */}
+//       <div className="w-16 h-16 bg-white rounded-md flex items-center justify-center shrink-0">
+//         {item.icon}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+ "use client";
+
 import React, { useState } from "react";
+import Image from "next/image";
 import Siginup from "@/app/signup/Siginup.jsx";
 
-// 🔥 EXACT CONTENT FROM SCREENSHOT
+// 🔥 CONTENT + IMAGE MAPPING
 const comparisonSteps = [
   {
     id: 1,
     title: "Get Your Career Match",
     description:
       "Take our free career compass personality quiz and get top career options for you.",
-    icon: (
-      <svg
-        className="w-8 h-8 text-slate-800"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-        />
-      </svg>
-    ),
+    image: "/images/career.png",
   },
   {
     id: 2,
     title: "Apply With One Form",
     description:
       "One platform to apply to 2000+ esteemed universities",
-    icon: (
-      <svg
-        className="w-8 h-8 text-slate-800"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-        />
-      </svg>
-    ),
+    image: "/images/apply with one form.png",
   },
   {
     id: 3,
     title: "Track Applications in One Place",
     description:
       "Apply to and manage all university applications through My Profile",
-    icon: (
-      <svg
-        className="w-8 h-8 text-slate-800"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
-        />
-      </svg>
-    ),
+    image: "/images/track application.png",
   },
   {
     id: 4,
     title: "Talk to Admission Experts",
     description:
       "Get free personalised expert guidance on universities & courses",
-    icon: (
-      <svg
-        className="w-8 h-8 text-slate-800"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-        />
-      </svg>
-    ),
+    image: "/images/talk to expert.png",
   },
   {
     id: 5,
     title: "Easy Apply in 5 mins",
     description:
       "Fill your university applications in 5 minutes or less.",
-    icon: (
-      <svg
-        className="w-8 h-8 text-slate-800"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-    ),
+    image: "/images/apply in 5 mints.png",
   },
   {
     id: 6,
     title: "Get Exciting Rewards",
     description:
       "Win amazing rewards and cash-backs while applying",
-    icon: (
-      <svg
-        className="w-8 h-8 text-slate-800"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-        />
-      </svg>
-    ),
+    image: "/images/rewards.png",
   },
 ];
 
@@ -1077,16 +1204,19 @@ export default function CounsellingCompareSimple() {
   return (
     <>
       <section className="w-full bg-[#FAF8F5] py-12 md:py-16 font-sans">
+
         {/* HEADING */}
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-2xl font-bold text-[#0056B3] leading-tight">
-Choosing the Right University for Your Career Can Be Confusing          </h2>
+            Choosing the Right University for Your Career Can Be Confusing
+          </h2>
+
           <p className="text-sm text-slate-500 mt-3 font-medium">
             We're here to guide you at every step of your journey.
           </p>
         </div>
 
-        {/* 🔥 BLUE CARDS GRID (Exact Screenshot Style) */}
+        {/* CARDS GRID */}
         <div className="max-w-6xl mx-auto px-4 mt-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {comparisonSteps.map((step) => (
@@ -1095,50 +1225,123 @@ Choosing the Right University for Your Career Can Be Confusing          </h2>
           </div>
         </div>
 
-        {/* DO BUTTONS */}
+        {/* BUTTONS */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 px-4">
-          {/* Button 1: Primary (Orange) */}
+
+          {/* PRIMARY BUTTON */}
           <button
             onClick={() => setOpenSignup(true)}
-            className="w-full sm:w-auto bg-[#c15304] hover:bg-[#a04503] text-white font-bold px-8 py-3.5 rounded-md text-sm transition-all duration-300 shadow-md hover:shadow-lg active:scale-95"
+            className="
+              cursor-pointer
+              w-full sm:w-auto
+              bg-[#c15304]
+              hover:bg-[#a04503]
+              text-white
+              font-bold
+              px-8
+              py-3.5
+              rounded-md
+              text-sm
+              transition-all
+              duration-300
+              shadow-md
+              hover:shadow-lg
+              active:scale-95
+            "
           >
             Let's start your application
           </button>
 
-          {/* Button 2: Secondary (Outline) */}
+          {/* SECONDARY BUTTON */}
           <button
             onClick={() => {
               console.log("Talk to a college expert clicked");
             }}
-            className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 font-bold px-8 py-3.5 rounded-md text-sm border-2 border-slate-300 hover:border-[#0056B3] transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
+            className="
+              cursor-pointer
+              w-full sm:w-auto
+              bg-white
+              hover:bg-slate-50
+              text-slate-800
+              font-bold
+              px-8
+              py-3.5
+              rounded-md
+              text-sm
+              border-2
+              border-slate-300
+              hover:border-[#0056B3]
+              transition-all
+              duration-300
+              shadow-sm
+              hover:shadow-md
+              active:scale-95
+            "
           >
-            Talk to a  expert
+            Talk to a expert
           </button>
         </div>
       </section>
 
-      {openSignup && <Siginup onClose={() => setOpenSignup(false)} />}
+      {/* SIGNUP MODAL */}
+      {openSignup && (
+        <Siginup onClose={() => setOpenSignup(false)} />
+      )}
     </>
   );
 }
 
-// 🔥 CARD COMPONENT (Blue Background, Text Left, Icon Right)
+
+// 🔥 CARD COMPONENT
 function SimpleCard({ item }) {
   return (
-    <div className="bg-[#4356D6] rounded-md p-5 flex items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all duration-300">
-      {/* Left Side: Text */}
-      <div className="flex-1">
+    <div
+      className="
+        bg-[#0056B3]
+        rounded-md
+        p-5
+        flex
+        items-center
+        justify-between
+        gap-4
+        shadow-sm
+        hover:shadow-md
+        transition-all
+        duration-300
+      "
+    >
+      {/* LEFT SIDE - TEXT */}
+      <div className="flex-1 min-w-0">
         <h3 className="text-white font-bold text-base leading-tight mb-1.5">
           {item.title}
         </h3>
+
         <p className="text-blue-100 text-xs leading-relaxed font-normal">
           {item.description}
         </p>
       </div>
 
-      {/* Right Side: Icon in White Box */}
-      <div className="w-16 h-16 bg-white rounded-md flex items-center justify-center shrink-0">
-        {item.icon}
+      {/* RIGHT SIDE - IMAGE ICON */}
+      <div
+        className="
+          w-16
+          h-16
+          bg-white
+          rounded-md
+          flex
+          items-center
+          justify-center
+          shrink-0
+          overflow-hidden
+        "
+      >
+        <Image
+          src={item.image}
+          alt={item.title}
+          width={52}
+          height={52}
+          className="w-12 h-12 object-contain"
+        />
       </div>
     </div>
   );
