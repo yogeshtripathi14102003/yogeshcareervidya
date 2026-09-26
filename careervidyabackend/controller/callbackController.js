@@ -1,4 +1,4 @@
-import CallbackRequest from "../models/Admin/CallbackRequest.js";
+import CallbackRequest from "../models/Admin/Callback.js";
 
 
 // ==========================================
