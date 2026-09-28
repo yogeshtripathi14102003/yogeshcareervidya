@@ -765,7 +765,7 @@ import AuthModal from "@/app/university/AuthModal.jsx";
 import Applictionpopup from "@/app/university/Applictionpopup.jsx";
 import TalkToUniversity from "@/app/university/TalkToUniversity.jsx";
 import DiscountPopup from "@/app/components/DiscountPopup.jsx";
-import ReviewRatingstatic from "@/app/components/ReviewRatingstatic.jsx";
+import UniversityReviewSection from "@/app/components/UniversityReviewSection.jsx";
 
 // =====================================================
 // SECTIONS (Existing)
@@ -1643,7 +1643,7 @@ export default function UniversityDetail({ initialData }) {
                 )}
             </div>
 
-            <ReviewRatingstatic />
+            <UniversityReviewSection />
             <Footer />
             <DiscountPopup />
         </>

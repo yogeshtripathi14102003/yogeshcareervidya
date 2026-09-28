@@ -198,7 +198,7 @@
 
 //             {/* ══ FREE COUNSELLING ══════════════════════════════════════════ */}
 //             <div className="mega-menu-wrap">
-//               <Link href="/teamexpand" className="flex items-center gap-1">
+//               <Link href="/our-Team" className="flex items-center gap-1">
 //                 FREE COUNSELLING <ChevronDown size={13} className="chevron-icon" />
 //               </Link>
 
@@ -258,7 +258,7 @@
 
 //             {/* ══ TOP UNIVERSITIES ══════════════════════════════════════════ */}
 //             <div className="mega-menu-wrap">
-//               <Link href="/topunivers" className="flex items-center gap-1">
+//               <Link href="/Top-Universities" className="flex items-center gap-1">
 //                 TOP UNIVERSITIES <ChevronDown size={13} className="chevron-icon" />
 //               </Link>
 
@@ -285,7 +285,7 @@
 
 //                   {/* Footer row spanning all 3 cols */}
 //                   <div className="mega-panel-footer">
-//                     <Link href="/topunivers">View All Universities →</Link>
+//                     <Link href="/Top-Universities">View All Universities →</Link>
 //                   </div>
 
 //                 </div>
@@ -393,7 +393,7 @@
 //                 </div>
 //               )}
 
-//               <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>Free Counselling</Link>
+//               <Link href="/our-Team" onClick={() => setMenuOpen(false)}>Free Counselling</Link>
 
 //               {/* Top Universities — collapsible */}
 //               <button type="button" className="mobile-collapsible-trigger"
@@ -408,7 +408,7 @@
 //                   {TOP_UNIVERSITIES.map(({ href, label }) => (
 //                     <Link key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</Link>
 //                   ))}
-//                   <Link href="/topunivers" onClick={() => setMenuOpen(false)} className="mobile-view-all">
+//                   <Link href="/Top-Universities" onClick={() => setMenuOpen(false)} className="mobile-view-all">
 //                     View All Universities →
 //                   </Link>
 //                 </div>
@@ -565,7 +565,7 @@ export default function Header() {
           <nav className="nav-center desktop-only">
 
             {/* ══ FREE COUNSELLING — direct redirect ══ */}
-            <Link href="/teamexpand" className="flex items-center gap-1">
+            <Link href="/our-Team" className="flex items-center gap-1">
               FREE COUNSELLING
             </Link>
 
@@ -601,7 +601,7 @@ export default function Header() {
 
             {/* ══ TOP UNIVERSITIES ══ */}
             <div className="mega-menu-wrap">
-              <Link href="/topunivers" className="flex items-center gap-1">
+              <Link href="/Top-Universities" className="flex items-center gap-1">
                 TOP UNIVERSITIES <ChevronDown size={13} className="chevron-icon" />
               </Link>
 
@@ -624,7 +624,7 @@ export default function Header() {
                   </div>
 
                   <div className="mega-panel-footer">
-                    <Link href="/topunivers">View All Universities →</Link>
+                    <Link href="/Top-Universities">View All Universities →</Link>
                   </div>
 
                 </div>
@@ -764,7 +764,7 @@ export default function Header() {
 
             <nav className="mobile-nav-links">
               {/* Free Counselling — direct redirect */}
-              <Link href="/teamexpand" onClick={() => setMenuOpen(false)}>Free Counselling</Link>
+              <Link href="/our-Team" onClick={() => setMenuOpen(false)}>Free Counselling</Link>
 
               {/* Explore Programs — collapsible (courses) */}
               <button type="button" className="mobile-collapsible-trigger"
@@ -798,7 +798,7 @@ export default function Header() {
                   {TOP_UNIVERSITIES.map(({ href, label }) => (
                     <Link key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</Link>
                   ))}
-                  <Link href="/topunivers" onClick={() => setMenuOpen(false)} className="mobile-view-all">
+                  <Link href="/Top-Universities" onClick={() => setMenuOpen(false)} className="mobile-view-all">
                     View All Universities →
                   </Link>
                 </div>

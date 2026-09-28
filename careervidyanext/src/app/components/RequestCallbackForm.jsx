@@ -61,7 +61,7 @@ export default function RequestCallbackForm({ isOpen, onClose }) {
         {/* Modal - Compact Width & Border Radius */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-[760px] bg-white rounded-xl shadow-[0_20px_50px_rgba(0,39,100,0.25)] overflow-hidden my-auto"
+          className="relative w-full max-w-[760px] bg-white rounded-xl shadow-[0_20px_50px_rgba(0,39,100,0.25)] overflow-hidden my-auto border-2 border-[#d35400]"
         >
           {/* Close Button */}
           <button
@@ -251,7 +251,7 @@ function CallbackForm({ onBookCounselling, onClose }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full mt-1 bg-[#F58220] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+          className=" cursor-pointer   w-full mt-1 bg-[#c15304] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -277,7 +277,7 @@ function CallbackForm({ onBookCounselling, onClose }) {
       <button
         type="button"
         onClick={onBookCounselling}
-        className="w-full mt-3 border border-[#1264C5] text-[#1264C5] hover:bg-[#1264C5] hover:text-white font-semibold text-[12px] py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5"
+        className="   cursor-pointer w-full mt-3 border border-[#1264C5] text-[#1264C5] hover:bg-[#1264C5] hover:text-white font-semibold text-[12px] py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5"
       >
         <span>📅</span> Book Free Counselling
       </button>
@@ -463,7 +463,7 @@ function CounsellingForm({ onBack, onClose }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#F58220] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+          className="w-full bg-[#c15304] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
         >
           {loading ? (
             <>

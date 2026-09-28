@@ -112,7 +112,7 @@
 //                   return (
 //                     <SwiperSlide key={member._id ?? idx} className="!h-auto flex">
 //                       <Link
-//                         href={`/teamexpand?id=${member._id}`}
+//                         href={`/our-Team?id=${member._id}`}
 //                         className="bg-white rounded-2xl p-6 text-center shadow-2xl hover:translate-y-[-8px] transition-all duration-300 flex flex-col items-center w-full h-full group"
 //                         aria-label={`View profile of ${displayName}`}
 //                       >
@@ -253,7 +253,7 @@ export default function TeamSliderClient({ team = [] }) {
     return (
       <Link
         key={idx}
-        href="/teamexpand"
+        href="/our-Team"
         className="group relative bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 hover:border-[#3498db]/50 hover:bg-white/10 transition-all duration-300 flex flex-col items-center w-full h-full overflow-hidden text-center shadow-lg hover:shadow-2xl hover:-translate-y-2"
         aria-label={`View CareerVidya expert team page`}
       >
@@ -417,7 +417,7 @@ export default function TeamSliderClient({ team = [] }) {
           {/* View All Experts */}
           <div className="text-center mt-10 md:mt-12">
             <Link
-              href="/teamexpand"
+              href="/our-Team"
               className="inline-flex items-center gap-2 bg-[#c15304] text-white font-bold text-sm md:text-base px-8 py-2.5 rounded shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
               <span>View All Experts</span>
@@ -575,7 +575,7 @@ export default function TeamSliderClient({ team = [] }) {
 //               return (
 //                 <Link
 //                   key={member._id ?? idx}
-//                   href="/teamexpand"
+//                   href="/our-Team"
 //                   className="group relative flex h-[400px] w-[240px] flex-shrink-0 snap-start sm:w-[260px] md:h-[440px] md:w-[270px]"
 //                 >
 //                   <div className="relative h-full w-full">
@@ -696,7 +696,7 @@ export default function TeamSliderClient({ team = [] }) {
 //             {/* View All Card */}
 //             {hasMoreMembers && (
 //               <Link
-//                 href="/teamexpand"
+//                 href="/our-Team"
 //                 className="group flex h-[400px] w-[220px] flex-shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed border-white/20 bg-white/[0.02] transition-all duration-300 hover:border-[#3b82f6] hover:bg-[#1e5aad]/10 sm:w-[240px] md:h-[440px] md:w-[250px]"
 //               >
 //                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#1e5aad] to-[#3b82f6] transition-transform duration-300 group-hover:scale-110 md:h-14 md:w-14">

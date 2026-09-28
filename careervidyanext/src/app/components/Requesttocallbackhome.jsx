@@ -86,7 +86,8 @@ export default function CantFindGuidance() {
                       items-center
                       justify-center
                       rounded-md
-                      bg-[#F58220]
+                      bg-[#c15304]
+                      cursor-pointer
                       px-6
                       py-2.5
                       text-xs

@@ -239,7 +239,7 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import Header from "@/app/layout/Header.jsx";
 import Footer from "@/app/layout/Footer.jsx";
-import Comparenow from "@/app/topunivers/Comparenow.jsx";
+import Comparenow from "@/app/Top-Universities/Comparenow.jsx";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
