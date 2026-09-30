@@ -244,6 +244,8 @@ const PRIORITY_UNIS = [
   "chandigarh-university-online",
   "kurukshetra-university-online",
   "amity-university-online",
+  "vikrant-university",
+  "shoolini-university-online",
   "lovely-professional-university",
   "chaudhary-charan-singh-university",
   "noida-international-university",
