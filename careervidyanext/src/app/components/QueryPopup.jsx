@@ -662,17 +662,29 @@
 //   );
 // }
 
-
 "use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { X, Send, User, Phone, Mail, MapPin, GraduationCap, MessageSquare, ShieldCheck } from "lucide-react";
+import {
+  X,
+  Send,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  GraduationCap,
+  MessageSquare,
+  ShieldCheck,
+} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import api from "@/utlis/api";
+import { toast } from "sonner";
+
+const SESSION_KEY = "cv_query_popup_shown";
 
 export default function QueryPopup() {
   const [showPopup, setShowPopup] = useState(false);
-  const [courses, setCourses] = useState([]);
   const [specializations, setSpecializations] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -685,61 +697,72 @@ export default function QueryPopup() {
     message: "",
   });
 
-  /* Popup delay */
+  /* ═══════════════════════════════════════════════
+     ✅ POPUP LOGIC — Sirf ek baar per session
+     - Pehli baar: popup show
+     - Refresh: nahi
+     - Navigate: nahi
+     - New tab/session: phir se
+  ═══════════════════════════════════════════════ */
   useEffect(() => {
-    const timer = setTimeout(() => setShowPopup(true), 2000);
+    if (typeof window === "undefined") return;
+
+    // ✅ Already shown? Skip
+    const alreadyShown = sessionStorage.getItem(SESSION_KEY);
+    if (alreadyShown === "true") return;
+
+    // ✅ Flag turant set karo (popup show hone se pehle)
+    sessionStorage.setItem(SESSION_KEY, "true");
+
+    // ✅ Ab popup show karo
+    const timer = setTimeout(() => {
+      setShowPopup(true);
+    }, 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
-  /* Fetch courses safely from backend */
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const res = await api.get("/api/v1/course");
-
-        const courseArray =
-          Array.isArray(res.data)
-            ? res.data
-            : Array.isArray(res.data?.data)
-            ? res.data.data
-            : Array.isArray(res.data?.courses)
-            ? res.data.courses
-            : [];
-
-        setCourses(courseArray);
-      } catch (err) {
-        console.error("Course fetch error", err);
-        setCourses([]);
-      }
-    };
-
-    fetchCourses();
-  }, []);
+  /* ═══════════════════════════════════════════════
+     ✅ REACT QUERY — Courses
+  ═══════════════════════════════════════════════ */
+  const { data: courses = [] } = useQuery({
+    queryKey: ["query-popup-courses"],
+    queryFn: async () => {
+      const res = await api.get("/api/v1/course");
+      return Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.data)
+        ? res.data.data
+        : Array.isArray(res.data?.courses)
+        ? res.data.courses
+        : [];
+    },
+    staleTime: 30 * 60 * 1000,
+    enabled: showPopup,
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "course") {
       const selected = courses.find((c) => c.name === value);
-
       setSpecializations(selected?.specializations || []);
-
-      setFormData((prev) => ({
-        ...prev,
-        course: value,
-        branch: "",
-      }));
+      setFormData((prev) => ({ ...prev, course: value, branch: "" }));
       return;
     }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleClose = () => {
+    setShowPopup(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await api.post("/api/v1/getintouch", formData);
-      alert("✅ Query submitted successfully!");
+      toast.success("Query submitted successfully! ✅");
       setFormData({
         name: "",
         email: "",
@@ -749,53 +772,83 @@ export default function QueryPopup() {
         branch: "",
         message: "",
       });
-      setShowPopup(false);
+      handleClose();
     } catch (err) {
       console.error(err);
-      alert("❌ Something went wrong!");
+      toast.error("Something went wrong! ❌");
     }
   };
 
   if (!showPopup) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#2a3a5e]/70 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
-      <div className="bg-white w-full max-w-3xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col md:flex-row relative overflow-hidden animate-slideUpMobile md:animate-fadeIn border-2 border-[#d35400]">
-
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 overflow-y-auto"
+      style={{
+        background: "rgba(15, 23, 42, 0.75)",
+        backdropFilter: "blur(6px)",
+      }}
+    >
+      <div
+        className="bg-white w-full max-w-3xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col md:flex-row relative overflow-hidden animate-slideUpMobile md:animate-fadeIn"
+        style={{ border: "2px solid var(--cv-primary)" }}
+      >
         {/* Close Button */}
         <button
-          onClick={() => setShowPopup(false)}
+          onClick={handleClose}
           aria-label="Close"
-          className="cursor-pointer absolute top-2.5 right-2.5 z-[110] bg-white border border-gray-200 w-8 h-8 flex items-center justify-center rounded-full shadow-sm text-gray-500 hover:text-[#f47b20] hover:border-[#f47b20]/40 transition-colors"
+          className="cursor-pointer absolute top-2.5 right-2.5 z-[110] bg-white w-8 h-8 flex items-center justify-center rounded-full shadow-sm transition-colors"
+          style={{
+            border: "1px solid var(--cv-neutral-border)",
+            color: "var(--cv-neutral-mid)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--cv-accent)";
+            e.currentTarget.style.borderColor = "var(--cv-accent)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--cv-neutral-mid)";
+            e.currentTarget.style.borderColor = "var(--cv-neutral-border)";
+          }}
         >
           <X size={16} />
         </button>
 
-        {/* ─── Left Panel (Desktop Only) ─── */}
-        <div className="hidden md:flex bg-[#eaf3fd] w-full md:w-[38%] p-5 flex-col justify-between relative">
-
+        {/* LEFT PANEL (Desktop) */}
+        <div
+          className="hidden md:flex w-full md:w-[38%] p-5 flex-col justify-between relative"
+          style={{ background: "var(--cv-primary-light)" }}
+        >
           <div>
-            {/* Badge */}
-            <div className="inline-flex items-center gap-1.5 bg-[#f47b20] text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
+            <div
+              className="inline-flex items-center gap-1.5 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm"
+              style={{ background: "var(--cv-grad-cta)" }}
+            >
               <Phone size={10} fill="white" />
               <span>Free Career Guidance</span>
             </div>
 
-            {/* Heading */}
-            <h2 className="mt-4 text-[20px] leading-tight font-bold text-[#0a2a5e]">
+            <h2
+              className="mt-4 text-[20px] leading-tight font-bold"
+              style={{ color: "var(--cv-primary)" }}
+            >
               Talk to Our
             </h2>
-            <h2 className="text-[20px] leading-tight font-bold text-[#f47b20]">
+            <h2
+              className="text-[20px] leading-tight font-bold"
+              style={{ color: "var(--cv-accent)" }}
+            >
               Career Counsellor
             </h2>
 
-            {/* Subtitle */}
-            <p className="mt-2 text-[12px] text-gray-600 leading-relaxed">
+            <p
+              className="mt-2 text-[12px] leading-relaxed"
+              style={{ color: "var(--cv-neutral-mid)" }}
+            >
               Personalized guidance for courses, fees &amp; admissions.
             </p>
           </div>
 
-          {/* Logo */}
           <div className="my-3">
             <Image
               src="/images/n12.png"
@@ -806,7 +859,6 @@ export default function QueryPopup() {
             />
           </div>
 
-          {/* Illustration */}
           <div className="flex justify-center items-end">
             <Image
               src="/images/inquiry.png"
@@ -818,10 +870,11 @@ export default function QueryPopup() {
           </div>
         </div>
 
-        {/* ─── Right Panel (Form) ─── */}
-        <div className="w-full md:w-[62%] bg-white p-4 md:p-5 flex flex-col justify-center text-gray-900 overflow-y-auto">
-
-          {/* ✅ Mobile-only Logo — n12 Career Vidya */}
+        {/* RIGHT PANEL (Form) */}
+        <div
+          className="w-full md:w-[62%] bg-white p-4 md:p-5 flex flex-col justify-center overflow-y-auto"
+          style={{ color: "var(--cv-neutral-dark)" }}
+        >
           <div className="flex md:hidden justify-center mb-3">
             <Image
               src="/images/n12.png"
@@ -832,11 +885,16 @@ export default function QueryPopup() {
             />
           </div>
 
-          {/* Heading */}
-          <h3 className="text-[18px] md:text-[20px] font-bold text-[#0a2a5e]">
+          <h3
+            className="text-[18px] md:text-[20px] font-bold"
+            style={{ color: "var(--cv-primary)" }}
+          >
             Share your query
           </h3>
-          <p className="text-[12px] text-gray-500 mt-0.5 mb-3.5">
+          <p
+            className="text-[12px] mt-0.5 mb-3.5"
+            style={{ color: "var(--cv-neutral-mid)" }}
+          >
             Fill in your details and we will get back to you.
           </p>
 
@@ -848,7 +906,8 @@ export default function QueryPopup() {
             <div className="relative">
               <User
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0a2a5e]/60 pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: "var(--cv-neutral-mid)" }}
               />
               <input
                 type="text"
@@ -857,7 +916,20 @@ export default function QueryPopup() {
                 onChange={handleChange}
                 placeholder="Your Name"
                 required
-                className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-[13px] placeholder-gray-400 focus:ring-2 focus:ring-[#f47b20]/40 focus:border-[#f47b20] outline-none transition"
+                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
+                style={{
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                  background: "#fff",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--cv-primary)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--cv-neutral-border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
@@ -865,7 +937,8 @@ export default function QueryPopup() {
             <div className="relative">
               <Mail
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0a2a5e]/60 pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: "var(--cv-neutral-mid)" }}
               />
               <input
                 type="email"
@@ -874,7 +947,20 @@ export default function QueryPopup() {
                 onChange={handleChange}
                 placeholder="Email"
                 required
-                className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-[13px] placeholder-gray-400 focus:ring-2 focus:ring-[#f47b20]/40 focus:border-[#f47b20] outline-none transition"
+                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
+                style={{
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                  background: "#fff",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--cv-primary)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--cv-neutral-border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
@@ -882,7 +968,8 @@ export default function QueryPopup() {
             <div className="relative">
               <Phone
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0a2a5e]/60 pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: "var(--cv-neutral-mid)" }}
               />
               <input
                 type="tel"
@@ -891,7 +978,20 @@ export default function QueryPopup() {
                 onChange={handleChange}
                 placeholder="Mobile No"
                 required
-                className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-[13px] placeholder-gray-400 focus:ring-2 focus:ring-[#f47b20]/40 focus:border-[#f47b20] outline-none transition"
+                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
+                style={{
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                  background: "#fff",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--cv-primary)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--cv-neutral-border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
@@ -899,7 +999,8 @@ export default function QueryPopup() {
             <div className="relative">
               <MapPin
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0a2a5e]/60 pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: "var(--cv-neutral-mid)" }}
               />
               <input
                 type="text"
@@ -908,7 +1009,20 @@ export default function QueryPopup() {
                 onChange={handleChange}
                 placeholder="City"
                 required
-                className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-[13px] placeholder-gray-400 focus:ring-2 focus:ring-[#f47b20]/40 focus:border-[#f47b20] outline-none transition"
+                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
+                style={{
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                  background: "#fff",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--cv-primary)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--cv-neutral-border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
@@ -916,14 +1030,20 @@ export default function QueryPopup() {
             <div className="relative">
               <GraduationCap
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0a2a5e]/60 pointer-events-none z-10"
+                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10"
+                style={{ color: "var(--cv-neutral-mid)" }}
               />
               <select
                 name="course"
                 value={formData.course}
                 onChange={handleChange}
                 required
-                className="w-full appearance-none border border-gray-300 rounded-lg pl-9 pr-8 py-2 text-[13px] text-gray-700 bg-white focus:ring-2 focus:ring-[#f47b20]/40 focus:border-[#f47b20] outline-none transition"
+                className="w-full appearance-none rounded-lg pl-9 pr-8 py-2 text-[13px] outline-none transition"
+                style={{
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                  background: "#fff",
+                }}
               >
                 <option value="">Course</option>
                 {courses.map((course) => (
@@ -932,7 +1052,10 @@ export default function QueryPopup() {
                   </option>
                 ))}
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0a2a5e] pointer-events-none text-[10px]">
+              <span
+                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]"
+                style={{ color: "var(--cv-neutral-mid)" }}
+              >
                 ▼
               </span>
             </div>
@@ -941,7 +1064,8 @@ export default function QueryPopup() {
             <div className="relative">
               <GraduationCap
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0a2a5e]/60 pointer-events-none z-10"
+                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10"
+                style={{ color: "var(--cv-neutral-mid)" }}
               />
               <select
                 name="branch"
@@ -949,7 +1073,12 @@ export default function QueryPopup() {
                 onChange={handleChange}
                 required
                 disabled={!specializations.length}
-                className="w-full appearance-none border border-gray-300 rounded-lg pl-9 pr-8 py-2 text-[13px] text-gray-700 bg-white focus:ring-2 focus:ring-[#f47b20]/40 focus:border-[#f47b20] outline-none transition disabled:bg-gray-50 disabled:text-gray-400"
+                className="w-full appearance-none rounded-lg pl-9 pr-8 py-2 text-[13px] outline-none transition disabled:opacity-50"
+                style={{
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                  background: "#fff",
+                }}
               >
                 <option value="">Branch</option>
                 {specializations.map((sp, i) => (
@@ -958,7 +1087,10 @@ export default function QueryPopup() {
                   </option>
                 ))}
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0a2a5e] pointer-events-none text-[10px]">
+              <span
+                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]"
+                style={{ color: "var(--cv-neutral-mid)" }}
+              >
                 ▼
               </span>
             </div>
@@ -967,7 +1099,8 @@ export default function QueryPopup() {
             <div className="relative md:col-span-2">
               <MessageSquare
                 size={14}
-                className="absolute left-3 top-3 text-[#0a2a5e]/60 pointer-events-none"
+                className="absolute left-3 top-3 pointer-events-none"
+                style={{ color: "var(--cv-neutral-mid)" }}
               />
               <textarea
                 name="message"
@@ -976,22 +1109,34 @@ export default function QueryPopup() {
                 placeholder="How can we help you?"
                 required
                 rows="2"
-                className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-[13px] placeholder-gray-400 focus:ring-2 focus:ring-[#f47b20]/40 focus:border-[#f47b20] outline-none transition resize-none"
+                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition resize-none"
+                style={{
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                  background: "#fff",
+                }}
               />
             </div>
 
-            {/* Submit + Privacy */}
+            {/* Submit */}
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className="cursor-pointer w-full bg-[#d35400] hover:bg-[#b84500] text-white py-2.5 rounded-lg text-[13px] font-semibold flex items-center justify-center gap-2 transition shadow-sm"
+                className="cursor-pointer w-full text-white py-2.5 rounded-lg text-[13px] font-semibold flex items-center justify-center gap-2 transition hover:opacity-90"
+                style={{
+                  background: "var(--cv-grad-cta)",
+                  boxShadow: "0 4px 12px rgba(193, 83, 4, 0.3)",
+                }}
               >
                 <span>Send Message</span>
                 <Send size={14} />
               </button>
 
-              <p className="flex items-center justify-center gap-1.5 text-[10px] text-gray-500 mt-2">
-                <ShieldCheck size={12} className="text-[#0a2a5e]" />
+              <p
+                className="flex items-center justify-center gap-1.5 text-[10px] mt-2"
+                style={{ color: "var(--cv-neutral-mid)" }}
+              >
+                <ShieldCheck size={12} style={{ color: "var(--cv-primary)" }} />
                 Your privacy is completely safe with us.
               </p>
             </div>

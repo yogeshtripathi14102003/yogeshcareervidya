@@ -73,21 +73,6 @@ export default function TestimonialsSlider() {
     },
   ];
 
-  // ✅ FIX: removed `AggregateRating` and the hardcoded `reviewRating: 5` on
-  // every entry. Google's structured data guidelines require star ratings
-  // in Review/AggregateRating markup to come from genuine, user-submitted
-  // ratings — not be fabricated to make written testimonials look like a
-  // 5-star review system. Since these testimonials don't have an actual
-  // star-rating field, injecting a fake "4.8 average from all-5-star
-  // reviews" (which was also internally inconsistent — 4.8 average could
-  // never come from every single review being a 5) risks a manual action /
-  // structured data penalty in Search Console.
-  //
-  // `Review` itself is still valid Schema.org markup without `reviewRating`
-  // — it just describes a written review/testimonial, which is exactly
-  // what this data is. If you later add a real 1–5 star field to your
-  // testimonial submissions, reviewRating can be safely reintroduced using
-  // the actual value from each entry.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -114,20 +99,23 @@ export default function TestimonialsSlider() {
       <section
         ref={section.ref}
         aria-label="Student Testimonials"
-        className={`bg-[#e6edf7] py-14 transition-all duration-1000 ${
+        className={`py-14 transition-all duration-1000 ${
           section.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
+        style={{ background: "#EFF6FF" }}
       >
         <div className="max-w-[1400px] mx-auto px-4">
 
           {/* HEADING */}
           <div className="mb-10 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3 text-[#05347f]">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: "#1E3A8A" }}>
               Students Who Found Their True Direction!
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg" style={{ color: "#64748B" }}>
               Read inspiring journeys with{" "}
-              <span className="font-semibold text-[#05347f]">Career Vidya</span>.
+              <span className="font-semibold" style={{ color: "#1E3A8A" }}>
+                Career Vidya
+              </span>.
             </p>
           </div>
 
@@ -147,14 +135,21 @@ export default function TestimonialsSlider() {
             {testimonials.map((t, i) => (
               <SwiperSlide key={i}>
                 <article
-                  className="bg-[#f3f4f6] rounded-lg p-6 border border-gray-300 shadow-[0_2px_10px_rgba(0,0,0,0.08)] text-center min-h-[340px] flex flex-col justify-between transition hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)]"
+                  className="bg-white rounded-lg p-6 text-center min-h-[340px] flex flex-col justify-between transition"
+                  style={{
+                    border: "1px solid #E5E7EB",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+                  }}
                   aria-label={`Testimonial by ${t.name}`}
                   itemScope
                   itemType="https://schema.org/Review"
                 >
                   {/* IMAGE */}
                   <div className="flex justify-center mb-4">
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200 bg-white flex items-center justify-center">
+                    <div
+                      className="w-20 h-20 rounded-full overflow-hidden bg-white flex items-center justify-center"
+                      style={{ border: "2px solid #E5E7EB" }}
+                    >
                       <Image
                         src={t.img}
                         alt={`${t.name} - CareerVidya Student`}
@@ -168,21 +163,31 @@ export default function TestimonialsSlider() {
 
                   {/* NAME */}
                   <h3
-                    className="font-semibold text-gray-900 text-lg"
+                    className="font-semibold text-lg"
+                    style={{ color: "#0F172A" }}
                     itemProp="author"
                   >
                     {t.name}
                   </h3>
 
                   {/* DESIGNATION */}
-                  <p className="text-gray-500 text-sm mb-3">{t.designation}</p>
+                  <p className="text-sm mb-3" style={{ color: "#64748B" }}>
+                    {t.designation}
+                  </p>
 
                   {/* ARROW */}
-                  <div className="text-blue-600 text-xl mb-3" aria-hidden="true">↓</div>
+                  <div
+                    className="text-xl mb-3"
+                    style={{ color: "#F97316" }}
+                    aria-hidden="true"
+                  >
+                    ↓
+                  </div>
 
                   {/* TEXT */}
                   <p
-                    className="text-gray-700 text-sm leading-relaxed px-2"
+                    className="text-sm leading-relaxed px-2"
+                    style={{ color: "#64748B" }}
                     itemProp="reviewBody"
                   >
                     {t.text}
@@ -202,8 +207,8 @@ export default function TestimonialsSlider() {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            color: #2563eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: #1E3A8A;
           }
 
           .swiper-button-next::after,

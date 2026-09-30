@@ -19,7 +19,6 @@ export default function StudentPlacementSlider() {
 
     const fetchStudents = async () => {
       try {
-        // ✅ next.config.js rewrite handle kar raha hai — URL hidden automatically
         const res = await api.get("/api/v1/ourstudent");
 
         if (res.data.success && Array.isArray(res.data.data)) {
@@ -40,7 +39,7 @@ export default function StudentPlacementSlider() {
 
   if (loading) {
     return (
-      <section className="bg-[#001a41] py-16">
+      <section className="py-16" style={{ background: "#001a41" }}>
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="text-center mb-10">
             <div className="h-10 w-72 bg-white/10 rounded-lg mx-auto animate-pulse" />
@@ -48,7 +47,10 @@ export default function StudentPlacementSlider() {
           </div>
           <div className="flex gap-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-40 h-40 bg-white/10 rounded-lg animate-pulse" />
+              <div
+                key={i}
+                className="flex-shrink-0 w-40 h-40 bg-white/10 rounded-lg animate-pulse"
+              />
             ))}
           </div>
         </div>
@@ -59,15 +61,22 @@ export default function StudentPlacementSlider() {
   if (error || !students.length) return null;
 
   return (
-    <section className="bg-[#001a41] text-white py-16">
+    <section className="text-white py-16" style={{ background: "#001a41" }}>
       <div className="max-w-[1200px] mx-auto px-4 overflow-hidden">
 
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+          {/* ✅ Heading — White */}
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight !text-white">
             10000+ Alumni Network
           </h2>
           <p className="mt-4">
-            <span className="bg-[#0056B3] px-6 py-2 rounded-full text-sm md:text-base font-bold shadow-lg">
+            {/* ✅ Hashtag badge — Orange gradient */}
+            <span
+              className="px-6 py-2 rounded-full text-sm md:text-base font-bold shadow-lg inline-block !text-white"
+              style={{
+                background: "linear-gradient(180deg, #ec7425, #c15304)",
+              }}
+            >
               #VidyaHaiTohSuccessHai!
             </span>
           </p>
@@ -95,7 +104,16 @@ export default function StudentPlacementSlider() {
         >
           {students.map((student) => (
             <SwiperSlide key={student._id}>
-              <div className="bg-white h-40 md:h-44 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+              <div
+                className="bg-white h-40 md:h-44 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
+                style={{ border: "2px solid transparent" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#F97316";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "transparent";
+                }}
+              >
                 {student.image ? (
                   <img
                     src={student.image}
@@ -107,7 +125,10 @@ export default function StudentPlacementSlider() {
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center px-2">
+                  <div
+                    className="w-full h-full flex items-center justify-center text-xs text-center px-2"
+                    style={{ color: "#64748B" }}
+                  >
                     {student.name || "Alumni"}
                   </div>
                 )}

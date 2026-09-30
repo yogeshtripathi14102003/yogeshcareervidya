@@ -1,5 +1,4 @@
 
-
 // "use client";
 
 // import { useState } from "react";
@@ -73,11 +72,15 @@
 
 //       <section
 //         aria-labelledby="fee-heading"
-//         className="w-full py-12 md:py-16 bg-white font-sans overflow-hidden"
+//         className="w-full py-12 md:py-16 bg-slate-50 font-sans overflow-hidden"
 //       >
 //         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12">
 //           {/* ============ HEADER ============ */}
 //           <header className="text-center mb-10 md:mb-12">
+//             <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-[#c15304] uppercase mb-2.5">
+//               Transparent Pricing
+//             </span>
+
 //             <h2
 //               id="fee-heading"
 //               className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#002147] leading-tight mb-4 px-2"
@@ -101,9 +104,9 @@
 //                     {feeStructureSidebar.map((item, i) => (
 //                       <div
 //                         key={i}
-//                         className="rounded-xl p-4 sm:p-5 bg-[#002147] text-white"
+//                         className="rounded-xl p-4 sm:p-5 bg-white border border-slate-200 border-l-4 border-l-[#002147] shadow-sm hover:shadow-md transition-all"
 //                       >
-//                         <h3 className="text-[11px] font-bold uppercase tracking-widest text-blue-300 mb-2.5">
+//                         <h3 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#c15304] mb-2.5">
 //                           {item.heading}
 //                         </h3>
 
@@ -112,13 +115,13 @@
 //                             {item.points.map((point, j) => (
 //                               <li
 //                                 key={j}
-//                                 className="flex items-start gap-2 text-sm leading-snug"
+//                                 className="flex items-start gap-2 text-sm leading-snug text-[#002147] font-semibold"
 //                               >
 //                                 <span
 //                                   aria-hidden="true"
-//                                   className="flex-shrink-0 w-1 h-1 rounded-full bg-[#c15304] mt-2"
+//                                   className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#c15304] mt-1.5"
 //                                 />
-//                                 <span className="text-white/90">{point}</span>
+//                                 <span>{point}</span>
 //                               </li>
 //                             ))}
 //                           </ul>
@@ -149,17 +152,17 @@
 //                   {detailedFees.map((section, i) => (
 //                     <article
 //                       key={i}
-//                       className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+//                       className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
 //                     >
 //                       {/* Section header */}
-//                       <div className="px-5 sm:px-6 py-4 border-b border-slate-100 bg-slate-50">
-//                         <h3 className="text-base sm:text-lg font-bold text-[#002147]">
+//                       <div className="px-5 sm:px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-[#002147] to-[#003366]">
+//                         <h3 className="text-base sm:text-lg font-bold text-white">
 //                           {section.heading}
 //                         </h3>
 
 //                         {section.description && (
 //                           <div
-//                             className="text-xs sm:text-sm text-gray-500 mt-1 prose prose-sm max-w-none"
+//                             className="text-xs sm:text-sm text-blue-100 mt-1 prose prose-sm prose-invert max-w-none"
 //                             dangerouslySetInnerHTML={{
 //                               __html: section.description,
 //                             }}
@@ -174,14 +177,14 @@
 //                           <div className="hidden md:block overflow-x-auto">
 //                             <table className="w-full border-collapse">
 //                               <thead>
-//                                 <tr className="bg-white border-b border-slate-200">
-//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+//                                 <tr className="bg-slate-100 border-b border-slate-200">
+//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
 //                                     University
 //                                   </th>
-//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
 //                                     Course Fees
 //                                   </th>
-//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+//                                   <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
 //                                     Details
 //                                   </th>
 //                                 </tr>
@@ -190,17 +193,17 @@
 //                                 {section.table.map((row, j) => (
 //                                   <tr
 //                                     key={j}
-//                                     className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors"
+//                                     className="border-b border-slate-100 last:border-0 hover:bg-orange-50/40 transition-colors"
 //                                   >
-//                                     <td className="px-5 py-3.5 font-semibold text-sm text-[#002147]">
+//                                     <td className="px-5 py-4 font-semibold text-sm text-[#002147]">
 //                                       {row.universityName}
 //                                     </td>
-//                                     <td className="px-5 py-3.5">
-//                                       <span className="inline-block px-2.5 py-1 rounded-md bg-[#002147] text-white font-bold text-xs">
+//                                     <td className="px-5 py-4">
+//                                       <span className="inline-block px-3 py-1 rounded-md bg-[#c15304] text-white font-bold text-xs">
 //                                         {row.courseFees}
 //                                       </span>
 //                                     </td>
-//                                     <td className="px-5 py-3.5 text-xs text-gray-600">
+//                                     <td className="px-5 py-4 text-xs text-gray-600">
 //                                       {row.detailedFeeStructure || "—"}
 //                                     </td>
 //                                   </tr>
@@ -220,7 +223,7 @@
 //                                   <span className="text-[10px] uppercase tracking-widest text-gray-500">
 //                                     Course Fees
 //                                   </span>
-//                                   <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#002147] text-white font-bold text-[11px]">
+//                                   <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#c15304] text-white font-bold text-[11px]">
 //                                     {row.courseFees}
 //                                   </span>
 //                                 </div>
@@ -243,10 +246,14 @@
 
 //           {/* ============ EMI OPTIONS ============ */}
 //           {hasEmi && (
-//             <article className="mb-10 md:mb-12 rounded-2xl overflow-hidden border border-slate-200">
+//             <article className="mb-10 md:mb-12 rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
 //               <div className="grid grid-cols-1 md:grid-cols-12">
 //                 {/* Left: Info */}
 //                 <div className="md:col-span-7 p-5 sm:p-6 md:p-8">
+//                   <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[#c15304] mb-2">
+//                     Flexible Payment
+//                   </span>
+
 //                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-3">
 //                     Easy EMI Options Available
 //                   </h3>
@@ -264,7 +271,7 @@
 //                       {emiOptions.tenureMonths.map((months, i) => (
 //                         <span
 //                           key={i}
-//                           className="px-3 py-1.5 rounded-md bg-slate-100 text-[#002147] text-[11px] font-bold"
+//                           className="px-3 py-1.5 rounded-md bg-[#002147] text-white text-[11px] font-bold"
 //                         >
 //                           {months} Months
 //                         </span>
@@ -274,9 +281,9 @@
 //                 </div>
 
 //                 {/* Right: Amount */}
-//                 <div className="md:col-span-5 flex items-center justify-center bg-[#002147] p-5 sm:p-6 md:p-8">
+//                 <div className="md:col-span-5 flex items-center justify-center bg-gradient-to-br from-[#c15304] to-[#a34403] p-5 sm:p-6 md:p-8">
 //                   <div className="text-center text-white">
-//                     <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-300 mb-1.5">
+//                     <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-orange-100 mb-1.5">
 //                       Starting from
 //                     </p>
 
@@ -284,7 +291,7 @@
 //                       {emiOptions.minMonthly || "₹3,000"}
 //                     </p>
 
-//                     <p className="text-xs sm:text-sm text-white/80 mb-4">
+//                     <p className="text-xs sm:text-sm text-orange-100 mb-4">
 //                       per month
 //                       {emiOptions.maxMonthly && (
 //                         <> — up to {emiOptions.maxMonthly}</>
@@ -294,7 +301,7 @@
 //                     <button
 //                       type="button"
 //                       onClick={handleApplyClick}
-//                       className="inline-block bg-[#c15304] hover:bg-[#a34403] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
+//                       className="inline-block bg-white text-[#c15304] hover:bg-orange-50 text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
 //                     >
 //                       Check Eligibility →
 //                     </button>
@@ -306,9 +313,13 @@
 
 //           {/* ============ SCHOLARSHIPS ============ */}
 //           {hasScholarships && (
-//             <article className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6 md:p-8">
+//             <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 md:p-8 shadow-sm">
 //               {/* Header */}
 //               <header className="text-center mb-6 md:mb-8">
+//                 <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#c15304] mb-2">
+//                   Save More
+//                 </span>
+
 //                 <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-2 leading-tight">
 //                   Scholarships & Financial Aid
 //                 </h3>
@@ -323,16 +334,16 @@
 //                 </p>
 //               </header>
 
-//               {/* Scholarship cards — compact */}
+//               {/* Scholarship cards */}
 //               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
 //                 {scholarships.map((s, i) => (
 //                   <div
 //                     key={i}
-//                     className="group relative bg-white rounded-xl p-4 sm:p-5 border border-slate-200 hover:border-[#c15304]/40 hover:shadow-md transition-all"
+//                     className="group relative bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200 border-t-4 border-t-[#c15304] hover:shadow-md transition-all"
 //                   >
 //                     {/* Discount badge */}
 //                     {s.discount && (
-//                       <span className="inline-block bg-[#c15304] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded mb-3">
+//                       <span className="inline-block bg-[#c15304] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-3">
 //                         {s.discount}
 //                       </span>
 //                     )}
@@ -400,10 +411,17 @@
 import { useState } from "react";
 import Signup from "@/app/signup/page.jsx";
 
-/* ================= LOGIN CHECK ================= */
+/* LOGIN CHECK */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("accessToken");
+};
+
+/* Global CSS for text wrapping */
+const TEXT_WRAP_STYLE = {
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
+  minWidth: 0,
 };
 
 export default function FeeStructure({
@@ -424,7 +442,7 @@ export default function FeeStructure({
     return null;
   }
 
-  /* ================= SEO SCHEMA ================= */
+  /* SEO SCHEMA */
   const schema = {
     "@context": "https://schema.org",
     "@type": "Course",
@@ -447,7 +465,6 @@ export default function FeeStructure({
     }),
   };
 
-  /* ================= APPLY CLICK ================= */
   const handleApplyClick = () => {
     if (!isLoggedIn()) {
       setShowSignup(true);
@@ -468,41 +485,62 @@ export default function FeeStructure({
 
       <section
         aria-labelledby="fee-heading"
-        className="w-full py-12 md:py-16 bg-slate-50 font-sans overflow-hidden"
+        className="w-full py-8 sm:py-12 md:py-16 font-sans overflow-hidden"
+        style={{ background: "var(--cv-neutral-light)" }}
       >
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12">
-          {/* ============ HEADER ============ */}
-          <header className="text-center mb-10 md:mb-12">
-            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-[#c15304] uppercase mb-2.5">
+        <div className="max-w-[1600px] mx-auto px-3 sm:px-6 md:px-12">
+          {/* HEADER */}
+          <header className="text-center mb-8 sm:mb-10 md:mb-12">
+            <span
+              className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase mb-2"
+              style={{ color: "var(--cv-accent)" }}
+            >
               Transparent Pricing
             </span>
 
             <h2
               id="fee-heading"
-              className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#002147] leading-tight mb-4 px-2"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3 sm:mb-4 px-2"
+              style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
             >
               Fee Structure for {courseTitle || "this Course"}
             </h2>
 
             <div
               aria-hidden="true"
-              className="w-16 h-1 bg-[#002147] mx-auto rounded-full"
+              className="w-12 sm:w-16 h-1 mx-auto rounded-full"
+              style={{ background: "var(--cv-primary)" }}
             />
           </header>
 
-          {/* ============ SIDEBAR + DETAILED ============ */}
+          {/* SIDEBAR + DETAILED */}
           {(hasSidebar || hasDetailed) && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 mb-10 md:mb-12">
-              {/* ---------- SIDEBAR ---------- */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
+              {/* SIDEBAR */}
               {hasSidebar && (
-                <aside className="lg:col-span-4 xl:col-span-3">
+                <aside className="lg:col-span-4 xl:col-span-3 min-w-0">
                   <div className="lg:sticky lg:top-24 space-y-3">
                     {feeStructureSidebar.map((item, i) => (
                       <div
                         key={i}
-                        className="rounded-xl p-4 sm:p-5 bg-white border border-slate-200 border-l-4 border-l-[#002147] shadow-sm hover:shadow-md transition-all"
+                        className="rounded-xl p-4 shadow-sm transition-all"
+                        style={{
+                          background: "#fff",
+                          border: "1px solid var(--cv-neutral-border)",
+                          borderLeft: "4px solid var(--cv-primary)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow =
+                            "0 8px 20px rgba(30, 58, 138, 0.12)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = "none";
+                        }}
                       >
-                        <h3 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#c15304] mb-2.5">
+                        <h3
+                          className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-2"
+                          style={{ color: "var(--cv-accent)", ...TEXT_WRAP_STYLE }}
+                        >
                           {item.heading}
                         </h3>
 
@@ -511,13 +549,20 @@ export default function FeeStructure({
                             {item.points.map((point, j) => (
                               <li
                                 key={j}
-                                className="flex items-start gap-2 text-sm leading-snug text-[#002147] font-semibold"
+                                className="flex items-start gap-2 text-xs sm:text-sm leading-snug font-semibold"
+                                style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
                               >
                                 <span
                                   aria-hidden="true"
-                                  className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#c15304] mt-1.5"
+                                  className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-1.5"
+                                  style={{ background: "var(--cv-accent)" }}
                                 />
-                                <span>{point}</span>
+                                <span
+                                  className="flex-1 min-w-0"
+                                  style={TEXT_WRAP_STYLE}
+                                >
+                                  {point}
+                                </span>
                               </li>
                             ))}
                           </ul>
@@ -528,7 +573,7 @@ export default function FeeStructure({
                     <button
                       type="button"
                       onClick={handleApplyClick}
-                      className="block w-full text-center bg-[#c15304] hover:bg-[#a34403] text-white font-bold text-sm py-2.5 rounded-lg transition-colors"
+                      className="cv-btn-cta block w-full text-center py-2.5 sm:py-3 text-sm cursor-pointer"
                     >
                       Apply Now →
                     </button>
@@ -536,29 +581,45 @@ export default function FeeStructure({
                 </aside>
               )}
 
-              {/* ---------- DETAILED FEES ---------- */}
+              {/* DETAILED FEES */}
               {hasDetailed && (
                 <div
                   className={
                     hasSidebar
-                      ? "lg:col-span-8 xl:col-span-9 space-y-4"
-                      : "lg:col-span-12 space-y-4"
+                      ? "lg:col-span-8 xl:col-span-9 space-y-3 sm:space-y-4 min-w-0"
+                      : "lg:col-span-12 space-y-3 sm:space-y-4 min-w-0"
                   }
                 >
                   {detailedFees.map((section, i) => (
                     <article
                       key={i}
-                      className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+                      className="rounded-xl shadow-sm overflow-hidden"
+                      style={{
+                        background: "#fff",
+                        border: "1px solid var(--cv-neutral-border)",
+                      }}
                     >
-                      {/* Section header */}
-                      <div className="px-5 sm:px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-[#002147] to-[#003366]">
-                        <h3 className="text-base sm:text-lg font-bold text-white">
+                      <div
+                        className="px-4 sm:px-6 py-3 sm:py-4"
+                        style={{
+                          background: "var(--cv-primary)",
+                          borderBottom: "1px solid var(--cv-primary-dark)",
+                        }}
+                      >
+                        <h3
+                          className="text-sm sm:text-base md:text-lg font-bold"
+                          style={{ color: "#fff", ...TEXT_WRAP_STYLE }}
+                        >
                           {section.heading}
                         </h3>
 
                         {section.description && (
                           <div
-                            className="text-xs sm:text-sm text-blue-100 mt-1 prose prose-sm prose-invert max-w-none"
+                            className="text-[11px] sm:text-xs md:text-sm mt-1 prose prose-sm max-w-none [&_p]:my-0"
+                            style={{
+                              color: "rgba(255,255,255,0.85)",
+                              ...TEXT_WRAP_STYLE,
+                            }}
                             dangerouslySetInnerHTML={{
                               __html: section.description,
                             }}
@@ -566,21 +627,35 @@ export default function FeeStructure({
                         )}
                       </div>
 
-                      {/* Table — responsive */}
                       {section.table?.length > 0 && (
                         <>
                           {/* Desktop table */}
                           <div className="hidden md:block overflow-x-auto">
                             <table className="w-full border-collapse">
                               <thead>
-                                <tr className="bg-slate-100 border-b border-slate-200">
-                                  <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
+                                <tr
+                                  style={{
+                                    background: "var(--cv-primary-light)",
+                                    borderBottom:
+                                      "1px solid var(--cv-neutral-border)",
+                                  }}
+                                >
+                                  <th
+                                    className="text-left px-4 lg:px-5 py-3 text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ color: "var(--cv-primary)" }}
+                                  >
                                     University
                                   </th>
-                                  <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
+                                  <th
+                                    className="text-left px-4 lg:px-5 py-3 text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ color: "var(--cv-primary)" }}
+                                  >
                                     Course Fees
                                   </th>
-                                  <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#002147]">
+                                  <th
+                                    className="text-left px-4 lg:px-5 py-3 text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ color: "var(--cv-primary)" }}
+                                  >
                                     Details
                                   </th>
                                 </tr>
@@ -589,17 +664,48 @@ export default function FeeStructure({
                                 {section.table.map((row, j) => (
                                   <tr
                                     key={j}
-                                    className="border-b border-slate-100 last:border-0 hover:bg-orange-50/40 transition-colors"
+                                    className="transition-colors"
+                                    style={{
+                                      borderBottom:
+                                        "1px solid var(--cv-neutral-border)",
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.background =
+                                        "var(--cv-primary-light)";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = "#fff";
+                                    }}
                                   >
-                                    <td className="px-5 py-4 font-semibold text-sm text-[#002147]">
+                                    <td
+                                      className="px-4 lg:px-5 py-4 font-semibold text-sm"
+                                      style={{
+                                        color: "var(--cv-primary)",
+                                        ...TEXT_WRAP_STYLE,
+                                      }}
+                                    >
                                       {row.universityName}
                                     </td>
-                                    <td className="px-5 py-4">
-                                      <span className="inline-block px-3 py-1 rounded-md bg-[#c15304] text-white font-bold text-xs">
+                                    <td className="px-4 lg:px-5 py-4">
+                                      <span
+                                        className="inline-block px-2.5 sm:px-3 py-1 rounded-md text-white font-bold text-xs"
+                                        style={{
+                                          background: "var(--cv-primary)",
+                                          whiteSpace: "normal",
+                                          wordBreak: "break-word",
+                                          overflowWrap: "anywhere",
+                                        }}
+                                      >
                                         {row.courseFees}
                                       </span>
                                     </td>
-                                    <td className="px-5 py-4 text-xs text-gray-600">
+                                    <td
+                                      className="px-4 lg:px-5 py-4 text-xs"
+                                      style={{
+                                        color: "var(--cv-neutral-mid)",
+                                        ...TEXT_WRAP_STYLE,
+                                      }}
+                                    >
                                       {row.detailedFeeStructure || "—"}
                                     </td>
                                   </tr>
@@ -609,22 +715,51 @@ export default function FeeStructure({
                           </div>
 
                           {/* Mobile cards */}
-                          <div className="md:hidden divide-y divide-slate-100">
+                          <div className="md:hidden">
                             {section.table.map((row, j) => (
-                              <div key={j} className="p-4">
-                                <p className="font-semibold text-sm text-[#002147] mb-2">
+                              <div
+                                key={j}
+                                className="p-4"
+                                style={{
+                                  borderBottom:
+                                    "1px solid var(--cv-neutral-border)",
+                                }}
+                              >
+                                <p
+                                  className="font-semibold text-sm mb-2"
+                                  style={{
+                                    color: "var(--cv-primary)",
+                                    ...TEXT_WRAP_STYLE,
+                                  }}
+                                >
                                   {row.universityName}
                                 </p>
-                                <div className="flex items-center justify-between gap-2 mb-1">
-                                  <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                                <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
+                                  <span
+                                    className="text-[10px] uppercase tracking-widest"
+                                    style={{ color: "var(--cv-neutral-mid)" }}
+                                  >
                                     Course Fees
                                   </span>
-                                  <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#c15304] text-white font-bold text-[11px]">
+                                  <span
+                                    className="inline-block px-2.5 py-0.5 rounded-md text-white font-bold text-[11px]"
+                                    style={{
+                                      background: "var(--cv-primary)",
+                                      whiteSpace: "normal",
+                                      wordBreak: "break-word",
+                                    }}
+                                  >
                                     {row.courseFees}
                                   </span>
                                 </div>
                                 {row.detailedFeeStructure && (
-                                  <p className="text-xs text-gray-500 mt-1">
+                                  <p
+                                    className="text-xs mt-1"
+                                    style={{
+                                      color: "var(--cv-neutral-mid)",
+                                      ...TEXT_WRAP_STYLE,
+                                    }}
+                                  >
                                     {row.detailedFeeStructure}
                                   </p>
                                 )}
@@ -640,23 +775,37 @@ export default function FeeStructure({
             </div>
           )}
 
-          {/* ============ EMI OPTIONS ============ */}
+          {/* EMI OPTIONS */}
           {hasEmi && (
-            <article className="mb-10 md:mb-12 rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
+            <article
+              className="mb-8 sm:mb-10 md:mb-12 rounded-2xl overflow-hidden shadow-sm"
+              style={{
+                background: "#fff",
+                border: "1px solid var(--cv-neutral-border)",
+              }}
+            >
               <div className="grid grid-cols-1 md:grid-cols-12">
-                {/* Left: Info */}
-                <div className="md:col-span-7 p-5 sm:p-6 md:p-8">
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[#c15304] mb-2">
+                <div className="md:col-span-7 p-4 sm:p-6 md:p-8 min-w-0">
+                  <span
+                    className="inline-block text-[10px] font-bold uppercase tracking-widest mb-2"
+                    style={{ color: "var(--cv-accent)" }}
+                  >
                     Flexible Payment
                   </span>
 
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-3">
+                  <h3
+                    className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 sm:mb-3"
+                    style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
+                  >
                     Easy EMI Options Available
                   </h3>
 
-                  <p className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed mb-4">
+                  <p
+                    className="text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4"
+                    style={{ color: "var(--cv-neutral-mid)", ...TEXT_WRAP_STYLE }}
+                  >
                     Pay in easy monthly installments with{" "}
-                    <strong className="text-[#002147]">
+                    <strong style={{ color: "var(--cv-primary)" }}>
                       {emiOptions.interestRate || "0%"} interest
                     </strong>
                     . Don&apos;t let fees stop your career.
@@ -667,7 +816,12 @@ export default function FeeStructure({
                       {emiOptions.tenureMonths.map((months, i) => (
                         <span
                           key={i}
-                          className="px-3 py-1.5 rounded-md bg-[#002147] text-white text-[11px] font-bold"
+                          className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-white text-[10px] sm:text-[11px] font-bold"
+                          style={{
+                            background: "var(--cv-primary)",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
                         >
                           {months} Months
                         </span>
@@ -676,18 +830,29 @@ export default function FeeStructure({
                   )}
                 </div>
 
-                {/* Right: Amount */}
-                <div className="md:col-span-5 flex items-center justify-center bg-gradient-to-br from-[#c15304] to-[#a34403] p-5 sm:p-6 md:p-8">
-                  <div className="text-center text-white">
-                    <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-orange-100 mb-1.5">
+                <div
+                  className="md:col-span-5 flex items-center justify-center p-5 sm:p-6 md:p-8"
+                  style={{ background: "var(--cv-primary)" }}
+                >
+                  <div className="text-center text-white min-w-0">
+                    <p
+                      className="text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1.5"
+                      style={{ color: "rgba(255,255,255,0.75)" }}
+                    >
                       Starting from
                     </p>
 
-                    <p className="text-3xl sm:text-4xl md:text-5xl font-bold leading-none mb-1.5">
+                    <p
+                      className="text-3xl sm:text-4xl md:text-5xl font-bold leading-none mb-1.5"
+                      style={{ color: "#fff", ...TEXT_WRAP_STYLE }}
+                    >
                       {emiOptions.minMonthly || "₹3,000"}
                     </p>
 
-                    <p className="text-xs sm:text-sm text-orange-100 mb-4">
+                    <p
+                      className="text-xs sm:text-sm mb-3 sm:mb-4"
+                      style={{ color: "rgba(255,255,255,0.8)", ...TEXT_WRAP_STYLE }}
+                    >
                       per month
                       {emiOptions.maxMonthly && (
                         <> — up to {emiOptions.maxMonthly}</>
@@ -697,7 +862,18 @@ export default function FeeStructure({
                     <button
                       type="button"
                       onClick={handleApplyClick}
-                      className="inline-block bg-white text-[#c15304] hover:bg-orange-50 text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
+                      className="inline-block text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-md transition-colors cursor-pointer"
+                      style={{
+                        background: "#fff",
+                        color: "var(--cv-primary)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "var(--cv-primary-light)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#fff";
+                      }}
                     >
                       Check Eligibility →
                     </button>
@@ -707,54 +883,94 @@ export default function FeeStructure({
             </article>
           )}
 
-          {/* ============ SCHOLARSHIPS ============ */}
+          {/* SCHOLARSHIPS */}
           {hasScholarships && (
-            <article className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 md:p-8 shadow-sm">
-              {/* Header */}
-              <header className="text-center mb-6 md:mb-8">
-                <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#c15304] mb-2">
+            <article
+              className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm"
+              style={{
+                border: "1px solid var(--cv-neutral-border)",
+                background: "#fff",
+              }}
+            >
+              <header className="text-center mb-5 sm:mb-6 md:mb-8">
+                <span
+                  className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-2"
+                  style={{ color: "var(--cv-accent)" }}
+                >
                   Save More
                 </span>
 
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#002147] mb-2 leading-tight">
-                  Scholarships & Financial Aid
+                <h3
+                  className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 leading-tight"
+                  style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
+                >
+                  Scholarships &amp; Financial Aid
                 </h3>
 
                 <div
                   aria-hidden="true"
-                  className="w-12 h-1 bg-[#002147] mx-auto rounded-full"
+                  className="w-12 h-1 mx-auto rounded-full"
+                  style={{ background: "var(--cv-primary)" }}
                 />
 
-                <p className="text-gray-600 text-xs sm:text-sm md:text-base max-w-2xl mx-auto mt-3">
+                <p
+                  className="text-xs sm:text-sm md:text-base max-w-2xl mx-auto mt-3"
+                  style={{ color: "var(--cv-neutral-mid)", ...TEXT_WRAP_STYLE }}
+                >
                   Avail exclusive discounts and scholarships to reduce your fees.
                 </p>
               </header>
 
-              {/* Scholarship cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {scholarships.map((s, i) => (
                   <div
                     key={i}
-                    className="group relative bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200 border-t-4 border-t-[#c15304] hover:shadow-md transition-all"
+                    className="relative rounded-xl p-4 sm:p-5 transition-all min-w-0"
+                    style={{
+                      background: "var(--cv-neutral-light)",
+                      border: "1px solid var(--cv-neutral-border)",
+                      borderTop: "4px solid var(--cv-primary)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow =
+                        "0 8px 20px rgba(30, 58, 138, 0.12)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
                   >
-                    {/* Discount badge */}
                     {s.discount && (
-                      <span className="inline-block bg-[#c15304] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-3">
+                      <span
+                        className="inline-block text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-2.5"
+                        style={{
+                          background: "var(--cv-primary)",
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                        }}
+                      >
                         {s.discount}
                       </span>
                     )}
 
-                    {/* Title */}
                     {s.title && (
-                      <h4 className="text-sm sm:text-base font-bold text-[#002147] mb-1.5 leading-snug">
+                      <h4
+                        className="text-sm sm:text-base font-bold mb-1.5 leading-snug"
+                        style={{
+                          color: "var(--cv-primary)",
+                          ...TEXT_WRAP_STYLE,
+                        }}
+                      >
                         {s.title}
                       </h4>
                     )}
 
-                    {/* Description */}
                     {s.description && (
                       <div
-                        className="text-gray-600 text-xs leading-relaxed prose prose-sm max-w-none [&_p]:my-0"
+                        className="text-xs leading-relaxed prose prose-sm max-w-none [&_p]:my-0"
+                        style={{
+                          color: "var(--cv-neutral-mid)",
+                          ...TEXT_WRAP_STYLE,
+                        }}
                         dangerouslySetInnerHTML={{ __html: s.description }}
                       />
                     )}
@@ -762,12 +978,11 @@ export default function FeeStructure({
                 ))}
               </div>
 
-              {/* Footer CTA */}
-              <div className="mt-6 text-center">
+              <div className="mt-5 sm:mt-6 text-center">
                 <button
                   type="button"
                   onClick={handleApplyClick}
-                  className="inline-flex items-center gap-2 bg-[#c15304] hover:bg-[#a34403] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-md transition-colors"
+                  className="cv-btn-cta inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm cursor-pointer"
                 >
                   Check Scholarship Eligibility
                   <svg

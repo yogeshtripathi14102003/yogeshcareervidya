@@ -560,6 +560,9 @@ import buildUniversitySnapshots from "../utilities/buildUniversitySnapshots.js";
 // ======================================================
 // Helpers (Existing)
 // ======================================================
+
+
+
 const parseArrayField = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
@@ -587,6 +590,36 @@ const parseObjectField = (data) => {
   return {};
 };
 
+// const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] }) => {
+//   const result = [];
+//   let uploadPointer = 0;
+//   const deletePromises = [];
+
+//   for (let i = 0; i < items.length; i++) {
+//     const baseItem = { ...items[i] };
+//     const oldItem = existingItems[i] || null;
+//     const needNewImage = baseItem?.isNew === true;
+
+//     if (needNewImage && uploaded[uploadPointer]) {
+//       if (oldItem?.image?.public_id) {
+//         deletePromises.push(cloudinary.uploader.destroy(oldItem.image.public_id));
+//       }
+//       baseItem.image = {
+//         public_id: uploaded[uploadPointer].public_id,
+//         url: uploaded[uploadPointer].secure_url,
+//       };
+//       delete baseItem.isNew;
+//       uploadPointer++;
+//     } else if (oldItem && !needNewImage) {
+//       baseItem.image = oldItem.image;
+//     }
+//     result.push(baseItem);
+//   }
+
+//   await Promise.allSettled(deletePromises);
+//   return result;
+// };
+
 const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] }) => {
   const result = [];
   let uploadPointer = 0;
@@ -597,6 +630,7 @@ const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] 
     const oldItem = existingItems[i] || null;
     const needNewImage = baseItem?.isNew === true;
 
+    // Case 1: Nayi file upload hui hai -> Cloudinary URL object save karo
     if (needNewImage && uploaded[uploadPointer]) {
       if (oldItem?.image?.public_id) {
         deletePromises.push(cloudinary.uploader.destroy(oldItem.image.public_id));
@@ -605,18 +639,35 @@ const mapImagesToItems = async ({ items = [], uploaded = [], existingItems = [] 
         public_id: uploaded[uploadPointer].public_id,
         url: uploaded[uploadPointer].secure_url,
       };
-      delete baseItem.isNew;
       uploadPointer++;
-    } else if (oldItem && !needNewImage) {
-      baseItem.image = oldItem.image;
     }
+    // Case 2: Purana image hai -> purana object copy karo
+    else if (oldItem?.image?.url) {
+      baseItem.image = {
+        public_id: oldItem.image.public_id || "",
+        url: oldItem.image.url,
+      };
+    }
+    // Case 3: Frontend se object aa raha hai { public_id, url } -> as-is rakho
+    else if (baseItem.image && typeof baseItem.image === "object") {
+      baseItem.image = {
+        public_id: baseItem.image.public_id || "",
+        url: baseItem.image.url || "",
+      };
+    }
+    // Case 4: Kuch bhi nahi -> empty object
+    else {
+      baseItem.image = { public_id: "", url: "" };
+    }
+
+    // ⚠️ isNew ko database me save nahi karna
+    delete baseItem.isNew;
     result.push(baseItem);
   }
 
   await Promise.allSettled(deletePromises);
   return result;
 };
-
 const LIST_FIELDS =
   "name slug category duration tag courseLogo.url createdAt specializations";
 
@@ -975,6 +1026,37 @@ export const updateCourse = async (req, res) => {
       };
 
     // Overview images
+    // if (req.files?.overviewImages) {
+    //   const uploaded = await Promise.all(
+    //     req.files.overviewImages.map((f) =>
+    //       cloudinary.uploader.upload(f.path, { folder: "courses/overview" })
+    //     )
+    //   );
+    //   data.overview = await mapImagesToItems({
+    //     items: parseArrayField(data.overview),
+    //     uploaded,
+    //     existingItems: existing.overview,
+    //   });
+    // } else if (data.overview !== undefined) {
+    //   data.overview = parseArrayField(data.overview);
+    // }
+
+    // // Why Choose Us images
+    // if (req.files?.whyChooseUsImages) {
+    //   const uploaded = await Promise.all(
+    //     req.files.whyChooseUsImages.map((f) =>
+    //       cloudinary.uploader.upload(f.path, { folder: "courses/whyChooseUs" })
+    //     )
+    //   );
+    //   data.whyChooseUs = await mapImagesToItems({
+    //     items: parseArrayField(data.whyChooseUs),
+    //     uploaded,
+    //     existingItems: existing.whyChooseUs,
+    //   });
+    // } else if (data.whyChooseUs !== undefined) {
+    //   data.whyChooseUs = parseArrayField(data.whyChooseUs);
+    // }
+        // Overview images
     if (req.files?.overviewImages) {
       const uploaded = await Promise.all(
         req.files.overviewImages.map((f) =>
@@ -987,7 +1069,16 @@ export const updateCourse = async (req, res) => {
         existingItems: existing.overview,
       });
     } else if (data.overview !== undefined) {
-      data.overview = parseArrayField(data.overview);
+      // ⚠️ isNew strip karo aur image ko object me convert karo
+      data.overview = parseArrayField(data.overview).map((item) => {
+        const { isNew, ...rest } = item;
+        return {
+          ...rest,
+          image: typeof rest.image === "string"
+            ? { public_id: "", url: rest.image }
+            : (rest.image || { public_id: "", url: "" }),
+        };
+      });
     }
 
     // Why Choose Us images
@@ -1003,7 +1094,16 @@ export const updateCourse = async (req, res) => {
         existingItems: existing.whyChooseUs,
       });
     } else if (data.whyChooseUs !== undefined) {
-      data.whyChooseUs = parseArrayField(data.whyChooseUs);
+      // ⚠️ isNew strip karo aur image ko object me convert karo
+      data.whyChooseUs = parseArrayField(data.whyChooseUs).map((item) => {
+        const { isNew, ...rest } = item;
+        return {
+          ...rest,
+          image: typeof rest.image === "string"
+            ? { public_id: "", url: rest.image }
+            : (rest.image || { public_id: "", url: "" }),
+        };
+      });
     }
 
     // Worth It image
@@ -1029,7 +1129,7 @@ export const updateCourse = async (req, res) => {
     const updated = await Course.findByIdAndUpdate(
       id,
       { $set: data },
-      { new: true, runValidators: false }
+      { new: true, runValidators: true }
     );
     res.status(200).json({ success: true, course: updated });
   } catch (error) {

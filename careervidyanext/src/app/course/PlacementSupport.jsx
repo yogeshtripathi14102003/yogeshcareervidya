@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Signup from "@/app/signup/page.jsx";
 
-/* ================= LOGIN CHECK ================= */
+/* ═══════════════════════════════════════════════
+   LOGIN CHECK
+═══════════════════════════════════════════════ */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("accessToken");
@@ -26,7 +28,9 @@ export default function PlacementSupport({ placementSupport, courseTitle }) {
     return null;
   }
 
-  /* ================= SEO SCHEMA ================= */
+  /* ═══════════════════════════════════════════════
+     SEO SCHEMA
+  ═══════════════════════════════════════════════ */
   const schema = {
     "@context": "https://schema.org",
     "@type": "EducationalOccupationalProgram",
@@ -39,14 +43,18 @@ export default function PlacementSupport({ placementSupport, courseTitle }) {
     }),
   };
 
-  /* ================= STATS DATA ================= */
+  /* ═══════════════════════════════════════════════
+     STATS DATA
+  ═══════════════════════════════════════════════ */
   const statsData = [
     { label: "Placement Rate", value: stats?.placementRate },
     { label: "Average Package", value: stats?.avgPackage },
     { label: "Highest Package", value: stats?.highestPackage },
   ].filter((s) => s.value);
 
-  /* ================= APPLY CLICK ================= */
+  /* ═══════════════════════════════════════════════
+     APPLY CLICK
+  ═══════════════════════════════════════════════ */
   const handleApplyClick = () => {
     if (!isLoggedIn()) {
       setShowSignup(true);
@@ -67,53 +75,82 @@ export default function PlacementSupport({ placementSupport, courseTitle }) {
 
       <section
         aria-labelledby="placement-heading"
-        className="w-full py-12 md:py-16 bg-white font-sans overflow-hidden"
+        className="w-full py-12 md:py-16 font-sans overflow-hidden"
+        style={{ background: "#fff" }}
       >
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12">
-          {/* ============ HEADER ============ */}
+          {/* ═══════════════════════════════════════════
+              HEADER — Navy heading + Navy underline
+          ═══════════════════════════════════════════ */}
           <header className="text-center mb-10 md:mb-12">
             <h2
               id="placement-heading"
-              className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#002147] leading-tight mb-4 px-2"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-4 px-2"
+              style={{ color: "var(--cv-primary)" }}
             >
-              Placement & Career Support
+              Placement &amp; Career Support
             </h2>
 
             <div
               aria-hidden="true"
-              className="w-16 h-1 bg-[#002147] mx-auto rounded-full"
+              className="w-16 h-1 mx-auto rounded-full"
+              style={{ background: "var(--cv-primary)" }}
             />
 
             {description && (
               <div
-                className="text-gray-600 text-xs sm:text-sm md:text-base mt-4 max-w-3xl mx-auto leading-relaxed prose prose-sm max-w-none px-4"
+                className="text-xs sm:text-sm md:text-base mt-4 max-w-3xl mx-auto leading-relaxed prose prose-sm max-w-none px-4"
+                style={{ color: "var(--cv-neutral-mid)" }}
                 dangerouslySetInnerHTML={{ __html: description }}
               />
             )}
           </header>
 
-          {/* ============ STATS GRID ============ */}
+          {/* ═══════════════════════════════════════════
+              STATS GRID
+          ═══════════════════════════════════════════ */}
           {hasStats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 mb-10 md:mb-12">
               {statsData.map((stat, i) => (
                 <article
                   key={i}
-                  className="relative rounded-xl p-5 sm:p-6 bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-[#c15304]/40 transition-all duration-300"
+                  className="relative rounded-xl p-5 sm:p-6 shadow-sm transition-all duration-300"
+                  style={{
+                    background: "#fff",
+                    border: "1px solid var(--cv-neutral-border)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--cv-primary)";
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 20px rgba(30, 58, 138, 0.12)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor =
+                      "var(--cv-neutral-border)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                 >
-                  {/* Top accent line */}
+                  {/* Top accent — Navy */}
                   <div
                     aria-hidden="true"
-                    className="absolute top-0 left-0 right-0 h-1 rounded-t-xl bg-[#002147]"
+                    className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                    style={{ background: "var(--cv-primary)" }}
                   />
 
                   <div className="pt-2">
-                    {/* Value */}
-                    <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#002147] leading-none mb-2">
+                    {/* Value — Navy */}
+                    <p
+                      className="text-3xl sm:text-4xl md:text-5xl font-bold leading-none mb-2"
+                      style={{ color: "var(--cv-primary)" }}
+                    >
                       {stat.value}
                     </p>
 
-                    {/* Label */}
-                    <p className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-[#c15304]">
+                    {/* Label — Orange accent */}
+                    <p
+                      className="text-[10px] sm:text-xs uppercase tracking-widest font-bold"
+                      style={{ color: "var(--cv-accent)" }}
+                    >
                       {stat.label}
                     </p>
                   </div>
@@ -122,31 +159,54 @@ export default function PlacementSupport({ placementSupport, courseTitle }) {
             </div>
           )}
 
-          {/* ============ SERVICES GRID ============ */}
+          {/* ═══════════════════════════════════════════
+              SERVICES GRID
+          ═══════════════════════════════════════════ */}
           {hasServices && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
               {services.map((service, i) => (
                 <article
                   key={i}
-                  className="group bg-white rounded-xl p-5 sm:p-6 border border-slate-200 hover:border-[#c15304]/40 hover:shadow-md transition-all duration-300 flex items-start gap-3 sm:gap-4"
+                  className="group rounded-xl p-5 sm:p-6 transition-all duration-300 flex items-start gap-3 sm:gap-4"
+                  style={{
+                    background: "#fff",
+                    border: "1px solid var(--cv-neutral-border)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--cv-primary)";
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 20px rgba(30, 58, 138, 0.12)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor =
+                      "var(--cv-neutral-border)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                 >
-                  {/* Number circle */}
+                  {/* Number circle — Navy */}
                   <div
                     aria-hidden="true"
-                    className="flex-shrink-0 w-10 h-10 rounded-full bg-[#002147] group-hover:bg-[#c15304] flex items-center justify-center text-white font-bold text-xs transition-colors"
+                    className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs transition-colors"
+                    style={{ background: "var(--cv-primary)" }}
                   >
                     {String(i + 1).padStart(2, "0")}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     {service.title && (
-                      <h3 className="text-sm sm:text-base font-bold text-[#002147] mb-1.5 leading-snug">
+                      <h3
+                        className="text-sm sm:text-base font-bold mb-1.5 leading-snug"
+                        style={{ color: "var(--cv-primary)" }}
+                      >
                         {service.title}
                       </h3>
                     )}
 
                     {service.description && (
-                      <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                      <p
+                        className="text-xs sm:text-sm leading-relaxed"
+                        style={{ color: "var(--cv-neutral-mid)" }}
+                      >
                         {service.description}
                       </p>
                     )}
@@ -156,9 +216,14 @@ export default function PlacementSupport({ placementSupport, courseTitle }) {
             </div>
           )}
 
-          {/* ============ BOTTOM CTA ============ */}
+          {/* ═══════════════════════════════════════════
+              BOTTOM CTA — Orange gradient
+          ═══════════════════════════════════════════ */}
           <div className="mt-10 md:mt-14 text-center">
-            <p className="text-xs sm:text-sm md:text-base text-gray-600 mb-4">
+            <p
+              className="text-xs sm:text-sm md:text-base mb-4"
+              style={{ color: "var(--cv-neutral-mid)" }}
+            >
               🚀 Get complete placement assistance
             </p>
 
@@ -166,7 +231,7 @@ export default function PlacementSupport({ placementSupport, courseTitle }) {
               type="button"
               onClick={handleApplyClick}
               aria-label="Talk to placement counselor"
-              className="inline-flex items-center gap-2 bg-[#c15304] hover:bg-[#a34403] text-white text-sm font-bold px-6 py-3 rounded-[5px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c15304] focus-visible:ring-offset-2"
+              className="cv-btn-cta inline-flex items-center gap-2 px-6 py-3 cursor-pointer"
             >
               Talk to Counselor
               <svg

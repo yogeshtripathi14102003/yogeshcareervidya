@@ -2548,6 +2548,7 @@
 //   maxWidth: "300px",
 // };
 
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -2559,26 +2560,23 @@ import {
   Send,
   CheckCircle,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import api from "@/utlis/api";
+import { toast } from "sonner";
 
 export default function CareerVidyaPremiumWidget() {
-  /* =========================================================
+  /* ═══════════════════════════════════════════════
      VIDEO STATES
-  ========================================================= */
-
+  ═══════════════════════════════════════════════ */
   const [showPreview, setShowPreview] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-
   const videoRef = useRef(null);
 
-  /* =========================================================
+  /* ═══════════════════════════════════════════════
      FORM STATES
-  ========================================================= */
-
-  const [courses, setCourses] = useState([]);
+  ═══════════════════════════════════════════════ */
   const [specializations, setSpecializations] = useState([]);
-
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -2588,143 +2586,86 @@ export default function CareerVidyaPremiumWidget() {
     city: "NA",
     message: "NA",
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  /* =========================================================
-     FETCH COURSES
-  ========================================================= */
+  /* ═══════════════════════════════════════════════
+     ✅ REACT QUERY — Courses
+  ═══════════════════════════════════════════════ */
+  const { data: courses = [] } = useQuery({
+    queryKey: ["widget-courses"],
+    queryFn: async () => {
+      const res = await api.get("/api/v1/course");
+      const courseArray = Array.isArray(res.data)
+        ? res.data
+        : res.data?.data || res.data?.courses || [];
+      return courseArray;
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: isFormOpen,
+  });
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const res = await api.get("/api/v1/course");
-
-        const courseArray = Array.isArray(res.data)
-          ? res.data
-          : res.data?.data ||
-            res.data?.courses ||
-            [];
-
-        setCourses(courseArray);
-      } catch (error) {
-        console.error("Course fetch error:", error);
-      }
-    };
-
-    fetchCourses();
-  }, []);
-
-  /* =========================================================
-     OPEN VIDEO
-  ========================================================= */
-
+  /* ═══════════════════════════════════════════════
+     VIDEO CONTROLS
+  ═══════════════════════════════════════════════ */
   const openVideo = () => {
     setIsOpen(true);
-
-    setTimeout(() => {
-      videoRef.current?.play();
-    }, 150);
+    setTimeout(() => videoRef.current?.play(), 150);
   };
-
-  /* =========================================================
-     CLOSE VIDEO
-  ========================================================= */
 
   const closeVideo = () => {
     setIsOpen(false);
-
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
+    if (videoRef.current) videoRef.current.pause();
   };
-
-  /* =========================================================
-     OPEN FORM
-  ========================================================= */
 
   const openCounsellingForm = () => {
     setIsFormOpen(true);
     setSubmitSuccess(false);
   };
 
-  /* =========================================================
-     CLOSE FORM
-  ========================================================= */
-
   const closeCounsellingForm = () => {
     setIsFormOpen(false);
     setSubmitSuccess(false);
   };
 
-  /* =========================================================
+  /* ═══════════════════════════════════════════════
      COURSE / BRANCH CHANGE
-  ========================================================= */
-
+  ═══════════════════════════════════════════════ */
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "course") {
       const selectedCourse = courses.find(
-        (course) =>
-          course.name === value ||
-          course.title === value
+        (course) => course.name === value || course.title === value
       );
-
       const branches =
         selectedCourse?.specializations ||
         selectedCourse?.branches ||
         selectedCourse?.specialization ||
         [];
-
-      setSpecializations(
-        Array.isArray(branches)
-          ? branches
-          : []
-      );
-
-      setFormData((prev) => ({
-        ...prev,
-        course: value,
-        branch: "",
-      }));
-
+      setSpecializations(Array.isArray(branches) ? branches : []);
+      setFormData((prev) => ({ ...prev, course: value, branch: "" }));
       return;
     }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /* =========================================================
+  /* ═══════════════════════════════════════════════
      SUBMIT FORM
-  ========================================================= */
-
+  ═══════════════════════════════════════════════ */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (isSubmitting) return;
 
     if (formData.mobile.length !== 10) {
-      alert(
-        "Please enter a valid 10-digit mobile number."
-      );
+      toast.error("Please enter a valid 10-digit mobile number.");
       return;
     }
 
     try {
       setIsSubmitting(true);
-
-      await api.post(
-        "/api/v1/getintouch",
-        formData
-      );
-
+      await api.post("/api/v1/getintouch", formData);
       setSubmitSuccess(true);
-
+      toast.success("Counselling request submitted successfully!");
       setFormData({
         name: "",
         mobile: "",
@@ -2734,22 +2675,14 @@ export default function CareerVidyaPremiumWidget() {
         city: "NA",
         message: "NA",
       });
-
       setSpecializations([]);
-
       setTimeout(() => {
         setIsFormOpen(false);
         setSubmitSuccess(false);
       }, 2000);
     } catch (error) {
-      console.error(
-        "Counselling submission error:",
-        error
-      );
-
-      alert(
-        "Something went wrong. Please try again."
-      );
+      console.error("Counselling submission error:", error);
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -2757,16 +2690,13 @@ export default function CareerVidyaPremiumWidget() {
 
   return (
     <>
-      {/* =====================================================
+      {/* ═══════════════════════════════════════════
           SMALL FLOATING VIDEO
-      ===================================================== */}
-
+      ═══════════════════════════════════════════ */}
       {showPreview && !isOpen && (
         <div style={bubbleWrapperStyle}>
           <div style={bubbleContainer}>
-
-            {/* HIDE / MINUS BUTTON */}
-
+            {/* HIDE BUTTON */}
             <button
               type="button"
               onClick={(e) => {
@@ -2777,18 +2707,11 @@ export default function CareerVidyaPremiumWidget() {
               aria-label="Hide career advice video"
               title="Hide"
             >
-              <Minus
-                size={15}
-                strokeWidth={2.5}
-              />
+              <Minus size={15} strokeWidth={2.5} />
             </button>
 
             {/* VIDEO CLICK AREA */}
-
-            <div
-              onClick={openVideo}
-              style={videoClickAreaStyle}
-            >
+            <div onClick={openVideo} style={videoClickAreaStyle}>
               <video
                 autoPlay
                 muted
@@ -2797,19 +2720,13 @@ export default function CareerVidyaPremiumWidget() {
                 preload="auto"
                 style={previewVideoStyle}
               >
-                <source
-                  src="/video/home1.mp4"
-                  type="video/mp4"
-                />
+                <source src="/video/home1.mp4" type="video/mp4" />
               </video>
 
               {/* PLAY BUTTON */}
-
               <div style={previewOverlay}>
                 <div style={playCircle}>
-                  <span
-                    style={playTriangle}
-                  />
+                  <span style={playTriangle} />
                 </div>
               </div>
             </div>
@@ -2817,29 +2734,22 @@ export default function CareerVidyaPremiumWidget() {
         </div>
       )}
 
-      {/* =====================================================
+      {/* ═══════════════════════════════════════════
           EXPANDED VIDEO CARD
-      ===================================================== */}
-
+      ═══════════════════════════════════════════ */}
       {isOpen && (
         <div style={modalOverlay}>
           <div style={glassCardStyle}>
-
             {/* CLOSE */}
-
             <button
               onClick={closeVideo}
               style={closeBtnStyle}
               aria-label="Close video"
             >
-              <X
-                size={18}
-                strokeWidth={2.5}
-              />
+              <X size={18} strokeWidth={2.5} />
             </button>
 
             {/* VIDEO */}
-
             <div style={videoSectionStyle}>
               <video
                 ref={videoRef}
@@ -2848,48 +2758,26 @@ export default function CareerVidyaPremiumWidget() {
                 preload="auto"
                 style={videoStyle}
               >
-                <source
-                  src="/video/home1.mp4"
-                  type="video/mp4"
-                />
+                <source src="/video/home1.mp4" type="video/mp4" />
               </video>
             </div>
 
             {/* CONTENT */}
-
             <div style={contentAreaStyle}>
-
-              <h3 style={titleStyle}>
-                Get Free  Expert Career Advice?
-              </h3>
+              <h3 style={titleStyle}>Get Free Expert Career Advice?</h3>
 
               <div style={dividerStyle}>
-                <span
-                  style={dividerLine}
-                />
-
-                <span
-                  style={dividerDot}
-                />
-
-                <span
-                  style={dividerLine}
-                />
+                <span style={dividerLine} />
+                <span style={dividerDot} />
+                <span style={dividerLine} />
               </div>
 
               <p style={descStyle}>
-                Get personalized guidance to plan
-                your career with confidence.
+                Get personalized guidance to plan your career with confidence.
               </p>
 
-              <button
-                onClick={openCounsellingForm}
-                style={premiumCtaBtn}
-              >
-                <GraduationCap
-                  size={17}
-                />
-
+              <button onClick={openCounsellingForm} style={premiumCtaBtn}>
+                <GraduationCap size={17} />
                 Book Free Counselling
               </button>
             </div>
@@ -2897,207 +2785,78 @@ export default function CareerVidyaPremiumWidget() {
         </div>
       )}
 
-      {/* =====================================================
+      {/* ═══════════════════════════════════════════
           COUNSELLING FORM
-      ===================================================== */}
-
+      ═══════════════════════════════════════════ */}
       {isFormOpen && (
         <div style={formOverlay}>
-
-          <div
-            style={formModal}
-            className="career-form-modal"
-          >
-
+          <div style={formModal} className="career-form-modal">
             {/* CLOSE FORM */}
-
             <button
               onClick={closeCounsellingForm}
               style={formCloseBtn}
               aria-label="Close counselling form"
             >
-              <X
-                size={19}
-                strokeWidth={2.5}
-              />
+              <X size={19} strokeWidth={2.5} />
             </button>
 
-            {/* =================================================
-                LEFT IMAGE
-            ================================================= */}
-
-            <div
-              style={formImageSection}
-              className="career-form-image"
-            >
+            {/* LEFT IMAGE */}
+            <div style={formImageSection} className="career-form-image">
               <div style={formImageWrapper}>
-
                 <img
-                  src="/images/112.png"
+                  src="/images/112.jpeg"
                   alt="Career Counselling"
                   style={formImage}
                 />
-
-                {/* <div style={imageOverlay}>
-
-                  <h3 style={imageTitle}>
-                    Plan Your Career
-                  </h3>
-
-                  <p
-                    style={imageDescription}
-                  >
-                    Get expert guidance and make
-                    the right career choice.
-                  </p>
-
-                </div> */}
               </div>
             </div>
 
-            {/* =================================================
-                RIGHT FORM
-            ================================================= */}
-
-            <div
-              style={formSection}
-              className="career-form-section"
-            >
-
-              {/* =================================================
-                  BRAND HEADER
-              ================================================= */}
-
+            {/* RIGHT FORM */}
+            <div style={formSection} className="career-form-section">
+              {/* BRAND HEADER */}
               <div style={formHeaderStyle}>
-
-                {/* LOGO + TEXT */}
-
                 <div style={brandRowStyle}>
-
                   <img
                     src="/images/n12.png"
                     alt="CareerVidya"
                     style={logoImage}
                   />
-
-                  <div
-                    style={brandDivider}
-                  />
-
+                  <div style={brandDivider} />
                   <div style={brandText}>
-
-                    <span
-                      style={brandTextTop}
-                    >
-                      Expert Guidance
-                    </span>
-
-                    <span
-                      style={brandTextBottom}
-                    >
-                      For Your Career
-                    </span>
-
+                    <span style={brandTextTop}>Expert Guidance</span>
+                    <span style={brandTextBottom}>For Your Career</span>
                   </div>
                 </div>
 
-                {/* HEADING */}
-
-                <h2 style={formTitle}>
-                  Book Free Counselling
-                </h2>
-
+                <h2 style={formTitle}>Book Free Counselling</h2>
                 <p style={formSubtitle}>
-                  Speak with our career expert
-                  and get personalized guidance
+                  Speak with our career expert and get personalized guidance
                   for your future.
                 </p>
-
               </div>
 
-              {/* =================================================
-                  TRUST BADGES
-              ================================================= */}
-
-              <div
-                style={badgesWrapper}
-              >
-                <span style={badge}>
-                  ✓ No-Cost EMI
-                </span>
-
-                <span
-                  style={badgeDivider}
-                >
-                  |
-                </span>
-
-                <span style={badge}>
-                  🎓 Govt-Approved
-                </span>
-
-                <span
-                  style={badgeDivider}
-                >
-                  |
-                </span>
-
-                <span style={badge}>
-                  💼 Placement Support
-                </span>
+              {/* TRUST BADGES */}
+              <div style={badgesWrapper}>
+                <span style={badge}>✓ No-Cost EMI</span>
+                <span style={badgeDivider}>|</span>
+                <span style={badge}>🎓 Govt-Approved</span>
+                <span style={badgeDivider}>|</span>
+                <span style={badge}>💼 Placement Support</span>
               </div>
 
-              {/* =================================================
-                  SUCCESS
-              ================================================= */}
-
+              {/* SUCCESS OR FORM */}
               {submitSuccess ? (
-                <div
-                  style={
-                    successContainer
-                  }
-                >
-                  <CheckCircle
-                    size={55}
-                    color="#16a34a"
-                  />
-
-                  <h3
-                    style={
-                      successTitle
-                    }
-                  >
-                    Thank You!
-                  </h3>
-
-                  <p
-                    style={
-                      successText
-                    }
-                  >
-                    Your counselling request
-                    has been submitted successfully.
+                <div style={successContainer}>
+                  <CheckCircle size={55} color="#16a34a" />
+                  <h3 style={successTitle}>Thank You!</h3>
+                  <p style={successText}>
+                    Your counselling request has been submitted successfully.
                   </p>
                 </div>
               ) : (
-
-                /* =================================================
-                    FORM
-                ================================================= */
-
-                <form
-                  onSubmit={handleSubmit}
-                  style={formStyle}
-                >
-
+                <form onSubmit={handleSubmit} style={formStyle}>
                   {/* NAME */}
-
-                  <label
-                    style={labelStyle}
-                  >
-                    Full Name *
-                  </label>
-
+                  <label style={labelStyle}>Full Name *</label>
                   <input
                     type="text"
                     name="name"
@@ -3109,33 +2868,15 @@ export default function CareerVidyaPremiumWidget() {
                   />
 
                   {/* MOBILE */}
-
-                  <label
-                    style={labelStyle}
-                  >
-                    Phone Number *
-                  </label>
-
+                  <label style={labelStyle}>Phone Number *</label>
                   <input
                     type="tel"
                     name="mobile"
                     value={formData.mobile}
                     onChange={(e) => {
-                      const value =
-                        e.target.value.replace(
-                          /\D/g,
-                          ""
-                        );
-
-                      if (
-                        value.length <= 10
-                      ) {
-                        setFormData(
-                          (prev) => ({
-                            ...prev,
-                            mobile: value,
-                          })
-                        );
+                      const value = e.target.value.replace(/\D/g, "");
+                      if (value.length <= 10) {
+                        setFormData((prev) => ({ ...prev, mobile: value }));
                       }
                     }}
                     placeholder="Enter mobile number"
@@ -3146,16 +2887,8 @@ export default function CareerVidyaPremiumWidget() {
                   />
 
                   {/* COURSE */}
-
-                  <label
-                    style={labelStyle}
-                  >
-                    Course *
-                  </label>
-
-                  <div
-                    style={selectWrapper}
-                  >
+                  <label style={labelStyle}>Course *</label>
+                  <div style={selectWrapper}>
                     <select
                       name="course"
                       value={formData.course}
@@ -3163,73 +2896,37 @@ export default function CareerVidyaPremiumWidget() {
                       required
                       style={selectStyle}
                     >
-                      <option value="">
-                        Select Course
-                      </option>
-
-                      {courses.map(
-                        (course, index) => {
-                          const courseName =
-                            course.name ||
-                            course.title;
-
-                          return (
-                            <option
-                              key={
-                                course._id ||
-                                course.id ||
-                                index
-                              }
-                              value={
-                                courseName
-                              }
-                            >
-                              {courseName}
-                            </option>
-                          );
-                        }
-                      )}
+                      <option value="">Select Course</option>
+                      {courses.map((course, index) => {
+                        const courseName = course.name || course.title;
+                        return (
+                          <option
+                            key={course._id || course.id || index}
+                            value={courseName}
+                          >
+                            {courseName}
+                          </option>
+                        );
+                      })}
                     </select>
-
-                    <ChevronDown
-                      size={17}
-                      style={
-                        selectArrow
-                      }
-                    />
+                    <ChevronDown size={17} style={selectArrow} />
                   </div>
 
                   {/* BRANCH */}
-
-                  <label
-                    style={labelStyle}
-                  >
-                    Branch *
-                  </label>
-
-                  <div
-                    style={selectWrapper}
-                  >
+                  <label style={labelStyle}>Branch *</label>
+                  <div style={selectWrapper}>
                     <select
                       name="branch"
                       value={formData.branch}
                       onChange={handleChange}
                       required
-                      disabled={
-                        !specializations.length
-                      }
+                      disabled={!specializations.length}
                       style={{
                         ...selectStyle,
-
-                        color:
-                          !specializations.length
-                            ? "#999"
-                            : "#222",
-
-                        cursor:
-                          !specializations.length
-                            ? "not-allowed"
-                            : "pointer",
+                        color: !specializations.length ? "#999" : "#222",
+                        cursor: !specializations.length
+                          ? "not-allowed"
+                          : "pointer",
                       }}
                     >
                       <option value="">
@@ -3237,279 +2934,178 @@ export default function CareerVidyaPremiumWidget() {
                           ? "Select Branch"
                           : "Select Course First"}
                       </option>
-
-                      {specializations.map(
-                        (
-                          specialization,
-                          index
-                        ) => {
-
-                          const value =
-                            typeof specialization ===
-                            "string"
-                              ? specialization
-                              : specialization?.name ||
-                                specialization?.title ||
-                                "";
-
-                          return (
-                            <option
-                              key={index}
-                              value={value}
-                            >
-                              {value}
-                            </option>
-                          );
-                        }
-                      )}
+                      {specializations.map((specialization, index) => {
+                        const value =
+                          typeof specialization === "string"
+                            ? specialization
+                            : specialization?.name ||
+                              specialization?.title ||
+                              "";
+                        return (
+                          <option key={index} value={value}>
+                            {value}
+                          </option>
+                        );
+                      })}
                     </select>
-
-                    <ChevronDown
-                      size={17}
-                      style={
-                        selectArrow
-                      }
-                    />
+                    <ChevronDown size={17} style={selectArrow} />
                   </div>
 
                   {/* SUBMIT */}
-
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     style={{
                       ...submitButtonStyle,
-
-                      opacity:
-                        isSubmitting
-                          ? 0.7
-                          : 1,
-
-                      cursor:
-                        isSubmitting
-                          ? "not-allowed"
-                          : "pointer",
+                      opacity: isSubmitting ? 0.7 : 1,
+                      cursor: isSubmitting ? "not-allowed" : "pointer",
                     }}
                   >
                     {isSubmitting ? (
                       <>
-                        <span
-                          style={
-                            loaderStyle
-                          }
-                        />
-
+                        <span style={loaderStyle} />
                         SUBMITTING...
                       </>
                     ) : (
                       <>
                         SUBMIT
-
-                        <Send
-                          size={14}
-                        />
+                        <Send size={14} />
                       </>
                     )}
                   </button>
-
                 </form>
               )}
-
             </div>
           </div>
         </div>
       )}
 
-      {/* =====================================================
+      {/* ═══════════════════════════════════════════
           RESPONSIVE CSS
-      ===================================================== */}
-
+      ═══════════════════════════════════════════ */}
       <style jsx>{`
-
         @keyframes spin {
           from {
             transform: rotate(0deg);
           }
-
           to {
             transform: rotate(360deg);
           }
         }
 
         @media (max-width: 700px) {
-
           .career-form-modal {
             width: 94vw !important;
             max-width: 94vw !important;
-
             max-height: 92vh !important;
-
             overflow-y: auto !important;
-
             display: flex !important;
-
             flex-direction: column !important;
           }
-
           .career-form-image {
             display: none !important;
           }
-
           .career-form-section {
             width: 100% !important;
-
             box-sizing: border-box !important;
-
             padding: 25px 20px 28px !important;
           }
         }
 
         @media (max-width: 480px) {
-
           .career-floating-widget {
             right: 15px !important;
             bottom: 25px !important;
           }
-
           .career-floating-card {
             width: 115px !important;
             height: 155px !important;
           }
-
           .career-brand-row {
             gap: 8px !important;
           }
-
           .career-logo {
             width: 130px !important;
             height: 44px !important;
           }
-
           .career-brand-text-top,
           .career-brand-text-bottom {
             font-size: 9px !important;
           }
-
           .career-form-title {
             font-size: 19px !important;
           }
         }
-
       `}</style>
     </>
   );
 }
 
-/* =========================================================
-   FLOATING VIDEO
-========================================================= */
+/* ═══════════════════════════════════════════════
+   FLOATING VIDEO STYLES
+═══════════════════════════════════════════════ */
 
 const bubbleWrapperStyle = {
   position: "fixed",
-
   bottom: "40px",
   right: "30px",
-
   zIndex: 9999,
-
   cursor: "pointer",
 };
 
 const bubbleContainer = {
   position: "relative",
-
   width: "135px",
   height: "175px",
-
   borderRadius: "12px",
-
   overflow: "hidden",
-
   background: "#000",
-
-  border: "2px solid #ec7425",
-
-  boxShadow:
-    "0 12px 30px rgba(0,0,0,0.25)",
-
+  border: "2px solid var(--cv-primary)",
+  boxShadow: "0 12px 30px rgba(30, 58, 138, 0.35)",
   boxSizing: "border-box",
 };
 
 const videoClickAreaStyle = {
   position: "absolute",
-
   inset: "0",
-
   cursor: "pointer",
 };
 
 const previewVideoStyle = {
   width: "100%",
   height: "100%",
-
   objectFit: "cover",
-
   display: "block",
-
   background: "#000",
 };
 
-/* =========================================================
-   HIDE BUTTON
-========================================================= */
-
 const hideBtnStyle = {
   position: "absolute",
-
   top: "7px",
   right: "7px",
-
   zIndex: 30,
-
   width: "27px",
   height: "27px",
-
   padding: "0",
-
   borderRadius: "50%",
-
-  background:
-    "rgba(0,0,0,0.68)",
-
-  border:
-    "1px solid rgba(255,255,255,0.95)",
-
+  background: "rgba(0,0,0,0.68)",
+  border: "1px solid rgba(255,255,255,0.95)",
   color: "#fff",
-
   display: "flex",
-
   alignItems: "center",
   justifyContent: "center",
-
   cursor: "pointer",
-
-  boxShadow:
-    "0 2px 8px rgba(0,0,0,0.3)",
-
+  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
   backdropFilter: "blur(4px)",
 };
 
-/* =========================================================
-   PLAY OVERLAY
-========================================================= */
-
 const previewOverlay = {
   position: "absolute",
-
   inset: "0",
-
   display: "flex",
-
   alignItems: "center",
   justifyContent: "center",
-
   pointerEvents: "none",
-
   background:
     "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.35))",
 };
@@ -3517,608 +3113,319 @@ const previewOverlay = {
 const playCircle = {
   width: "46px",
   height: "46px",
-
   borderRadius: "50%",
-
-  background:
-    "rgba(0,0,0,0.55)",
-
-  border:
-    "2px solid rgba(255,255,255,0.95)",
-
+  background: "rgba(0,0,0,0.55)",
+  border: "2px solid rgba(255,255,255,0.95)",
   display: "flex",
-
   alignItems: "center",
   justifyContent: "center",
-
-  boxShadow:
-    "0 4px 16px rgba(0,0,0,0.3)",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
 };
 
 const playTriangle = {
   width: "0",
   height: "0",
-
-  borderTop:
-    "8px solid transparent",
-
-  borderBottom:
-    "8px solid transparent",
-
-  borderLeft:
-    "12px solid #fff",
-
+  borderTop: "8px solid transparent",
+  borderBottom: "8px solid transparent",
+  borderLeft: "12px solid #fff",
   marginLeft: "3px",
 };
 
-/* =========================================================
-   VIDEO MODAL
-========================================================= */
+/* ═══════════════════════════════════════════════
+   VIDEO MODAL STYLES
+═══════════════════════════════════════════════ */
 
 const modalOverlay = {
   position: "fixed",
-
   inset: "0",
-
   zIndex: 10000,
-
   display: "flex",
-
   alignItems: "flex-start",
-
   justifyContent: "center",
-
   paddingTop: "7vh",
-
   paddingBottom: "30px",
-
   paddingLeft: "20px",
   paddingRight: "20px",
-
-  background:
-    "rgba(10,15,25,0.62)",
-
+  background: "rgba(15, 23, 42, 0.7)",
   backdropFilter: "blur(6px)",
-
-  WebkitBackdropFilter:
-    "blur(6px)",
-
+  WebkitBackdropFilter: "blur(6px)",
   overflowY: "auto",
-
   boxSizing: "border-box",
 };
 
-/* =========================================================
-   VIDEO CARD
-========================================================= */
-
 const glassCardStyle = {
   position: "relative",
-
   width: "440px",
-
   maxWidth: "95vw",
-
   background: "#fff",
-
   borderRadius: "20px",
-
   overflow: "hidden",
-
-  border:
-    "3px solid #ec7425",
-
+  border: "3px solid var(--cv-primary)",
   boxShadow:
-    "0 25px 70px rgba(0,0,0,0.35), 0 0 25px rgba(236,116,37,0.15)",
+    "0 25px 70px rgba(30, 58, 138, 0.35), 0 0 25px rgba(30, 58, 138, 0.15)",
 };
-
-/* =========================================================
-   VIDEO SECTION
-========================================================= */
 
 const videoSectionStyle = {
   width: "100%",
-
   height: "500px",
-
   background: "#000",
-
-  borderBottom:
-    "3px solid #ec7425",
-
+  borderBottom: "3px solid var(--cv-primary)",
   overflow: "hidden",
-
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
 };
 
 const videoStyle = {
   width: "100%",
-
   height: "100%",
-
-  /*
-   * IMPORTANT:
-   * contain = video crop nahi hogi
-   */
   objectFit: "contain",
-
   display: "block",
-
   background: "#000",
 };
 
-/* =========================================================
-   VIDEO CLOSE
-========================================================= */
-
 const closeBtnStyle = {
   position: "absolute",
-
   top: "12px",
   right: "12px",
-
   zIndex: 20,
-
   width: "34px",
   height: "34px",
-
   borderRadius: "50%",
-
-  background:
-    "rgba(255,255,255,0.95)",
-
-  border:
-    "2px solid #ec7425",
-
-  color: "#1f2937",
-
+  background: "rgba(255,255,255,0.95)",
+  border: "2px solid var(--cv-primary)",
+  color: "var(--cv-neutral-dark)",
   cursor: "pointer",
-
   display: "flex",
-
   alignItems: "center",
   justifyContent: "center",
-
-  boxShadow:
-    "0 3px 12px rgba(0,0,0,0.2)",
+  boxShadow: "0 3px 12px rgba(0,0,0,0.2)",
 };
 
-/* =========================================================
-   VIDEO CONTENT
-========================================================= */
-
 const contentAreaStyle = {
-  padding:
-    "20px 22px 23px",
-
+  padding: "20px 22px 23px",
   textAlign: "center",
-
   display: "flex",
-
   flexDirection: "column",
-
   alignItems: "center",
-
   background: "#fff",
 };
 
 const titleStyle = {
   margin: "0",
-
   fontSize: "20px",
-
   lineHeight: "1.3",
-
   fontWeight: "700",
-
-  color: "#172033",
+  color: "var(--cv-neutral-dark)",
 };
 
 const dividerStyle = {
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
-
   gap: "8px",
-
-  margin:
-    "9px 0 10px",
+  margin: "9px 0 10px",
 };
 
 const dividerLine = {
   width: "45px",
-
   height: "2px",
-
-  background: "#ec7425",
-
+  background: "var(--cv-primary)",
   borderRadius: "10px",
 };
 
 const dividerDot = {
   width: "8px",
-
   height: "8px",
-
   borderRadius: "50%",
-
-  background: "#ec7425",
+  background: "var(--cv-primary)",
 };
 
 const descStyle = {
-  margin:
-    "0 0 16px",
-
+  margin: "0 0 16px",
   fontSize: "13px",
-
   lineHeight: "1.5",
-
-  color: "#64748b",
-
+  color: "var(--cv-neutral-mid)",
   maxWidth: "390px",
 };
 
+/* CTA — Gradient orange */
 const premiumCtaBtn = {
   width: "100%",
-
   maxWidth: "250px",
-
-  padding:
-    "11px 18px",
-
-  background: "#1a73e8",
-
+  padding: "11px 18px",
+  background: "var(--cv-grad-cta)",
   color: "#fff",
-
   border: "none",
-
   borderRadius: "30px",
-
   fontWeight: "600",
-
   cursor: "pointer",
-
   fontSize: "13px",
-
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
-
   gap: "8px",
-
-  boxShadow:
-    "0 6px 18px rgba(26,115,232,0.25)",
+  boxShadow: "0 6px 18px rgba(193, 83, 4, 0.35)",
 };
 
-/* =========================================================
-   FORM OVERLAY
-========================================================= */
+/* ═══════════════════════════════════════════════
+   FORM STYLES
+═══════════════════════════════════════════════ */
 
 const formOverlay = {
   position: "fixed",
-
   inset: "0",
-
   zIndex: 11000,
-
-  background:
-    "rgba(0,0,0,0.72)",
-
+  background: "rgba(15, 23, 42, 0.75)",
   backdropFilter: "blur(5px)",
-
-  WebkitBackdropFilter:
-    "blur(5px)",
-
+  WebkitBackdropFilter: "blur(5px)",
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
-
   padding: "15px",
-
   overflowY: "auto",
-
   boxSizing: "border-box",
 };
-
-/* =========================================================
-   FORM MODAL
-========================================================= */
 
 const formModal = {
   position: "relative",
-
   width: "100%",
-
   maxWidth: "750px",
-
   background: "#fff",
-
   borderRadius: "9px",
-
   display: "flex",
-
   flexDirection: "row",
-
   overflow: "hidden",
-
-  boxShadow:
-    "0 25px 60px rgba(0,0,0,0.4)",
-
-  border:
-    "2px solid #ec7425",
-
+  boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
+  border: "2px solid var(--cv-primary)",
   boxSizing: "border-box",
 };
 
-/* =========================================================
-   FORM CLOSE
-========================================================= */
-
 const formCloseBtn = {
   position: "absolute",
-
   top: "10px",
   right: "10px",
-
   width: "32px",
   height: "32px",
-
   borderRadius: "50%",
-
   border: "none",
-
-  background:
-    "rgba(255,255,255,0.95)",
-
+  background: "rgba(255,255,255,0.95)",
   display: "flex",
-
   alignItems: "center",
   justifyContent: "center",
-
   cursor: "pointer",
-
   zIndex: 30,
-
-  boxShadow:
-    "0 2px 8px rgba(0,0,0,0.15)",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
 };
-
-/* =========================================================
-   FORM IMAGE
-========================================================= */
 
 const formImageSection = {
   width: "40%",
-
   padding: "15px",
-
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
-
   background: "#fff",
-
   boxSizing: "border-box",
 };
 
 const formImageWrapper = {
   position: "relative",
-
   width: "100%",
-
   height: "400px",
-
   borderRadius: "10px",
-
   overflow: "hidden",
 };
 
 const formImage = {
   position: "absolute",
-
   inset: "0",
-
   width: "100%",
-
   height: "100%",
-
   objectFit: "cover",
 };
 
-const imageOverlay = {
-  position: "absolute",
-
-  inset: "0",
-
-  display: "flex",
-
-  flexDirection: "column",
-
-  alignItems: "center",
-
-  justifyContent: "flex-end",
-
-  textAlign: "center",
-
-  padding: "25px 15px",
-
-  background:
-    "linear-gradient(to top, rgba(0,0,0,0.78), transparent 65%)",
-
-  color: "#fff",
-};
-
-const imageTitle = {
-  margin:
-    "0 0 7px",
-
-  fontSize: "22px",
-
-  fontWeight: "700",
-};
-
-const imageDescription = {
-  margin: "0",
-
-  fontSize: "13px",
-
-  lineHeight: "1.5",
-};
-
-/* =========================================================
-   FORM RIGHT SECTION
-========================================================= */
-
 const formSection = {
   width: "60%",
-
-  padding:
-    "25px 40px 30px",
-
+  padding: "25px 40px 30px",
   textAlign: "center",
-
   background: "#fff",
-
   boxSizing: "border-box",
 };
 
-/* =========================================================
-   BRAND HEADER
-========================================================= */
-
 const formHeaderStyle = {
   textAlign: "center",
-
   marginBottom: "8px",
 };
 
 const brandRowStyle = {
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
-
   gap: "12px",
-
   marginBottom: "8px",
 };
 
 const logoImage = {
   width: "85px",
-
   height: "85px",
-
-
   display: "block",
 };
 
 const brandDivider = {
   width: "1px",
-
   height: "34px",
-
-  background: "#d9dee7",
-
+  background: "var(--cv-neutral-border)",
   flexShrink: 0,
 };
 
 const brandText = {
   display: "flex",
-
   flexDirection: "column",
-
   alignItems: "flex-start",
-
   textAlign: "left",
-
   lineHeight: "1.25",
 };
 
 const brandTextTop = {
   fontSize: "11px",
-
   fontWeight: "700",
-
-  color: "#ec7425",
-
+  color: "var(--cv-primary)",
   textTransform: "uppercase",
-
   letterSpacing: "0.4px",
 };
 
 const brandTextBottom = {
   fontSize: "11px",
-
   fontWeight: "600",
-
-  color: "#475569",
+  color: "var(--cv-neutral-mid)",
 };
 
-/* =========================================================
-   FORM TITLE
-========================================================= */
-
 const formTitle = {
-  margin:
-    "0 0 4px",
-
+  margin: "0 0 4px",
   fontSize: "21px",
-
   lineHeight: "1.3",
-
   fontWeight: "700",
-
-  color: "#172033",
+  color: "var(--cv-neutral-dark)",
 };
 
 const formSubtitle = {
-  margin:
-    "0 auto 9px",
-
+  margin: "0 auto 9px",
   fontSize: "11.5px",
-
   lineHeight: "1.45",
-
-  color: "#64748b",
-
+  color: "var(--cv-neutral-mid)",
   maxWidth: "350px",
 };
 
-/* =========================================================
-   BADGES
-========================================================= */
-
 const badgesWrapper = {
   display: "flex",
-
   flexWrap: "wrap",
-
   justifyContent: "center",
-
   alignItems: "center",
-
   gap: "5px",
-
   marginBottom: "8px",
-
   fontSize: "9px",
-
   fontWeight: "700",
-
-  color: "#15803d",
+  color: "var(--cv-primary)",
 };
 
 const badge = {
@@ -4126,202 +3433,113 @@ const badge = {
 };
 
 const badgeDivider = {
-  color: "#aaa",
+  color: "var(--cv-neutral-border)",
 };
-
-/* =========================================================
-   FORM
-========================================================= */
 
 const formStyle = {
   width: "100%",
-
   textAlign: "left",
 };
 
 const labelStyle = {
   display: "block",
-
   fontSize: "11px",
-
   fontWeight: "600",
-
   marginBottom: "4px",
-
   marginTop: "9px",
-
-  color: "#171717",
+  color: "var(--cv-neutral-dark)",
 };
 
 const inputStyle = {
   width: "100%",
-
-  padding:
-    "10px 11px",
-
+  padding: "10px 11px",
   borderRadius: "6px",
-
-  border:
-    "1px solid #dce3ec",
-
+  border: "1px solid var(--cv-neutral-border)",
   background: "#fff",
-
   fontSize: "13px",
-
   outline: "none",
-
   boxSizing: "border-box",
-
-  color: "#222",
+  color: "var(--cv-neutral-dark)",
 };
 
 const selectWrapper = {
   position: "relative",
-
   width: "100%",
 };
 
 const selectStyle = {
   width: "100%",
-
-  padding:
-    "10px 35px 10px 11px",
-
+  padding: "10px 35px 10px 11px",
   borderRadius: "6px",
-
-  border:
-    "1px solid #dce3ec",
-
+  border: "1px solid var(--cv-neutral-border)",
   background: "#fff",
-
   fontSize: "13px",
-
   outline: "none",
-
   appearance: "none",
-
   WebkitAppearance: "none",
-
   boxSizing: "border-box",
-
-  color: "#222",
-
+  color: "var(--cv-neutral-dark)",
   cursor: "pointer",
 };
 
 const selectArrow = {
   position: "absolute",
-
   right: "11px",
-
   top: "50%",
-
-  transform:
-    "translateY(-50%)",
-
-  color: "#666",
-
+  transform: "translateY(-50%)",
+  color: "var(--cv-neutral-mid)",
   pointerEvents: "none",
 };
 
-/* =========================================================
-   SUBMIT BUTTON
-========================================================= */
-
+/* Submit — Gradient orange */
 const submitButtonStyle = {
   marginTop: "18px",
-
   width: "50%",
-
   minHeight: "42px",
-
-  padding:
-    "10px 14px",
-
-  background: "#05347f",
-
+  padding: "10px 14px",
+  background: "var(--cv-grad-cta)",
   color: "#fff",
-
   border: "none",
-
   borderRadius: "5px",
-
   fontWeight: "700",
-
   cursor: "pointer",
-
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
-
   gap: "8px",
-
   fontSize: "12px",
-
-  boxShadow:
-    "0 4px 12px rgba(5,52,127,0.25)",
+  boxShadow: "0 4px 12px rgba(193, 83, 4, 0.3)",
 };
-
-/* =========================================================
-   LOADER
-========================================================= */
 
 const loaderStyle = {
   width: "14px",
-
   height: "14px",
-
-  border:
-    "2px solid rgba(255,255,255,0.4)",
-
-  borderTop:
-    "2px solid #fff",
-
+  border: "2px solid rgba(255,255,255,0.4)",
+  borderTop: "2px solid #fff",
   borderRadius: "50%",
-
   display: "inline-block",
-
-  animation:
-    "spin 0.7s linear infinite",
+  animation: "spin 0.7s linear infinite",
 };
-
-/* =========================================================
-   SUCCESS
-========================================================= */
 
 const successContainer = {
   minHeight: "300px",
-
   display: "flex",
-
   flexDirection: "column",
-
   alignItems: "center",
-
   justifyContent: "center",
-
   textAlign: "center",
 };
 
 const successTitle = {
-  margin:
-    "12px 0 5px",
-
+  margin: "12px 0 5px",
   fontSize: "22px",
-
-  color: "#15803d",
+  color: "var(--cv-primary)",
 };
 
 const successText = {
   margin: "0",
-
   fontSize: "13px",
-
-  color: "#64748b",
-
+  color: "var(--cv-neutral-mid)",
   lineHeight: "1.5",
-
   maxWidth: "300px",
 };

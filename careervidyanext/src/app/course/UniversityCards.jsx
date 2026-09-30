@@ -5,7 +5,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Signup from "@/app/signup/page.jsx";
 
-/* ================= LOGIN CHECK ================= */
+/* ═══════════════════════════════════════════════
+   LOGIN CHECK
+═══════════════════════════════════════════════ */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("accessToken");
@@ -23,16 +25,16 @@ export default function UniversityCards({ universities, courseTitle }) {
     return null;
   }
 
-  // Sort by displayOrder
   const sorted = [...universities].sort(
     (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)
   );
 
-  // Show first 4 or all
   const visible = showAll ? sorted : sorted.slice(0, INITIAL_COUNT);
   const hasMore = sorted.length > INITIAL_COUNT;
 
-  /* ================= COMPARE TOGGLE ================= */
+  /* ═══════════════════════════════════════════════
+     COMPARE TOGGLE
+  ═══════════════════════════════════════════════ */
   const toggleCompare = (uniId) => {
     setSelectedUnis((prev) => {
       if (prev.includes(uniId)) return prev.filter((id) => id !== uniId);
@@ -44,7 +46,9 @@ export default function UniversityCards({ universities, courseTitle }) {
     });
   };
 
-  /* ================= GO TO COMPARE PAGE ================= */
+  /* ═══════════════════════════════════════════════
+     GO TO COMPARE PAGE
+  ═══════════════════════════════════════════════ */
   const goToCompare = (ids) => {
     if (!isLoggedIn()) {
       setShowSignup(true);
@@ -65,30 +69,40 @@ export default function UniversityCards({ universities, courseTitle }) {
     <>
       <section
         aria-labelledby="university-heading"
-        className="w-full py-12 md:py-16 bg-white font-sans"
+        className="w-full py-12 md:py-16 font-sans"
+        style={{ background: "#fff" }}
       >
         <div className="max-w-[1600px] mx-auto px-4 md:px-10">
-          {/* ============ HEADER ============ */}
+          {/* ═══════════════════════════════════════════
+              HEADER
+          ═══════════════════════════════════════════ */}
           <header className="text-center mb-8 md:mb-10">
             <h2
               id="university-heading"
-              className="text-2xl md:text-3xl font-bold text-[#002147] leading-tight mb-3"
+              className="text-2xl md:text-3xl font-bold leading-tight mb-3"
+              style={{ color: "var(--cv-primary)" }}
             >
               Top Universities for {courseTitle || "this Course"}
             </h2>
 
             <div
               aria-hidden="true"
-              className="w-16 h-1 bg-[#002147] mx-auto rounded-full"
+              className="w-16 h-1 mx-auto rounded-full"
+              style={{ background: "var(--cv-primary)" }}
             />
 
-            <p className="text-gray-500 text-xs md:text-sm mt-3 max-w-2xl mx-auto">
+            <p
+              className="text-xs md:text-sm mt-3 max-w-2xl mx-auto"
+              style={{ color: "var(--cv-neutral-mid)" }}
+            >
               Compare fees, approvals, and ratings to find the perfect
               university for your career goals.
             </p>
           </header>
 
-          {/* ============ UNIVERSITY CARDS GRID — 4 per row ============ */}
+          {/* ═══════════════════════════════════════════
+              CARDS GRID
+          ═══════════════════════════════════════════ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
             {visible.map((uni, index) => {
               const uniId = uni.universityId || uni.slug || index;
@@ -97,28 +111,59 @@ export default function UniversityCards({ universities, courseTitle }) {
               return (
                 <article
                   key={uniId}
-                  className={`group relative bg-white rounded-xl border transition-all duration-300 overflow-hidden flex flex-col ${
-                    isCompared
-                      ? "border-blue-500 shadow-md shadow-blue-100"
-                      : uni.isTopRated
-                      ? "border-amber-300 shadow-sm"
-                      : "border-slate-200 hover:border-blue-300 hover:shadow-md"
-                  }`}
+                  className="group relative rounded-xl transition-all duration-300 overflow-hidden flex flex-col"
+                  style={{
+                    background: "#fff",
+                    border: isCompared
+                      ? "1px solid var(--cv-primary)"
+                      : "1px solid var(--cv-neutral-border)",
+                    boxShadow: isCompared
+                      ? "0 8px 20px rgba(30, 58, 138, 0.15)"
+                      : "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isCompared) {
+                      e.currentTarget.style.borderColor = "var(--cv-primary)";
+                      e.currentTarget.style.boxShadow =
+                        "0 8px 20px rgba(30, 58, 138, 0.12)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isCompared) {
+                      e.currentTarget.style.borderColor =
+                        "var(--cv-neutral-border)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }
+                  }}
                 >
-                  {/* Top Rated Badge */}
+                  {/* Top Rated Badge — Orange accent */}
                   {uni.isTopRated && (
                     <div className="absolute top-2 right-2 z-10">
-                      <span className="inline-flex items-center gap-1 bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                      <span
+                        className="inline-flex items-center gap-1 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                        style={{ background: "var(--cv-accent)" }}
+                      >
                         ⭐ Top
                       </span>
                     </div>
                   )}
 
-                  {/* ============ CARD HEADER ============ */}
-                  <div className="p-4 border-b border-slate-100">
+                  {/* ═══════════════════════════════════════
+                      CARD HEADER
+                  ═══════════════════════════════════════ */}
+                  <div
+                    className="p-4"
+                    style={{ borderBottom: "1px solid var(--cv-neutral-border)" }}
+                  >
                     <div className="flex items-start gap-3">
                       {/* Logo */}
-                      <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
+                      <div
+                        className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-lg flex items-center justify-center overflow-hidden"
+                        style={{
+                          background: "var(--cv-neutral-light)",
+                          border: "1px solid var(--cv-neutral-border)",
+                        }}
+                      >
                         {uni.universityImage ? (
                           <Image
                             src={uni.universityImage}
@@ -128,7 +173,10 @@ export default function UniversityCards({ universities, courseTitle }) {
                             className="w-full h-full object-contain p-1"
                           />
                         ) : (
-                          <span className="text-lg md:text-xl font-bold text-slate-300">
+                          <span
+                            className="text-lg md:text-xl font-bold"
+                            style={{ color: "var(--cv-neutral-mid)" }}
+                          >
                             {uni.name?.charAt(0) || "U"}
                           </span>
                         )}
@@ -136,7 +184,10 @@ export default function UniversityCards({ universities, courseTitle }) {
 
                       {/* Name + Rating */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm md:text-[15px] font-bold text-[#002147] leading-snug mb-1 line-clamp-2">
+                        <h3
+                          className="text-sm md:text-[15px] font-bold leading-snug mb-1 line-clamp-2"
+                          style={{ color: "var(--cv-primary)" }}
+                        >
                           {uni.name}
                         </h3>
 
@@ -146,11 +197,13 @@ export default function UniversityCards({ universities, courseTitle }) {
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <svg
                                   key={star}
-                                  className={`w-3 h-3 ${
-                                    star <= Math.round(uni.rating)
-                                      ? "text-amber-400"
-                                      : "text-slate-200"
-                                  }`}
+                                  className="w-3 h-3"
+                                  style={{
+                                    color:
+                                      star <= Math.round(uni.rating)
+                                        ? "var(--cv-accent)"
+                                        : "var(--cv-neutral-border)",
+                                  }}
                                   fill="currentColor"
                                   viewBox="0 0 20 20"
                                   aria-hidden="true"
@@ -159,7 +212,10 @@ export default function UniversityCards({ universities, courseTitle }) {
                                 </svg>
                               ))}
                             </div>
-                            <span className="text-[11px] font-semibold text-slate-700">
+                            <span
+                              className="text-[11px] font-semibold"
+                              style={{ color: "var(--cv-neutral-dark)" }}
+                            >
                               {uni.rating}
                             </span>
                           </div>
@@ -167,19 +223,27 @@ export default function UniversityCards({ universities, courseTitle }) {
                       </div>
                     </div>
 
-                    {/* Approvals chips */}
+                    {/* Approvals chips — Navy */}
                     {uni.approvals?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2.5">
                         {uni.approvals.slice(0, 2).map((a, i) => (
                           <span
                             key={i}
-                            className="inline-flex items-center gap-0.5 text-[9px] font-semibold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-100"
+                            className="inline-flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded"
+                            style={{
+                              background: "var(--cv-primary-light)",
+                              color: "var(--cv-primary)",
+                              border: "1px solid var(--cv-primary-light)",
+                            }}
                           >
                             {a.name || a.label}
                           </span>
                         ))}
                         {uni.approvals.length > 2 && (
-                          <span className="text-[9px] font-semibold text-gray-500 px-1">
+                          <span
+                            className="text-[9px] font-semibold px-1"
+                            style={{ color: "var(--cv-neutral-mid)" }}
+                          >
                             +{uni.approvals.length - 2}
                           </span>
                         )}
@@ -187,19 +251,30 @@ export default function UniversityCards({ universities, courseTitle }) {
                     )}
                   </div>
 
-                  {/* ============ CARD BODY ============ */}
+                  {/* ═══════════════════════════════════════
+                      CARD BODY
+                  ═══════════════════════════════════════ */}
                   <div className="p-4 flex-1 flex flex-col">
-                    {/* Fee Display */}
+                    {/* Fee */}
                     <div className="mb-3">
-                      <p className="text-[9px] uppercase tracking-widest text-gray-400 font-semibold mb-0.5">
+                      <p
+                        className="text-[9px] uppercase tracking-widest font-semibold mb-0.5"
+                        style={{ color: "var(--cv-neutral-mid)" }}
+                      >
                         Total Fee
                       </p>
-                      <p className="text-lg md:text-xl font-extrabold text-[#002147]">
+                      <p
+                        className="text-lg md:text-xl font-extrabold"
+                        style={{ color: "var(--cv-primary)" }}
+                      >
                         {uni.courseFees?.total || "Contact Us"}
                       </p>
 
                       {uni.courseFees?.emiStartsFrom && (
-                        <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
+                        <p
+                          className="text-[10px] font-semibold mt-0.5"
+                          style={{ color: "var(--cv-accent)" }}
+                        >
                           EMI from {uni.courseFees.emiStartsFrom}
                         </p>
                       )}
@@ -209,10 +284,16 @@ export default function UniversityCards({ universities, courseTitle }) {
                     <div className="space-y-1.5 mb-3 text-xs">
                       {uni.duration && (
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-500 text-[10px]">
+                          <span
+                            className="text-[10px]"
+                            style={{ color: "var(--cv-neutral-mid)" }}
+                          >
                             Duration
                           </span>
-                          <span className="font-semibold text-slate-700 text-[10px]">
+                          <span
+                            className="font-semibold text-[10px]"
+                            style={{ color: "var(--cv-neutral-dark)" }}
+                          >
                             {uni.duration}
                           </span>
                         </div>
@@ -220,10 +301,16 @@ export default function UniversityCards({ universities, courseTitle }) {
 
                       {uni.courseFees?.perSemester && (
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-500 text-[10px]">
+                          <span
+                            className="text-[10px]"
+                            style={{ color: "var(--cv-neutral-mid)" }}
+                          >
                             Per Sem
                           </span>
-                          <span className="font-semibold text-slate-700 text-[10px]">
+                          <span
+                            className="font-semibold text-[10px]"
+                            style={{ color: "var(--cv-neutral-dark)" }}
+                          >
                             {uni.courseFees.perSemester}
                           </span>
                         </div>
@@ -231,42 +318,86 @@ export default function UniversityCards({ universities, courseTitle }) {
 
                       {uni.mode && (
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-500 text-[10px]">Mode</span>
-                          <span className="font-semibold text-slate-700 text-[10px]">
+                          <span
+                            className="text-[10px]"
+                            style={{ color: "var(--cv-neutral-mid)" }}
+                          >
+                            Mode
+                          </span>
+                          <span
+                            className="font-semibold text-[10px]"
+                            style={{ color: "var(--cv-neutral-dark)" }}
+                          >
                             {uni.mode}
                           </span>
                         </div>
                       )}
                     </div>
 
-                    {/* ============ CTA BUTTONS ============ */}
+                    {/* ═══════════════════════════════════════
+                        CTA BUTTONS
+                    ═══════════════════════════════════════ */}
                     <div className="mt-auto space-y-2">
+                      {/* Apply Now — Navy solid */}
                       <a
                         href={uni.applyLink || "#"}
-                        className="block w-full text-center bg-[#002147] hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-md transition-colors"
+                        className="block w-full text-center text-white text-xs font-semibold py-2 rounded-md transition-colors"
+                        style={{ background: "var(--cv-primary)" }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            "var(--cv-primary-dark)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "var(--cv-primary)";
+                        }}
                       >
                         Apply Now
                       </a>
 
                       <div className="flex gap-1.5">
+                        {/* Compare Button */}
                         <button
                           type="button"
                           onClick={() => toggleCompare(uniId)}
-                          className={`flex-1 text-xs font-semibold py-2 rounded-md border transition-colors ${
-                            isCompared
-                              ? "bg-blue-50 border-blue-500 text-blue-700"
-                              : "bg-white border-slate-300 text-[#002147] hover:border-blue-500 hover:text-blue-600"
-                          }`}
+                          className="flex-1 text-xs font-semibold py-2 rounded-md transition-colors"
+                          style={{
+                            background: isCompared
+                              ? "var(--cv-primary-light)"
+                              : "#fff",
+                            color: isCompared
+                              ? "var(--cv-primary)"
+                              : "var(--cv-primary)",
+                            border: isCompared
+                              ? "1px solid var(--cv-primary)"
+                              : "1px solid var(--cv-neutral-border)",
+                          }}
                         >
                           {isCompared ? "✓ Added" : "+ Compare"}
                         </button>
 
+                        {/* Brochure Button */}
                         {uni.brochureLink && (
                           <a
                             href={uni.brochureLink}
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="flex items-center justify-center w-9 bg-white border border-slate-300 text-slate-700 rounded-md hover:border-[#002147] hover:text-[#002147] transition-colors"
+                            className="flex items-center justify-center w-9 rounded-md transition-colors"
+                            style={{
+                              background: "#fff",
+                              border: "1px solid var(--cv-neutral-border)",
+                              color: "var(--cv-neutral-mid)",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.borderColor =
+                                "var(--cv-primary)";
+                              e.currentTarget.style.color = "var(--cv-primary)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.borderColor =
+                                "var(--cv-neutral-border)";
+                              e.currentTarget.style.color =
+                                "var(--cv-neutral-mid)";
+                            }}
                             aria-label="Download Brochure"
                           >
                             <svg
@@ -292,13 +423,28 @@ export default function UniversityCards({ universities, courseTitle }) {
             })}
           </div>
 
-          {/* ============ VIEW MORE BUTTON ============ */}
+          {/* ═══════════════════════════════════════════
+              VIEW MORE BUTTON
+          ═══════════════════════════════════════════ */}
           {hasMore && !showAll && (
             <div className="mt-8 text-center">
               <button
                 type="button"
                 onClick={() => setShowAll(true)}
-                className="inline-flex items-center gap-2 bg-white border border-[#002147] text-[#002147] hover:bg-[#002147] hover:text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer"
+                style={{
+                  background: "#fff",
+                  border: "1px solid var(--cv-primary)",
+                  color: "var(--cv-primary)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--cv-primary)";
+                  e.currentTarget.style.color = "#fff";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#fff";
+                  e.currentTarget.style.color = "var(--cv-primary)";
+                }}
               >
                 View More Universities
                 <svg
@@ -318,7 +464,9 @@ export default function UniversityCards({ universities, courseTitle }) {
             </div>
           )}
 
-          {/* ============ SHOW LESS ============ */}
+          {/* ═══════════════════════════════════════════
+              SHOW LESS BUTTON
+          ═══════════════════════════════════════════ */}
           {hasMore && showAll && (
             <div className="mt-8 text-center">
               <button
@@ -329,7 +477,20 @@ export default function UniversityCards({ universities, courseTitle }) {
                     .getElementById("university-heading")
                     ?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
-                className="inline-flex items-center gap-2 bg-white border border-slate-300 text-slate-600 hover:border-[#002147] hover:text-[#002147] text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer"
+                style={{
+                  background: "#fff",
+                  border: "1px solid var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-mid)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--cv-primary)";
+                  e.currentTarget.style.color = "var(--cv-primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--cv-neutral-border)";
+                  e.currentTarget.style.color = "var(--cv-neutral-mid)";
+                }}
               >
                 Show Less
                 <svg
@@ -349,9 +510,12 @@ export default function UniversityCards({ universities, courseTitle }) {
             </div>
           )}
 
-          {/* ============ FOOTNOTE ============ */}
+          {/* Footnote */}
           <div className="mt-6 text-center">
-            <p className="text-gray-400 text-[11px] italic">
+            <p
+              className="text-[11px] italic"
+              style={{ color: "var(--cv-neutral-mid)" }}
+            >
               * Fees and approvals are indicative and subject to change. Verify
               with the university before applying.
             </p>
@@ -359,9 +523,17 @@ export default function UniversityCards({ universities, courseTitle }) {
         </div>
       </section>
 
-      {/* ============ FLOATING COMPARE BAR ============ */}
+      {/* ═══════════════════════════════════════════
+          FLOATING COMPARE BAR — Navy bg
+      ═══════════════════════════════════════════ */}
       {selectedUnis.length > 0 && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-[#002147] text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-3 max-w-[95vw]">
+        <div
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-3 max-w-[95vw]"
+          style={{
+            background: "var(--cv-primary)",
+            color: "#fff",
+          }}
+        >
           <span className="text-xs font-semibold whitespace-nowrap">
             {selectedUnis.length} selected
           </span>
@@ -369,7 +541,14 @@ export default function UniversityCards({ universities, courseTitle }) {
           <button
             type="button"
             onClick={() => setSelectedUnis([])}
-            className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors"
+            className="text-xs px-3 py-1.5 rounded-full transition-colors cursor-pointer"
+            style={{ background: "rgba(255,255,255,0.2)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+            }}
           >
             Clear
           </button>
@@ -378,18 +557,23 @@ export default function UniversityCards({ universities, courseTitle }) {
             type="button"
             onClick={handleCompareAll}
             disabled={selectedUnis.length < 2}
-            className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-colors ${
-              selectedUnis.length < 2
-                ? "bg-slate-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className="text-xs font-semibold px-4 py-1.5 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: "var(--cv-accent)" }}
+            onMouseEnter={(e) => {
+              if (selectedUnis.length >= 2) {
+                e.currentTarget.style.background = "var(--cv-accent-dark)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--cv-accent)";
+            }}
           >
             Compare Now →
           </button>
         </div>
       )}
 
-      {/* ============ SIGNUP MODAL ============ */}
+      {/* SIGNUP MODAL */}
       {showSignup && (
         <Signup
           onClose={() => setShowSignup(false)}

@@ -333,495 +333,651 @@
 //   );
 // }
 
-
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import api from "@/utlis/api.js";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Header from "@/app/layout/Header.jsx";
 import Footer from "@/app/layout/Footer.jsx";
 import ReviewForm from "@/app/components/ReviewForm.jsx";
 import {
-    MapPin,
-    GraduationCap,
-    Briefcase,
-    Languages,
-    Star,
-    Phone,
-    IndianRupee,
-    Award,
-    CheckCircle2,
-    ArrowLeft,
+  MapPin,
+  GraduationCap,
+  Briefcase,
+  Languages,
+  Star,
+  Phone,
+  IndianRupee,
+  Award,
+  CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
-
-// ─── Per-mentor cache ─────────────────────────────────────────────────────────
-const detailCache = new Map();
 
 // ─── Security helpers ─────────────────────────────────────────────────────────
 function sanitizePhone(raw) {
-    if (typeof raw !== "string") return "";
-    return raw.replace(/[^\d+]/g, "").slice(0, 15);
+  if (typeof raw !== "string") return "";
+  return raw.replace(/[^\d+]/g, "").slice(0, 15);
 }
 
 function sanitizeText(str, maxLen = 500) {
-    if (typeof str !== "string") return "";
-    return str.replace(/<[^>]*>/g, "").slice(0, maxLen);
+  if (typeof str !== "string") return "";
+  return str.replace(/<[^>]*>/g, "").slice(0, maxLen);
 }
 
 function sanitizeUrl(raw) {
-    if (typeof raw !== "string") return null;
-    return raw.startsWith("http://") ||
-        raw.startsWith("https://") ||
-        raw.startsWith("/")
-        ? raw
-        : null;
+  if (typeof raw !== "string") return null;
+  return raw.startsWith("http://") ||
+    raw.startsWith("https://") ||
+    raw.startsWith("/")
+    ? raw
+    : null;
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function ProfileSkeleton() {
-    return (
-        <div className="animate-pulse" aria-hidden="true">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="bg-white rounded-3xl overflow-hidden">
-                    <div className="h-80 bg-gray-200" />
-                    <div className="p-6 space-y-4">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="h-4 bg-gray-200 rounded" />
-                        ))}
-                    </div>
-                </div>
-                <div className="lg:col-span-2 space-y-4">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-4 bg-gray-200 rounded" />
-                    ))}
-                </div>
-            </div>
+  return (
+    <div className="animate-pulse" aria-hidden="true">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div
+          className="bg-white rounded-3xl overflow-hidden"
+          style={{ border: "1px solid var(--cv-neutral-border)" }}
+        >
+          <div
+            className="h-80"
+            style={{ background: "var(--cv-neutral-light)" }}
+          />
+          <div className="p-6 space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="h-4 rounded"
+                style={{ background: "var(--cv-neutral-light)" }}
+              />
+            ))}
+          </div>
         </div>
-    );
+        <div className="lg:col-span-2 space-y-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="h-4 rounded"
+              style={{ background: "var(--cv-neutral-light)" }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function TeamDetailPage() {
-    const { id } = useParams();
-    const router = useRouter();
+  const { id } = useParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-    // Seed state from cache immediately
-    const cached = id ? detailCache.get(id) : null;
-    const [mentor, setMentor] = useState(cached?.mentor ?? null);
-    const [reviews, setReviews] = useState(cached?.reviews ?? []);
-    const [loading, setLoading] = useState(!cached);
-    const [error, setError] = useState(null);
-    const fetchedRef = useRef(!!cached);
+  /* ═══════════════════════════════════════════════
+     ✅ REACT QUERY — Mentor detail
+  ═══════════════════════════════════════════════ */
+  const {
+    data: mentor,
+    isLoading: mentorLoading,
+    isError: mentorError,
+  } = useQuery({
+    queryKey: ["mentor-detail", id],
+    queryFn: async () => {
+      const res = await api.get(`/api/v1/team/${id}`);
+      return res.data.data || res.data;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
 
-    // Full fetch: mentor + reviews
-    const fetchAll = useCallback(async () => {
-        if (!id) return;
-        setLoading(true);
-        setError(null);
-        try {
-            const [mentorRes, reviewsRes] = await Promise.all([
-                api.get(`/api/v1/team/${id}`),
-                api.get(`/api/v1/review/${id}`),
-            ]);
-            const m = mentorRes.data.data || mentorRes.data;
-            const r = reviewsRes.data.reviews || [];
-            detailCache.set(id, { mentor: m, reviews: r });
-            setMentor(m);
-            setReviews(r);
-        } catch (err) {
-            console.error("Profile fetch failed:", err);
-            setError("Profile not available.");
-        } finally {
-            setLoading(false);
-        }
-    }, [id]);
+  /* ═══════════════════════════════════════════════
+     ✅ REACT QUERY — Reviews
+  ═══════════════════════════════════════════════ */
+  const {
+    data: reviews = [],
+    isLoading: reviewsLoading,
+    refetch: refetchReviews,
+  } = useQuery({
+    queryKey: ["mentor-reviews", id],
+    queryFn: async () => {
+      const res = await api.get(`/api/v1/review/${id}`);
+      return res.data.reviews || [];
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
 
-    // Refresh reviews only
-    const refreshReviews = useCallback(async () => {
-        if (!id) return;
-        try {
-            const res = await api.get(`/api/v1/review/${id}`);
-            const r = res.data.reviews || [];
-            const existing = detailCache.get(id);
-            if (existing) detailCache.set(id, { ...existing, reviews: r });
-            setReviews(r);
-        } catch (err) {
-            console.error("Reviews refresh failed:", err);
-        }
-    }, [id]);
+  const loading = mentorLoading || reviewsLoading;
+  const error = mentorError ? "Profile not available." : null;
 
-    useEffect(() => {
-        if (fetchedRef.current) return;
-        fetchedRef.current = true;
-        fetchAll();
-    }, [fetchAll]);
+  /* ═══════════════════════════════════════════════
+     Refresh reviews only
+  ═══════════════════════════════════════════════ */
+  const refreshReviews = () => {
+    queryClient.invalidateQueries({ queryKey: ["mentor-reviews", id] });
+  };
 
-    // ── Render states ──────────────────────────────────────────────────────────
-    if (loading) {
-        return (
-            <div className="bg-gray-50 min-h-screen">
-                <Header />
-                <div className="max-w-6xl mx-auto py-10 px-4">
-                    <ProfileSkeleton />
-                </div>
-                <Footer />
-            </div>
-        );
-    }
-
-    if (error || !mentor) {
-        return (
-            <div className="bg-gray-50 min-h-screen">
-                <Header />
-                <div className="py-32 text-center px-4">
-                    <p className="text-red-500 text-lg mb-4" role="alert">
-                        {error || "Counsellor not found."}
-                    </p>
-                    <button
-                        onClick={() => router.back()}
-                        className="text-blue-600 underline hover:text-blue-800"
-                    >
-                        Go back
-                    </button>
-                </div>
-                <Footer />
-            </div>
-        );
-    }
-
-    // ── Safe field extraction ──────────────────────────────────────────────────
-    const name = sanitizeText(mentor.name || "", 80);
-    const designation = sanitizeText(mentor.designation || "", 100);
-    const description = sanitizeText(mentor.description || "", 1000);
-    const expertise = sanitizeText(mentor.expertise || "", 200);
-    const education = sanitizeText(
-        mentor.education || "Not Specified",
-        200
-    );
-    const location = sanitizeText(mentor.location || "", 100);
-    const mobileNumber = sanitizePhone(mentor.mobileNumber);
-    const fee = Number(mentor.fee) || 0;
-    const imageSrc = sanitizeUrl(mentor.image) || "/images/default-avatar.png";
-    const highlights = Array.isArray(mentor.highlights)
-        ? mentor.highlights
-        : [];
-    const languages = Array.isArray(mentor.languages)
-        ? mentor.languages
-        : [];
-    const rating = mentor.rating || "0.0";
-
+  // ── Render states ──────────────────────────────────────────────────────────
+  if (loading) {
     return (
-        <div className="bg-gray-50 min-h-screen">
-            <Header />
-
-            <div className="max-w-6xl mx-auto py-10 px-4">
-                <button
-                    onClick={() => router.back()}
-                    className="mb-6 flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium group focus:outline-none focus:ring-2 focus:ring-blue-300 rounded"
-                >
-                    <ArrowLeft
-                        className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
-                        aria-hidden="true"
-                    />
-                    Back to Experts
-                </button>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* ── Left: Profile card ──────────────────────────────── */}
-                    <aside className="lg:col-span-1">
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
-                            <div className="relative w-full h-80 bg-gray-100">
-                                <Image
-                                    src={imageSrc}
-                                    alt={`Photo of ${name}`}
-                                    fill
-                                    sizes="(max-width: 1024px) 100vw, 33vw"
-                                    className="object-contain"
-                                    priority
-                                    onError={(e) => {
-                                        e.currentTarget.src =
-                                            "/images/default-avatar.png";
-                                    }}
-                                />
-                                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1 shadow-sm border border-white/50">
-                                    <Star
-                                        className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                                        aria-hidden="true"
-                                    />
-                                    <span className="font-bold text-gray-800">
-                                        {rating}
-                                    </span>
-                                    <span className="text-gray-500 text-xs">
-                                        ({reviews.length} Reviews)
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="p-6">
-                                <h1 className="text-2xl font-bold text-gray-900">
-                                    {name}
-                                </h1>
-                                <p className="text-blue-600 font-semibold mb-4">
-                                    {designation}
-                                </p>
-
-                                <dl className="space-y-4 border-t pt-4">
-                                    <div className="flex items-center gap-3 text-gray-600">
-                                        <Briefcase
-                                            className="w-5 h-5 text-blue-500 flex-shrink-0"
-                                            aria-hidden="true"
-                                        />
-                                        <dd>
-                                            {mentor.experience} years experience
-                                        </dd>
-                                    </div>
-                                    {location && (
-                                        <div className="flex items-center gap-3 text-gray-600">
-                                            <MapPin
-                                                className="w-5 h-5 text-red-500 flex-shrink-0"
-                                                aria-hidden="true"
-                                            />
-                                            <dd>{location}</dd>
-                                        </div>
-                                    )}
-                                    <div className="flex items-center gap-3 text-gray-600">
-                                        <IndianRupee
-                                            className="w-5 h-5 text-green-600 flex-shrink-0"
-                                            aria-hidden="true"
-                                        />
-                                        <dd className="font-semibold text-gray-800">
-                                            {fee > 0
-                                                ? `₹${fee}`
-                                                : "Free Consultation"}
-                                        </dd>
-                                    </div>
-                                    {mobileNumber && (
-                                        <div className="flex items-center gap-3 text-gray-600">
-                                            <Phone
-                                                className="w-5 h-5 text-blue-500 flex-shrink-0"
-                                                aria-hidden="true"
-                                            />
-                                            <dd>
-                                                <a
-                                                    href={`tel:${mobileNumber}`}
-                                                    className="hover:text-blue-600"
-                                                    rel="noopener"
-                                                >
-                                                    {mobileNumber}
-                                                </a>
-                                            </dd>
-                                        </div>
-                                    )}
-                                </dl>
-                            </div>
-                        </div>
-                    </aside>
-
-                    {/* ── Right: Detail + reviews ──────────────────────────── */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <section className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <Award
-                                    className="text-blue-600"
-                                    aria-hidden="true"
-                                />
-                                Professional Expertise
-                            </h2>
-
-                            {expertise && (
-                                <div className="mb-6">
-                                    <span className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-medium border border-blue-100 inline-block">
-                                        {expertise}
-                                    </span>
-                                </div>
-                            )}
-
-                            {description && (
-                                <p className="text-gray-700 leading-relaxed mb-8">
-                                    {description}
-                                </p>
-                            )}
-
-                            <div className="grid md:grid-cols-2 gap-8 border-t pt-6">
-                                <div>
-                                    <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-2">
-                                        <GraduationCap
-                                            className="w-5 h-5 text-blue-500"
-                                            aria-hidden="true"
-                                        />
-                                        Education
-                                    </h3>
-                                    <p className="text-gray-600">{education}</p>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-2">
-                                        <Languages
-                                            className="w-5 h-5 text-blue-500"
-                                            aria-hidden="true"
-                                        />
-                                        Languages
-                                    </h3>
-                                    {languages.length > 0 ? (
-                                        <div className="flex flex-wrap gap-2">
-                                            {languages.map((lang, i) => (
-                                                <span
-                                                    key={i}
-                                                    className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold"
-                                                >
-                                                    {sanitizeText(
-                                                        String(lang),
-                                                        40
-                                                    )}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-400 text-sm">
-                                            Not Specified
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-
-                            {highlights.length > 0 && (
-                                <div className="mt-8 bg-blue-50/30 p-6 rounded-2xl border border-blue-50">
-                                    <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                        <CheckCircle2
-                                            className="w-5 h-5 text-blue-600"
-                                            aria-hidden="true"
-                                        />
-                                        Key Highlights
-                                    </h3>
-                                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {highlights.map((point, i) => (
-                                            <li
-                                                key={i}
-                                                className="flex items-start gap-2 text-gray-600 text-sm"
-                                            >
-                                                <span
-                                                    className="text-blue-500 mt-1"
-                                                    aria-hidden="true"
-                                                >
-                                                    •
-                                                </span>
-                                                {sanitizeText(
-                                                    String(point),
-                                                    200
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        </section>
-
-                        {/* Reviews */}
-                        <section className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    Student Feedback
-                                </h2>
-                                <div className="text-right">
-                                    <p className="text-3xl font-bold text-gray-900">
-                                        {rating}
-                                    </p>
-                                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                                        Overall Rating
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="grid lg:grid-cols-2 gap-10">
-                                <div>
-                                    <ReviewForm
-                                        counsellorId={mentor._id}
-                                        onSuccess={refreshReviews}
-                                    />
-                                </div>
-
-                                <div
-                                    className="space-y-4 max-h-[500px] overflow-y-auto pr-2"
-                                    role="feed"
-                                >
-                                    {reviews.length === 0 ? (
-                                        <div className="text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                            <p className="text-gray-400 italic">
-                                                No reviews yet. Be the first!
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        reviews.map((rev) => (
-                                            <article
-                                                key={rev._id}
-                                                className="p-4 rounded-xl bg-gray-50 border border-transparent hover:border-blue-100 transition-all"
-                                            >
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div>
-                                                        <p className="font-bold text-gray-800 text-sm">
-                                                            {sanitizeText(
-                                                                rev.guestName ||
-                                                                    "Anonymous",
-                                                                60
-                                                            )}
-                                                        </p>
-                                                        <div
-                                                            className="flex gap-0.5"
-                                                            role="img"
-                                                            aria-label={`${rev.rating} out of 5 stars`}
-                                                        >
-                                                            {[...Array(5)].map(
-                                                                (_, i) => (
-                                                                    <Star
-                                                                        key={i}
-                                                                        className={`w-3 h-3 ${
-                                                                            i <
-                                                                            rev.rating
-                                                                                ? "fill-yellow-400 text-yellow-400"
-                                                                                : "text-gray-300"
-                                                                        }`}
-                                                                        aria-hidden="true"
-                                                                    />
-                                                                )
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <time
-                                                        dateTime={rev.createdAt}
-                                                        className="text-[10px] text-gray-400 font-medium"
-                                                    >
-                                                        {new Date(
-                                                            rev.createdAt
-                                                        ).toLocaleDateString(
-                                                            "en-IN",
-                                                            {
-                                                                year: "numeric",
-                                                                month: "short",
-                                                                day: "numeric",
-                                                            }
-                                                        )}
-                                                    </time>
-                                                </div>
-                                                <p className="text-gray-600 text-sm italic leading-snug">
-                                                    &ldquo;
-                                                    {sanitizeText(
-                                                        rev.comment || "",
-                                                        500
-                                                    )}
-                                                    &rdquo;
-                                                </p>
-                                            </article>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </div>
-
-            <Footer />
+      <div
+        className="min-h-screen"
+        style={{ background: "var(--cv-neutral-light)" }}
+      >
+        <Header />
+        <div className="max-w-6xl mx-auto py-10 px-4">
+          <ProfileSkeleton />
         </div>
+        <Footer />
+      </div>
     );
+  }
+
+  if (error || !mentor) {
+    return (
+      <div
+        className="min-h-screen"
+        style={{ background: "var(--cv-neutral-light)" }}
+      >
+        <Header />
+        <div className="py-32 text-center px-4">
+          <p
+            className="text-lg mb-4"
+            style={{ color: "var(--cv-accent)" }}
+            role="alert"
+          >
+            {error || "Counsellor not found."}
+          </p>
+          <button
+            onClick={() => router.back()}
+            className="underline font-semibold"
+            style={{ color: "var(--cv-primary)" }}
+          >
+            Go back
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // ── Safe field extraction ──────────────────────────────────────────────────
+  const name = sanitizeText(mentor.name || "", 80);
+  const designation = sanitizeText(mentor.designation || "", 100);
+  const description = sanitizeText(mentor.description || "", 1000);
+  const expertise = sanitizeText(mentor.expertise || "", 200);
+  const education = sanitizeText(mentor.education || "Not Specified", 200);
+  const location = sanitizeText(mentor.location || "", 100);
+  const mobileNumber = sanitizePhone(mentor.mobileNumber);
+  const fee = Number(mentor.fee) || 0;
+  const imageSrc = sanitizeUrl(mentor.image) || "/images/default-avatar.png";
+  const highlights = Array.isArray(mentor.highlights) ? mentor.highlights : [];
+  const languages = Array.isArray(mentor.languages) ? mentor.languages : [];
+  const rating = mentor.rating || "0.0";
+
+  return (
+    <div
+      className="min-h-screen"
+      style={{ background: "var(--cv-neutral-light)" }}
+    >
+      <Header />
+
+      <div className="max-w-6xl mx-auto py-10 px-4">
+        {/* Back button */}
+        <button
+          onClick={() => router.back()}
+          className="mb-6 flex items-center gap-2 font-medium transition-colors group focus:outline-none rounded"
+          style={{ color: "var(--cv-neutral-mid)" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--cv-primary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--cv-neutral-mid)")
+          }
+        >
+          <ArrowLeft
+            className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
+            aria-hidden="true"
+          />
+          Back to Experts
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* ═══ LEFT: Profile card ═══ */}
+          <aside className="lg:col-span-1">
+            <div
+              className="bg-white rounded-3xl shadow-sm overflow-hidden sticky top-24"
+              style={{ border: "1px solid var(--cv-neutral-border)" }}
+            >
+              {/* Image */}
+              <div
+                className="relative w-full h-80"
+                style={{ background: "var(--cv-neutral-light)" }}
+              >
+                <Image
+                  src={imageSrc}
+                  alt={`Photo of ${name}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="object-contain"
+                  priority
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/default-avatar.png";
+                  }}
+                />
+
+                {/* Rating badge */}
+                <div
+                  className="absolute bottom-4 left-4 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1 shadow-sm"
+                  style={{
+                    background: "rgba(255,255,255,0.9)",
+                    border: "1px solid var(--cv-neutral-border)",
+                  }}
+                >
+                  <Star
+                    className="w-4 h-4"
+                    style={{
+                      color: "var(--cv-accent)",
+                      fill: "var(--cv-accent)",
+                    }}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="font-bold"
+                    style={{ color: "var(--cv-neutral-dark)" }}
+                  >
+                    {rating}
+                  </span>
+                  <span
+                    className="text-xs"
+                    style={{ color: "var(--cv-neutral-mid)" }}
+                  >
+                    ({reviews.length} Reviews)
+                  </span>
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="p-6">
+                <h1
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--cv-neutral-dark)" }}
+                >
+                  {name}
+                </h1>
+                <p
+                  className="font-semibold mb-4"
+                  style={{ color: "var(--cv-primary)" }}
+                >
+                  {designation}
+                </p>
+
+                <dl
+                  className="space-y-4 pt-4"
+                  style={{ borderTop: "1px solid var(--cv-neutral-border)" }}
+                >
+                  {/* Experience */}
+                  <div
+                    className="flex items-center gap-3"
+                    style={{ color: "var(--cv-neutral-mid)" }}
+                  >
+                    <Briefcase
+                      className="w-5 h-5 flex-shrink-0"
+                      style={{ color: "var(--cv-primary)" }}
+                      aria-hidden="true"
+                    />
+                    <dd>{mentor.experience} years experience</dd>
+                  </div>
+
+                  {/* Location */}
+                  {location && (
+                    <div
+                      className="flex items-center gap-3"
+                      style={{ color: "var(--cv-neutral-mid)" }}
+                    >
+                      <MapPin
+                        className="w-5 h-5 flex-shrink-0"
+                        style={{ color: "var(--cv-accent)" }}
+                        aria-hidden="true"
+                      />
+                      <dd>{location}</dd>
+                    </div>
+                  )}
+
+                  {/* Fee */}
+                  <div
+                    className="flex items-center gap-3"
+                    style={{ color: "var(--cv-neutral-mid)" }}
+                  >
+                    <IndianRupee
+                      className="w-5 h-5 flex-shrink-0"
+                      style={{ color: "var(--cv-primary)" }}
+                      aria-hidden="true"
+                    />
+                    <dd
+                      className="font-semibold"
+                      style={{ color: "var(--cv-neutral-dark)" }}
+                    >
+                      {fee > 0 ? `₹${fee}` : "Free Consultation"}
+                    </dd>
+                  </div>
+
+                  {/* Phone */}
+                  {mobileNumber && (
+                    <div
+                      className="flex items-center gap-3"
+                      style={{ color: "var(--cv-neutral-mid)" }}
+                    >
+                      <Phone
+                        className="w-5 h-5 flex-shrink-0"
+                        style={{ color: "var(--cv-primary)" }}
+                        aria-hidden="true"
+                      />
+                      <dd>
+                        <a
+                          href={`tel:${mobileNumber}`}
+                          className="transition"
+                          style={{ color: "var(--cv-neutral-mid)" }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.color = "var(--cv-primary)")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.color =
+                              "var(--cv-neutral-mid)")
+                          }
+                          rel="noopener"
+                        >
+                          {mobileNumber}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            </div>
+          </aside>
+
+          {/* ═══ RIGHT: Detail + reviews ═══ */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Professional Expertise */}
+            <section
+              className="bg-white rounded-3xl p-8 shadow-sm"
+              style={{ border: "1px solid var(--cv-neutral-border)" }}
+            >
+              <h2
+                className="text-xl font-bold mb-4 flex items-center gap-2"
+                style={{ color: "var(--cv-neutral-dark)" }}
+              >
+                <Award style={{ color: "var(--cv-primary)" }} aria-hidden="true" />
+                Professional Expertise
+              </h2>
+
+              {expertise && (
+                <div className="mb-6">
+                  <span
+                    className="px-4 py-2 rounded-lg font-medium inline-block"
+                    style={{
+                      background: "var(--cv-primary-light)",
+                      color: "var(--cv-primary)",
+                      border: "1px solid var(--cv-primary-light)",
+                    }}
+                  >
+                    {expertise}
+                  </span>
+                </div>
+              )}
+
+              {description && (
+                <p
+                  className="leading-relaxed mb-8"
+                  style={{ color: "var(--cv-neutral-mid)" }}
+                >
+                  {description}
+                </p>
+              )}
+
+              <div
+                className="grid md:grid-cols-2 gap-8 pt-6"
+                style={{ borderTop: "1px solid var(--cv-neutral-border)" }}
+              >
+                {/* Education */}
+                <div>
+                  <h3
+                    className="font-bold flex items-center gap-2 mb-2"
+                    style={{ color: "var(--cv-neutral-dark)" }}
+                  >
+                    <GraduationCap
+                      className="w-5 h-5"
+                      style={{ color: "var(--cv-primary)" }}
+                      aria-hidden="true"
+                    />
+                    Education
+                  </h3>
+                  <p style={{ color: "var(--cv-neutral-mid)" }}>{education}</p>
+                </div>
+
+                {/* Languages */}
+                <div>
+                  <h3
+                    className="font-bold flex items-center gap-2 mb-2"
+                    style={{ color: "var(--cv-neutral-dark)" }}
+                  >
+                    <Languages
+                      className="w-5 h-5"
+                      style={{ color: "var(--cv-primary)" }}
+                      aria-hidden="true"
+                    />
+                    Languages
+                  </h3>
+                  {languages.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {languages.map((lang, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1 rounded-full text-xs font-semibold"
+                          style={{
+                            background: "var(--cv-neutral-light)",
+                            color: "var(--cv-neutral-dark)",
+                          }}
+                        >
+                          {sanitizeText(String(lang), 40)}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span
+                      className="text-sm"
+                      style={{ color: "var(--cv-neutral-mid)" }}
+                    >
+                      Not Specified
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Highlights */}
+              {highlights.length > 0 && (
+                <div
+                  className="mt-8 p-6 rounded-2xl"
+                  style={{
+                    background: "var(--cv-primary-light)",
+                    border: "1px solid var(--cv-primary-light)",
+                  }}
+                >
+                  <h3
+                    className="font-bold mb-4 flex items-center gap-2"
+                    style={{ color: "var(--cv-neutral-dark)" }}
+                  >
+                    <CheckCircle2
+                      className="w-5 h-5"
+                      style={{ color: "var(--cv-primary)" }}
+                      aria-hidden="true"
+                    />
+                    Key Highlights
+                  </h3>
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {highlights.map((point, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-sm"
+                        style={{ color: "var(--cv-neutral-mid)" }}
+                      >
+                        <span
+                          className="mt-1"
+                          style={{ color: "var(--cv-primary)" }}
+                          aria-hidden="true"
+                        >
+                          •
+                        </span>
+                        {sanitizeText(String(point), 200)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+
+            {/* Reviews */}
+            <section
+              className="bg-white rounded-3xl p-8 shadow-sm"
+              style={{ border: "1px solid var(--cv-neutral-border)" }}
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h2
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--cv-neutral-dark)" }}
+                >
+                  Student Feedback
+                </h2>
+                <div className="text-right">
+                  <p
+                    className="text-3xl font-bold"
+                    style={{ color: "var(--cv-primary)" }}
+                  >
+                    {rating}
+                  </p>
+                  <p
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                    style={{ color: "var(--cv-neutral-mid)" }}
+                  >
+                    Overall Rating
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-10">
+                <div>
+                  <ReviewForm
+                    counsellorId={mentor._id}
+                    onSuccess={refreshReviews}
+                  />
+                </div>
+
+                <div
+                  className="space-y-4 max-h-[500px] overflow-y-auto pr-2"
+                  role="feed"
+                >
+                  {reviews.length === 0 ? (
+                    <div
+                      className="text-center py-12 rounded-2xl"
+                      style={{
+                        background: "var(--cv-neutral-light)",
+                        border: "1px dashed var(--cv-neutral-border)",
+                      }}
+                    >
+                      <p
+                        className="italic"
+                        style={{ color: "var(--cv-neutral-mid)" }}
+                      >
+                        No reviews yet. Be the first!
+                      </p>
+                    </div>
+                  ) : (
+                    reviews.map((rev) => (
+                      <article
+                        key={rev._id}
+                        className="p-4 rounded-xl transition-all"
+                        style={{
+                          background: "var(--cv-neutral-light)",
+                          border: "1px solid transparent",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.borderColor =
+                            "var(--cv-primary-light)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.borderColor = "transparent")
+                        }
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p
+                              className="font-bold text-sm"
+                              style={{ color: "var(--cv-neutral-dark)" }}
+                            >
+                              {sanitizeText(rev.guestName || "Anonymous", 60)}
+                            </p>
+                            <div
+                              className="flex gap-0.5"
+                              role="img"
+                              aria-label={`${rev.rating} out of 5 stars`}
+                            >
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className="w-3 h-3"
+                                  style={
+                                    i < rev.rating
+                                      ? {
+                                          color: "var(--cv-accent)",
+                                          fill: "var(--cv-accent)",
+                                        }
+                                      : {
+                                          color: "var(--cv-neutral-border)",
+                                        }
+                                  }
+                                  aria-hidden="true"
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <time
+                            dateTime={rev.createdAt}
+                            className="text-[10px] font-medium"
+                            style={{ color: "var(--cv-neutral-mid)" }}
+                          >
+                            {new Date(rev.createdAt).toLocaleDateString(
+                              "en-IN",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </time>
+                        </div>
+                        <p
+                          className="text-sm italic leading-snug"
+                          style={{ color: "var(--cv-neutral-mid)" }}
+                        >
+                          &ldquo;{sanitizeText(rev.comment || "", 500)}&rdquo;
+                        </p>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
 }

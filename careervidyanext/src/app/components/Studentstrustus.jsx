@@ -47,11 +47,6 @@ export default function WhyStudentsTrustUs() {
     },
   ];
 
-  // JSON-LD: ItemList of features
-  // ✅ Standardized to wrap each entry in an `item` object (matching the
-  // pattern used elsewhere on the site, e.g. CoursesClient/UniversitiesPage)
-  // instead of putting name/description directly on the ListItem — this is
-  // the structure Google's documentation expects for ItemList entries.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -96,16 +91,20 @@ export default function WhyStudentsTrustUs() {
       <section
         ref={sectionRef}
         aria-label="Why Students Trust CareerVidya"
-        className={`py-14 bg-[#f4f4f4] transition-all duration-1000 ease-out
+        className={`py-14 transition-all duration-1000 ease-out
         ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
+        style={{ background: "#F8FAFC" }}
       >
         <div className="max-w-7xl mx-auto px-4">
+          {/* ✅ Heading — Primary navy */}
           <h2
-            className={`text-2xl md:text-4xl font-semibold text-center mb-12 text-gray-900
+            className={`text-2xl md:text-4xl font-semibold text-center mb-12
             transition-all duration-1000 delay-200
             ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
           >
-            <span className="text-[#0056B3] font-bold">Why Students Trust Us</span>
+            <span className="font-bold" style={{ color: "#1E3A8A" }}>
+              Why Students Trust Us
+            </span>
           </h2>
 
           <div className="grid gap-6 md:grid-cols-3">
@@ -113,12 +112,22 @@ export default function WhyStudentsTrustUs() {
               <div
                 key={index}
                 style={{ transitionDelay: `${index * 120}ms` }}
-                className={`group relative bg-white border border-transparent rounded-xl p-6
+                className={`group relative bg-white rounded-xl p-6
                 shadow-sm transition-all duration-700 ease-out
-                hover:border-[#0056B3]
-                hover:bg-gradient-to-br hover:from-[#FFF5EE] hover:to-[#E6F0FF]
-                hover:shadow-[0_4px_12px_rgba(0,86,179,0.15)]
                 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#1E3A8A";
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #FFF7ED 0%, #EFF6FF 100%)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(30, 58, 138, 0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "transparent";
+                  e.currentTarget.style.background = "#ffffff";
+                  e.currentTarget.style.boxShadow =
+                    "0 1px 3px rgba(0, 0, 0, 0.05)";
+                }}
               >
                 <div className="flex justify-start mb-3">
                   <Image
@@ -131,11 +140,19 @@ export default function WhyStudentsTrustUs() {
                   />
                 </div>
 
-                <h3 className="text-lg font-semibold mb-2 text-[#0056B3]">
+                {/* ✅ Title — Primary navy */}
+                <h3
+                  className="text-lg font-semibold mb-2"
+                  style={{ color: "#1E3A8A" }}
+                >
                   {item.title}
                 </h3>
 
-                <p className="text-gray-600 text-sm leading-relaxed">
+                {/* ✅ Description — Neutral mid */}
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "#64748B" }}
+                >
                   {item.description}
                 </p>
               </div>

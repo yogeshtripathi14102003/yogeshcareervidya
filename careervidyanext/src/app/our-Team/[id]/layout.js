@@ -65,7 +65,7 @@ export async function generateMetadata({ params }) {
     const title = `${name} - ${designation} | CareerVidya`;
     const description = `Book a consultation with ${name}, ${designation} at CareerVidya with ${experience}+ years of experience in career counselling.`;
 
-    const canonicalUrl = `${SITE_URL}/teamexpand/${id}`;
+    const canonicalUrl = `${SITE_URL}/our-Team/${id}`;
     const imageUrl = resolveImageUrl(member.image, "/fallback-avatar.png");
 
     return {

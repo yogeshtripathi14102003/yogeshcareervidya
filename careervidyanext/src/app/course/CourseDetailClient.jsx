@@ -679,7 +679,6 @@
 //   );
 // }
 
-
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
@@ -710,7 +709,10 @@ import CourseTestimonials from "@/app/course/CourseTestimonials.jsx";
 import PlacementSupport from "@/app/course/PlacementSupport.jsx";
 import CourseStickyNav from "@/app/course/CourseStickyNav.jsx";
 import Requesttocallbackhome from "@/app/components/Requesttocallbackhome.jsx";
-// ============ HELPERS ============
+
+/* ═══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
 function decodeHtmlEntities(value) {
   if (typeof value !== "string") return value;
   let result = value;
@@ -774,10 +776,22 @@ function normalizeOverview(overview) {
     if (!item || typeof item !== "object") return item;
     return {
       ...item,
-      heading: typeof item.heading === "string" ? normalizeRichText(item.heading) : item.heading,
-      subHeading: typeof item.subHeading === "string" ? normalizeRichText(item.subHeading) : item.subHeading,
-      description: typeof item.description === "string" ? normalizeRichText(item.description) : item.description,
-      subDescription: typeof item.subDescription === "string" ? normalizeRichText(item.subDescription) : item.subDescription,
+      heading:
+        typeof item.heading === "string"
+          ? normalizeRichText(item.heading)
+          : item.heading,
+      subHeading:
+        typeof item.subHeading === "string"
+          ? normalizeRichText(item.subHeading)
+          : item.subHeading,
+      description:
+        typeof item.description === "string"
+          ? normalizeRichText(item.description)
+          : item.description,
+      subDescription:
+        typeof item.subDescription === "string"
+          ? normalizeRichText(item.subDescription)
+          : item.subDescription,
     };
   });
 }
@@ -788,19 +802,28 @@ function normalizeWhyChooseUs(data) {
     if (!item || typeof item !== "object") return item;
     return {
       ...item,
-      description: typeof item.description === "string" ? normalizeRichText(item.description) : item.description,
-      heading: typeof item.heading === "string" ? normalizeRichText(item.heading) : item.heading,
-      subHeading: typeof item.subHeading === "string" ? normalizeRichText(item.subHeading) : item.subHeading,
+      description:
+        typeof item.description === "string"
+          ? normalizeRichText(item.description)
+          : item.description,
+      heading:
+        typeof item.heading === "string"
+          ? normalizeRichText(item.heading)
+          : item.heading,
+      subHeading:
+        typeof item.subHeading === "string"
+          ? normalizeRichText(item.subHeading)
+          : item.subHeading,
     };
   });
 }
 
-// ============ MAIN ============
+/* ═══════════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════════ */
 export default function CourseDetailClient({ course }) {
-  // ✅ STATE — activeTab (must be here)
   const [activeTab, setActiveTab] = useState("all");
 
-  // ✅ STATE — header hide/show on scroll
   const [hideHeader, setHideHeader] = useState(false);
   const lastScrollYRef = useRef(0);
 
@@ -816,10 +839,8 @@ export default function CourseDetailClient({ course }) {
     }
   }, [activeTab]);
 
-  // ✅ SCROLL LISTENER — hide Header on scroll down, show on scroll up
   useEffect(() => {
     lastScrollYRef.current = window.scrollY;
-
     let ticking = false;
 
     const handleScroll = () => {
@@ -831,17 +852,12 @@ export default function CourseDetailClient({ course }) {
         const lastScrollY = lastScrollYRef.current;
         const scrollDiff = currentScrollY - lastScrollY;
 
-        // near top: always show header
         if (currentScrollY < 80) {
           setHideHeader(false);
-        }
-        // ignore tiny scroll jitters
-        else if (Math.abs(scrollDiff) > 5) {
+        } else if (Math.abs(scrollDiff) > 5) {
           if (scrollDiff > 0) {
-            // scrolling down
             setHideHeader(true);
           } else {
-            // scrolling up
             setHideHeader(false);
           }
         }
@@ -878,33 +894,73 @@ export default function CourseDetailClient({ course }) {
     ? course.faq
     : [];
 
-  // ✅ NAV SECTIONS
   const navSections = [
     { id: "overview", label: "Overview", show: normalizedOverview?.length > 0 },
-    { id: "why-choose", label: "Why Choose", show: normalizedWhyChooseUs?.length > 0 },
-    { id: "universities", label: "Universities", show: course?.universities?.length > 0 },
-    // { id: "highlights", label: "Highlights", show: course?.goodThings?.length > 0 },
-    // { id: "key-highlights", label: "Key Features", show: course?.keyHighlights?.length > 0 },
-    { id: "admission", label: "Admission", show: course?.admissionProcess?.length > 0 },
+    {
+      id: "why-choose",
+      label: "Why Choose",
+      show: normalizedWhyChooseUs?.length > 0,
+    },
+    {
+      id: "universities",
+      label: "Universities",
+      show: course?.universities?.length > 0,
+    },
+    {
+      id: "admission",
+      label: "Admission",
+      show: course?.admissionProcess?.length > 0,
+    },
     { id: "syllabus", label: "Syllabus", show: course?.syllabus?.length > 0 },
-    { id: "specializations", label: "Specializations", show: course?.specializations?.length > 0 || course?.specializationDetails?.length > 0 },
-    { id: "offered-courses", label: "Programs", show: course?.offeredCourses?.length > 0 },
-    { id: "eligibility", label: "Eligibility", show: course?.onlineEligibility?.length > 0 },
-    { id: "fees", label: "Fees", show: course?.feeStructureSidebar?.length > 0 || course?.detailedFees?.length > 0 || course?.emiOptions?.enabled || course?.scholarships?.length > 0 },
-    // { id: "worth-it", label: "Worth It", show: !!course?.onlineCourseWorthIt },
-    { id: "jobs", label: "Careers", show: course?.jobOpportunities?.length > 0 },
-    // { id: "recruiters", label: "Recruiters", show: course?.topRecruiters?.length > 0 },
-    { id: "placement", label: "Placement", show: !!course?.placementSupport },
-    { id: "testimonials", label: "Testimonials", show: course?.courseTestimonials?.length > 0 },
+    {
+      id: "specializations",
+      label: "Specializations",
+      show:
+        course?.specializations?.length > 0 ||
+        course?.specializationDetails?.length > 0,
+    },
+    {
+      id: "offered-courses",
+      label: "Programs",
+      show: course?.offeredCourses?.length > 0,
+    },
+    {
+      id: "eligibility",
+      label: "Eligibility",
+      show: course?.onlineEligibility?.length > 0,
+    },
+    {
+      id: "fees",
+      label: "Fees",
+      show:
+        course?.feeStructureSidebar?.length > 0 ||
+        course?.detailedFees?.length > 0 ||
+        course?.emiOptions?.enabled ||
+        course?.scholarships?.length > 0,
+    },
+    {
+      id: "jobs",
+      label: "Careers",
+      show: course?.jobOpportunities?.length > 0,
+    },
+    {
+      id: "placement",
+      label: "Placement",
+      show: !!course?.placementSupport,
+    },
+    {
+      id: "testimonials",
+      label: "Testimonials",
+      show: course?.courseTestimonials?.length > 0,
+    },
     { id: "faq", label: "FAQs", show: safeFaqs.length > 0 },
   ].filter((s) => s.show);
 
-  // ✅ SHOW SECTION HELPER
   const showSection = (id) => activeTab === "all" || activeTab === id;
 
   return (
     <>
-      {/* ✅ HEADER — slides up/hides on scroll down, slides back on scroll up */}
+      {/* HEADER */}
       <div
         className="transition-transform duration-300 ease-in-out will-change-transform"
         style={{
@@ -917,14 +973,8 @@ export default function CourseDetailClient({ course }) {
         <Header />
       </div>
 
-      {/* ✅ STICKY NAV — stays pinned right below where Header was, always visible */}
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 40,
-        }}
-      >
+      {/* STICKY NAV */}
+      <div style={{ position: "sticky", top: 0, zIndex: 40 }}>
         <CourseStickyNav
           sections={navSections}
           activeTab={activeTab}
@@ -941,13 +991,24 @@ export default function CourseDetailClient({ course }) {
           word-break: break-word;
           white-space: normal;
         }
-        .course-content-safe img { max-width: 100%; height: auto; }
+        .course-content-safe img {
+          max-width: 100%;
+          height: auto;
+        }
       `}</style>
 
-      <main className="min-h-screen bg-white" itemScope itemType="https://schema.org/Course">
-        <h1 className="sr-only" itemProp="name">{course?.name}</h1>
+      <main
+        className="min-h-screen bg-white"
+        itemScope
+        itemType="https://schema.org/Course"
+      >
+        <h1 className="sr-only" itemProp="name">
+          {course?.name}
+        </h1>
 
-        {activeTab === "all" && !skipDetailSignupSlugs.includes(course?.slug) && <Detailsignup />}
+        {activeTab === "all" && !skipDetailSignupSlugs.includes(course?.slug) && (
+          <Detailsignup />
+        )}
 
         {/* 1. OVERVIEW */}
         {showSection("overview") && normalizedOverview?.length > 0 && (
@@ -956,35 +1017,64 @@ export default function CourseDetailClient({ course }) {
           </div>
         )}
 
-        {/* 2. WHY CHOOSE US */}
+        {/* 2. WHY CHOOSE US — Navy */}
         {showSection("why-choose") && normalizedWhyChooseUs?.length > 0 && (
           <section className="relative w-full py-12 bg-white overflow-hidden">
             <div className="max-w-[1800px] w-full px-6 mx-auto">
               <header className="text-center mb-8">
-                <h2 className="text-3xl md:text-2xl font-black text-[#002147] mb-3">
+                <h2
+                  className="text-3xl md:text-2xl font-black mb-3"
+                  style={{ color: "var(--cv-primary)" }}
+                >
                   Why {course?.name}?
                 </h2>
-                <div aria-hidden="true" className="w-16 h-1 bg-[#002147] mx-auto rounded-full" />
+                <div
+                  aria-hidden="true"
+                  className="w-16 h-1 mx-auto rounded-full"
+                  style={{ background: "var(--cv-primary)" }}
+                />
               </header>
 
               <div className="space-y-8">
                 {normalizedWhyChooseUs.map((item, i) => (
                   <article
                     key={i}
-                    className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${i % 2 !== 0 ? "lg:flex-row-reverse" : ""}`}
+                    className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
+                      i % 2 !== 0 ? "lg:flex-row-reverse" : ""
+                    }`}
                   >
                     <div className="w-full lg:w-1/2 flex flex-col justify-center py-2 min-w-0">
-                      <p className="course-content-safe text-gray-600 text-sm md:text-base leading-relaxed text-justify font-medium">
+                      <p
+                        className="course-content-safe text-sm md:text-base leading-relaxed text-justify font-medium"
+                        style={{ color: "var(--cv-neutral-mid)" }}
+                      >
                         {item?.description || ""}
                       </p>
                     </div>
                     <div className="w-full lg:w-1/2 group min-w-0">
-                      <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
+                      <div
+                        className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] shadow-sm"
+                        style={{
+                          background: "var(--cv-neutral-light)",
+                          border: "1px solid var(--cv-neutral-border)",
+                        }}
+                      >
                         {item?.image?.url ? (
-                          <Image src={item.image.url} alt="Why Choose" fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-contain p-4" />
+                          <Image
+                            src={item.image.url}
+                            alt="Why Choose"
+                            fill
+                            sizes="(min-width: 1024px) 50vw, 100vw"
+                            className="object-contain p-4"
+                          />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-                            <p className="text-sm font-semibold text-[#002147]">Coming Soon</p>
+                            <p
+                              className="text-sm font-semibold"
+                              style={{ color: "var(--cv-primary)" }}
+                            >
+                              Coming Soon
+                            </p>
                           </div>
                         )}
                       </div>
@@ -998,26 +1088,54 @@ export default function CourseDetailClient({ course }) {
 
         {/* 3. UNIVERSITIES */}
         {showSection("universities") && course?.universities?.length > 0 && (
-          <UniversityCards universities={course.universities} courseTitle={course?.name} />
+          <UniversityCards
+            universities={course.universities}
+            courseTitle={course?.name}
+          />
         )}
 
-        {/* 4. GOOD THINGS */}
+        {/* 4. GOOD THINGS — Navy */}
         {showSection("highlights") && course?.goodThings?.length > 0 && (
-          <section className="w-full py-12 md:py-16 bg-white border-t border-slate-100">
+          <section
+            className="w-full py-12 md:py-16 bg-white"
+            style={{ borderTop: "1px solid var(--cv-neutral-border)" }}
+          >
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10">
               <header className="text-center mb-8 md:mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#002147] leading-tight mb-3">
+                <h2
+                  className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-3"
+                  style={{ color: "var(--cv-primary)" }}
+                >
                   {course?.name} Program Highlights
                 </h2>
-                <div aria-hidden="true" className="w-16 h-1 bg-[#002147] mx-auto rounded-full" />
+                <div
+                  aria-hidden="true"
+                  className="w-16 h-1 mx-auto rounded-full"
+                  style={{ background: "var(--cv-primary)" }}
+                />
               </header>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 list-none p-0 m-0">
                 {course.goodThings.map((g, i) => (
-                  <li key={i} className="flex items-start gap-3 py-3 border-b border-slate-100">
-                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[#c15304]/10 text-[#c15304] text-xs font-bold flex items-center justify-center mt-0.5">
+                  <li
+                    key={i}
+                    className="flex items-start gap-3 py-3"
+                    style={{
+                      borderBottom: "1px solid var(--cv-neutral-border)",
+                    }}
+                  >
+                    <span
+                      className="flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center mt-0.5"
+                      style={{
+                        background: "var(--cv-primary-light)",
+                        color: "var(--cv-primary)",
+                      }}
+                    >
                       {i + 1}
                     </span>
-                    <p className="text-gray-700 text-sm md:text-[15px] leading-relaxed font-medium">
+                    <p
+                      className="text-sm md:text-[15px] leading-relaxed font-medium"
+                      style={{ color: "var(--cv-neutral-dark)" }}
+                    >
                       {typeof g === "string" ? normalizeRichText(g) : g}
                     </p>
                   </li>
@@ -1027,7 +1145,9 @@ export default function CourseDetailClient({ course }) {
           </section>
         )}
 
-        {activeTab === "all" && !skipDetailSignupSlugs.includes(course?.slug) && <Detailsignup />}
+        {activeTab === "all" && !skipDetailSignupSlugs.includes(course?.slug) && (
+          <Detailsignup />
+        )}
 
         {/* 5. KEY HIGHLIGHTS */}
         {showSection("key-highlights") && course?.keyHighlights?.length > 0 && (
@@ -1036,22 +1156,44 @@ export default function CourseDetailClient({ course }) {
 
         {/* 6. ADMISSION PROCESS */}
         {showSection("admission") && course?.admissionProcess?.length > 0 && (
-          <AdmissionProcess steps={course.admissionProcess} courseTitle={course?.name} />
+          <AdmissionProcess
+            steps={course.admissionProcess}
+            courseTitle={course?.name}
+          />
         )}
 
-        {/* 7. SYLLABUS */}
+        {/* 7. SYLLABUS — Navy */}
         {showSection("syllabus") && course?.syllabus?.length > 0 && (
           <section className="mt-10 w-full flex justify-center bg-white py-10">
             <div className="w-full max-w-[1800px] px-4 md:px-10">
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-10">
-                <h2 className="text-2xl font-extrabold mb-8 text-center text-[#002D62]">
+              <div
+                className="rounded-2xl shadow-xl p-6 md:p-10"
+                style={{
+                  background: "#fff",
+                  border: "1px solid var(--cv-neutral-border)",
+                }}
+              >
+                <h2
+                  className="text-2xl font-extrabold mb-8 text-center"
+                  style={{ color: "var(--cv-primary)" }}
+                >
                   Course Subjects / Syllabus
                 </h2>
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border border-gray-300 bg-white">
+                  <table
+                    className="w-full border-collapse"
+                    style={{ border: "1px solid var(--cv-neutral-border)" }}
+                  >
                     <thead>
-                      <tr className="bg-[#002D62] text-white">
-                        <th colSpan={2} className="text-center py-4 text-lg font-semibold border border-[#002D62]">
+                      <tr
+                        className="text-white"
+                        style={{ background: "var(--cv-primary)" }}
+                      >
+                        <th
+                          colSpan={2}
+                          className="text-center py-4 text-lg font-semibold"
+                          style={{ border: "1px solid var(--cv-primary)" }}
+                        >
                           Comprehensive Course Syllabus
                         </th>
                       </tr>
@@ -1063,34 +1205,72 @@ export default function CourseDetailClient({ course }) {
                         if (!sem1 && !sem2) return null;
                         return (
                           <React.Fragment key={rowIndex}>
-                            <tr className="bg-gray-50">
-                              <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
+                            <tr style={{ background: "var(--cv-neutral-light)" }}>
+                              <th
+                                className="text-center py-3 text-sm font-bold w-1/2"
+                                style={{
+                                  color: "var(--cv-primary)",
+                                  border: "1px solid var(--cv-neutral-border)",
+                                }}
+                              >
                                 {sem1?.semester || "N/A"}
                               </th>
-                              <th className="text-center py-3 text-sm font-bold text-[#002D62] border border-gray-300 w-1/2">
+                              <th
+                                className="text-center py-3 text-sm font-bold w-1/2"
+                                style={{
+                                  color: "var(--cv-primary)",
+                                  border: "1px solid var(--cv-neutral-border)",
+                                }}
+                              >
                                 {sem2?.semester || "N/A"}
                               </th>
                             </tr>
                             <tr>
-                              <td className="border border-gray-300 p-6 align-top bg-white">
+                              <td
+                                className="p-6 align-top bg-white"
+                                style={{
+                                  border: "1px solid var(--cv-neutral-border)",
+                                }}
+                              >
                                 {sem1 && (
-                                  <ul className="list-disc ml-5 space-y-2 text-gray-700">
+                                  <ul
+                                    className="list-disc ml-5 space-y-2"
+                                    style={{ color: "var(--cv-neutral-dark)" }}
+                                  >
                                     {Array.isArray(sem1.subjects) &&
                                       sem1.subjects.map((sub, j) => (
-                                        <li key={j} className="text-[13px] md:text-sm font-medium break-words">
-                                          {typeof sub === "string" ? normalizeRichText(sub) : sub}
+                                        <li
+                                          key={j}
+                                          className="text-[13px] md:text-sm font-medium break-words"
+                                        >
+                                          {typeof sub === "string"
+                                            ? normalizeRichText(sub)
+                                            : sub}
                                         </li>
                                       ))}
                                   </ul>
                                 )}
                               </td>
-                              <td className="border border-gray-300 p-6 align-top bg-white">
+                              <td
+                                className="p-6 align-top bg-white"
+                                style={{
+                                  border: "1px solid var(--cv-neutral-border)",
+                                }}
+                              >
                                 {sem2 && (
-                                  <ul className="list-disc ml-5 space-y-2 text-gray-700">
+                                  <ul
+                                    className="list-disc ml-5 space-y-2"
+                                    style={{ color: "var(--cv-neutral-dark)" }}
+                                  >
                                     {Array.isArray(sem2.subjects) &&
                                       sem2.subjects.map((sub, j) => (
-                                        <li key={j} className="text-[13px] md:text-sm font-medium break-words">
-                                          {typeof sub === "string" ? normalizeRichText(sub) : sub}
+                                        <li
+                                          key={j}
+                                          className="text-[13px] md:text-sm font-medium break-words"
+                                        >
+                                          {typeof sub === "string"
+                                            ? normalizeRichText(sub)
+                                            : sub}
                                         </li>
                                       ))}
                                   </ul>
@@ -1108,50 +1288,91 @@ export default function CourseDetailClient({ course }) {
           </section>
         )}
 
-        {/* 8. SPECIALIZATIONS */}
+        {/* 8. SPECIALIZATIONS — Navy */}
         {showSection("specializations") && (
           <>
-            {Array.isArray(course?.specializations) && course.specializations.length > 0 && (
-              <section className="mt-10 w-full flex justify-center bg-white py-10">
-                <div className="w-full max-w-[1600px] px-4 md:px-10">
-                  <h2 className="text-2xl font-bold mb-8 text-[#002147]">
-                    Top Specializations for {course?.name}
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
-                    {course.specializations.map((sp, i) => (
-                      <div key={i} className="flex justify-between items-center bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all">
-                        <span className="text-gray-900 font-bold text-sm md:text-base pr-3 leading-tight break-words">
-                          {typeof sp === "string" ? normalizeRichText(sp) : sp}
-                        </span>
-                        <span className="w-9 h-9 min-w-[36px] bg-[#1E90FF] text-white rounded-full flex justify-center items-center shadow-md">
-                          →
-                        </span>
-                      </div>
-                    ))}
+            {Array.isArray(course?.specializations) &&
+              course.specializations.length > 0 && (
+                <section className="mt-10 w-full flex justify-center bg-white py-10">
+                  <div className="w-full max-w-[1600px] px-4 md:px-10">
+                    <h2
+                      className="text-2xl font-bold mb-8"
+                      style={{ color: "var(--cv-primary)" }}
+                    >
+                      Top Specializations for {course?.name}
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
+                      {course.specializations.map((sp, i) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center bg-white p-5 rounded-xl shadow-sm transition-all"
+                          style={{
+                            border: "1px solid var(--cv-neutral-border)",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor =
+                              "var(--cv-primary)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 20px rgba(30, 58, 138, 0.12)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor =
+                              "var(--cv-neutral-border)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
+                        >
+                          <span
+                            className="font-bold text-sm md:text-base pr-3 leading-tight break-words"
+                            style={{ color: "var(--cv-neutral-dark)" }}
+                          >
+                            {typeof sp === "string" ? normalizeRichText(sp) : sp}
+                          </span>
+                          <span
+                            className="w-9 h-9 min-w-[36px] text-white rounded-full flex justify-center items-center shadow-md"
+                            style={{ background: "var(--cv-primary)" }}
+                          >
+                            →
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </section>
-            )}
+                </section>
+              )}
+
             {course?.specializationDetails?.length > 0 && (
-              <SpecializationDetails specializations={course.specializationDetails} courseTitle={course?.name} />
+              <SpecializationDetails
+                specializations={course.specializationDetails}
+                courseTitle={course?.name}
+              />
             )}
           </>
         )}
 
-<Requesttocallbackhome />
+        <Requesttocallbackhome />
+
         {/* 9. OFFERED COURSES */}
         {showSection("offered-courses") && (
-          <Offerdcourse offeredCourses={course?.offeredCourses} courseName={course?.name} />
+          <Offerdcourse
+            offeredCourses={course?.offeredCourses}
+            courseName={course?.name}
+          />
         )}
 
-        {/* 10. CAREER VIDYA BENEFITS — only All tab */}
+        {/* 10. CAREER VIDYA BENEFITS */}
         {activeTab === "all" && course?.Careervidyabenifit?.length > 0 && (
-          <Careervidyabenifit courseBenifit={course.Careervidyabenifit} courseTitle={course?.name} />
+          <Careervidyabenifit
+            courseBenifit={course.Careervidyabenifit}
+            courseTitle={course?.name}
+          />
         )}
 
         {/* 11. ONLINE ELIGIBILITY */}
         {showSection("eligibility") && course?.onlineEligibility?.length > 0 && (
-          <OnlineCourseEligibility onlineEligibility={course.onlineEligibility} courseTitle={course?.name} />
+          <OnlineCourseEligibility
+            onlineEligibility={course.onlineEligibility}
+            courseTitle={course?.name}
+          />
         )}
 
         {/* 12. FEE STRUCTURE */}
@@ -1171,28 +1392,44 @@ export default function CourseDetailClient({ course }) {
 
         {/* 13. WORTH IT */}
         {showSection("worth-it") && course?.onlineCourseWorthIt && (
-          <CourseWorthIt onlineCourseWorthIt={course.onlineCourseWorthIt} courseTitle={course?.name} />
+          <CourseWorthIt
+            onlineCourseWorthIt={course.onlineCourseWorthIt}
+            courseTitle={course?.name}
+          />
         )}
 
         {/* 14. JOBS */}
         {showSection("jobs") && course?.jobOpportunities?.length > 0 && (
-          <JobOpportunities jobOpportunities={course.jobOpportunities} courseTitle={course?.name} />
+          <JobOpportunities
+            jobOpportunities={course.jobOpportunities}
+            courseTitle={course?.name}
+          />
         )}
 
         {/* 15. RECRUITERS */}
         {showSection("recruiters") && course?.topRecruiters?.length > 0 && (
-          <TopRecruiters topRecruiters={course.topRecruiters} courseTitle={course?.name} />
+          <TopRecruiters
+            topRecruiters={course.topRecruiters}
+            courseTitle={course?.name}
+          />
         )}
 
         {/* 16. PLACEMENT */}
         {showSection("placement") && course?.placementSupport && (
-          <PlacementSupport placementSupport={course.placementSupport} courseTitle={course?.name} />
+          <PlacementSupport
+            placementSupport={course.placementSupport}
+            courseTitle={course?.name}
+          />
         )}
 
         {/* 17. TESTIMONIALS */}
-        {showSection("testimonials") && course?.courseTestimonials?.length > 0 && (
-          <CourseTestimonials testimonials={course.courseTestimonials} courseTitle={course?.name} />
-        )}
+        {showSection("testimonials") &&
+          course?.courseTestimonials?.length > 0 && (
+            <CourseTestimonials
+              testimonials={course.courseTestimonials}
+              courseTitle={course?.name}
+            />
+          )}
 
         {/* 18. FAQ */}
         {showSection("faq") && safeFaqs.length > 0 && (

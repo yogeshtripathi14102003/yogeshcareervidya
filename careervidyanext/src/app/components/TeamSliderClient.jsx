@@ -254,15 +254,15 @@ export default function TeamSliderClient({ team = [] }) {
       <Link
         key={idx}
         href="/our-Team"
-        className="group relative bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 hover:border-[#3498db]/50 hover:bg-white/10 transition-all duration-300 flex flex-col items-center w-full h-full overflow-hidden text-center shadow-lg hover:shadow-2xl hover:-translate-y-2"
+        className="group relative bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 hover:border-[#F97316]/50 hover:bg-white/10 transition-all duration-300 flex flex-col items-center w-full h-full overflow-hidden text-center shadow-lg hover:shadow-2xl hover:-translate-y-2"
         aria-label={`View CareerVidya expert team page`}
       >
         {/* Card Background Subtle Accent */}
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#3498db]/10 rounded-full blur-2xl group-hover:bg-[#3498db]/20 transition-all duration-500" />
+        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#F97316]/10 rounded-full blur-2xl group-hover:bg-[#F97316]/20 transition-all duration-500" />
 
         {/* Image Container */}
         <div className="relative mb-4 flex-shrink-0 mt-2">
-          <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md group-hover:border-[#3498db] transition-all duration-300">
+          <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md group-hover:border-[#F97316] transition-all duration-300">
             <Image
               src={member.imageUrl}
               alt={`${displayName} - ${
@@ -277,8 +277,8 @@ export default function TeamSliderClient({ team = [] }) {
           </div>
 
           {/* Experience Badge */}
-          <div className="absolute -bottom-2 right-1/2 translate-x-1/2 bg-[#001a41] border border-white/20 text-[#3498db] text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md whitespace-nowrap flex items-center gap-1">
-            <Award size={12} className="text-[#3498db]" />
+          <div className="absolute -bottom-2 right-1/2 translate-x-1/2 bg-[#001a41] border border-white/20 text-[#F97316] text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md whitespace-nowrap flex items-center gap-1">
+            <Award size={12} className="text-[#F97316]" />
 
             <span>{member.experience || 0}+ Yrs Exp</span>
           </div>
@@ -287,17 +287,19 @@ export default function TeamSliderClient({ team = [] }) {
         {/* Counselor Info */}
         <div className="flex flex-col flex-grow items-center justify-between w-full mt-2">
           <div>
-            <h3 className="text-lg font-bold text-white mb-0.5 group-hover:text-[#3498db] transition-colors line-clamp-1">
+            {/* ✅ FORCE WHITE */}
+            <h3 className="text-lg font-bold !text-white mb-0.5 group-hover:!text-[#F97316] transition-colors line-clamp-1">
               {displayName}
             </h3>
 
-            <p className="text-gray-300 text-xs font-medium uppercase tracking-wider mb-4">
+            {/* ✅ FORCE GRAY-300 */}
+            <p className="!text-gray-300 text-xs font-medium uppercase tracking-wider mb-4">
               {member.designation || "Expert Counselor"}
             </p>
           </div>
 
           {/* Action Button */}
-          <div className="w-full mt-auto py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#3498db] text-white text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-white/10 group-hover:border-[#3498db]">
+          <div className="w-full mt-auto py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#F97316] text-white text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-white/10 group-hover:border-[#F97316]">
             <span>Career Advisor</span>
 
             <ChevronRightIcon
@@ -328,11 +330,12 @@ export default function TeamSliderClient({ team = [] }) {
         <div className="max-w-[95%] xl:max-w-[1350px] mx-auto px-4 md:px-8">
           {/* Section Heading */}
           <div className="text-center mb-10 md:mb-14">
-            <h2 className="text-2xl md:text-4xl font-bold text-white uppercase tracking-wide">
+            {/* ✅ FORCE WHITE */}
+            <h2 className="text-2xl md:text-4xl font-bold !text-white uppercase tracking-wide">
               Meet Our Expert Team
             </h2>
 
-            <div className="w-16 h-1 bg-[#3498db] mx-auto mt-3 rounded-full" />
+            <div className="w-16 h-1 bg-[#F97316] mx-auto mt-3 rounded-full" />
           </div>
 
           {/* Slider */}
@@ -365,23 +368,14 @@ export default function TeamSliderClient({ team = [] }) {
                     disableOnInteraction: false,
                   }}
                   breakpoints={{
-                    640: {
-                      slidesPerView: 2,
-                    },
-                    1024: {
-                      slidesPerView: 3,
-                    },
-                    1280: {
-                      slidesPerView: 4,
-                    },
+                    640: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 },
+                    1280: { slidesPerView: 4 },
                   }}
                   className="pb-12 !flex"
                 >
                   {displayedTeam.map((member, idx) => (
-                    <SwiperSlide
-                      key={idx}
-                      className="!h-auto flex"
-                    >
+                    <SwiperSlide key={idx} className="!h-auto flex">
                       {renderCard(member, idx)}
                     </SwiperSlide>
                   ))}
@@ -400,9 +394,7 @@ export default function TeamSliderClient({ team = [] }) {
           ) : (
             /* Grid */
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {displayedTeam.map((member, idx) =>
-                renderCard(member, idx)
-              )}
+              {displayedTeam.map((member, idx) => renderCard(member, idx))}
             </div>
           )}
 
@@ -414,11 +406,12 @@ export default function TeamSliderClient({ team = [] }) {
             />
           )}
 
-          {/* View All Experts */}
+          {/* View All Experts — Gradient Button */}
           <div className="text-center mt-10 md:mt-12">
             <Link
               href="/our-Team"
-              className="inline-flex items-center gap-2 bg-[#c15304] text-white font-bold text-sm md:text-base px-8 py-2.5 rounded shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center gap-2 text-white font-bold text-sm md:text-base px-8 py-2.5 rounded shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              style={{ background: "var(--cv-grad-cta)" }}
             >
               <span>View All Experts</span>
               <ArrowRight size={18} />
@@ -428,14 +421,8 @@ export default function TeamSliderClient({ team = [] }) {
 
         {/* Swiper Custom CSS */}
         <style jsx global>{`
-          .swiper-wrapper {
-            display: flex !important;
-          }
-
-          .swiper-slide {
-            height: auto !important;
-            display: flex !important;
-          }
+          .swiper-wrapper { display: flex !important; }
+          .swiper-slide { height: auto !important; display: flex !important; }
 
           .custom-pagination .swiper-pagination-bullet {
             background: rgba(255, 255, 255, 0.3) !important;
@@ -447,7 +434,7 @@ export default function TeamSliderClient({ team = [] }) {
           }
 
           .custom-pagination .swiper-pagination-bullet-active {
-            background: #3498db !important;
+            background: #F97316 !important;
             width: 20px;
             border-radius: 4px;
           }
@@ -456,7 +443,6 @@ export default function TeamSliderClient({ team = [] }) {
     </>
   );
 }
-
 
 
 // "use client";

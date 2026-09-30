@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -66,16 +64,15 @@ export default function QueryPopup() {
           const slotsData = res.data.data || [];
           setBackendSlots(slotsData);
 
-          // ✅ FIX 1: remainingSeats use karo — naye model mein ek document hai per date+time
           const daysMap = {};
           slotsData.forEach((slot) => {
             if (!daysMap[slot.date]) daysMap[slot.date] = 0;
-            daysMap[slot.date] += slot.remainingSeats; // was: += 1
+            daysMap[slot.date] += slot.remainingSeats;
           });
 
           const daysList = Object.keys(daysMap).map((date) => ({
             label: date,
-            count: daysMap[date], // ab yeh remaining seats hai, documents count nahi
+            count: daysMap[date],
           }));
 
           setUniqueDays(daysList);
@@ -201,28 +198,57 @@ export default function QueryPopup() {
           className="fixed inset-0 z-[99999] bg-slate-950/70 flex items-center justify-center p-4 backdrop-blur-md animate-fadeOverlay"
           onClick={(e) => e.target === e.currentTarget && handleClose()}
         >
-          <div className="bg-white w-full max-w-xl rounded-2xl overflow-hidden relative shadow-[0_25px_60px_-15px_rgba(5,52,127,0.3)] border border-slate-100 animate-scaleUp p-0.5">
-            
-            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-orange-500 via-amber-500 to-blue-600"></div>
+          <div className="bg-white w-full max-w-xl rounded-2xl overflow-hidden relative shadow-[0_25px_60px_-15px_rgba(30,58,138,0.3)] border border-slate-100 animate-scaleUp p-0.5">
+
+            {/* ✅ Top gradient bar — 3-color gradient */}
+            <div
+              className="absolute top-0 inset-x-0 h-1.5"
+              style={{ background: "var(--cv-grad-horizontal)" }}
+            ></div>
 
             <button
               onClick={handleClose}
-              className="absolute top-5 right-5 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-orange-600 text-slate-900 hover:text-white transition-all duration-200 border border-slate-200 shadow-sm"
+              className="absolute top-5 right-5 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-[var(--cv-accent)] text-slate-900 hover:text-white transition-all duration-200 border border-slate-200 shadow-sm"
             >
               <X size={15} strokeWidth={2.5} />
             </button>
 
             <div className="p-8 pt-9 flex flex-col min-h-[520px]">
-              
+
               {!submitted && (
                 <>
                   <div className="mb-6">
-                    <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 px-3 py-1 rounded-full text-orange-800 font-extrabold tracking-wide text-[10px] uppercase shadow-xs">
-                      <Sparkles size={11} className="animate-spin-slow text-orange-600" />
+                    {/* ✅ Badge — Accent color */}
+                    <div
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-extrabold tracking-wide text-[10px] uppercase shadow-sm border"
+                      style={{
+                        background: "var(--cv-accent-light)",
+                        borderColor: "var(--cv-accent)",
+                        color: "var(--cv-accent-dark)",
+                      }}
+                    >
+                      <Sparkles
+                        size={11}
+                        className="animate-spin-slow"
+                        style={{ color: "var(--cv-accent)" }}
+                      />
                       Free Expert Mentorship
                     </div>
+
+                    {/* ✅ Heading — Primary gradient text on "Dream Career" */}
                     <h3 className="text-2xl font-black text-slate-950 tracking-tight mt-3">
-                      Lock Your <span className="bg-gradient-to-r from-[#05347f] to-blue-600 bg-clip-text text-transparent">Dream Career</span> Slot
+                      Lock Your{" "}
+                      <span
+                        style={{
+                          background: "var(--cv-grad-horizontal)",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          backgroundClip: "text",
+                        }}
+                      >
+                        Dream Career
+                      </span>{" "}
+                      Slot
                     </h3>
                     <p className="text-xs text-slate-900 mt-1 font-semibold">
                       Talk directly to top university advisors. 100% Free Session.
@@ -231,18 +257,28 @@ export default function QueryPopup() {
 
                   <div className="mb-6 bg-slate-100 border border-slate-200 p-3 rounded-xl flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-[#05347f] text-white flex items-center justify-center text-xs font-black shadow-sm">
+                      {/* ✅ Step number — Primary */}
+                      <div
+                        className="w-6 h-6 rounded-lg text-white flex items-center justify-center text-xs font-black shadow-sm"
+                        style={{ background: "var(--cv-primary)" }}
+                      >
                         {step}
                       </div>
                       <span className="text-xs font-black text-slate-950">{STEPS[step - 1]}</span>
                     </div>
                     <div className="flex-1 max-w-[140px] bg-slate-300 h-2 rounded-full overflow-hidden">
+                      {/* ✅ Progress bar — Primary gradient */}
                       <div
-                        className="bg-gradient-to-r from-[#05347f] to-blue-500 h-full transition-all duration-300 ease-out rounded-full"
-                        style={{ width: `${progress}%` }}
+                        className="h-full transition-all duration-300 ease-out rounded-full"
+                        style={{
+                          width: `${progress}%`,
+                          background: "var(--cv-grad-horizontal)",
+                        }}
                       />
                     </div>
-                    <span className="text-[10px] font-black text-slate-900 tracking-wider">STEP {step}/2</span>
+                    <span className="text-[10px] font-black text-slate-900 tracking-wider">
+                      STEP {step}/2
+                    </span>
                   </div>
                 </>
               )}
@@ -288,43 +324,43 @@ export default function QueryPopup() {
                     <div className="space-y-4 animate-fadeIn">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="relative group/input">
-                          <User size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#05347f] transition-colors z-10" />
+                          <User size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#1E3A8A] transition-colors z-10" />
                           <input type="text" name="name" value={formData.name} onChange={handleChange}
                             placeholder="Your Full Name" required
-                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#05347f] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
+                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
                           />
                         </div>
                         <div className="relative group/input">
-                          <Mail size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#05347f] transition-colors z-10" />
+                          <Mail size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#1E3A8A] transition-colors z-10" />
                           <input type="email" name="email" value={formData.email} onChange={handleChange}
                             placeholder="Email Address" required
-                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#05347f] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
+                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="relative group/input">
-                          <Phone size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#05347f] transition-colors z-10" />
+                          <Phone size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#1E3A8A] transition-colors z-10" />
                           <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange}
                             placeholder="Mobile Number" required
-                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#05347f] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
+                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
                           />
                         </div>
                         <div className="relative group/input">
-                          <MapPin size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#05347f] transition-colors z-10" />
+                          <MapPin size={16} className="absolute left-4 top-3.5 text-slate-950 group-focus-within/input:text-[#1E3A8A] transition-colors z-10" />
                           <input type="text" name="city" value={formData.city} onChange={handleChange}
                             placeholder="Current City" required
-                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#05347f] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
+                            className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-100 outline-none transition-all text-slate-950 placeholder-slate-500 font-bold"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="relative group/input">
-                          <GraduationCap size={16} className="absolute left-4 top-3.5 text-slate-950 z-10 group-focus-within/input:text-[#05347f] transition-colors" />
+                          <GraduationCap size={16} className="absolute left-4 top-3.5 text-slate-950 z-10 group-focus-within/input:text-[#1E3A8A] transition-colors" />
                           <select name="course" value={formData.course} onChange={handleChange} required disabled={coursesLoading}
-                            className="w-full pl-12 pr-8 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl appearance-none focus:border-[#05347f] focus:ring-4 focus:ring-blue-100 outline-none text-slate-950 font-bold cursor-pointer disabled:opacity-60"
+                            className="w-full pl-12 pr-8 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl appearance-none focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-100 outline-none text-slate-950 font-bold cursor-pointer disabled:opacity-60"
                           >
                             <option value="">{coursesLoading ? "Loading courses…" : "Target Course"}</option>
                             {courses.map((c) => (
@@ -335,9 +371,9 @@ export default function QueryPopup() {
                         </div>
 
                         <div className="relative group/input">
-                          <Tag size={16} className="absolute left-4 top-3.5 text-slate-950 z-10 group-focus-within/input:text-[#05347f] transition-colors" />
+                          <Tag size={16} className="absolute left-4 top-3.5 text-slate-950 z-10 group-focus-within/input:text-[#1E3A8A] transition-colors" />
                           <select name="branch" value={formData.branch} onChange={handleChange} disabled={!specializations.length}
-                            className="w-full pl-12 pr-8 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl appearance-none focus:border-[#05347f] focus:ring-4 focus:ring-blue-100 outline-none text-slate-950 font-bold cursor-pointer disabled:opacity-50"
+                            className="w-full pl-12 pr-8 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl appearance-none focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-100 outline-none text-slate-950 font-bold cursor-pointer disabled:opacity-50"
                           >
                             <option value="">
                               {!formData.course ? "Select course first" : specializations.length ? "Specialization / Branch" : "No specializations"}
@@ -351,10 +387,10 @@ export default function QueryPopup() {
                       </div>
 
                       <div className="relative group/input">
-                        <MessageSquare size={16} className="absolute left-4 top-4 text-slate-950 group-focus-within/input:text-[#05347f] transition-colors z-10" />
+                        <MessageSquare size={16} className="absolute left-4 top-4 text-slate-950 group-focus-within/input:text-[#1E3A8A] transition-colors z-10" />
                         <textarea name="message" value={formData.message} onChange={handleChange} rows={2}
                           placeholder="What is your biggest confusion or career goal right now?"
-                          className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl resize-none focus:border-[#05347f] focus:ring-4 focus:ring-blue-100 outline-none text-slate-950 placeholder-slate-500 font-bold"
+                          className="w-full pl-12 pr-4 py-3 text-sm bg-white border-2 border-slate-300 rounded-xl resize-none focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-100 outline-none text-slate-950 placeholder-slate-500 font-bold"
                         />
                       </div>
                     </div>
@@ -365,7 +401,7 @@ export default function QueryPopup() {
                     <div className="space-y-4 animate-fadeIn">
                       {slotsLoading ? (
                         <div className="text-center py-12 text-sm text-slate-950 flex flex-col items-center justify-center gap-3">
-                          <div className="w-6 h-6 border-2 border-slate-300 border-t-[#05347f] rounded-full animate-spin"></div>
+                          <div className="w-6 h-6 border-2 border-slate-300 border-t-[#1E3A8A] rounded-full animate-spin"></div>
                           <span className="font-bold">Finding freshly available slots...</span>
                         </div>
                       ) : uniqueDays.length === 0 ? (
@@ -381,12 +417,11 @@ export default function QueryPopup() {
                                 onClick={() => { setPickedDay(label); setPickedTime(null); setSelectedSlotId(null); }}
                                 className={`p-4 rounded-xl border-2 text-left transition-all duration-200 relative overflow-hidden ${
                                   pickedDay === label
-                                    ? "bg-[#5177b2] border-[#5177b2] text-white shadow-md scale-[1.01]"
+                                    ? "bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-md scale-[1.01]"
                                     : "bg-white border-slate-300 text-slate-950 hover:border-slate-400"
                                 }`}
                               >
                                 <div className="font-black text-sm tracking-tight">{label}</div>
-                                {/* ✅ FIX 1: "X Seats Left" show karo — naye model mein count = remainingSeats */}
                                 <div className={`text-xs font-black mt-1 ${pickedDay === label ? "text-amber-400" : "text-orange-600"}`}>
                                   🔥 {count} Seat{count !== 1 ? "s" : ""} Left
                                 </div>
@@ -396,7 +431,6 @@ export default function QueryPopup() {
 
                           {/* Time Grid */}
                           <div className="grid grid-cols-3 gap-2.5 pt-2">
-                            {/* ✅ FIX 2: remainingSeats > 0 filter — isBooked nahi, kyunki slot partially booked ho sakta hai */}
                             {backendSlots
                               .filter((slot) => slot.date === pickedDay && slot.remainingSeats > 0)
                               .map((slot) => (
@@ -404,7 +438,7 @@ export default function QueryPopup() {
                                   onClick={() => handleSlotSelect(slot)}
                                   className={`py-3 rounded-xl border-2 text-xs font-black transition-all duration-150 flex flex-col items-center justify-center gap-0.5 ${
                                     pickedTime === slot.time
-                                      ? "bg-[#05347f] border-[#05347f] text-white shadow-md scale-[1.03]"
+                                      ? "bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-md scale-[1.03]"
                                       : "bg-white border-slate-300 text-slate-950 hover:border-slate-400"
                                   }`}
                                 >
@@ -412,7 +446,6 @@ export default function QueryPopup() {
                                     {pickedTime === slot.time && <Check size={11} strokeWidth={3} />}
                                     {slot.time}
                                   </span>
-                                  {/* ✅ Remaining seats hint */}
                                   <span className={`text-[10px] font-bold ${pickedTime === slot.time ? "text-blue-200" : "text-slate-400"}`}>
                                     {slot.remainingSeats} left
                                   </span>
@@ -438,8 +471,10 @@ export default function QueryPopup() {
                           Back
                         </button>
                       )}
-                      <button type="button" onClick={handleNext}
-                        className="flex items-center gap-1.5 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-xl text-xs font-black transition-all shadow-[0_4px_14px_rgba(235,94,40,0.3)] active:scale-[0.97]"
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        className="cta-confirm-btn flex items-center gap-1.5 px-6 py-3.5 text-white rounded-xl text-xs font-black active:scale-[0.97]"
                       >
                         {step === 2 ? "Confirm My Slot" : "Choose Your Time Slot"}
                         <ArrowRight size={13} strokeWidth={3} />

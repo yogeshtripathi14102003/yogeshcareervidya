@@ -385,20 +385,23 @@
 // //   );
 // // }
 
-
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import Signup from "@/app/signup/page.jsx";
 
-/* ================= LOGIN CHECK ================= */
+/* ═══════════════════════════════════════════════
+   LOGIN CHECK
+═══════════════════════════════════════════════ */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("accessToken");
 };
 
-/* ================= PDF DOWNLOAD WITH NAME ================= */
+/* ═══════════════════════════════════════════════
+   PDF DOWNLOAD
+═══════════════════════════════════════════════ */
 const downloadPdfWithName = async (url, fileName) => {
   try {
     const response = await fetch(url);
@@ -416,7 +419,9 @@ const downloadPdfWithName = async (url, fileName) => {
   }
 };
 
-/* ================= VIDEO MODAL ================= */
+/* ═══════════════════════════════════════════════
+   VIDEO MODAL
+═══════════════════════════════════════════════ */
 function VideoModal({ videoUrl, onClose }) {
   const getEmbedUrl = (url) => {
     if (!url) return null;
@@ -433,14 +438,22 @@ function VideoModal({ videoUrl, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label="Course preview video"
-      className="fixed inset-0 z-[1000] bg-black/90 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+      style={{ background: "rgba(15, 23, 42, 0.92)" }}
     >
       <div className="absolute inset-0" onClick={onClose}></div>
       <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden">
         <button
           onClick={onClose}
           aria-label="Close video"
-          className="absolute top-4 right-4 z-50 bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center"
+          className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-white cursor-pointer transition-all"
+          style={{ background: "var(--cv-accent)" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.background = "var(--cv-accent-dark)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = "var(--cv-accent)")
+          }
         >
           ✕
         </button>
@@ -456,7 +469,9 @@ function VideoModal({ videoUrl, onClose }) {
   );
 }
 
-/* ================= MAIN COMPONENT ================= */
+/* ═══════════════════════════════════════════════
+   MAIN COMPONENT
+═══════════════════════════════════════════════ */
 export default function CourseOverview({ course }) {
   const [showSignup, setShowSignup] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -488,9 +503,9 @@ export default function CourseOverview({ course }) {
     setSelectedVideo(videoLink);
   };
 
-  // =====================================================
-  // SEO Schema
-  // =====================================================
+  /* ═══════════════════════════════════════════════
+     SEO Schema
+  ═══════════════════════════════════════════════ */
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "Course",
@@ -517,69 +532,116 @@ export default function CourseOverview({ course }) {
 
       <section
         aria-labelledby="course-overview-heading"
-        className="w-full bg-white pt-10"
+        className="w-full pt-10"
+        style={{ background: "#fff" }}
       >
         <h2 id="course-overview-heading" className="sr-only">
           Course Overview
         </h2>
 
-        <div className="bg-[#dce6f7] py-2 rounded-[5px] max-w-[1800px] lg:w-[90%] mx-auto px-6">
+        {/* Outer container — Light navy bg */}
+        <div
+          className="py-8 rounded-lg max-w-[1800px] lg:w-[90%] mx-auto px-6"
+          style={{ background: "var(--cv-primary-light)" }}
+        >
           {course.overview.map((item, i) => (
             <article
               key={i}
-              className={`flex flex-col lg:flex-row items-center gap-10 mb-16 ${
+              className={`flex flex-col lg:flex-row items-center gap-10 mb-16 last:mb-0 ${
                 i % 2 ? "lg:flex-row-reverse" : ""
               }`}
             >
-              {/* ================= IMAGE SECTION ================= */}
-              <div className="w-full lg:w-1/2 relative h-[300px] md:h-[350px] rounded-xl bg-white shadow-[0_10px_30px_rgba(0,0,0,0.15)] overflow-hidden">
+              {/* ═══════════════════════════════════════════
+                  IMAGE
+              ═══════════════════════════════════════════ */}
+              <div
+                className="w-full lg:w-1/2 relative h-[300px] md:h-[350px] rounded-xl overflow-hidden"
+                style={{
+                  background: "#fff",
+                  boxShadow: "0 10px 30px rgba(30, 58, 138, 0.12)",
+                  border: "1px solid var(--cv-neutral-border)",
+                }}
+              >
                 {item.image?.url ? (
                   <Image
                     src={item.image.url}
-                    alt={`${courseName} - ${item.heading || `Overview ${i + 1}`}`}
+                    alt={`${courseName} - ${
+                      item.heading || `Overview ${i + 1}`
+                    }`}
                     fill
                     sizes="(min-width: 1024px) 50vw, 100vw"
                     className="object-contain p-4"
                   />
                 ) : (
-                  <div className="h-full flex items-center justify-center rounded-xl text-slate-400 italic text-sm md:text-base">
+                  <div
+                    className="h-full flex items-center justify-center rounded-xl italic text-sm md:text-base"
+                    style={{ color: "var(--cv-neutral-mid)" }}
+                  >
                     Preview Coming Soon
                   </div>
                 )}
               </div>
 
-              {/* ================= CONTENT SECTION ================= */}
+              {/* ═══════════════════════════════════════════
+                  CONTENT
+              ═══════════════════════════════════════════ */}
               <div className="w-full lg:w-1/2">
-                <span className="text-xs font-bold text-blue-600 uppercase">
+                {/* Eyebrow — Navy */}
+                <span
+                  className="text-xs font-bold uppercase tracking-wide"
+                  style={{ color: "var(--cv-primary)" }}
+                >
                   Course Module {i + 1}
                 </span>
 
-                <h2 className="text-2xl md:text-3xl font-extrabold text-[#002147] mt-2">
+                {/* Heading — Navy */}
+                <h2
+                  className="text-2xl md:text-3xl font-extrabold mt-2"
+                  style={{ color: "var(--cv-primary)" }}
+                >
                   {item.heading}
                 </h2>
 
-                <p className="text-slate-600 mt-4 mb-6 text-justify leading-relaxed">
+                {/* Description — Grey */}
+                <p
+                  className="mt-4 mb-6 text-justify leading-relaxed"
+                  style={{ color: "var(--cv-neutral-mid)" }}
+                >
                   {item.description}
                 </p>
 
-                {/* ================= BUTTONS ================= */}
+                {/* ═══════════════════════════════════════════
+                    BUTTONS — Global CSS
+                ═══════════════════════════════════════════ */}
                 <div className="flex gap-4 flex-wrap">
-                  {/* Get Full Syllabus — opens Signup if not logged in */}
+                  {/* Get Full Syllabus — Orange gradient (cv-btn-cta) */}
                   <button
                     type="button"
                     onClick={handleSyllabusClick}
                     aria-label={`Get full syllabus for ${courseName}`}
-                    className="cursor-pointer bg-[#c15304] text-white px-4 py-2 rounded-[5px] font-bold transition-all hover:opacity-90 active:scale-95"
+                    className="cv-btn-cta cursor-pointer px-4 py-2 active:scale-95"
                   >
                     Get Full Syllabus
                   </button>
 
-                  {/* Watch Video — always visible */}
+                  {/* Watch Video — Navy solid */}
                   <button
                     type="button"
                     onClick={() => handleVideoClick(item.videoLink)}
                     aria-label="Watch course video"
-                    className="cursor-pointer bg-[#c15304] flex items-center gap-2 px-4 py-2 rounded-[5px] font-bold text-white group transition-all hover:opacity-90 active:scale-95"
+                    className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-white group transition-all active:scale-95"
+                    style={{
+                      background: "var(--cv-primary)",
+                      boxShadow: "0 4px 12px rgba(30, 58, 138, 0.25)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "var(--cv-primary-dark)";
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "var(--cv-primary)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
                   >
                     <span>▶ Watch Video</span>
                   </button>

@@ -57,41 +57,60 @@ import { CheckCircle } from "lucide-react";
 import { cleanHtml } from "@/utlis/cleanHtml.js";
 
 export default function FactsSection({ data }) {
-    const facts = data?.facts;
+  const facts = data?.facts;
 
-    if (!facts || (!facts.factsHeading && !facts.factsPoints?.length))
-        return null;
+  if (!facts || (!facts.factsHeading && !facts.factsPoints?.length))
+    return null;
 
-    return (
-        <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-            {facts.factsHeading && (
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                    {facts.factsHeading}
-                </h2>
-            )}
+  return (
+    <section
+      className="rounded-2xl p-8 shadow-sm"
+      style={{
+        background: "#fff",
+        border: "1px solid var(--cv-neutral-border)",
+      }}
+    >
+      {/* Heading — Navy */}
+      {facts.factsHeading && (
+        <h2
+          className="text-2xl md:text-3xl font-bold mb-3"
+          style={{ color: "var(--cv-primary)" }}
+        >
+          {facts.factsHeading}
+        </h2>
+      )}
 
-            {facts.factsSubHeading && (
-                <p className="text-base md:text-lg text-gray-700 mb-5">
-                    {facts.factsSubHeading}
-                </p>
-            )}
+      {/* Subheading — Grey */}
+      {facts.factsSubHeading && (
+        <p
+          className="text-base md:text-lg mb-5"
+          style={{ color: "var(--cv-neutral-mid)" }}
+        >
+          {facts.factsSubHeading}
+        </p>
+      )}
 
-            <div className="flex flex-col gap-4">
-                {facts.factsPoints?.map((point, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                        <CheckCircle
-                            className="text-blue-500 min-w-[22px] mt-1"
-                            size={22}
-                        />
-                        <p
-                            className="text-gray-800 text-base md:text-lg leading-relaxed"
-                            dangerouslySetInnerHTML={{
-                                __html: cleanHtml(point),
-                            }}
-                        />
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
+      {/* Facts points */}
+      <div className="flex flex-col gap-4">
+        {facts.factsPoints?.map((point, index) => (
+          <div key={index} className="flex items-start gap-3">
+            {/* Navy check icon */}
+            <CheckCircle
+              className="min-w-[22px] mt-1"
+              style={{ color: "var(--cv-primary)" }}
+              size={22}
+            />
+            {/* Dark text */}
+            <p
+              className="text-base md:text-lg leading-relaxed"
+              style={{ color: "var(--cv-neutral-dark)" }}
+              dangerouslySetInnerHTML={{
+                __html: cleanHtml(point),
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }

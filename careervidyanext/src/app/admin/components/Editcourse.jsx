@@ -1509,6 +1509,7 @@
 // //   );
 // // }
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -1896,6 +1897,35 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
       )
     );
 
+  /* -------------------- Fee Sidebar Handlers (NEW) -------------------- */
+  const handleFeeSidebarPointChange = (blockIndex, pointIndex, value) =>
+    setFeeSidebar((prev) =>
+      prev.map((block, i) =>
+        i === blockIndex
+          ? {
+              ...block,
+              points: block.points.map((p, j) => (j === pointIndex ? value : p)),
+            }
+          : block
+      )
+    );
+
+  const addFeeSidebarPoint = (blockIndex) =>
+    setFeeSidebar((prev) =>
+      prev.map((block, i) =>
+        i === blockIndex ? { ...block, points: [...block.points, ""] } : block
+      )
+    );
+
+  const removeFeeSidebarPoint = (blockIndex, pointIndex) =>
+    setFeeSidebar((prev) =>
+      prev.map((block, i) =>
+        i === blockIndex
+          ? { ...block, points: block.points.filter((_, j) => j !== pointIndex) }
+          : block
+      )
+    );
+
   /* -------------------- Detailed Fees -------------------- */
   const handleDetailedFeesTableChange = (sectionIndex, rowIndex, field, value) =>
     setDetailedFees((prev) =>
@@ -2043,15 +2073,38 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
 
       if (courseLogo instanceof File) formData.append("courseLogo", courseLogo);
 
-      // Content
-      formData.append(
-        "overview",
-        prepareArrayForSubmission(overview, "image", "overviewImages", formData)
-      );
-      formData.append(
-        "whyChooseUs",
-        prepareArrayForSubmission(whyChooseUs, "image", "whyChooseUsImages", formData)
-      );
+      // --- FIXED: Overview ---
+      const overviewData = overview.map((item) => {
+        const { image_old, image, ...rest } = item;
+        return {
+          ...rest,
+          image: image instanceof File ? "" : (image_old || ""),
+          isNew: image instanceof File,
+        };
+      });
+      formData.append("overview", JSON.stringify(overviewData));
+      overview.forEach((item) => {
+        if (item.image instanceof File) {
+          formData.append("overviewImages", item.image);
+        }
+      });
+
+      // --- FIXED: Why Choose Us ---
+      const whyChooseUsData = whyChooseUs.map((item) => {
+        const { image_old, image, ...rest } = item;
+        return {
+          ...rest,
+          image: image instanceof File ? "" : (image_old || ""),
+          isNew: image instanceof File,
+        };
+      });
+      formData.append("whyChooseUs", JSON.stringify(whyChooseUsData));
+      whyChooseUs.forEach((item) => {
+        if (item.image instanceof File) {
+          formData.append("whyChooseUsImages", item.image);
+        }
+      });
+
       formData.append("goodThings", JSON.stringify(filterEmptyObjects(goodThings)));
       formData.append(
         "keyHighlights",
@@ -2096,7 +2149,7 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
         JSON.stringify(specializationDetails.filter((s) => s.name && s.description))
       );
 
-      // Worth It — fixed: strip isNew
+      // Worth It
       const worthItData = {
         description: worthItDescription,
         topics: filterEmptyObjects(worthItTopics),
@@ -2161,7 +2214,7 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
       // Placement
       formData.append("placementSupport", JSON.stringify(placementSupport));
 
-      // Testimonials — fixed: strip image_old as well as image
+      // Testimonials
       const testimonialTextData = courseTestimonials
         .filter((t) => t.name && t.review)
         .map(({ image, image_old, ...rest }) => rest);
@@ -3137,7 +3190,7 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
                     type="text"
                     value={point}
                     onChange={(e) =>
-                      handleOfferedCoursePointChange(
+                      handleFeeSidebarPointChange(
                         blockIndex,
                         pointIndex,
                         e.target.value
@@ -3149,7 +3202,7 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
                   {block.points.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => removeOfferedCoursePoint(blockIndex, pointIndex)}
+                      onClick={() => removeFeeSidebarPoint(blockIndex, pointIndex)}
                       className="text-red-600 hover:text-red-800"
                     >
                       Remove
@@ -3159,7 +3212,7 @@ export default function Editcourse({ courseId, onClose, onUpdated }) {
               ))}
               <button
                 type="button"
-                onClick={() => addOfferedCoursePoint(blockIndex)}
+                onClick={() => addFeeSidebarPoint(blockIndex)}
                 className="bg-red-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-red-700 mt-2 shadow-sm"
               >
                 + Add Point

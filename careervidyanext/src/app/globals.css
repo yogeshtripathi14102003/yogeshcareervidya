@@ -1,36 +1,10 @@
-/* @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-} */
+/* 
 
 
 
 @import "tailwindcss";
 
 :root {
-  /* Hamesha light background aur dark text rahega */
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -42,10 +16,7 @@ body {
   --font-mono: var(--font-geist-mono);
 }
 
-/* =======================================================
-   REMOVED: `@media (prefers-color-scheme: dark)` ko hata diya hai
-   Isse system dark mode hone par bhi colors change nahi honge.
-   ======================================================= */
+
 
 body {
   background: var(--background);
@@ -53,8 +24,169 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Inputs aur textareas ko bhi white background aur dark text par lock karne ke liye */
 input, textarea, select {
   background-color: #ffffff !important;
   color: #171717 !important;
+} */
+
+
+
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════
+   CAREERVIDYA — BRAND VARIABLES
+   ═══════════════════════════════════════════════ */
+
+:root {
+  /* ── 1. PRIMARY (Navy Blue) ── */
+  --cv-primary:        #1E3A8A;
+  --cv-primary-dark:   #1E40AF;
+  --cv-primary-light:  #EFF6FF;
+  
+  /* ── 2. ACCENT (Orange) ── */
+  --cv-accent:         #F97316;
+  --cv-accent-dark:    #EA580C;
+  --cv-accent-light:   #FFF7ED;
+  
+  /* ── 3. NEUTRAL (Slate) ── */
+  --cv-neutral-dark:   #0F172A;
+  --cv-neutral-mid:    #64748B;
+  --cv-neutral-light:  #F8FAFC;
+  --cv-neutral-white:  #FFFFFF;
+  --cv-neutral-border: #E5E7EB;
+  
+  /* ═══════════════════════════════════════════
+     GRADIENTS — Har jagah use karo
+     ═══════════════════════════════════════════ */
+  
+  /* ✅ Primary CTA gradient (buttons, icons, badges) */
+  --cv-grad-cta: linear-gradient(180deg, #ec7425, #c15304);
+  
+  /* ✅ Primary CTA hover (darker) */
+  --cv-grad-cta-hover: linear-gradient(180deg, #c15304, #a34203);
+  
+  /* ✅ Horizontal gradient (dashes, dividers, underline) */
+  --cv-grad-horizontal: linear-gradient(90deg, #ec7425, #c15304);
+  
+  /* ✅ Hero / big section gradient */
+  --cv-grad-hero: linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 40%, #FFF7ED 100%);
+  
+  /* ✅ Navy gradient (dark sections) */
+  --cv-grad-navy: linear-gradient(135deg, #1E3A8A 0%, #7C3AED 100%);
+  
+  /* ── SYSTEM ── */
+  --background:        var(--cv-neutral-white);
+  --foreground:        var(--cv-neutral-dark);
+}
+
+/* ═══════════════════════════════════════════════
+   TAILWIND THEME
+   ═══════════════════════════════════════════════ */
+
+@theme inline {
+  /* Colors */
+  --color-primary:        var(--cv-primary);
+  --color-primary-dark:   var(--cv-primary-dark);
+  --color-primary-light:  var(--cv-primary-light);
+  
+  --color-accent:         var(--cv-accent);
+  --color-accent-dark:    var(--cv-accent-dark);
+  --color-accent-light:   var(--cv-accent-light);
+  
+  --color-neutral-dark:   var(--cv-neutral-dark);
+  --color-neutral-mid:    var(--cv-neutral-mid);
+  --color-neutral-light:  var(--cv-neutral-light);
+  --color-neutral-border: var(--cv-neutral-border);
+  
+  --color-background:     var(--background);
+  --color-foreground:     var(--foreground);
+  
+  /* Fonts */
+  --font-sans: var(--font-poppins);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+}
+
+/* ═══════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════ */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  color: var(--cv-neutral-dark);
+}
+
+input, textarea, select {
+  background-color: #ffffff !important;
+  color: #171717 !important;
+}
+
+/* ═══════════════════════════════════════════════
+   REUSABLE UTILITY CLASSES
+   ═══════════════════════════════════════════════ */
+
+/* ✅ CTA Button — orange gradient */
+.cv-btn-cta {
+  background: var(--cv-grad-cta);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(193, 83, 4, 0.3);
+  transition: all 0.25s ease;
+}
+
+.cv-btn-cta:hover {
+  background: var(--cv-grad-cta-hover);
+  box-shadow: 0 6px 16px rgba(193, 83, 4, 0.45);
+  transform: translateY(-1px);
+}
+
+/* ✅ Gradient text */
+.cv-text-gradient {
+  background: var(--cv-grad-horizontal);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ✅ Gradient underline (headings ke liye) */
+.cv-underline-gradient {
+  position: relative;
+  display: inline-block;
+}
+
+.cv-underline-gradient::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 6px;
+  background: var(--cv-grad-horizontal);
+  border-radius: 999px;
+}
+
+/* ✅ Gradient divider (horizontal line) */
+.cv-divider-gradient {
+  height: 2px;
+  background: var(--cv-grad-horizontal);
+  border-radius: 2px;
+}
+
+/* ✅ Gradient icon circle */
+.cv-icon-gradient {
+  background: var(--cv-grad-cta);
+  color: #fff;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(193, 83, 4, 0.35);
 }

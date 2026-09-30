@@ -4,7 +4,7 @@ export const metadata = {
     "Find expert career counselors at CareerVidya and book a personalised career guidance session.",
 
   alternates: {
-    canonical: "https://careervidya.in/teamexpand",
+    canonical: "https://careervidya.in/our-Team",
   },
 
   robots: {
@@ -16,7 +16,7 @@ export const metadata = {
     title: "Meet Our Expert Career Counselors | CareerVidya",
     description:
       "Find expert career counselors at CareerVidya and book a personalised career guidance session.",
-    url: "https://careervidya.in/teamexpand",
+    url: "https://careervidya.in/our-Team",
     type: "website",
   },
 };

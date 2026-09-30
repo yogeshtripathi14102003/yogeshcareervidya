@@ -8,7 +8,9 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
     return null;
   }
 
-  // Calculate average rating
+  /* ═══════════════════════════════════════════════
+     Calculate average rating
+  ═══════════════════════════════════════════════ */
   const validRatings = testimonials.filter((t) => t.rating > 0);
   const avgRating =
     validRatings.length > 0
@@ -18,9 +20,9 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
         ).toFixed(1)
       : null;
 
-  // =====================================================
-  // SEO: AggregateRating + Review Schema
-  // =====================================================
+  /* ═══════════════════════════════════════════════
+     SEO: AggregateRating + Review Schema
+  ═══════════════════════════════════════════════ */
   const reviewSchema = {
     "@context": "https://schema.org",
     "@type": "Course",
@@ -59,42 +61,62 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
 
       <section
         aria-labelledby="testimonials-heading"
-        className="w-full py-16 bg-gradient-to-b from-white to-slate-50 font-sans"
+        className="w-full py-16 font-sans"
+        style={{
+          background:
+            "linear-gradient(180deg, #fff 0%, var(--cv-neutral-light) 100%)",
+        }}
       >
         <div className="max-w-[1400px] mx-auto px-4 md:px-10">
-          {/* ============ HEADER ============ */}
+          {/* ═══════════════════════════════════════════
+              HEADER
+          ═══════════════════════════════════════════ */}
           <header className="text-center mb-12">
-            <span className="inline-block text-xs md:text-sm font-bold tracking-[0.2em] text-blue-600 uppercase mb-3">
+            <span
+              className="inline-block text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-3"
+              style={{ color: "var(--cv-primary)" }}
+            >
               Student Success Stories
             </span>
 
             <h2
               id="testimonials-heading"
-              className="text-3xl md:text-4xl font-extrabold text-[#002147] leading-tight mb-4"
+              className="text-3xl md:text-4xl font-extrabold leading-tight mb-4"
+              style={{ color: "var(--cv-primary)" }}
             >
               What Our{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Students Say
-              </span>
+              <span style={{ color: "var(--cv-accent)" }}>Students Say</span>
             </h2>
 
             <div
               aria-hidden="true"
-              className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full"
+              className="w-20 h-1 mx-auto rounded-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, var(--cv-primary), var(--cv-accent))",
+              }}
             />
 
             {/* Average Rating Summary */}
             {avgRating && (
-              <div className="mt-6 inline-flex items-center gap-3 bg-white border border-slate-200 rounded-full px-5 py-2.5 shadow-sm">
+              <div
+                className="mt-6 inline-flex items-center gap-3 rounded-full px-5 py-2.5 shadow-sm"
+                style={{
+                  background: "#fff",
+                  border: "1px solid var(--cv-neutral-border)",
+                }}
+              >
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg
                       key={star}
-                      className={`w-4 h-4 ${
-                        star <= Math.round(avgRating)
-                          ? "text-amber-400"
-                          : "text-slate-200"
-                      }`}
+                      className="w-4 h-4"
+                      style={{
+                        color:
+                          star <= Math.round(avgRating)
+                            ? "var(--cv-accent)"
+                            : "var(--cv-neutral-border)",
+                      }}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       aria-hidden="true"
@@ -103,10 +125,16 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                     </svg>
                   ))}
                 </div>
-                <span className="text-sm font-bold text-[#002147]">
+                <span
+                  className="text-sm font-bold"
+                  style={{ color: "var(--cv-primary)" }}
+                >
                   {avgRating} / 5
                 </span>
-                <span className="text-xs text-gray-500">
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--cv-neutral-mid)" }}
+                >
                   ({validRatings.length} review
                   {validRatings.length > 1 ? "s" : ""})
                 </span>
@@ -114,7 +142,9 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
             )}
           </header>
 
-          {/* ============ TESTIMONIALS GRID ============ */}
+          {/* ═══════════════════════════════════════════
+              TESTIMONIALS GRID
+          ═══════════════════════════════════════════ */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((t, index) => (
               <article
@@ -122,25 +152,46 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                 itemScope
                 itemProp="review"
                 itemType="https://schema.org/Review"
-                className="group relative bg-white rounded-2xl p-6 md:p-7 border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                className="group relative rounded-2xl p-6 md:p-7 shadow-sm transition-all duration-300 flex flex-col"
+                style={{
+                  background: "#fff",
+                  border: "1px solid var(--cv-neutral-border)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--cv-primary)";
+                  e.currentTarget.style.boxShadow =
+                    "0 20px 40px rgba(30, 58, 138, 0.15)";
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor =
+                    "var(--cv-neutral-border)";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
               >
-                {/* Quote Icon */}
+                {/* Quote Icon — Light Navy */}
                 <div
                   aria-hidden="true"
-                  className="absolute top-4 right-4 text-5xl font-serif text-blue-100 leading-none select-none"
+                  className="absolute top-4 right-4 text-5xl font-serif leading-none select-none"
+                  style={{ color: "var(--cv-primary-light)" }}
                 >
                   &ldquo;
                 </div>
 
-                {/* Rating Stars */}
+                {/* Rating Stars — Orange accent */}
                 {t.rating > 0 && (
                   <div className="flex items-center gap-0.5 mb-4">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <svg
                         key={star}
-                        className={`w-4 h-4 ${
-                          star <= t.rating ? "text-amber-400" : "text-slate-200"
-                        }`}
+                        className="w-4 h-4"
+                        style={{
+                          color:
+                            star <= t.rating
+                              ? "var(--cv-accent)"
+                              : "var(--cv-neutral-border)",
+                        }}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         aria-hidden="true"
@@ -155,15 +206,22 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                 {t.review && (
                   <div
                     itemProp="reviewBody"
-                    className="text-gray-700 text-sm md:text-base leading-relaxed mb-5 flex-1 prose prose-sm max-w-none"
+                    className="text-sm md:text-base leading-relaxed mb-5 flex-1 prose prose-sm max-w-none"
+                    style={{ color: "var(--cv-neutral-dark)" }}
                     dangerouslySetInnerHTML={{ __html: t.review }}
                   />
                 )}
 
                 {/* Student Info */}
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                <div
+                  className="flex items-center gap-3 pt-4"
+                  style={{ borderTop: "1px solid var(--cv-neutral-border)" }}
+                >
                   {/* Avatar */}
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                  <div
+                    className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden flex items-center justify-center"
+                    style={{ background: "var(--cv-primary)" }}
+                  >
                     {t.image?.url ? (
                       <Image
                         src={t.image.url}
@@ -173,7 +231,10 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-white font-bold text-lg">
+                      <span
+                        className="font-bold text-lg"
+                        style={{ color: "#fff" }}
+                      >
                         {t.name?.charAt(0)?.toUpperCase() || "S"}
                       </span>
                     )}
@@ -186,24 +247,34 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                         itemProp="author"
                         itemScope
                         itemType="https://schema.org/Person"
-                        className="font-bold text-sm text-[#002147] truncate"
+                        className="font-bold text-sm truncate"
+                        style={{ color: "var(--cv-primary)" }}
                       >
                         <span itemProp="name">{t.name}</span>
                       </p>
                     )}
 
-                    <p className="text-xs text-gray-500 truncate">
+                    <p
+                      className="text-xs truncate"
+                      style={{ color: "var(--cv-neutral-mid)" }}
+                    >
                       {t.course && <span>{t.course}</span>}
                       {t.course && t.university && " • "}
                       {t.university && (
-                        <span className="font-medium text-gray-600">
+                        <span
+                          className="font-medium"
+                          style={{ color: "var(--cv-neutral-dark)" }}
+                        >
                           {t.university}
                         </span>
                       )}
                     </p>
 
                     {t.year && (
-                      <p className="text-[10px] text-gray-400 mt-0.5">
+                      <p
+                        className="text-[10px] mt-0.5"
+                        style={{ color: "var(--cv-neutral-mid)" }}
+                      >
                         Batch of {t.year}
                       </p>
                     )}

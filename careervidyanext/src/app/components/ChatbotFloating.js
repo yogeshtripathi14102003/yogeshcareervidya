@@ -642,7 +642,7 @@ export default function CareervidyaFormModal() {
                   style={imageCardStyle}
                 >
                   <Image
-                    src="/images/112.png"
+                    src="/images/112.jpeg"
                     alt="Career Counselling"
                     fill
                     priority

@@ -12,25 +12,20 @@ export default function CantFindGuidance() {
       {/* CALLBACK SECTION */}
       <section className="w-full bg-white py-4 sm:py-5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* CALLBACK BANNER */}
+
+          {/* CALLBACK BANNER — soft 3-color gradient */}
           <div
-            className="
-              w-full
-              bg-gradient-to-r
-              from-[#FFF0D5]
-              via-[#F8EEF0]
-              to-[#E9E8FF]
-              p-[4px]
-              shadow-[0_5px_18px_rgba(0,0,0,0.08)]
-            "
+            className="w-full p-[4px] shadow-[0_5px_18px_rgba(0,0,0,0.08)]"
+            style={{
+              background:
+                "linear-gradient(90deg, #EFF6FF 0%, #FFFFFF 50%, #FFF7ED 100%)",
+            }}
           >
-            {/* INNER BORDER */}
+            {/* INNER BORDER — neutral */}
             <div
               className="
                 w-full
                 border-2
-                border-[#C9C9EE]
                 px-5
                 py-4
                 sm:px-7
@@ -38,6 +33,7 @@ export default function CantFindGuidance() {
                 md:px-9
                 md:py-5
               "
+              style={{ borderColor: "#E5E7EB" }}
             >
               <div
                 className="
@@ -51,33 +47,35 @@ export default function CantFindGuidance() {
               >
                 {/* LEFT CONTENT */}
                 <div className="flex-1 text-center md:text-left">
+                  {/* ✅ HEADING — Dark navy (NOT black) */}
                   <h2
                     className="
                       mb-1
                       text-lg
                       font-bold
                       leading-tight
-                      text-[#05347F]
                       sm:text-xl
                       md:text-[22px]
                     "
+                    style={{ color: "#1E3A8A" }}
                   >
                     Can't find right guidance?
                   </h2>
 
+                  {/* ✅ SUBTEXT — Neutral mid grey */}
                   <p
                     className="
                       mb-3
                       text-xs
                       leading-relaxed
-                      text-slate-700
                       sm:text-sm
                     "
+                    style={{ color: "#64748B" }}
                   >
                     No Problem! Speak to our experts safely from your home.
                   </p>
 
-                  {/* CAREERVIDYA ORANGE BUTTON */}
+                  {/* ✅ CAREERVIDYA GRADIENT BUTTON */}
                   <button
                     type="button"
                     onClick={() => setOpenCallback(true)}
@@ -86,7 +84,6 @@ export default function CantFindGuidance() {
                       items-center
                       justify-center
                       rounded-md
-                      bg-[#c15304]
                       cursor-pointer
                       px-6
                       py-2.5
@@ -96,13 +93,23 @@ export default function CantFindGuidance() {
                       shadow-sm
                       transition-all
                       duration-300
-                      hover:bg-[#e66f0d]
                       hover:shadow-md
                       active:scale-95
                       sm:px-7
                       sm:py-2.5
                       sm:text-sm
                     "
+                    style={{
+                      background: "linear-gradient(180deg, #ec7425, #c15304)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        "linear-gradient(180deg, #c15304, #a34203)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background =
+                        "linear-gradient(180deg, #ec7425, #c15304)";
+                    }}
                   >
                     Request a Call Back
                   </button>

@@ -4,13 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import Signup from "@/app/signup/page.jsx";
 
-/* ================= LOGIN CHECK ================= */
+/* ═══════════════════════════════════════════════
+   LOGIN CHECK
+═══════════════════════════════════════════════ */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("accessToken");
 };
 
-// Partner logos - EMI/Loan partners
+/* Partner logos - EMI/Loan partners */
 const partners = [
   { name: "LIQUILOANS", src: "/logos/liquiloans.png", alt: "LiquiLoans" },
   { name: "EarlySalary", src: "/logos/earlysalary.png", alt: "EarlySalary" },
@@ -29,17 +31,17 @@ export default function Careervidyabenifit({
 
   if (!courseBenifit || courseBenifit.length === 0) return null;
 
-  /* ================= HANDLE BUTTON CLICK ================= */
+  /* ═══════════════════════════════════════════════
+     HANDLE BUTTON CLICK
+  ═══════════════════════════════════════════════ */
   const handleActionClick = (action) => {
     if (!isLoggedIn()) {
       setShowSignup(true);
       return;
     }
 
-    // Logged in → scroll to apply section (or perform action)
     const target =
-      document.getElementById("apply") ||
-      document.getElementById("signup");
+      document.getElementById("apply") || document.getElementById("signup");
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "center" });
     } else {
@@ -49,33 +51,62 @@ export default function Careervidyabenifit({
 
   return (
     <>
-      <section className="bg-blue-900 text-white py-10 sm:py-14 md:py-16 px-4 sm:px-6">
+      <section
+        className="py-10 sm:py-14 md:py-16 px-4 sm:px-6"
+        style={{ background: "var(--cv-primary)", color: "#fff" }}
+      >
         <div className="max-w-6xl mx-auto text-center space-y-6 sm:space-y-8">
-          {/* Title */}
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold leading-snug px-2">
+          {/* ═══════════════════════════════════════════
+              TITLE — White
+          ═══════════════════════════════════════════ */}
+          <h2
+            className="text-xl sm:text-2xl md:text-3xl font-bold leading-snug px-2"
+            style={{ color: "#fff" }}
+          >
             Career Vidya Benefits for {courseTitle}
           </h2>
 
-          {/* Benefit List */}
+          {/* ═══════════════════════════════════════════
+              BENEFIT LIST
+          ═══════════════════════════════════════════ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8 text-left">
             {courseBenifit.map((item, i) => (
               <div
                 key={i}
-                className="bg-white/10 border border-white/10 rounded-xl p-4 sm:p-6 hover:bg-white/20 transition-colors"
+                className="rounded-xl p-4 sm:p-6 transition-colors"
+                style={{
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background =
+                    "rgba(255, 255, 255, 0.18)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background =
+                    "rgba(255, 255, 255, 0.1)";
+                }}
               >
                 {typeof item === "string" ? (
-                  <p className="text-sm sm:text-base font-medium leading-relaxed break-words">
+                  <p
+                    className="text-sm sm:text-base font-medium leading-relaxed break-words"
+                    style={{ color: "#fff" }}
+                  >
                     {item}
                   </p>
                 ) : (
                   <>
                     {item.title && (
-                      <h3 className="text-base sm:text-lg font-bold mb-2 break-words">
+                      <h3
+                        className="text-base sm:text-lg font-bold mb-2 break-words"
+                        style={{ color: "#fff" }}
+                      >
                         {item.title}
                       </h3>
                     )}
                     <div
-                      className="text-sm sm:text-base font-medium leading-relaxed text-white/90 prose prose-sm prose-invert max-w-none break-words"
+                      className="text-sm sm:text-base font-medium leading-relaxed prose prose-sm prose-invert max-w-none break-words"
+                      style={{ color: "rgba(255, 255, 255, 0.9)" }}
                       dangerouslySetInnerHTML={{
                         __html: item.description || "",
                       }}
@@ -86,31 +117,52 @@ export default function Careervidyabenifit({
             ))}
           </div>
 
-          {/* Action Buttons */}
+          {/* ═══════════════════════════════════════════
+              ACTION BUTTONS — Navy outline style (on navy bg)
+              Since background is navy, buttons should be WHITE or ORANGE
+          ═══════════════════════════════════════════ */}
           <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full">
+            {/* Primary CTA — Orange gradient */}
             <button
               type="button"
               onClick={() => handleActionClick("no-cost-emi")}
-              className="w-full sm:w-auto bg-[#c15304] hover:bg-[#a34403] transition text-white font-semibold py-3 px-6 rounded-lg text-sm sm:text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c15304] focus-visible:ring-offset-2 focus-visible:ring-offset-blue-900"
+              className="cv-btn-cta w-full sm:w-auto py-3 px-6 text-sm sm:text-base cursor-pointer"
             >
               Apply For No Cost EMI →
             </button>
 
+            {/* Secondary CTA — White outline on navy */}
             <button
               type="button"
               onClick={() => handleActionClick("compare-emi")}
-              className="w-full sm:w-auto bg-[#c15304] hover:bg-[#a34403] transition text-white font-semibold py-3 px-6 rounded-lg text-sm sm:text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c15304] focus-visible:ring-offset-2 focus-visible:ring-offset-blue-900"
+              className="w-full sm:w-auto py-3 px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors cursor-pointer"
+              style={{
+                background: "transparent",
+                border: "1px solid #fff",
+                color: "#fff",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#fff";
+                e.currentTarget.style.color = "var(--cv-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#fff";
+              }}
             >
               Compare EMI Partners →
             </button>
           </div>
 
-          {/* Partner Logos */}
+          {/* ═══════════════════════════════════════════
+              PARTNER LOGOS
+          ═══════════════════════════════════════════ */}
           <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 mt-6 sm:mt-8 items-center justify-items-center">
             {partners.map((partner) => (
               <div
                 key={partner.name}
-                className="bg-white p-2 sm:p-3 rounded-md flex items-center justify-center w-full h-12 sm:h-14 md:h-16"
+                className="p-2 sm:p-3 rounded-md flex items-center justify-center w-full h-12 sm:h-14 md:h-16"
+                style={{ background: "#fff" }}
               >
                 <Image
                   src={partner.src}

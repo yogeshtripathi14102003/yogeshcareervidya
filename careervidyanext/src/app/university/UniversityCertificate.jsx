@@ -110,91 +110,112 @@
 
 // export default RecognitionSection;
 
-
 "use client";
 
 import { cleanHtml } from "@/utlis/cleanHtml.js";
 
 const BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || "";
+  process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || "";
 
 export default function UniversityCertificate({ data }) {
-    const recognition = data?.recognition || {};
-    const universityName = data?.name || "This University";
+  const recognition = data?.recognition || {};
+  const universityName = data?.name || "This University";
 
-    const recognitionHeading =
-        recognition.recognitionHeading ||
-        `${universityName} Recognition & Accreditation`;
+  const recognitionHeading =
+    recognition.recognitionHeading ||
+    `${universityName} Recognition & Accreditation`;
 
-    const recognitionDescription =
-        recognition.recognitionDescription ||
-        `Earn a degree from ${universityName} that is widely recognized around the globe.`;
+  const recognitionDescription =
+    recognition.recognitionDescription ||
+    `Earn a degree from ${universityName} that is widely recognized around the globe.`;
 
-    const recognitionPoints = recognition.recognitionPoints || [];
+  const recognitionPoints = recognition.recognitionPoints || [];
 
-    const certificateImage = recognition.certificateImage
-        ? recognition.certificateImage.startsWith("http")
-            ? recognition.certificateImage
-            : `${BASE_URL.replace(/\/$/, "")}/${recognition.certificateImage.replace(
-                  /^\/+/,
-                  ""
-              )}`
-        : null;
+  const certificateImage = recognition.certificateImage
+    ? recognition.certificateImage.startsWith("http")
+      ? recognition.certificateImage
+      : `${BASE_URL.replace(/\/$/, "")}/${recognition.certificateImage.replace(
+          /^\/+/,
+          ""
+        )}`
+    : null;
 
-    if (
-        !recognition.recognitionHeading &&
-        !recognitionPoints.length &&
-        !certificateImage
-    )
-        return null;
+  if (
+    !recognition.recognitionHeading &&
+    !recognitionPoints.length &&
+    !certificateImage
+  )
+    return null;
 
-    return (
-        <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-2">
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                        {recognitionHeading}
-                    </h2>
-                    <div
-                        className="prose prose-sm max-w-none text-gray-700 mb-5"
-                        dangerouslySetInnerHTML={{
-                            __html: cleanHtml(recognitionDescription),
-                        }}
-                    />
-                    <ul className="space-y-3">
-                        {recognitionPoints.map((point, index) => (
-                            <li
-                                key={index}
-                                className="flex items-start gap-3 text-gray-700"
-                            >
-                                <span className="text-green-600 mt-0.5 shrink-0">
-                                    ✅
-                                </span>
-                                <span
-                                    className="text-base leading-relaxed"
-                                    dangerouslySetInnerHTML={{
-                                        __html: cleanHtml(point),
-                                    }}
-                                />
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+  return (
+    <section
+      className="bg-white rounded-2xl p-8 shadow-sm"
+      style={{ border: "1px solid var(--cv-neutral-border)" }}
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="lg:col-span-2">
+          {/* ✅ Heading — Navy (global CSS) */}
+          <h2
+            className="text-2xl md:text-3xl font-bold mb-3"
+            style={{ color: "var(--cv-primary)" }}
+          >
+            {recognitionHeading}
+          </h2>
 
-                <div className="lg:col-span-1">
-                    {certificateImage ? (
-                        <img
-                            src={certificateImage}
-                            alt={`${universityName} Sample Certificate`}
-                            className="w-full rounded-xl border border-gray-200 shadow-md"
-                        />
-                    ) : (
-                        <div className="w-full min-h-[200px] rounded-xl border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-sm bg-gray-50">
-                            Certificate Not Available
-                        </div>
-                    )}
-                </div>
+          <div
+            className="prose prose-sm max-w-none mb-5"
+            style={{ color: "var(--cv-neutral-mid)" }}
+            dangerouslySetInnerHTML={{
+              __html: cleanHtml(recognitionDescription),
+            }}
+          />
+
+          <ul className="space-y-3">
+            {recognitionPoints.map((point, index) => (
+              <li
+                key={index}
+                className="flex items-start gap-3"
+                style={{ color: "var(--cv-neutral-dark)" }}
+              >
+                <span
+                  className="mt-0.5 shrink-0"
+                  style={{ color: "var(--cv-primary)" }}
+                >
+                  ✅
+                </span>
+                <span
+                  className="text-base leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: cleanHtml(point),
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="lg:col-span-1">
+          {certificateImage ? (
+            <img
+              src={certificateImage}
+              alt={`${universityName} Sample Certificate`}
+              className="w-full rounded-xl shadow-md"
+              style={{ border: "1px solid var(--cv-neutral-border)" }}
+            />
+          ) : (
+            <div
+              className="w-full min-h-[200px] rounded-xl flex items-center justify-center text-sm"
+              style={{
+                border: "1px dashed var(--cv-neutral-border)",
+                color: "var(--cv-neutral-mid)",
+                background: "var(--cv-neutral-light)",
+              }}
+            >
+              Certificate Not Available
             </div>
-        </section>
-    );
+          )}
+        </div>
+      </div>
+    </section>
+  );
 }

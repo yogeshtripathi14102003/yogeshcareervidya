@@ -688,45 +688,39 @@
 //   );
 // }
 
-
 "use client";
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import api from "@/utlis/api.js";
 import { X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
+import { useQuery } from "@tanstack/react-query";
 
-const globalCoursesCache = {};
-
+// ─── CourseCard ────────────────────────────────────────────────
 const CourseCard = ({ course, index }) => {
   const isClickable = index < 35;
-
-  // First 3 courses will have TRENDING label
   const isTrending = index < 3;
 
-  // Special redirect courses
   const specialRedirectCourses = [
     "btech-for-working-professional",
     "mtech-for-working-professionals",
     "diploma-for-working-professionals",
   ];
 
-  // Only these two courses will redirect to
-  // continuing-education-programs
   const courseHref = specialRedirectCourses.includes(course.slug)
     ? "/continuing-education-programs"
     : `/course/${course.slug}`;
 
   return (
     <div className="relative w-full h-full">
-      {/* TRENDING LABEL - ONLY FIRST 2 CARDS */}
       {isTrending && (
         <div
           className="absolute z-10 -top-2 left-1/2 -translate-x-1/2 
-          bg-white px-2 text-[7px] md:text-[9px] font-black 
-          text-[#c15304] uppercase tracking-wide whitespace-nowrap"
+          bg-white px-2 text-[7px] md:text-[9px] font-semibold 
+          uppercase tracking-wide whitespace-nowrap"
+          style={{ color: "var(--cv-accent)" }}
         >
           TRENDING
         </div>
@@ -734,20 +728,28 @@ const CourseCard = ({ course, index }) => {
 
       <Link
         href={courseHref}
-        className={`w-full bg-white border-[1px] md:border-2 
-        ${
-          isTrending
-            ? "border-[#c15304]"
-            : "border-gray-200"
-        }
-        rounded-md p-1.5 md:p-2 
+        className={`w-full bg-white rounded-md p-1.5 md:p-2 
         flex flex-col items-center justify-between h-full 
         transition-all duration-200
-        ${
-          isClickable
-            ? "cursor-pointer hover:border-[#0056B3] hover:shadow-md"
-            : "pointer-events-none opacity-70"
-        }`}
+        ${isClickable ? "cursor-pointer" : "pointer-events-none opacity-70"}`}
+        style={{
+          border: isTrending
+            ? "2px solid var(--cv-accent)"
+            : "1.5px solid var(--cv-neutral-border)",
+        }}
+        onMouseEnter={(e) => {
+          if (isClickable) {
+            e.currentTarget.style.borderColor = "var(--cv-primary)";
+            e.currentTarget.style.boxShadow =
+              "0 4px 12px rgba(30,58,138,0.15)";
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = isTrending
+            ? "var(--cv-accent)"
+            : "var(--cv-neutral-border)";
+          e.currentTarget.style.boxShadow = "none";
+        }}
         aria-label={`Learn more about ${course.name}`}
       >
         <div className="flex justify-center mb-1">
@@ -762,12 +764,18 @@ const CourseCard = ({ course, index }) => {
         </div>
 
         <div className="text-center mb-1.5 px-0.5">
-          <h3 className="font-black text-gray-900 text-[7.5px] md:text-[11px] line-clamp-2 leading-tight uppercase">
+          <h3
+            className="font-semibold text-[7.5px] md:text-[11px] line-clamp-2 leading-tight uppercase"
+            style={{ color: "var(--cv-primary)" }}
+          >
             {course.name}
           </h3>
         </div>
 
-        <div className="bg-[#0056B3] cursor-pointer text-white text-[7px] md:text-[10px] py-1 md:py-1.5 w-full rounded-sm text-center uppercase mt-auto">
+        <div
+          className="cursor-pointer text-white text-[7px] md:text-[10px] py-1 md:py-1.5 w-full rounded-sm text-center uppercase mt-auto font-medium"
+          style={{ background: "var(--cv-primary)" }}
+        >
           Know More
         </div>
       </Link>
@@ -775,14 +783,7 @@ const CourseCard = ({ course, index }) => {
   );
 };
 
-// initialCourses should be fetched on the server (see CourseGridSection.jsx)
-// and passed in as a prop. That guarantees the very first HTML response
-// already contains real course cards — Google never sees a loading state.
-// If this component is ever rendered with no initialCourses, it still
-// works correctly; it just fetches on mount like before.
-
-// These 5 courses are always pinned right after the first 3 TRENDING cards,
-// in this exact order.
+// ─── Priority Courses ──────────────────────────────────────────
 const priorityAfterTrending = [
   "1-year-online-mba",
   "online-mba-1",
@@ -791,21 +792,15 @@ const priorityAfterTrending = [
   "online-bca-bachelor-of-computer-applications",
 ];
 
+const normalizeSlug = (s) => (s || "").toString().trim().toLowerCase();
+
+// ═══════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════
 export default function CoursesClient({ initialCourses = [] }) {
-  const [courses, setCourses] = useState(initialCourses);
-  const [allCourses, setAllCourses] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  // Popup loading/error state
-  const [popupLoading, setPopupLoading] = useState(false);
-  const [popupError, setPopupError] = useState(false);
-
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(24);
-
-  // Tracks whether this is the very first render with server-provided data
-  const isFirstRun = useRef(true);
 
   const sidebarItems = [
     { key: "All", title: "All Courses" },
@@ -815,112 +810,78 @@ export default function CoursesClient({ initialCourses = [] }) {
     { key: "Doctorate", title: "Doctorate" },
   ];
 
+  // ✅ Responsive display limit
   useEffect(() => {
     const updateLimit = () =>
       setDisplayLimit(window.innerWidth < 768 ? 12 : 24);
-
     updateLimit();
-
     window.addEventListener("resize", updateLimit);
-
     return () => window.removeEventListener("resize", updateLimit);
   }, []);
 
-  useEffect(() => {
-    // NOTE: previously this effect skipped the client-side fetch entirely
-    // on first mount whenever the server already provided `initialCourses`
-    // (for category "All"). That meant priority pinning only ever had
-    // access to whatever CourseGridSection.jsx fetched server-side —
-    // which may use a different/smaller limit — so priority courses
-    // missing from that smaller server-side list never got pinned until
-    // the user switched categories (which triggers a real client fetch).
-    //
-    // Now: `initialCourses` still renders instantly on first paint (fast,
-    // good for SEO), but a full client-side fetch always runs right after,
-    // fetching the larger pool (`fetchLimit` below) so priority pinning
-    // has the complete picture regardless of what the server sent.
-    const isSilentInitialFetch =
-      isFirstRun.current && selectedCategory === "All" && initialCourses.length > 0;
-    isFirstRun.current = false;
-
-    const fetchCourses = async () => {
+  /* ═══════════════════════════════════════════════════════════
+     ✅ REACT QUERY — Main courses
+     - initialData use karo (SSR) → 0 network call on first load
+     - staleTime 30 min → background refetch nahi hoga
+     - category change pe different queryKey → cache alag
+  ═══════════════════════════════════════════════════════════ */
+  const {
+    data: courses = [],
+    isLoading: loading,
+    isError: fetchError,
+  } = useQuery({
+    queryKey: ["courses", selectedCategory],
+    queryFn: async () => {
       const page = 1;
-      // Fetch a much larger pool than what's actually shown, so the
-      // trending + oldest-first sorting in `visibleCourses` has the
-      // full picture to work with — not just whatever happened to be
-      // within the first `displayLimit` results from the API.
       const fetchLimit = 200;
-      const cacheKey = `${selectedCategory}_${page}_${fetchLimit}`;
 
-      if (globalCoursesCache[cacheKey]) {
-        setCourses(globalCoursesCache[cacheKey]);
-        return;
-      }
+      const url =
+        selectedCategory === "All"
+          ? `/api/v1/short?page=${page}&limit=${fetchLimit}`
+          : `/api/v1/short?category=${selectedCategory}&page=${page}&limit=${fetchLimit}`;
 
-      // Don't flash the "Updating..." indicator for the silent
-      // background fetch that follows the initial server-rendered
-      // paint — only show it for fetches triggered by the user
-      // (e.g. switching category).
-      if (!isSilentInitialFetch) {
-        setLoading(true);
-      }
+      const res = await api.get(url);
+      return res.data.courses || [];
+    },
+    initialData:
+      selectedCategory === "All" && initialCourses.length > 0
+        ? initialCourses
+        : undefined,
+    staleTime: 30 * 60 * 1000, // 30 min
+    gcTime: 60 * 60 * 1000, // 1 hour
+  });
 
-      try {
-        const url =
-          selectedCategory === "All"
-            ? `/api/v1/short?page=${page}&limit=${fetchLimit}`
-            : `/api/v1/short?category=${selectedCategory}&page=${page}&limit=${fetchLimit}`;
-
-        const res = await api.get(url);
-        const fetchedData = res.data.courses || [];
-
-        globalCoursesCache[cacheKey] = fetchedData;
-        setCourses(fetchedData);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, [selectedCategory, displayLimit]);
-
-  const fetchAllCourses = async () => {
-    setPopupLoading(true);
-    setPopupError(false);
-
-    try {
+  /* ═══════════════════════════════════════════════════════════
+     ✅ REACT QUERY — Popup full catalog
+     - Sirf tab fetch jab popup open ho (enabled)
+     - staleTime 30 min → dobara open karne pe cache se
+  ═══════════════════════════════════════════════════════════ */
+  const {
+    data: allCourses = [],
+    isLoading: popupLoading,
+    isError: popupError,
+  } = useQuery({
+    queryKey: ["courses-popup", selectedCategory],
+    queryFn: async () => {
       const url =
         selectedCategory === "All"
           ? `/api/v1/short?limit=1000`
           : `/api/v1/short?category=${selectedCategory}&limit=1000`;
 
       const res = await api.get(url);
+      return res.data.courses || [];
+    },
+    enabled: isPopupOpen,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  });
 
-      setAllCourses(res.data.courses || []);
-    } catch (err) {
-      console.error(err);
-      setPopupError(true);
-    } finally {
-      setPopupLoading(false);
-    }
-  };
-
-  // Keep original API/database order, but pin the 5 priority courses
-  // right after the top 3 trending cards, in the given sequence.
-  //
-  // IMPORTANT: priority courses are located in the FULL `courses` array
-  // (not the displayLimit-sliced one), so they still get pinned even if
-  // they'd otherwise fall outside the visible slice. Matching is
-  // trimmed + lowercased to avoid silent misses from stray whitespace
-  // or casing differences coming from the API.
-  const normalizeSlug = (s) => (s || "").toString().trim().toLowerCase();
-
+  /* ═══════════════════════════════════════════════════════════
+     ✅ VISIBLE COURSES — priority pinned
+  ═══════════════════════════════════════════════════════════ */
   const visibleCourses = useMemo(() => {
     const all = [...courses];
 
-    // Pull out the priority courses (in their given order) from wherever they are
     const picked = [];
     priorityAfterTrending.forEach((slug) => {
       const idx = all.findIndex(
@@ -932,44 +893,27 @@ export default function CoursesClient({ initialCourses = [] }) {
       }
     });
 
-    // First 3 remaining items stay exactly as the API returned them —
-    // these are the "TRENDING" cards.
     const trending = all.slice(0, 3);
 
-    // Everything else is sorted oldest-first (ascending createdAt), so
-    // whichever course was added earliest shows up first among the
-    // non-trending cards.
     const rest = [...all.slice(3)].sort((a, b) => {
       const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return aTime - bTime;
     });
 
-    // Trim the remaining (non-priority) courses to the display limit,
-    // reserving room for the priority courses on top of that limit.
     const remainingLimit = Math.max(displayLimit - picked.length, 0);
     const limited = [...trending, ...rest].slice(0, remainingLimit);
 
-    // Insert priority courses right after the first 3 trending cards
     limited.splice(3, 0, ...picked);
 
     return limited;
   }, [courses, displayLimit]);
 
-  // TEMPORARY DEBUG LOG — remove after checking console output
-  // useEffect(() => {
-  //   console.log(
-  //     "All course slugs currently in `courses`:",
-  //     courses.map((c) => c.slug)
-  //   );
-  // }, [courses]);
+  const sortedPopupCourses = useMemo(() => allCourses, [allCourses]);
 
-  // Keep original API/database order in popup
-  const sortedPopupCourses = useMemo(() => {
-    return allCourses;
-  }, [allCourses]);
-
-  // JSON-LD Structured Data
+  /* ═══════════════════════════════════════════════════════════
+     JSON-LD
+  ═══════════════════════════════════════════════════════════ */
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -977,17 +921,14 @@ export default function CoursesClient({ initialCourses = [] }) {
     description:
       "Browse PG, UG, Executive, and Doctorate online courses at CareerVidya",
     numberOfItems: visibleCourses.length,
-
     itemListElement: visibleCourses.map((course, i) => ({
       "@type": "ListItem",
       position: i + 1,
-
       item: {
         "@type": "Course",
         name: course.name,
         url: `https://careervidya.in/course/${course.slug}`,
         image: course.courseLogo?.url || "",
-
         provider: {
           "@type": "Organization",
           name: "CareerVidya",
@@ -1001,21 +942,23 @@ export default function CoursesClient({ initialCourses = [] }) {
       <Script
         id="courses-jsonld"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       <div className="w-full bg-white">
         <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 md:py-10">
-
-          {/* SECTION HEADER */}
+          {/* HEADER */}
           <header className="mb-6 md:mb-10 text-center">
-            <h2 className="text-xl md:text-3xl font-black text-[#0056B3] uppercase">
+            <h2
+              className="text-xl md:text-3xl font-bold uppercase"
+              style={{ color: "var(--cv-primary)" }}
+            >
               Find the Right Course for Your Career
             </h2>
-
-            <p className="mt-1 text-gray-500 text-[10px] md:text-sm italic">
+            <p
+              className="mt-1 text-[10px] md:text-sm italic"
+              style={{ color: "var(--cv-neutral-mid)" }}
+            >
               Empowering your future with CareerVidya
             </p>
           </header>
@@ -1026,21 +969,26 @@ export default function CoursesClient({ initialCourses = [] }) {
             className="block lg:hidden mb-6"
           >
             <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
-              {sidebarItems.map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setSelectedCategory(item.key)}
-                  aria-pressed={selectedCategory === item.key}
-                  className={`px-4 py-1.5 text-[10px] cursor-pointer font-black border-2 rounded-full whitespace-nowrap
-                  ${
-                    selectedCategory === item.key
-                      ? "bg-[#0056B3] text-white"
-                      : "bg-white text-black border-gray-300"
-                  }`}
-                >
-                  {item.title}
-                </button>
-              ))}
+              {sidebarItems.map((item) => {
+                const isActive = selectedCategory === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => setSelectedCategory(item.key)}
+                    aria-pressed={isActive}
+                    className="px-4 py-1.5 text-[10px] cursor-pointer font-semibold border-2 rounded-full whitespace-nowrap transition-all"
+                    style={{
+                      background: isActive ? "var(--cv-primary)" : "#ffffff",
+                      color: isActive ? "#ffffff" : "var(--cv-neutral-dark)",
+                      borderColor: isActive
+                        ? "var(--cv-primary)"
+                        : "var(--cv-neutral-border)",
+                    }}
+                  >
+                    {item.title}
+                  </button>
+                );
+              })}
             </div>
           </nav>
 
@@ -1060,18 +1008,30 @@ export default function CoursesClient({ initialCourses = [] }) {
             </div>
 
             {loading && (
-              <div className="mt-4 text-[#0056B3] font-bold">
+              <div
+                className="mt-4 font-semibold text-sm"
+                style={{ color: "var(--cv-primary)" }}
+              >
                 Updating...
               </div>
             )}
 
             {!loading && courses.length >= displayLimit && (
               <button
-                onClick={() => {
-                  setIsPopupOpen(true);
-                  fetchAllCourses();
+                onClick={() => setIsPopupOpen(true)}
+                className="mt-10 cursor-pointer text-white font-semibold py-3 px-10 rounded-lg uppercase text-[10px] md:text-sm transition-all duration-200"
+                style={{
+                  background: "var(--cv-grad-cta)",
+                  boxShadow: "0 8px 20px rgba(193, 83, 4, 0.3)",
                 }}
-                className="mt-10 bg-[#c15304] cursor-pointer text-white font-black py-3 px-10 rounded-lg uppercase text-[10px] md:text-sm"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--cv-grad-cta-hover)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--cv-grad-cta)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
               >
                 Explore Full Catalog
               </button>
@@ -1087,15 +1047,20 @@ export default function CoursesClient({ initialCourses = [] }) {
               aria-label="Full Course Catalog"
             >
               <div
-                className="absolute inset-0 bg-black/70"
+                className="absolute inset-0"
+                style={{ background: "rgba(15,23,42,0.7)" }}
                 onClick={() => setIsPopupOpen(false)}
               />
 
               <div className="relative bg-white w-full max-w-6xl max-h-[85vh] overflow-hidden flex flex-col rounded-lg">
-
-                {/* POPUP HEADER */}
-                <div className="flex justify-between p-4 border-b">
-                  <h2 className="font-black text-[#0056B3] uppercase">
+                <div
+                  className="flex justify-between p-4"
+                  style={{ borderBottom: "1px solid var(--cv-neutral-border)" }}
+                >
+                  <h2
+                    className="font-bold uppercase"
+                    style={{ color: "var(--cv-primary)" }}
+                  >
                     {selectedCategory} Programs
                   </h2>
 
@@ -1107,17 +1072,24 @@ export default function CoursesClient({ initialCourses = [] }) {
                   </button>
                 </div>
 
-                {/* POPUP CONTENT */}
-                <div className="p-4 overflow-y-auto flex-1 bg-gray-50">
-
+                <div
+                  className="p-4 overflow-y-auto flex-1"
+                  style={{ background: "var(--cv-neutral-light)" }}
+                >
                   {popupLoading && (
-                    <div className="text-center text-[#0056B3] font-bold py-10">
+                    <div
+                      className="text-center font-semibold py-10"
+                      style={{ color: "var(--cv-primary)" }}
+                    >
                       Loading courses...
                     </div>
                   )}
 
                   {!popupLoading && popupError && (
-                    <div className="text-center text-red-600 font-bold py-10">
+                    <div
+                      className="text-center font-semibold py-10"
+                      style={{ color: "var(--cv-accent)" }}
+                    >
                       Couldn't load courses. Please try again.
                     </div>
                   )}
@@ -1133,7 +1105,6 @@ export default function CoursesClient({ initialCourses = [] }) {
                       ))}
                     </div>
                   )}
-
                 </div>
               </div>
             </div>

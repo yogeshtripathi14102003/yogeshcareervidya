@@ -170,19 +170,472 @@
 //   );
 // }
 
+
+
+// "use client";
+
+// import { useMemo, useState } from "react";
+// import { Search, X } from "lucide-react";
+// import Header from "../layout/Header";
+// import Link from "next/link";
+// import Image from "next/image";
+// import Footer from "../layout/Footer";
+
+// const BLUE = "#0056B3";
+
+// // Special redirect courses — these three redirect to
+// // /continuing-education-programs instead of their own /course/[slug] page
+// const specialRedirectCourses = [
+//   "btech-for-working-professional",
+//   "mtech-for-working-professionals",
+//   "diploma-for-working-professionals",
+// ];
+
+// export default function ExploreClient({ initialData }) {
+//   const [courses] = useState(initialData?.initialCourses || []);
+//   const [universities] = useState(initialData?.initialUnis || []);
+
+//   const [search, setSearch] = useState("");
+//   const [category, setCategory] = useState("All");
+
+//   /* =========================================================
+//      COURSE CATEGORIES
+//   ========================================================= */
+
+//   const categories = [
+//     {
+//       key: "All",
+//       title: "All Courses",
+//     },
+//     {
+//       key: "PG",
+//       title: "PG Courses",
+//     },
+//     {
+//       key: "UG",
+//       title: "UG Courses",
+//     },
+//     {
+//       key: "ExecutiveEducation",
+//       title: "Executive Education",
+//     },
+//     {
+//       key: "Doctorate",
+//       title: "Doctorate",
+//     },
+//   ];
+
+//   /* =========================================================
+//      SEARCH VALUE
+//   ========================================================= */
+
+//   const normalizedSearch = search.trim().toLowerCase();
+
+//   /* =========================================================
+//      FILTER COURSES
+//   ========================================================= */
+
+//   const filteredCourses = useMemo(() => {
+//     return courses.filter((course) => {
+//       const matchesCategory =
+//         category === "All" || course?.category === category;
+
+//       const courseName =
+//         course?.name?.toLowerCase() || "";
+
+//       const courseDescription =
+//         course?.description?.toLowerCase() || "";
+
+//       const matchesSearch =
+//         !normalizedSearch ||
+//         courseName.includes(normalizedSearch) ||
+//         courseDescription.includes(normalizedSearch);
+
+//       return matchesCategory && matchesSearch;
+//     });
+//   }, [courses, category, normalizedSearch]);
+
+//   /* =========================================================
+//      FILTER UNIVERSITIES
+//   ========================================================= */
+
+//   const filteredUniversities = useMemo(() => {
+//     return universities.filter((university) => {
+//       const universityName =
+//         university?.name?.toLowerCase() || "";
+
+//       return (
+//         !normalizedSearch ||
+//         universityName.includes(normalizedSearch)
+//       );
+//     });
+//   }, [universities, normalizedSearch]);
+
+//   /* =========================================================
+//      CLEAR SEARCH
+//   ========================================================= */
+
+//   const clearSearch = () => {
+//     setSearch("");
+//   };
+
+//   /* =========================================================
+//      RENDER
+//   ========================================================= */
+
+//   return (
+//     <>
+//       <main className="min-h-screen bg-gray-50 text-gray-900">
+
+//         {/* =====================================================
+//             HEADER
+//         ===================================================== */}
+
+//         <Header />
+
+//         <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+//           {/* ===================================================
+//               SIDEBAR
+//           =================================================== */}
+
+//           <aside
+//             className="hidden lg:block border border-gray-200 rounded-lg p-4 shadow-sm h-fit sticky top-24 bg-white"
+//             aria-label="Course filters"
+//           >
+//             {/* UI label — intentionally not a heading */}
+//             <p
+//               className="font-bold text-lg mb-4"
+//               style={{ color: BLUE }}
+//             >
+//               Filters
+//             </p>
+
+//             {/* SEARCH */}
+//             <div className="relative mb-5">
+//               <Search
+//                 className="absolute left-3 top-3 text-gray-400"
+//                 size={20}
+//                 aria-hidden="true"
+//               />
+
+//               <input
+//                 type="search"
+//                 value={search}
+//                 onChange={(e) => setSearch(e.target.value)}
+//                 placeholder="Search courses or universities..."
+//                 aria-label="Search courses or universities"
+//                 className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
+//               />
+
+//               {search && (
+//                 <button
+//                   type="button"
+//                   onClick={clearSearch}
+//                   aria-label="Clear search"
+//                   className="absolute right-2 top-2 p-1 text-gray-400 hover:text-gray-700"
+//                 >
+//                   <X size={20} />
+//                 </button>
+//               )}
+//             </div>
+
+//             {/* CATEGORY FILTER */}
+//             <div>
+//               <p className="font-semibold mb-2 text-gray-900">
+//                 Course Type
+//               </p>
+
+//               <div className="flex flex-col gap-2">
+//                 {categories.map((item) => (
+//                   <button
+//                     key={item.key}
+//                     type="button"
+//                     onClick={() => setCategory(item.key)}
+//                     aria-pressed={category === item.key}
+//                     className={`px-3 py-2 rounded text-sm text-left transition ${
+//                       category === item.key
+//                         ? "text-white"
+//                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+//                     }`}
+//                     style={
+//                       category === item.key
+//                         ? { background: BLUE }
+//                         : {}
+//                     }
+//                   >
+//                     {item.title}
+//                   </button>
+//                 ))}
+//               </div>
+//             </div>
+//           </aside>
+
+//           {/* ===================================================
+//               MAIN CONTENT
+//           =================================================== */}
+
+//           <section
+//             className="lg:col-span-3"
+//             aria-labelledby="explore-courses-heading"
+//           >
+//             {/* =================================================
+//                 PRIMARY H1
+
+//                 Keep this static.
+//                 Do NOT change H1 based on search/filter.
+//             ================================================= */}
+
+//             <header className="mb-6">
+//               <h1
+//                 id="explore-courses-heading"
+//                 className="text-2xl md:text-3xl font-bold"
+//                 style={{ color: BLUE }}
+//               >
+//                 Explore Online Courses & Universities
+//               </h1>
+
+//               <p className="mt-2 text-gray-600 max-w-3xl">
+//                 Discover online undergraduate, postgraduate,
+//                 executive education, and doctorate programs from
+//                 recognized universities in India.
+//               </p>
+//             </header>
+
+//             {/* =================================================
+//                 MOBILE SEARCH
+//             ================================================= */}
+
+//             <div className="lg:hidden relative mb-6">
+//               <Search
+//                 className="absolute left-3 top-3 text-gray-400"
+//                 size={20}
+//                 aria-hidden="true"
+//               />
+
+//               <input
+//                 type="search"
+//                 value={search}
+//                 onChange={(e) => setSearch(e.target.value)}
+//                 placeholder="Search courses or universities..."
+//                 aria-label="Search courses or universities"
+//                 className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+//               />
+
+//               {search && (
+//                 <button
+//                   type="button"
+//                   onClick={clearSearch}
+//                   aria-label="Clear search"
+//                   className="absolute right-2 top-2 p-1 text-gray-400"
+//                 >
+//                   <X size={20} />
+//                 </button>
+//               )}
+//             </div>
+
+//             {/* =================================================
+//                 COURSE SECTION
+//             ================================================= */}
+
+//             <section aria-labelledby="courses-heading">
+//               <div className="flex items-center justify-between gap-4 mb-4">
+//                 <h2
+//                   id="courses-heading"
+//                   className="text-xl md:text-2xl font-bold"
+//                   style={{ color: BLUE }}
+//                 >
+//                   {search || category !== "All"
+//                     ? `${filteredCourses.length} Courses Found`
+//                     : "Explore Online Courses"}
+//                 </h2>
+
+//                 <span className="text-sm text-gray-500">
+//                   {filteredCourses.length} available
+//                 </span>
+//               </div>
+
+//               {filteredCourses.length > 0 ? (
+//                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+//                   {filteredCourses.map((course) => {
+//                     if (!course?.slug) return null;
+
+//                     const courseName =
+//                       course?.name?.trim() || "Online Course";
+
+//                     const courseImage =
+//                       course?.courseLogo?.url ||
+//                       "/placeholder.png";
+
+//                     // Special redirect: these three courses go to
+//                     // /continuing-education-programs instead of
+//                     // their own /course/[slug] page.
+//                     const courseHref = specialRedirectCourses.includes(
+//                       course.slug
+//                     )
+//                       ? "/continuing-education-programs"
+//                       : `/course/${encodeURIComponent(course.slug)}`;
+
+//                     return (
+//                       <Link
+//                         key={course._id}
+//                         href={courseHref}
+//                         aria-label={`View ${courseName}`}
+//                         className="block"
+//                       >
+//                         <article className="bg-white border border-gray-200 rounded-lg min-h-[160px] flex flex-col justify-between shadow-sm hover:shadow-lg transition overflow-hidden">
+//                           <div className="flex justify-center items-center pt-3 h-20">
+//                             <Image
+//                               src={courseImage}
+//                               width={56}
+//                               height={56}
+//                               sizes="56px"
+//                               className="w-14 h-14 object-contain"
+//                               alt={`${courseName} course logo`}
+//                             />
+//                           </div>
+
+//                           <p className="text-[11px] md:text-xs font-bold text-center px-2 py-2 line-clamp-2 uppercase text-gray-900">
+//                             {courseName}
+//                           </p>
+
+//                           <div
+//                             className="text-white text-[10px] text-center py-2 font-bold"
+//                             style={{ background: BLUE }}
+//                           >
+//                             KNOW MORE
+//                           </div>
+//                         </article>
+//                       </Link>
+//                     );
+//                   })}
+//                 </div>
+//               ) : (
+//                 <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
+//                   <p className="text-gray-600">
+//                     No courses found for your search.
+//                   </p>
+
+//                   <button
+//                     type="button"
+//                     onClick={() => {
+//                       setSearch("");
+//                       setCategory("All");
+//                     }}
+//                     className="mt-3 font-semibold hover:underline"
+//                     style={{ color: BLUE }}
+//                   >
+//                     Clear filters
+//                   </button>
+//                 </div>
+//               )}
+//             </section>
+
+//             {/* =================================================
+//                 UNIVERSITY SECTION
+//             ================================================= */}
+
+//             <section
+//               aria-labelledby="universities-heading"
+//               className="mt-12"
+//             >
+//               <div className="flex items-center justify-between gap-4 mb-4">
+//                 <h2
+//                   id="universities-heading"
+//                   className="text-xl md:text-2xl font-bold"
+//                   style={{ color: BLUE }}
+//                 >
+//                   Partner Universities
+//                 </h2>
+
+//                 <span className="text-sm text-gray-500">
+//                   {filteredUniversities.length} available
+//                 </span>
+//               </div>
+
+//               {filteredUniversities.length > 0 ? (
+//                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+//                   {filteredUniversities.map((university) => {
+//                     if (!university?.slug) return null;
+
+//                     const universityName =
+//                       university?.name?.trim() ||
+//                       "Partner University";
+
+//                     return (
+//                       <Link
+//                         key={university._id}
+//                         href={`/university/${encodeURIComponent(
+//                           university.slug
+//                         )}`}
+//                         aria-label={`View ${universityName}`}
+//                         className="block"
+//                       >
+//                         <article className="bg-white border border-gray-200 rounded-lg min-h-[160px] flex flex-col items-center justify-center shadow-sm hover:shadow-lg transition p-3"
+//                         >
+//                           <Image
+//                             src={
+//                               university.universityImageUrl ||
+//                               "/fallback-logo.png"
+//                             }
+//                             width={80}
+//                             height={50}
+//                             sizes="80px"
+//                             className="w-20 h-12 object-contain mb-3"
+//                             alt={`${universityName} logo`}
+//                           />
+
+//                           <p className="text-[10px] md:text-xs font-bold text-center line-clamp-2 uppercase text-gray-900">
+//                             {universityName}
+//                           </p>
+//                         </article>
+//                       </Link>
+//                     );
+//                   })}
+//                 </div>
+//               ) : (
+//                 <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
+//                   <p className="text-gray-600">
+//                     No universities found for your search.
+//                   </p>
+//                 </div>
+//               )}
+//             </section>
+
+//             {/* =================================================
+//                 SEO / INTERNAL LINK CTA
+//             ================================================= */}
+
+//             <div className="text-center mt-12 mb-4">
+//               <Link
+//                 href="/course"
+//                 className="font-semibold hover:underline"
+//                 style={{ color: BLUE }}
+//               >
+//                 Browse Top Courses
+//               </Link>
+//             </div>
+//           </section>
+//         </div>
+//       </main>
+
+//       <Footer />
+//     </>
+//   );
+// }
+
+
 "use client";
 
 import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Header from "../layout/Header";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "../layout/Footer";
+import api from "@/utlis/api.js";
 
-const BLUE = "#0056B3";
-
-// Special redirect courses — these three redirect to
-// /continuing-education-programs instead of their own /course/[slug] page
 const specialRedirectCourses = [
   "btech-for-working-professional",
   "mtech-for-working-professionals",
@@ -190,121 +643,129 @@ const specialRedirectCourses = [
 ];
 
 export default function ExploreClient({ initialData }) {
-  const [courses] = useState(initialData?.initialCourses || []);
-  const [universities] = useState(initialData?.initialUnis || []);
-
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const queryClient = useQueryClient();
 
-  /* =========================================================
-     COURSE CATEGORIES
-  ========================================================= */
+  /* ═══════════════════════════════════════════════
+     ✅ REACT QUERY — Courses
+     - initialData use karo → 0 network call on first load
+     - staleTime 5 min → background refetch nahi hoga
+     - same query dobara nahi jaayegi
+  ═══════════════════════════════════════════════ */
+  const {
+    data: courses = [],
+    isLoading: coursesLoading,
+    isError: coursesError,
+  } = useQuery({
+    queryKey: ["explore-courses"],
+    queryFn: async () => {
+      const res = await api.get("/api/v1/course");
+      let list = [];
+      if (Array.isArray(res.data)) list = res.data;
+      else if (Array.isArray(res.data.data)) list = res.data.data;
+      else if (Array.isArray(res.data.courses)) list = res.data.courses;
+      return list;
+    },
+    initialData: initialData?.initialCourses || undefined,
+    staleTime: 5 * 60 * 1000,
+  });
 
+  /* ═══════════════════════════════════════════════
+     ✅ REACT QUERY — Universities
+  ═══════════════════════════════════════════════ */
+  const {
+    data: universities = [],
+    isLoading: unisLoading,
+    isError: unisError,
+  } = useQuery({
+    queryKey: ["explore-universities"],
+    queryFn: async () => {
+      const res = await api.get("/api/v1/university");
+      let list = [];
+      if (Array.isArray(res.data)) list = res.data;
+      else if (Array.isArray(res.data.data)) list = res.data.data;
+      else if (Array.isArray(res.data.courses)) list = res.data.courses;
+      return list;
+    },
+    initialData: initialData?.initialUnis || undefined,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  /* ═══════════════════════════════════════════════
+     CATEGORIES
+  ═══════════════════════════════════════════════ */
   const categories = [
-    {
-      key: "All",
-      title: "All Courses",
-    },
-    {
-      key: "PG",
-      title: "PG Courses",
-    },
-    {
-      key: "UG",
-      title: "UG Courses",
-    },
-    {
-      key: "ExecutiveEducation",
-      title: "Executive Education",
-    },
-    {
-      key: "Doctorate",
-      title: "Doctorate",
-    },
+    { key: "All", title: "All Courses" },
+    { key: "PG", title: "PG Courses" },
+    { key: "UG", title: "UG Courses" },
+    { key: "ExecutiveEducation", title: "Executive Education" },
+    { key: "Doctorate", title: "Doctorate" },
   ];
-
-  /* =========================================================
-     SEARCH VALUE
-  ========================================================= */
 
   const normalizedSearch = search.trim().toLowerCase();
 
-  /* =========================================================
-     FILTER COURSES
-  ========================================================= */
-
+  /* ═══════════════════════════════════════════════
+     FILTER COURSES — same logic
+  ═══════════════════════════════════════════════ */
   const filteredCourses = useMemo(() => {
     return courses.filter((course) => {
       const matchesCategory =
         category === "All" || course?.category === category;
-
-      const courseName =
-        course?.name?.toLowerCase() || "";
-
-      const courseDescription =
-        course?.description?.toLowerCase() || "";
-
+      const courseName = course?.name?.toLowerCase() || "";
+      const courseDescription = course?.description?.toLowerCase() || "";
       const matchesSearch =
         !normalizedSearch ||
         courseName.includes(normalizedSearch) ||
         courseDescription.includes(normalizedSearch);
-
       return matchesCategory && matchesSearch;
     });
   }, [courses, category, normalizedSearch]);
 
-  /* =========================================================
-     FILTER UNIVERSITIES
-  ========================================================= */
-
+  /* ═══════════════════════════════════════════════
+     FILTER UNIVERSITIES — same logic
+  ═══════════════════════════════════════════════ */
   const filteredUniversities = useMemo(() => {
     return universities.filter((university) => {
-      const universityName =
-        university?.name?.toLowerCase() || "";
-
-      return (
-        !normalizedSearch ||
-        universityName.includes(normalizedSearch)
-      );
+      const universityName = university?.name?.toLowerCase() || "";
+      return !normalizedSearch || universityName.includes(normalizedSearch);
     });
   }, [universities, normalizedSearch]);
 
-  /* =========================================================
-     CLEAR SEARCH
-  ========================================================= */
+  const clearSearch = () => setSearch("");
 
-  const clearSearch = () => {
-    setSearch("");
+  /* ═══════════════════════════════════════════════
+     MANUAL REFRESH (agar user chahe)
+  ═══════════════════════════════════════════════ */
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["explore-courses"] });
+    queryClient.invalidateQueries({ queryKey: ["explore-universities"] });
   };
 
-  /* =========================================================
+  /* ═══════════════════════════════════════════════
      RENDER
-  ========================================================= */
-
+  ═══════════════════════════════════════════════ */
   return (
     <>
-      <main className="min-h-screen bg-gray-50 text-gray-900">
-
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
-
+      <main
+        className="min-h-screen"
+        style={{
+          background: "var(--cv-neutral-light)",
+          color: "var(--cv-neutral-dark)",
+        }}
+      >
         <Header />
 
         <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-          {/* ===================================================
-              SIDEBAR
-          =================================================== */}
-
+          {/* ═══ SIDEBAR ═══ */}
           <aside
-            className="hidden lg:block border border-gray-200 rounded-lg p-4 shadow-sm h-fit sticky top-24 bg-white"
+            className="hidden lg:block border rounded-lg p-4 shadow-sm h-fit sticky top-24 bg-white"
+            style={{ borderColor: "var(--cv-neutral-border)" }}
             aria-label="Course filters"
           >
-            {/* UI label — intentionally not a heading */}
             <p
               className="font-bold text-lg mb-4"
-              style={{ color: BLUE }}
+              style={{ color: "var(--cv-primary)" }}
             >
               Filters
             </p>
@@ -312,18 +773,31 @@ export default function ExploreClient({ initialData }) {
             {/* SEARCH */}
             <div className="relative mb-5">
               <Search
-                className="absolute left-3 top-3 text-gray-400"
+                className="absolute left-3 top-3"
                 size={20}
+                style={{ color: "var(--cv-neutral-mid)" }}
                 aria-hidden="true"
               />
-
               <input
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search courses or universities..."
                 aria-label="Search courses or universities"
-                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
+                className="w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none bg-white"
+                style={{
+                  borderColor: "var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--cv-primary)";
+                  e.target.style.boxShadow =
+                    "0 0 0 3px rgba(30,58,138,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--cv-neutral-border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
 
               {search && (
@@ -331,143 +805,184 @@ export default function ExploreClient({ initialData }) {
                   type="button"
                   onClick={clearSearch}
                   aria-label="Clear search"
-                  className="absolute right-2 top-2 p-1 text-gray-400 hover:text-gray-700"
+                  className="absolute right-2 top-2 p-1 transition-colors"
+                  style={{ color: "var(--cv-neutral-mid)" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "var(--cv-neutral-dark)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "var(--cv-neutral-mid)")
+                  }
                 >
                   <X size={20} />
                 </button>
               )}
             </div>
 
-            {/* CATEGORY FILTER */}
+            {/* CATEGORY */}
             <div>
-              <p className="font-semibold mb-2 text-gray-900">
+              <p
+                className="font-semibold mb-2"
+                style={{ color: "var(--cv-neutral-dark)" }}
+              >
                 Course Type
               </p>
 
               <div className="flex flex-col gap-2">
-                {categories.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setCategory(item.key)}
-                    aria-pressed={category === item.key}
-                    className={`px-3 py-2 rounded text-sm text-left transition ${
-                      category === item.key
-                        ? "text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                    style={
-                      category === item.key
-                        ? { background: BLUE }
-                        : {}
-                    }
-                  >
-                    {item.title}
-                  </button>
-                ))}
+                {categories.map((item) => {
+                  const isActive = category === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => setCategory(item.key)}
+                      aria-pressed={isActive}
+                      className="px-3 py-2 rounded text-sm text-left transition"
+                      style={{
+                        background: isActive
+                          ? "var(--cv-primary)"
+                          : "var(--cv-neutral-light)",
+                        color: isActive ? "#fff" : "var(--cv-neutral-dark)",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background =
+                            "var(--cv-primary-light)";
+                          e.currentTarget.style.color = "var(--cv-primary)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background =
+                            "var(--cv-neutral-light)";
+                          e.currentTarget.style.color =
+                            "var(--cv-neutral-dark)";
+                        }
+                      }}
+                    >
+                      {item.title}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </aside>
 
-          {/* ===================================================
-              MAIN CONTENT
-          =================================================== */}
-
+          {/* ═══ MAIN ═══ */}
           <section
             className="lg:col-span-3"
             aria-labelledby="explore-courses-heading"
           >
-            {/* =================================================
-                PRIMARY H1
-
-                Keep this static.
-                Do NOT change H1 based on search/filter.
-            ================================================= */}
-
             <header className="mb-6">
               <h1
                 id="explore-courses-heading"
                 className="text-2xl md:text-3xl font-bold"
-                style={{ color: BLUE }}
+                style={{ color: "var(--cv-primary)" }}
               >
                 Explore Online Courses & Universities
               </h1>
-
-              <p className="mt-2 text-gray-600 max-w-3xl">
-                Discover online undergraduate, postgraduate,
-                executive education, and doctorate programs from
-                recognized universities in India.
+              <p
+                className="mt-2 max-w-3xl"
+                style={{ color: "var(--cv-neutral-mid)" }}
+              >
+                Discover online undergraduate, postgraduate, executive
+                education, and doctorate programs from recognized universities
+                in India.
               </p>
             </header>
 
-            {/* =================================================
-                MOBILE SEARCH
-            ================================================= */}
-
+            {/* MOBILE SEARCH */}
             <div className="lg:hidden relative mb-6">
               <Search
-                className="absolute left-3 top-3 text-gray-400"
+                className="absolute left-3 top-3"
                 size={20}
+                style={{ color: "var(--cv-neutral-mid)" }}
                 aria-hidden="true"
               />
-
               <input
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search courses or universities..."
                 aria-label="Search courses or universities"
-                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                className="w-full pl-10 pr-10 py-2 border rounded-lg bg-white"
+                style={{
+                  borderColor: "var(--cv-neutral-border)",
+                  color: "var(--cv-neutral-dark)",
+                }}
               />
-
               {search && (
                 <button
                   type="button"
                   onClick={clearSearch}
                   aria-label="Clear search"
-                  className="absolute right-2 top-2 p-1 text-gray-400"
+                  className="absolute right-2 top-2 p-1"
+                  style={{ color: "var(--cv-neutral-mid)" }}
                 >
                   <X size={20} />
                 </button>
               )}
             </div>
 
-            {/* =================================================
-                COURSE SECTION
-            ================================================= */}
-
+            {/* ═══ COURSES ═══ */}
             <section aria-labelledby="courses-heading">
               <div className="flex items-center justify-between gap-4 mb-4">
                 <h2
                   id="courses-heading"
                   className="text-xl md:text-2xl font-bold"
-                  style={{ color: BLUE }}
+                  style={{ color: "var(--cv-primary)" }}
                 >
                   {search || category !== "All"
                     ? `${filteredCourses.length} Courses Found`
                     : "Explore Online Courses"}
                 </h2>
 
-                <span className="text-sm text-gray-500">
+                <span
+                  className="text-sm"
+                  style={{ color: "var(--cv-neutral-mid)" }}
+                >
                   {filteredCourses.length} available
                 </span>
               </div>
 
-              {filteredCourses.length > 0 ? (
+              {/* Loading state */}
+              {coursesLoading && !courses.length ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {[...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse bg-white rounded-lg min-h-[160px]"
+                      style={{ border: "1px solid var(--cv-neutral-border)" }}
+                    />
+                  ))}
+                </div>
+              ) : coursesError && !courses.length ? (
+                <div
+                  className="bg-white rounded-lg p-8 text-center"
+                  style={{ border: "1px solid var(--cv-neutral-border)" }}
+                >
+                  <p style={{ color: "var(--cv-neutral-mid)" }}>
+                    Couldn't load courses. Please try again.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleRefresh}
+                    className="mt-3 font-semibold hover:underline"
+                    style={{ color: "var(--cv-primary)" }}
+                  >
+                    Try again
+                  </button>
+                </div>
+              ) : filteredCourses.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                   {filteredCourses.map((course) => {
                     if (!course?.slug) return null;
 
                     const courseName =
                       course?.name?.trim() || "Online Course";
-
                     const courseImage =
-                      course?.courseLogo?.url ||
-                      "/placeholder.png";
+                      course?.courseLogo?.url || "/placeholder.png";
 
-                    // Special redirect: these three courses go to
-                    // /continuing-education-programs instead of
-                    // their own /course/[slug] page.
                     const courseHref = specialRedirectCourses.includes(
                       course.slug
                     )
@@ -481,7 +996,12 @@ export default function ExploreClient({ initialData }) {
                         aria-label={`View ${courseName}`}
                         className="block"
                       >
-                        <article className="bg-white border border-gray-200 rounded-lg min-h-[160px] flex flex-col justify-between shadow-sm hover:shadow-lg transition overflow-hidden">
+                        <article
+                          className="bg-white rounded-lg min-h-[160px] flex flex-col justify-between shadow-sm hover:shadow-lg transition overflow-hidden"
+                          style={{
+                            border: "1px solid var(--cv-neutral-border)",
+                          }}
+                        >
                           <div className="flex justify-center items-center pt-3 h-20">
                             <Image
                               src={courseImage}
@@ -493,13 +1013,16 @@ export default function ExploreClient({ initialData }) {
                             />
                           </div>
 
-                          <p className="text-[11px] md:text-xs font-bold text-center px-2 py-2 line-clamp-2 uppercase text-gray-900">
+                          <p
+                            className="text-[11px] md:text-xs font-bold text-center px-2 py-2 line-clamp-2 uppercase"
+                            style={{ color: "var(--cv-neutral-dark)" }}
+                          >
                             {courseName}
                           </p>
 
                           <div
                             className="text-white text-[10px] text-center py-2 font-bold"
-                            style={{ background: BLUE }}
+                            style={{ background: "var(--cv-primary)" }}
                           >
                             KNOW MORE
                           </div>
@@ -509,11 +1032,13 @@ export default function ExploreClient({ initialData }) {
                   })}
                 </div>
               ) : (
-                <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-                  <p className="text-gray-600">
+                <div
+                  className="bg-white rounded-lg p-8 text-center"
+                  style={{ border: "1px solid var(--cv-neutral-border)" }}
+                >
+                  <p style={{ color: "var(--cv-neutral-mid)" }}>
                     No courses found for your search.
                   </p>
-
                   <button
                     type="button"
                     onClick={() => {
@@ -521,7 +1046,7 @@ export default function ExploreClient({ initialData }) {
                       setCategory("All");
                     }}
                     className="mt-3 font-semibold hover:underline"
-                    style={{ color: BLUE }}
+                    style={{ color: "var(--cv-primary)" }}
                   >
                     Clear filters
                   </button>
@@ -529,10 +1054,7 @@ export default function ExploreClient({ initialData }) {
               )}
             </section>
 
-            {/* =================================================
-                UNIVERSITY SECTION
-            ================================================= */}
-
+            {/* ═══ UNIVERSITIES ═══ */}
             <section
               aria-labelledby="universities-heading"
               className="mt-12"
@@ -541,24 +1063,45 @@ export default function ExploreClient({ initialData }) {
                 <h2
                   id="universities-heading"
                   className="text-xl md:text-2xl font-bold"
-                  style={{ color: BLUE }}
+                  style={{ color: "var(--cv-primary)" }}
                 >
                   Partner Universities
                 </h2>
 
-                <span className="text-sm text-gray-500">
+                <span
+                  className="text-sm"
+                  style={{ color: "var(--cv-neutral-mid)" }}
+                >
                   {filteredUniversities.length} available
                 </span>
               </div>
 
-              {filteredUniversities.length > 0 ? (
+              {unisLoading && !universities.length ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {[...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse bg-white rounded-lg min-h-[160px]"
+                      style={{ border: "1px solid var(--cv-neutral-border)" }}
+                    />
+                  ))}
+                </div>
+              ) : unisError && !universities.length ? (
+                <div
+                  className="bg-white rounded-lg p-8 text-center"
+                  style={{ border: "1px solid var(--cv-neutral-border)" }}
+                >
+                  <p style={{ color: "var(--cv-neutral-mid)" }}>
+                    Couldn't load universities. Please try again.
+                  </p>
+                </div>
+              ) : filteredUniversities.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                   {filteredUniversities.map((university) => {
                     if (!university?.slug) return null;
 
                     const universityName =
-                      university?.name?.trim() ||
-                      "Partner University";
+                      university?.name?.trim() || "Partner University";
 
                     return (
                       <Link
@@ -569,7 +1112,11 @@ export default function ExploreClient({ initialData }) {
                         aria-label={`View ${universityName}`}
                         className="block"
                       >
-                        <article className="bg-white border border-gray-200 rounded-lg min-h-[160px] flex flex-col items-center justify-center shadow-sm hover:shadow-lg transition p-3"
+                        <article
+                          className="bg-white rounded-lg min-h-[160px] flex flex-col items-center justify-center shadow-sm hover:shadow-lg transition p-3"
+                          style={{
+                            border: "1px solid var(--cv-neutral-border)",
+                          }}
                         >
                           <Image
                             src={
@@ -582,8 +1129,10 @@ export default function ExploreClient({ initialData }) {
                             className="w-20 h-12 object-contain mb-3"
                             alt={`${universityName} logo`}
                           />
-
-                          <p className="text-[10px] md:text-xs font-bold text-center line-clamp-2 uppercase text-gray-900">
+                          <p
+                            className="text-[10px] md:text-xs font-bold text-center line-clamp-2 uppercase"
+                            style={{ color: "var(--cv-neutral-dark)" }}
+                          >
                             {universityName}
                           </p>
                         </article>
@@ -592,23 +1141,23 @@ export default function ExploreClient({ initialData }) {
                   })}
                 </div>
               ) : (
-                <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-                  <p className="text-gray-600">
+                <div
+                  className="bg-white rounded-lg p-8 text-center"
+                  style={{ border: "1px solid var(--cv-neutral-border)" }}
+                >
+                  <p style={{ color: "var(--cv-neutral-mid)" }}>
                     No universities found for your search.
                   </p>
                 </div>
               )}
             </section>
 
-            {/* =================================================
-                SEO / INTERNAL LINK CTA
-            ================================================= */}
-
+            {/* CTA */}
             <div className="text-center mt-12 mb-4">
               <Link
                 href="/course"
                 className="font-semibold hover:underline"
-                style={{ color: BLUE }}
+                style={{ color: "var(--cv-primary)" }}
               >
                 Browse Top Courses
               </Link>
