@@ -335,6 +335,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import api from "@/utlis/api.js";
@@ -346,13 +347,14 @@ import {
   MapPin,
   GraduationCap,
   Briefcase,
-  Languages,
   Star,
   Phone,
-  IndianRupee,
+  MessageCircle,
   Award,
   CheckCircle2,
   ArrowLeft,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 
 // ─── Security helpers ─────────────────────────────────────────────────────────
@@ -378,35 +380,13 @@ function sanitizeUrl(raw) {
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function ProfileSkeleton() {
   return (
-    <div className="animate-pulse" aria-hidden="true">
+    <div className="animate-pulse space-y-8" aria-hidden="true">
+      <div className="h-64 bg-slate-200 rounded-2xl" />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div
-          className="bg-white rounded-3xl overflow-hidden"
-          style={{ border: "1px solid var(--cv-neutral-border)" }}
-        >
-          <div
-            className="h-80"
-            style={{ background: "var(--cv-neutral-light)" }}
-          />
-          <div className="p-6 space-y-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="h-4 rounded"
-                style={{ background: "var(--cv-neutral-light)" }}
-              />
-            ))}
-          </div>
-        </div>
         <div className="lg:col-span-2 space-y-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="h-4 rounded"
-              style={{ background: "var(--cv-neutral-light)" }}
-            />
-          ))}
+          <div className="h-40 bg-slate-200 rounded-2xl" />
         </div>
+        <div className="h-64 bg-slate-200 rounded-2xl" />
       </div>
     </div>
   );
@@ -417,6 +397,7 @@ export default function TeamDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("about");
 
   /* ═══════════════════════════════════════════════
      ✅ REACT QUERY — Mentor detail
@@ -441,7 +422,6 @@ export default function TeamDetailPage() {
   const {
     data: reviews = [],
     isLoading: reviewsLoading,
-    refetch: refetchReviews,
   } = useQuery({
     queryKey: ["mentor-reviews", id],
     queryFn: async () => {
@@ -455,9 +435,6 @@ export default function TeamDetailPage() {
   const loading = mentorLoading || reviewsLoading;
   const error = mentorError ? "Profile not available." : null;
 
-  /* ═══════════════════════════════════════════════
-     Refresh reviews only
-  ═══════════════════════════════════════════════ */
   const refreshReviews = () => {
     queryClient.invalidateQueries({ queryKey: ["mentor-reviews", id] });
   };
@@ -465,10 +442,7 @@ export default function TeamDetailPage() {
   // ── Render states ──────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div
-        className="min-h-screen"
-        style={{ background: "var(--cv-neutral-light)" }}
-      >
+      <div className="min-h-screen bg-[var(--cv-neutral-light)]">
         <Header />
         <div className="max-w-6xl mx-auto py-10 px-4">
           <ProfileSkeleton />
@@ -480,23 +454,15 @@ export default function TeamDetailPage() {
 
   if (error || !mentor) {
     return (
-      <div
-        className="min-h-screen"
-        style={{ background: "var(--cv-neutral-light)" }}
-      >
+      <div className="min-h-screen bg-[var(--cv-neutral-light)]">
         <Header />
         <div className="py-32 text-center px-4">
-          <p
-            className="text-lg mb-4"
-            style={{ color: "var(--cv-accent)" }}
-            role="alert"
-          >
+          <p className="text-lg mb-4 text-red-500" role="alert">
             {error || "Counsellor not found."}
           </p>
           <button
             onClick={() => router.back()}
-            className="underline font-semibold"
-            style={{ color: "var(--cv-primary)" }}
+            className="cursor-pointer  underline font-semibold text-[var(--cv-primary)]"
           >
             Go back
           </button>
@@ -512,328 +478,209 @@ export default function TeamDetailPage() {
   const description = sanitizeText(mentor.description || "", 1000);
   const expertise = sanitizeText(mentor.expertise || "", 200);
   const education = sanitizeText(mentor.education || "Not Specified", 200);
-  const location = sanitizeText(mentor.location || "", 100);
-  const mobileNumber = sanitizePhone(mentor.mobileNumber);
-  const fee = Number(mentor.fee) || 0;
+  const location = sanitizeText(mentor.location || "India", 100);
+  
+  const mobileNumber = sanitizePhone(mentor.mobileNumber || "9319998717");
+  
   const imageSrc = sanitizeUrl(mentor.image) || "/images/default-avatar.png";
   const highlights = Array.isArray(mentor.highlights) ? mentor.highlights : [];
   const languages = Array.isArray(mentor.languages) ? mentor.languages : [];
-  const rating = mentor.rating || "0.0";
+  const rating = mentor.rating || "4.9";
+  const experience = mentor.experience || "5+";
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "var(--cv-neutral-light)" }}
-    >
+    <div className="min-h-screen bg-[var(--cv-neutral-light)] text-[var(--cv-neutral-dark)]">
       <Header />
 
-      <div className="max-w-6xl mx-auto py-10 px-4">
-        {/* Back button */}
-        <button
-          onClick={() => router.back()}
-          className="mb-6 flex items-center gap-2 font-medium transition-colors group focus:outline-none rounded"
-          style={{ color: "var(--cv-neutral-mid)" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--cv-primary)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--cv-neutral-mid)")
-          }
-        >
-          <ArrowLeft
-            className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
-            aria-hidden="true"
-          />
-          Back to Experts
-        </button>
+      {/* ═══ Top Hero Banner (Brand Navy Gradient) ═══ */}
+      <section 
+        style={{ background: "var(--cv-grad-navy)" }} 
+        className="text-white pt-8 pb-12 px-4 shadow-md"
+      >
+        <div className="max-w-6xl mx-auto">
+          {/* Back Button */}
+          <button
+            onClick={() => router.back()}
+            className="  cursor-pointer mb-6 inline-flex items-center gap-2 text-sm text-blue-100 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* ═══ LEFT: Profile card ═══ */}
-          <aside className="lg:col-span-1">
-            <div
-              className="bg-white rounded-3xl shadow-sm overflow-hidden sticky top-24"
-              style={{ border: "1px solid var(--cv-neutral-border)" }}
-            >
-              {/* Image */}
-              <div
-                className="relative w-full h-80"
-                style={{ background: "var(--cv-neutral-light)" }}
-              >
-                <Image
-                  src={imageSrc}
-                  alt={`Photo of ${name}`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                  className="object-contain"
-                  priority
-                  onError={(e) => {
-                    e.currentTarget.src = "/images/default-avatar.png";
-                  }}
-                />
-
-                {/* Rating badge */}
-                <div
-                  className="absolute bottom-4 left-4 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1 shadow-sm"
-                  style={{
-                    background: "rgba(255,255,255,0.9)",
-                    border: "1px solid var(--cv-neutral-border)",
-                  }}
-                >
-                  <Star
-                    className="w-4 h-4"
-                    style={{
-                      color: "var(--cv-accent)",
-                      fill: "var(--cv-accent)",
-                    }}
-                    aria-hidden="true"
+          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8">
+            {/* Left: Info Profile */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+              {/* Profile Image with Golden Badge */}
+              <div className="relative shrink-0">
+                <div className="w-36 h-36 rounded-2xl overflow-hidden border-4 border-white/20 shadow-xl bg-white relative">
+                  <Image
+                    src={imageSrc}
+                    alt={name}
+                    fill
+                    className="object-cover"
+                    priority
                   />
-                  <span
-                    className="font-bold"
-                    style={{ color: "var(--cv-neutral-dark)" }}
-                  >
-                    {rating}
-                  </span>
-                  <span
-                    className="text-xs"
-                    style={{ color: "var(--cv-neutral-mid)" }}
-                  >
-                    ({reviews.length} Reviews)
-                  </span>
+                </div>
+                <div className="absolute -bottom-2 -right-2 bg-amber-400 p-1.5 rounded-full text-slate-900 shadow-md">
+                  <Award className="w-5 h-5" />
                 </div>
               </div>
 
-              {/* Info */}
-              <div className="p-6">
-                <h1
-                  className="text-2xl font-bold"
-                  style={{ color: "var(--cv-neutral-dark)" }}
-                >
+              {/* Basic Details */}
+              <div className="space-y-2">
+                <h1 className="text-3xl font-extrabold tracking-wide uppercase">
                   {name}
                 </h1>
-                <p
-                  className="font-semibold mb-4"
-                  style={{ color: "var(--cv-primary)" }}
-                >
+                <p className="text-blue-100 font-medium text-base">
                   {designation}
                 </p>
 
-                <dl
-                  className="space-y-4 pt-4"
-                  style={{ borderTop: "1px solid var(--cv-neutral-border)" }}
-                >
-                  {/* Experience */}
-                  <div
-                    className="flex items-center gap-3"
-                    style={{ color: "var(--cv-neutral-mid)" }}
-                  >
-                    <Briefcase
-                      className="w-5 h-5 flex-shrink-0"
-                      style={{ color: "var(--cv-primary)" }}
-                      aria-hidden="true"
-                    />
-                    <dd>{mentor.experience} years experience</dd>
-                  </div>
-
-                  {/* Location */}
-                  {location && (
-                    <div
-                      className="flex items-center gap-3"
-                      style={{ color: "var(--cv-neutral-mid)" }}
-                    >
-                      <MapPin
-                        className="w-5 h-5 flex-shrink-0"
-                        style={{ color: "var(--cv-accent)" }}
-                        aria-hidden="true"
-                      />
-                      <dd>{location}</dd>
-                    </div>
+                {/* Sub details line */}
+                <p className="text-xs text-blue-200 flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                  <span>{experience} Years Exp.</span>
+                  <span>•</span>
+                  <span>{location}</span>
+                  {languages.length > 0 && (
+                    <>
+                      <span>•</span>
+                      <span>{languages.join(" • ")}</span>
+                    </>
                   )}
+                </p>
 
-                  {/* Fee */}
-                  <div
-                    className="flex items-center gap-3"
-                    style={{ color: "var(--cv-neutral-mid)" }}
-                  >
-                    <IndianRupee
-                      className="w-5 h-5 flex-shrink-0"
-                      style={{ color: "var(--cv-primary)" }}
-                      aria-hidden="true"
-                    />
-                    <dd
-                      className="font-semibold"
-                      style={{ color: "var(--cv-neutral-dark)" }}
-                    >
-                      {fee > 0 ? `₹${fee}` : "Free Consultation"}
-                    </dd>
+                {/* Rating */}
+                <div className="flex items-center justify-center sm:justify-start gap-3 pt-2">
+                  <div className="flex text-amber-300">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-amber-300" />
+                    ))}
                   </div>
-
-                  {/* Phone */}
-                  {mobileNumber && (
-                    <div
-                      className="flex items-center gap-3"
-                      style={{ color: "var(--cv-neutral-mid)" }}
-                    >
-                      <Phone
-                        className="w-5 h-5 flex-shrink-0"
-                        style={{ color: "var(--cv-primary)" }}
-                        aria-hidden="true"
-                      />
-                      <dd>
-                        <a
-                          href={`tel:${mobileNumber}`}
-                          className="transition"
-                          style={{ color: "var(--cv-neutral-mid)" }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.color = "var(--cv-primary)")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.color =
-                              "var(--cv-neutral-mid)")
-                          }
-                          rel="noopener"
-                        >
-                          {mobileNumber}
-                        </a>
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            </div>
-          </aside>
-
-          {/* ═══ RIGHT: Detail + reviews ═══ */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Professional Expertise */}
-            <section
-              className="bg-white rounded-3xl p-8 shadow-sm"
-              style={{ border: "1px solid var(--cv-neutral-border)" }}
-            >
-              <h2
-                className="text-xl font-bold mb-4 flex items-center gap-2"
-                style={{ color: "var(--cv-neutral-dark)" }}
-              >
-                <Award style={{ color: "var(--cv-primary)" }} aria-hidden="true" />
-                Professional Expertise
-              </h2>
-
-              {expertise && (
-                <div className="mb-6">
-                  <span
-                    className="px-4 py-2 rounded-lg font-medium inline-block"
-                    style={{
-                      background: "var(--cv-primary-light)",
-                      color: "var(--cv-primary)",
-                      border: "1px solid var(--cv-primary-light)",
-                    }}
-                  >
-                    {expertise}
+                  <span className="text-xs text-blue-100 font-medium">
+                    {reviews.length} Verified reviews
+                  </span>
+                  <span className="bg-white/10 px-2 py-0.5 rounded text-xs font-bold">
+                    {rating}/5
                   </span>
                 </div>
-              )}
 
-              {description && (
-                <p
-                  className="leading-relaxed mb-8"
-                  style={{ color: "var(--cv-neutral-mid)" }}
-                >
+                {/* Expertise Pills */}
+                {expertise && (
+                  <div className="flex flex-wrap gap-2 pt-3 justify-center sm:justify-start">
+                    {expertise.split(",").map((exp, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-white/15 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full border border-white/10 font-medium"
+                      >
+                        {exp.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right: CTA Action Box */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-full sm:w-80 shadow-2xl shrink-0">
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold mb-4">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                Available right now
+              </div>
+
+              <div className="space-y-3">
+                {mobileNumber ? (
+                  <>
+                    {/* Direct Call Button (Brand Gradient CTA) */}
+                    <a
+                      href={`tel:${mobileNumber}`}
+                      className="cv-btn-cta w-full py-2.5 px-4 text-sm flex items-center justify-center gap-2"
+                    >
+                      <Phone className="w-4 h-4" />
+                      Call Now Free
+                    </a>
+
+                    {/* WhatsApp Chat Button */}
+                    <a
+                      href={`https://wa.me/${mobileNumber.startsWith("+") ? mobileNumber : `91${mobileNumber}`}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 px-4 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-md"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Chat on WhatsApp
+                    </a>
+                  </>
+                ) : (
+                  <button className="w-full bg-white/20 text-white/70 py-2.5 px-4 rounded-xl font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed">
+                    <Phone className="w-4 h-4" />
+                    Contact Unavailable
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ Navigation Tabs ═══ */}
+      <div className="bg-[var(--cv-neutral-dark)] text-white border-b border-slate-800 sticky top-0 z-20 shadow-md">
+        <div className="max-w-6xl mx-auto px-4 flex gap-8 text-sm font-medium overflow-x-auto">
+          {[
+            { id: "about", label: "About" },
+            { id: "reviews", label: `Reviews (${reviews.length})` },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`py-3.5 border-b-2 transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "border-[var(--cv-accent)] text-[var(--cv-accent)] font-semibold"
+                  : "border-transparent text-slate-300 hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ Main Content Container ═══ */}
+      <main className="max-w-6xl mx-auto py-10 px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* LEFT 2 COLUMNS: About + Highlights */}
+          <div className="lg:col-span-2 space-y-8">
+            <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-[var(--cv-neutral-border)]">
+              <h2 className="text-xl font-bold text-[var(--cv-neutral-dark)] mb-1">
+                About {name.split(" ")[0]}
+              </h2>
+              <p className="text-xs uppercase font-bold tracking-wider text-[var(--cv-neutral-mid)] mb-6">
+                {designation}
+              </p>
+
+              {description ? (
+                <p className="text-slate-600 text-sm sm:text-base leading-relaxed whitespace-pre-line">
                   {description}
+                </p>
+              ) : (
+                <p className="text-slate-400 italic text-sm">
+                  No detailed bio available for this counsellor.
                 </p>
               )}
 
-              <div
-                className="grid md:grid-cols-2 gap-8 pt-6"
-                style={{ borderTop: "1px solid var(--cv-neutral-border)" }}
-              >
-                {/* Education */}
-                <div>
-                  <h3
-                    className="font-bold flex items-center gap-2 mb-2"
-                    style={{ color: "var(--cv-neutral-dark)" }}
-                  >
-                    <GraduationCap
-                      className="w-5 h-5"
-                      style={{ color: "var(--cv-primary)" }}
-                      aria-hidden="true"
-                    />
-                    Education
-                  </h3>
-                  <p style={{ color: "var(--cv-neutral-mid)" }}>{education}</p>
-                </div>
-
-                {/* Languages */}
-                <div>
-                  <h3
-                    className="font-bold flex items-center gap-2 mb-2"
-                    style={{ color: "var(--cv-neutral-dark)" }}
-                  >
-                    <Languages
-                      className="w-5 h-5"
-                      style={{ color: "var(--cv-primary)" }}
-                      aria-hidden="true"
-                    />
-                    Languages
-                  </h3>
-                  {languages.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {languages.map((lang, i) => (
-                        <span
-                          key={i}
-                          className="px-3 py-1 rounded-full text-xs font-semibold"
-                          style={{
-                            background: "var(--cv-neutral-light)",
-                            color: "var(--cv-neutral-dark)",
-                          }}
-                        >
-                          {sanitizeText(String(lang), 40)}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span
-                      className="text-sm"
-                      style={{ color: "var(--cv-neutral-mid)" }}
-                    >
-                      Not Specified
-                    </span>
-                  )}
-                </div>
-              </div>
-
               {/* Highlights */}
               {highlights.length > 0 && (
-                <div
-                  className="mt-8 p-6 rounded-2xl"
-                  style={{
-                    background: "var(--cv-primary-light)",
-                    border: "1px solid var(--cv-primary-light)",
-                  }}
-                >
-                  <h3
-                    className="font-bold mb-4 flex items-center gap-2"
-                    style={{ color: "var(--cv-neutral-dark)" }}
-                  >
-                    <CheckCircle2
-                      className="w-5 h-5"
-                      style={{ color: "var(--cv-primary)" }}
-                      aria-hidden="true"
-                    />
+                <div className="mt-8 pt-6 border-t border-slate-100">
+                  <h3 className="font-bold text-[var(--cv-neutral-dark)] mb-4 flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-[var(--cv-accent)]" />
                     Key Highlights
                   </h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {highlights.map((point, i) => (
                       <li
                         key={i}
-                        className="flex items-start gap-2 text-sm"
-                        style={{ color: "var(--cv-neutral-mid)" }}
+                        className="flex items-start gap-2 text-xs sm:text-sm text-slate-600 bg-[var(--cv-neutral-light)] p-3 rounded-lg border border-slate-100"
                       >
-                        <span
-                          className="mt-1"
-                          style={{ color: "var(--cv-primary)" }}
-                          aria-hidden="true"
-                        >
-                          •
-                        </span>
+                        <span className="text-[var(--cv-accent)]">•</span>
                         {sanitizeText(String(point), 200)}
                       </li>
                     ))}
@@ -842,35 +689,24 @@ export default function TeamDetailPage() {
               )}
             </section>
 
-            {/* Reviews */}
+            {/* Reviews Section */}
             <section
-              className="bg-white rounded-3xl p-8 shadow-sm"
-              style={{ border: "1px solid var(--cv-neutral-border)" }}
+              id="reviews-section"
+              className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-[var(--cv-neutral-border)]"
             >
               <div className="flex items-center justify-between mb-8">
-                <h2
-                  className="text-2xl font-bold"
-                  style={{ color: "var(--cv-neutral-dark)" }}
-                >
+                <h2 className="text-xl font-bold text-[var(--cv-neutral-dark)]">
                   Student Feedback
                 </h2>
                 <div className="text-right">
-                  <p
-                    className="text-3xl font-bold"
-                    style={{ color: "var(--cv-primary)" }}
-                  >
-                    {rating}
-                  </p>
-                  <p
-                    className="text-[10px] font-bold uppercase tracking-widest"
-                    style={{ color: "var(--cv-neutral-mid)" }}
-                  >
+                  <p className="text-2xl font-bold text-[var(--cv-primary)]">{rating}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--cv-neutral-mid)]">
                     Overall Rating
                   </p>
                 </div>
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <ReviewForm
                     counsellorId={mentor._id}
@@ -878,22 +714,10 @@ export default function TeamDetailPage() {
                   />
                 </div>
 
-                <div
-                  className="space-y-4 max-h-[500px] overflow-y-auto pr-2"
-                  role="feed"
-                >
+                <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2">
                   {reviews.length === 0 ? (
-                    <div
-                      className="text-center py-12 rounded-2xl"
-                      style={{
-                        background: "var(--cv-neutral-light)",
-                        border: "1px dashed var(--cv-neutral-border)",
-                      }}
-                    >
-                      <p
-                        className="italic"
-                        style={{ color: "var(--cv-neutral-mid)" }}
-                      >
+                    <div className="text-center py-12 rounded-xl bg-[var(--cv-neutral-light)] border border-dashed border-slate-200">
+                      <p className="italic text-sm text-slate-500">
                         No reviews yet. Be the first!
                       </p>
                     </div>
@@ -901,70 +725,34 @@ export default function TeamDetailPage() {
                     reviews.map((rev) => (
                       <article
                         key={rev._id}
-                        className="p-4 rounded-xl transition-all"
-                        style={{
-                          background: "var(--cv-neutral-light)",
-                          border: "1px solid transparent",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.borderColor =
-                            "var(--cv-primary-light)")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.borderColor = "transparent")
-                        }
+                        className="p-4 rounded-xl bg-[var(--cv-neutral-light)] border border-slate-100"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <p
-                              className="font-bold text-sm"
-                              style={{ color: "var(--cv-neutral-dark)" }}
-                            >
+                            <p className="font-bold text-xs text-slate-800">
                               {sanitizeText(rev.guestName || "Anonymous", 60)}
                             </p>
-                            <div
-                              className="flex gap-0.5"
-                              role="img"
-                              aria-label={`${rev.rating} out of 5 stars`}
-                            >
+                            <div className="flex gap-0.5 mt-1">
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className="w-3 h-3"
-                                  style={
+                                  className={`w-3 h-3 ${
                                     i < rev.rating
-                                      ? {
-                                          color: "var(--cv-accent)",
-                                          fill: "var(--cv-accent)",
-                                        }
-                                      : {
-                                          color: "var(--cv-neutral-border)",
-                                        }
-                                  }
-                                  aria-hidden="true"
+                                      ? "text-amber-400 fill-amber-400"
+                                      : "text-slate-300"
+                                  }`}
                                 />
                               ))}
                             </div>
                           </div>
-                          <time
-                            dateTime={rev.createdAt}
-                            className="text-[10px] font-medium"
-                            style={{ color: "var(--cv-neutral-mid)" }}
-                          >
+                          <time className="text-[10px] text-slate-400">
                             {new Date(rev.createdAt).toLocaleDateString(
                               "en-IN",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
+                              { year: "numeric", month: "short", day: "numeric" }
                             )}
                           </time>
                         </div>
-                        <p
-                          className="text-sm italic leading-snug"
-                          style={{ color: "var(--cv-neutral-mid)" }}
-                        >
+                        <p className="text-xs text-slate-600 italic">
                           &ldquo;{sanitizeText(rev.comment || "", 500)}&rdquo;
                         </p>
                       </article>
@@ -974,8 +762,62 @@ export default function TeamDetailPage() {
               </div>
             </section>
           </div>
+
+          {/* RIGHT COLUMN: Facts Card */}
+          <aside className="lg:col-span-1">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[var(--cv-neutral-border)] sticky top-20">
+              <h3 className="text-base font-bold text-[var(--cv-neutral-dark)] mb-6 pb-3 border-b border-slate-100">
+                Facts about {name.split(" ")[0]}
+              </h3>
+
+              <dl className="space-y-5 text-sm">
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-slate-400" />
+                    Location
+                  </dt>
+                  <dd className="font-semibold text-slate-800">{location}</dd>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500 flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-slate-400" />
+                    Education
+                  </dt>
+                  <dd className="font-semibold text-slate-800">{education}</dd>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-slate-400" />
+                    Experience
+                  </dt>
+                  <dd className="font-semibold text-slate-800">
+                    {experience} Years
+                  </dd>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-slate-400" />
+                    Response rate
+                  </dt>
+                  <dd className="font-semibold text-slate-800">95%</dd>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-400" />
+                    Avg. response
+                  </dt>
+                  <dd className="font-semibold text-slate-800">10 min</dd>
+                </div>
+              </dl>
+            </div>
+          </aside>
+
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>

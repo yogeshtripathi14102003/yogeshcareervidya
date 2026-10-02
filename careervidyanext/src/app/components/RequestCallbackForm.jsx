@@ -78,34 +78,36 @@ export default function RequestCallbackForm({ isOpen, onClose }) {
             ================================================== */}
             <div className="hidden md:flex flex-col bg-[#EEF7FF] p-6 justify-between">
               <div>
+                {/* Circular Logo Container */}
+                <div className="mb-4 flex items-center justify-start">
+                  <div className="w-25 h-25 rounded-full bg-white border-2 border-[#F58220]/30 shadow-sm flex items-center justify-center p-2 overflow-hidden">
+                    <Image
+                      src="/images/n12.png"
+                      alt="CareerVidya"
+                      width={100}
+                      height={40}
+                      priority
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+                </div>
+
                 {/* CTA Badge */}
-                <div className="inline-flex items-center gap-1.5 bg-[#F58220] text-white px-2.5 py-1 rounded-full text-[10px] font-bold mb-3 shadow-sm">
+                {/* <div className="inline-flex items-center gap-1.5 bg-[#F58220] text-white px-2.5 py-1 rounded-full text-[10px] font-bold mb-3 shadow-sm">
                   <FaPhoneAlt className="text-[8px]" />
                   Free Career Guidance
-                </div>
+                </div> */}
 
                 {/* Heading */}
                 <h2 className="text-[22px] leading-snug font-extrabold text-[#173F7A]">
                   Talk to Our <br />
                   <span className="text-[#1264C5]">Career </span>
-                  <span className="text-[#F58220]">Counsellor</span>
+                  <span className="text-[#F58220]">Advisor</span>
                 </h2>
 
                 <p className="mt-1.5 text-[12px] leading-relaxed text-[#55739E]">
                   Personalized guidance for courses, fees & admissions.
                 </p>
-
-                {/* Logo - Text ke niche Shifted */}
-                <div className="mt-4">
-                  <Image
-                    src="/images/n12.png"
-                    alt="CareerVidya"
-                    width={130}
-                    height={45}
-                    priority
-                    className="w-[110px] h-auto object-contain"
-                  />
-                </div>
               </div>
 
               {/* Vector Image */}
@@ -251,7 +253,7 @@ function CallbackForm({ onBookCounselling, onClose }) {
         <button
           type="submit"
           disabled={loading}
-          className=" cursor-pointer   w-full mt-1 bg-[#c15304] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="cursor-pointer w-full mt-1 bg-[#c15304] hover:bg-[#E87512] text-white font-bold text-[12.5px] py-2.5 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -277,7 +279,7 @@ function CallbackForm({ onBookCounselling, onClose }) {
       <button
         type="button"
         onClick={onBookCounselling}
-        className="   cursor-pointer w-full mt-3 border border-[#1264C5] text-[#1264C5] hover:bg-[#1264C5] hover:text-white font-semibold text-[12px] py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5"
+        className="cursor-pointer w-full mt-3 border border-[#1264C5] text-[#1264C5] hover:bg-[#1264C5] hover:text-white font-semibold text-[12px] py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5"
       >
         <span>📅</span> Book Free Counselling
       </button>

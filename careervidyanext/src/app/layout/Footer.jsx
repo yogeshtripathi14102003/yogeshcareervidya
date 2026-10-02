@@ -200,7 +200,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import TopOfferBanner from "../components/TopOfferBanner";
+// import TopOfferBanner from "../components/TopOfferBanner";
 import api from "@/utlis/api";
 
 export default function Footer() {
@@ -647,7 +647,7 @@ export default function Footer() {
       </div>
 
       {/* TOP OFFER BANNER - DESKTOP ONLY */}
-      {!isMobile && <TopOfferBanner />}
+      {/* {!isMobile && <TopOfferBanner />} */}
     </footer>
   );
 }

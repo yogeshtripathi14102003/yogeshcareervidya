@@ -54,7 +54,7 @@ export default function UniversityCards({ universities, courseTitle }) {
       setShowSignup(true);
       return;
     }
-    router.push(`/compare?universities=${ids.join(",")}`);
+    router.push(ids ? `/comparedetail?ids=${ids}` : "/comparedetail");
   };
 
   const handleCompareAll = () => {

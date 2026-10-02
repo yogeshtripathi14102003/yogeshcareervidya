@@ -916,7 +916,7 @@ const TOP_UNIVERSITIES = [
 
 const WHY_CAREERVIDYA = [
   { href: "/whycareervidya/careervidya-care",  label: "Continuous Career Guidance",     icon: Compass,   chip: "chip-primary" },
-  { href: "/whycareervidya/placement-support", label: "Expert Placement Cell",           icon: Award,     chip: "chip-primary" },
+  // { href: "/whycareervidya/placement-support", label: "Expert Placement Cell",           icon: Award,     chip: "chip-primary" },
   { href: "/WP/Professional",                  label: "Balance your job and learning",   icon: Briefcase, chip: "chip-primary" },
 ];
 

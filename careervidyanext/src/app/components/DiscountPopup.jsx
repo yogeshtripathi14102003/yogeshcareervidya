@@ -300,15 +300,56 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { X, Zap, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import API from "@/utlis/api.js";
 import { toast } from "sonner";
 
+const DISMISS_KEY = "offerPopupClosed";
+
+const isDismissed = () => {
+  try {
+    return !!sessionStorage.getItem(DISMISS_KEY);
+  } catch {
+    return false;
+  }
+};
+
+const markDismissed = () => {
+  try {
+    sessionStorage.setItem(DISMISS_KEY, "1");
+  } catch {}
+};
+
+/* ═══════════════ COUNTDOWN (isolated: only this re-renders every second) ═══════════════ */
+const Countdown = memo(function Countdown({ validTill }) {
+  const calc = () =>
+    Math.max(Math.floor((new Date(validTill) - Date.now()) / 1000), 0);
+
+  const [left, setLeft] = useState(calc);
+
+  useEffect(() => {
+    setLeft(calc());
+    const id = setInterval(() => setLeft(calc()), 1000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validTill]);
+
+  const h = Math.floor(left / 3600);
+  const m = Math.floor((left % 3600) / 60);
+  const s = left % 60;
+
+  return (
+    <>
+      {h}h : {m}m : {s}s
+    </>
+  );
+});
+
 /* ═══════════════ FLOATING INPUT ═══════════════ */
-const FloatingInput = ({
+const FloatingInput = memo(function FloatingInput({
   label,
   name,
   type = "text",
@@ -316,108 +357,116 @@ const FloatingInput = ({
   onChange,
   readOnly,
   insideText,
-}) => (
-  <div className="relative w-full mb-4 group">
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      readOnly={readOnly}
-      className={`w-full rounded-xl px-4 py-3 text-[13px] font-medium outline-none transition-all duration-200 ${
-        readOnly ? "cursor-not-allowed" : ""
-      }`}
-      style={{
-        background: readOnly ? "var(--cv-neutral-light)" : "#fff",
-        color: "var(--cv-neutral-dark)",
-        border: "1.5px solid var(--cv-neutral-border)",
-      }}
-      onFocus={(e) => {
-        if (!readOnly) {
-          e.target.style.borderColor = "var(--cv-accent)";
-          e.target.style.boxShadow = "0 0 0 4px rgba(249, 115, 22, 0.12)";
-        }
-      }}
-      onBlur={(e) => {
-        e.target.style.borderColor = "var(--cv-neutral-border)";
-        e.target.style.boxShadow = "none";
-      }}
-    />
-    {insideText && (
-      <span
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold px-2.5 py-1 rounded-md tracking-wider uppercase"
+}) {
+  return (
+    <div className="relative w-full mb-4 group">
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        className={`w-full rounded-xl px-4 py-3 text-[13px] font-medium outline-none ${
+          readOnly ? "cursor-not-allowed" : ""
+        }`}
         style={{
-          background: "var(--cv-accent-light)",
-          color: "var(--cv-accent)",
-          border: "1px solid var(--cv-accent)",
+          background: readOnly ? "var(--cv-neutral-light)" : "#fff",
+          color: "var(--cv-neutral-dark)",
+          border: "1.5px solid var(--cv-neutral-border)",
         }}
+        onFocus={(e) => {
+          if (!readOnly) {
+            e.target.style.borderColor = "var(--cv-accent)";
+            e.target.style.boxShadow = "0 0 0 4px rgba(249, 115, 22, 0.12)";
+          }
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = "var(--cv-neutral-border)";
+          e.target.style.boxShadow = "none";
+        }}
+      />
+      {insideText && (
+        <span
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold px-2.5 py-1 rounded-md tracking-wider uppercase"
+          style={{
+            background: "var(--cv-accent-light)",
+            color: "var(--cv-accent)",
+            border: "1px solid var(--cv-accent)",
+          }}
+        >
+          {insideText}
+        </span>
+      )}
+      <label
+        className="absolute -top-2 left-3 bg-white px-1.5 text-[11px] font-bold tracking-wide"
+        style={{ color: "var(--cv-accent)" }}
       >
-        {insideText}
-      </span>
-    )}
-    <label
-      className="absolute -top-2 left-3 bg-white px-1.5 text-[11px] font-bold tracking-wide transform transition-all group-focus-within:scale-105"
-      style={{ color: "var(--cv-accent)" }}
-    >
-      {label}
-    </label>
-  </div>
-);
+        {label}
+      </label>
+    </div>
+  );
+});
 
 /* ═══════════════ FLOATING SELECT ═══════════════ */
-const FloatingSelect = ({ label, name, value, onChange }) => (
-  <div className="relative w-full mb-4 group">
-    <label
-      className="absolute -top-2 left-3 bg-white px-1.5 text-[11px] font-bold tracking-wide z-10"
-      style={{ color: "var(--cv-accent)" }}
-    >
-      {label}
-    </label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full rounded-xl px-4 py-3 text-[13px] font-medium outline-none transition-all duration-200 appearance-none cursor-pointer"
-      style={{
-        background: "#fff",
-        color: "var(--cv-neutral-dark)",
-        border: "1.5px solid var(--cv-neutral-border)",
-      }}
-      onFocus={(e) => {
-        e.target.style.borderColor = "var(--cv-accent)";
-        e.target.style.boxShadow = "0 0 0 4px rgba(249, 115, 22, 0.12)";
-      }}
-      onBlur={(e) => {
-        e.target.style.borderColor = "var(--cv-neutral-border)";
-        e.target.style.boxShadow = "none";
-      }}
-    >
-      <option value="">Select</option>
-      <option>male</option>
-      <option>female</option>
-      <option>other</option>
-    </select>
-    <div
-      className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4"
-      style={{ color: "var(--cv-neutral-mid)" }}
-    >
-      <svg
-        className="fill-current h-4 w-4 transition-transform group-focus-within:rotate-180"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
+const FloatingSelect = memo(function FloatingSelect({
+  label,
+  name,
+  value,
+  onChange,
+}) {
+  return (
+    <div className="relative w-full mb-4 group">
+      <label
+        className="absolute -top-2 left-3 bg-white px-1.5 text-[11px] font-bold tracking-wide z-10"
+        style={{ color: "var(--cv-accent)" }}
       >
-        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-      </svg>
+        {label}
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full rounded-xl px-4 py-3 text-[13px] font-medium outline-none appearance-none cursor-pointer"
+        style={{
+          background: "#fff",
+          color: "var(--cv-neutral-dark)",
+          border: "1.5px solid var(--cv-neutral-border)",
+        }}
+        onFocus={(e) => {
+          e.target.style.borderColor = "var(--cv-accent)";
+          e.target.style.boxShadow = "0 0 0 4px rgba(249, 115, 22, 0.12)";
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = "var(--cv-neutral-border)";
+          e.target.style.boxShadow = "none";
+        }}
+      >
+        <option value="">Select</option>
+        <option>male</option>
+        <option>female</option>
+        <option>other</option>
+      </select>
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4"
+        style={{ color: "var(--cv-neutral-mid)" }}
+      >
+        <svg
+          className="fill-current h-4 w-4"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+        </svg>
+      </div>
     </div>
-  </div>
-);
+  );
+});
 
 /* ═══════════════ MAIN COMPONENT ═══════════════ */
 const CelebrationSignupPopup = () => {
   const [mounted, setMounted] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -445,48 +494,63 @@ const CelebrationSignupPopup = () => {
     queryKey: ["celebration-offer"],
     queryFn: async () => {
       const res = await API.get("/api/v1/offer/type/offer");
-      const sorted = res.data.data.sort(
+      // copy before sort so the cached response isn't mutated
+      return [...res.data.data].sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      return sorted[0];
+      )[0];
     },
     staleTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     enabled: mounted,
   });
 
+  const closePopup = useCallback(() => {
+    setShowPopup(false);
+    markDismissed();
+  }, []);
+
+  /* Show popup after 10s — only once per session, and only if offer is still valid */
   useEffect(() => {
     if (!mounted || !offer) return;
-    const timer = setTimeout(() => {
-      setShowPopup(true);
-      const seconds = Math.max(
-        Math.floor((new Date(offer.validTill) - new Date()) / 1000),
-        0
-      );
-      setTimeLeft(seconds);
-    }, 10000);
+    if (isDismissed()) return;
+    if (new Date(offer.validTill) <= new Date()) return;
+
+    const timer = setTimeout(() => setShowPopup(true), 10000);
     return () => clearTimeout(timer);
   }, [mounted, offer]);
 
+  /* Lock body scroll + close on Escape while popup is open */
   useEffect(() => {
-    if (!showPopup || !offer || timeLeft <= 0) return;
-    const t = setTimeout(() => setTimeLeft((p) => p - 1), 1000);
-    return () => clearTimeout(t);
-  }, [timeLeft, showPopup, offer]);
+    if (!showPopup) return;
 
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKey = (e) => {
+      if (e.key === "Escape") closePopup();
+    };
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [showPopup, closePopup]);
+
+  /* Auto-hide success popup */
   useEffect(() => {
     if (!showSuccessPopup) return;
     const timer = setTimeout(() => setShowSuccessPopup(false), 5000);
     return () => clearTimeout(timer);
   }, [showSuccessPopup]);
 
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  }, []);
+
   if (!mounted || !offer) return null;
-
-  const hours = Math.floor(timeLeft / 3600);
-  const minutes = Math.floor((timeLeft % 3600) / 60);
-  const seconds = timeLeft % 60;
-
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleGetClick = () => {
     setShowSignup(true);
@@ -498,6 +562,8 @@ const CelebrationSignupPopup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     if (otpSent) {
       if (!formData.otp) {
         toast.error("Enter OTP");
@@ -511,6 +577,7 @@ const CelebrationSignupPopup = () => {
           purpose: "register",
         });
         setShowPopup(false);
+        markDismissed();
         setShowSuccessPopup(true);
         toast.success("Registration Successful!");
       } catch {
@@ -538,17 +605,22 @@ const CelebrationSignupPopup = () => {
   return (
     <>
       {showPopup && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Solid overlay (no backdrop-blur — that was the main lag source) */}
           <div
-            className="absolute inset-0 backdrop-blur-md"
-            style={{ background: "rgba(15,23,42,0.75)" }}
-            onClick={() => setShowPopup(false)}
+            className="absolute inset-0"
+            style={{ background: "rgba(15,23,42,0.8)" }}
+            onClick={closePopup}
           />
 
           <div
             className={`relative w-full ${
               showSignup ? "max-w-4xl" : "max-w-[400px]"
-            } rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 ease-out`}
+            } rounded-3xl shadow-2xl overflow-hidden`}
             style={{
               background: "#fff",
               boxShadow: "0 25px 50px -12px rgba(30, 58, 138, 0.35)",
@@ -557,8 +629,8 @@ const CelebrationSignupPopup = () => {
           >
             {/* Close Button */}
             <button
-              onClick={() => setShowPopup(false)}
-              className="absolute top-4 right-4 cursor-pointer p-2 rounded-full z-30 transition-all duration-200"
+              onClick={closePopup}
+              className="absolute top-4 right-4 cursor-pointer p-2 rounded-full z-30 transition-colors duration-200"
               style={{
                 background: "rgba(255,255,255,0.95)",
                 color: "var(--cv-neutral-dark)",
@@ -578,40 +650,28 @@ const CelebrationSignupPopup = () => {
             </button>
 
             {!showSignup ? (
-              /* ═══════════════════════════════════════
-                 VIEW 1: OFFER CARD
-              ═══════════════════════════════════════ */
+              /* ═══════════ VIEW 1: OFFER CARD ═══════════ */
               <div
                 className="relative p-8 text-center overflow-hidden flex flex-col items-center min-h-[440px] justify-center"
                 style={{
                   background:
-                    "linear-gradient(180deg, var(--cv-neutral-dark) 0%, var(--cv-primary) 60%, var(--cv-accent) 100%)",
+                    "radial-gradient(circle at 25% 0%, rgba(249,115,22,0.3) 0%, transparent 45%), radial-gradient(circle at 75% 100%, rgba(249,115,22,0.2) 0%, transparent 40%), linear-gradient(180deg, var(--cv-neutral-dark) 0%, var(--cv-primary) 60%, var(--cv-accent) 100%)",
                 }}
               >
-                <div
-                  className="absolute top-0 left-1/4 w-48 h-48 rounded-full filter blur-[60px] pointer-events-none"
-                  style={{ background: "rgba(249, 115, 22, 0.3)" }}
-                />
-                <div
-                  className="absolute bottom-0 right-1/4 w-36 h-36 rounded-full filter blur-[50px] pointer-events-none"
-                  style={{ background: "rgba(249, 115, 22, 0.2)" }}
-                />
-
                 <div className="relative z-10 w-full flex flex-col items-center">
-                  <span className="bg-white/10 !text-white border border-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 backdrop-blur-md">
+                  <span className="bg-white/10 !text-white border border-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4">
                     Limited Period Offer
                   </span>
 
-                  {/* ✅ WHITE HEADING */}
-                  <h2 className="!text-white text-[36px] font-black tracking-tight uppercase italic leading-none drop-shadow-lg">
+                  <h2 className="!text-white text-[36px] font-black tracking-tight uppercase italic leading-none">
                     GetAdmission
                   </h2>
                   <p className="!text-white/80 text-[10px] font-bold tracking-[0.25em] uppercase mt-1.5 mb-8">
                     Empowering Your Future
                   </p>
 
-                  <div className="flex items-baseline justify-center mb-8 bg-white/[0.06] border border-white/10 shadow-inner px-8 py-5 rounded-2xl backdrop-blur-xl w-full max-w-[280px]">
-                    <span className="!text-white text-[100px] font-black leading-none tracking-tighter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                  <div className="flex items-baseline justify-center mb-8 bg-white/[0.08] border border-white/10 px-8 py-5 rounded-2xl w-full max-w-[280px]">
+                    <span className="!text-white text-[100px] font-black leading-none tracking-tighter">
                       {offer.discountPercentage}
                     </span>
                     <div className="flex flex-col items-start ml-2">
@@ -626,7 +686,7 @@ const CelebrationSignupPopup = () => {
 
                   <button
                     onClick={handleGetClick}
-                    className="cursor-pointer w-full max-w-[200px] py-3.5 rounded-xl text-[15px] font-black flex items-center justify-center gap-2 mx-auto transition-all hover:scale-[1.03] active:scale-[0.98] group uppercase tracking-wider"
+                    className="cursor-pointer w-full max-w-[200px] py-3.5 rounded-xl text-[15px] font-black flex items-center justify-center gap-2 mx-auto transition-transform hover:scale-[1.03] active:scale-[0.98] uppercase tracking-wider"
                     style={{
                       background: "#fff",
                       color: "var(--cv-accent)",
@@ -634,52 +694,37 @@ const CelebrationSignupPopup = () => {
                     }}
                   >
                     GET NOW
-                    <Zap
-                      className="fill-current stroke-current group-hover:animate-bounce"
-                      size={16}
-                    />
+                    <Zap className="fill-current stroke-current" size={16} />
                   </button>
 
-                  <div className="mt-8 flex items-center gap-2.5 bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-                    <div className="w-2 h-2 bg-rose-500 rounded-full animate-ping" />
+                  <div className="mt-8 flex items-center gap-2.5 bg-black/40 px-4 py-2 rounded-full border border-white/10">
+                    <div className="w-2 h-2 bg-rose-500 rounded-full" />
                     <p className="!text-white/90 text-[11px] font-bold uppercase tracking-wider">
                       Ends In:{" "}
                       <span className="!text-white font-mono font-black text-[12px] ml-1">
-                        {hours}h : {minutes}m : {seconds}s
+                        <Countdown validTill={offer.validTill} />
                       </span>
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              /* ═══════════════════════════════════════
-                 VIEW 2: SIGNUP FORM
-              ═══════════════════════════════════════ */
+              /* ═══════════ VIEW 2: SIGNUP FORM ═══════════ */
               <div className="flex md:flex-row flex-col max-h-[85vh] md:max-h-[620px]">
-                {/* LEFT BANNER — White headings */}
+                {/* LEFT BANNER */}
                 <div
                   className="hidden md:flex md:w-[35%] p-8 flex-col justify-between relative overflow-hidden"
                   style={{
                     background:
-                      "linear-gradient(160deg, var(--cv-neutral-dark) 0%, var(--cv-primary) 40%, #7C3AED 80%, var(--cv-accent) 100%)",
+                      "radial-gradient(circle at 100% 0%, rgba(255,255,255,0.08) 0%, transparent 35%), radial-gradient(circle at 0% 100%, rgba(249,115,22,0.2) 0%, transparent 40%), linear-gradient(160deg, var(--cv-neutral-dark) 0%, var(--cv-primary) 40%, #7C3AED 80%, var(--cv-accent) 100%)",
                   }}
                 >
-                  <div
-                    className="absolute -top-10 -right-10 w-40 h-40 rounded-full"
-                    style={{ background: "rgba(255,255,255,0.05)" }}
-                  />
-                  <div
-                    className="absolute -bottom-16 -left-10 w-48 h-48 rounded-full"
-                    style={{ background: "rgba(249,115,22,0.15)" }}
-                  />
-
                   <div className="relative z-10">
                     <p className="!text-white text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
                       <span className="w-6 h-[2px] bg-orange-400 rounded-full" />
                       Exclusive Access
                     </p>
 
-                    {/* ✅ WHITE HEADINGS */}
                     <h3 className="!text-white font-black text-3xl leading-tight mb-3">
                       Unlock Your
                       <br />
@@ -697,9 +742,8 @@ const CelebrationSignupPopup = () => {
                     <div
                       className="rounded-2xl p-4 text-center"
                       style={{
-                        background: "rgba(255,255,255,0.1)",
+                        background: "rgba(255,255,255,0.12)",
                         border: "1px solid rgba(255,255,255,0.15)",
-                        backdropFilter: "blur(10px)",
                       }}
                     >
                       <p className="!text-white/70 text-[10px] uppercase font-bold tracking-wider mb-1">
@@ -735,7 +779,9 @@ const CelebrationSignupPopup = () => {
                   {/* Header */}
                   <div
                     className="flex items-center gap-3 mb-6 pb-4"
-                    style={{ borderBottom: "2px dashed var(--cv-neutral-border)" }}
+                    style={{
+                      borderBottom: "2px dashed var(--cv-neutral-border)",
+                    }}
                   >
                     <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
@@ -789,7 +835,7 @@ const CelebrationSignupPopup = () => {
                     ))}
                   </div>
 
-                  <form className="space-y-1">
+                  <form className="space-y-1" onSubmit={handleSubmit}>
                     <FloatingInput
                       label="Full Name*"
                       name="name"
@@ -801,12 +847,14 @@ const CelebrationSignupPopup = () => {
                       <FloatingInput
                         label="Email*"
                         name="email"
+                        type="email"
                         value={formData.email}
                         onChange={handleChange}
                       />
                       <FloatingInput
                         label="Mobile*"
                         name="mobileNumber"
+                        type="tel"
                         value={formData.mobileNumber}
                         onChange={handleChange}
                       />
@@ -882,10 +930,9 @@ const CelebrationSignupPopup = () => {
                     )}
 
                     <button
-                      type="button"
-                      onClick={handleSubmit}
+                      type="submit"
                       disabled={loading}
-                      className="w-full py-4 mt-4 rounded-xl text-white font-black transition-all active:scale-[0.99] text-xs uppercase tracking-widest cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="w-full py-4 mt-4 rounded-xl text-white font-black active:scale-[0.99] text-xs uppercase tracking-widest cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                       style={{
                         background: "var(--cv-grad-cta)",
                         boxShadow: "0 8px 20px -6px rgba(193, 83, 4, 0.4)",
@@ -918,17 +965,16 @@ const CelebrationSignupPopup = () => {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════
-         SUCCESS POPUP — White heading
-      ═══════════════════════════════════════ */}
+      {/* ═══════════ SUCCESS POPUP ═══════════ */}
       {showSuccessPopup && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 backdrop-blur-sm"
-            style={{ background: "rgba(15,23,42,0.4)" }}
+            className="absolute inset-0"
+            style={{ background: "rgba(15,23,42,0.5)" }}
+            onClick={() => setShowSuccessPopup(false)}
           />
           <div
-            className="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center transition-all transform scale-100"
+            className="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center"
             style={{ borderTop: "8px solid var(--cv-accent)" }}
           >
             <div

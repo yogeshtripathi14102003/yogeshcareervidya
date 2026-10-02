@@ -344,7 +344,7 @@ export default async function PlacementPage() {
                     href="/contactus"
                     className="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/10"
                   >
-                    Talk to Our Team
+                    Get Free Placement Guidance
                   </Link>
                 </div>
 

@@ -683,6 +683,44 @@ import { toast } from "sonner";
 
 const SESSION_KEY = "cv_query_popup_shown";
 
+const inputStyle = {
+  border: "1px solid var(--cv-neutral-border)",
+  color: "var(--cv-neutral-dark)",
+  background: "#fff",
+};
+
+const focusIn = (e) => {
+  e.target.style.borderColor = "var(--cv-primary)";
+  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
+};
+
+const focusOut = (e) => {
+  e.target.style.borderColor = "var(--cv-neutral-border)";
+  e.target.style.boxShadow = "none";
+};
+
+/* Circular logo (reused on desktop + mobile) */
+function CircleLogo({ className = "" }) {
+  return (
+    <div
+      className={`w-24 h-24 rounded-full bg-white flex items-center justify-center overflow-hidden ${className}`}
+      style={{
+        border: "3px solid var(--cv-primary)",
+      
+      }}
+    >
+      <Image
+        src="/images/n12.png"
+        alt="Career Vidya"
+        width={120}
+        height={58}
+        priority
+        className="object-contain w-[88%] h-auto scale-110"
+      />
+    </div>
+  );
+}
+
 export default function QueryPopup() {
   const [showPopup, setShowPopup] = useState(false);
   const [specializations, setSpecializations] = useState([]);
@@ -697,24 +735,15 @@ export default function QueryPopup() {
     message: "",
   });
 
-  /* ═══════════════════════════════════════════════
-     ✅ POPUP LOGIC — Sirf ek baar per session
-     - Pehli baar: popup show
-     - Refresh: nahi
-     - Navigate: nahi
-     - New tab/session: phir se
-  ═══════════════════════════════════════════════ */
+  /* Popup: sirf ek baar per session */
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // ✅ Already shown? Skip
     const alreadyShown = sessionStorage.getItem(SESSION_KEY);
     if (alreadyShown === "true") return;
 
-    // ✅ Flag turant set karo (popup show hone se pehle)
     sessionStorage.setItem(SESSION_KEY, "true");
 
-    // ✅ Ab popup show karo
     const timer = setTimeout(() => {
       setShowPopup(true);
     }, 2000);
@@ -722,9 +751,7 @@ export default function QueryPopup() {
     return () => clearTimeout(timer);
   }, []);
 
-  /* ═══════════════════════════════════════════════
-     ✅ REACT QUERY — Courses
-  ═══════════════════════════════════════════════ */
+  /* React Query: Courses */
   const { data: courses = [] } = useQuery({
     queryKey: ["query-popup-courses"],
     queryFn: async () => {
@@ -772,6 +799,7 @@ export default function QueryPopup() {
         branch: "",
         message: "",
       });
+      setSpecializations([]);
       handleClose();
     } catch (err) {
       console.error(err);
@@ -820,13 +848,16 @@ export default function QueryPopup() {
           style={{ background: "var(--cv-primary-light)" }}
         >
           <div>
-            <div
+            {/* Circular Logo - Top */}
+            <CircleLogo className="mb-4 ml-1.5 mt-1.5" />
+
+            {/* <div
               className="inline-flex items-center gap-1.5 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm"
               style={{ background: "var(--cv-grad-cta)" }}
             >
               <Phone size={10} fill="white" />
               <span>Free Career Guidance</span>
-            </div>
+            </div> */}
 
             <h2
               className="mt-4 text-[20px] leading-tight font-bold"
@@ -838,7 +869,7 @@ export default function QueryPopup() {
               className="text-[20px] leading-tight font-bold"
               style={{ color: "var(--cv-accent)" }}
             >
-              Career Counsellor
+              Career Advisor
             </h2>
 
             <p
@@ -849,17 +880,7 @@ export default function QueryPopup() {
             </p>
           </div>
 
-          <div className="my-3">
-            <Image
-              src="/images/n12.png"
-              alt="Career Vidya"
-              width={105}
-              height={50}
-              className="object-contain"
-            />
-          </div>
-
-          <div className="flex justify-center items-end">
+          <div className="flex justify-center items-end mt-3">
             <Image
               src="/images/inquiry.png"
               alt="Counselling"
@@ -875,14 +896,9 @@ export default function QueryPopup() {
           className="w-full md:w-[62%] bg-white p-4 md:p-5 flex flex-col justify-center overflow-y-auto"
           style={{ color: "var(--cv-neutral-dark)" }}
         >
+          {/* Circular Logo - Mobile */}
           <div className="flex md:hidden justify-center mb-3">
-            <Image
-              src="/images/n12.png"
-              alt="Career Vidya"
-              width={120}
-              height={55}
-              className="object-contain"
-            />
+            <CircleLogo />
           </div>
 
           <h3
@@ -917,19 +933,9 @@ export default function QueryPopup() {
                 placeholder="Your Name"
                 required
                 className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={{
-                  border: "1px solid var(--cv-neutral-border)",
-                  color: "var(--cv-neutral-dark)",
-                  background: "#fff",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "var(--cv-primary)";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "var(--cv-neutral-border)";
-                  e.target.style.boxShadow = "none";
-                }}
+                style={inputStyle}
+                onFocus={focusIn}
+                onBlur={focusOut}
               />
             </div>
 
@@ -948,19 +954,9 @@ export default function QueryPopup() {
                 placeholder="Email"
                 required
                 className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={{
-                  border: "1px solid var(--cv-neutral-border)",
-                  color: "var(--cv-neutral-dark)",
-                  background: "#fff",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "var(--cv-primary)";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "var(--cv-neutral-border)";
-                  e.target.style.boxShadow = "none";
-                }}
+                style={inputStyle}
+                onFocus={focusIn}
+                onBlur={focusOut}
               />
             </div>
 
@@ -979,19 +975,9 @@ export default function QueryPopup() {
                 placeholder="Mobile No"
                 required
                 className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={{
-                  border: "1px solid var(--cv-neutral-border)",
-                  color: "var(--cv-neutral-dark)",
-                  background: "#fff",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "var(--cv-primary)";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "var(--cv-neutral-border)";
-                  e.target.style.boxShadow = "none";
-                }}
+                style={inputStyle}
+                onFocus={focusIn}
+                onBlur={focusOut}
               />
             </div>
 
@@ -1010,19 +996,9 @@ export default function QueryPopup() {
                 placeholder="City"
                 required
                 className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={{
-                  border: "1px solid var(--cv-neutral-border)",
-                  color: "var(--cv-neutral-dark)",
-                  background: "#fff",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "var(--cv-primary)";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "var(--cv-neutral-border)";
-                  e.target.style.boxShadow = "none";
-                }}
+                style={inputStyle}
+                onFocus={focusIn}
+                onBlur={focusOut}
               />
             </div>
 
@@ -1039,11 +1015,7 @@ export default function QueryPopup() {
                 onChange={handleChange}
                 required
                 className="w-full appearance-none rounded-lg pl-9 pr-8 py-2 text-[13px] outline-none transition"
-                style={{
-                  border: "1px solid var(--cv-neutral-border)",
-                  color: "var(--cv-neutral-dark)",
-                  background: "#fff",
-                }}
+                style={inputStyle}
               >
                 <option value="">Course</option>
                 {courses.map((course) => (
@@ -1074,11 +1046,7 @@ export default function QueryPopup() {
                 required
                 disabled={!specializations.length}
                 className="w-full appearance-none rounded-lg pl-9 pr-8 py-2 text-[13px] outline-none transition disabled:opacity-50"
-                style={{
-                  border: "1px solid var(--cv-neutral-border)",
-                  color: "var(--cv-neutral-dark)",
-                  background: "#fff",
-                }}
+                style={inputStyle}
               >
                 <option value="">Branch</option>
                 {specializations.map((sp, i) => (
@@ -1110,11 +1078,9 @@ export default function QueryPopup() {
                 required
                 rows="2"
                 className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition resize-none"
-                style={{
-                  border: "1px solid var(--cv-neutral-border)",
-                  color: "var(--cv-neutral-dark)",
-                  background: "#fff",
-                }}
+                style={inputStyle}
+                onFocus={focusIn}
+                onBlur={focusOut}
               />
             </div>
 
