@@ -236,6 +236,8 @@ app.use(
 
 // ✅ Routes — कोई change नहीं
 app.use("/api/v1/callback", callbackRoutes);
+app.use("/api/v1/qa", qaRoutes);
+
 app.use("/api/v1", authRouter);
 app.use("/api/v1", teamRouter);
 app.use("/api/v1/banner", bannerRouter);
@@ -266,7 +268,6 @@ app.use("/api/v1/slot", slotRoutes);
 app.use("/api/v1/manage", manageTeamroutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/reports", reportsRoutes);
-app.use("/api/v1/qa", qaRoutes);
 app.use("/api/v1/security-config", securityConfigRoutes);
 
 
