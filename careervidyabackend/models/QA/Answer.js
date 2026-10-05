@@ -9,7 +9,7 @@ const answerSchema = new mongoose.Schema(
     // admin/subadmin/student, Counselor for counselor) and this survives
     // the author's account being deleted later.
     authorId: { type: mongoose.Schema.Types.ObjectId, required: true },
-    authorType: { type: String, enum: ["admin", "subadmin", "counselor", "user", "student"], required: true },
+    authorType: { type: String, enum: ["admin", "subadmin", "counselor", "student"], required: true },
     authorName: { type: String, required: true },
 
     body: { type: String, required: true },
