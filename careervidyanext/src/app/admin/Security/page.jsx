@@ -1,41 +1,90 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import api from "@/utlis/api.js"; 
+import api from "@/utlis/api.js";
 import { Trash2, ShieldCheck, User, CheckCircle, AlertCircle } from "lucide-react";
 
-// ✅ COMPLETE LIST: Ye labels exact 'Layout.js' se match hone chahiye
-const PERMISSIONS_LIST = [
-  { id: "Dashboard", label: "Dashboard" },
-  { id: "applyadmission", label: "Apply Admission" },
-  { id: "Visitors", label: "Visitors" },
-  { id: "Placed Students", label: "Placed Students" },
-  { id: "Add Team", label: "Add Team" },
-  { id: "All Students", label: "All Students" },
-  { id: "Banners", label: "Banners List" },
-  { id: "Universities", label: "Universities" },
-  { id: "Universities Data", label: "Universities Data" },
-  { id: "Get Queries", label: "Get Queries" },
-  { id: "Online Courses", label: "Online Courses" },
-  { id: "Job Posts", label: "Job Posts" },
-  { id: "Applications", label: "Applications (Resume)" },
-  { id: "OnlyL Online", label: "OnlyL Online" },
-  { id: "Q & A", label: "Q & A" },
-  { id: "add-subsid", label: "Add Subsid" },
-  { id: "addblog", label: "Add Blog" },
-  { id: "getbloglist", label: "Blog List" },
-  { id: "state", label: "State Management" },
-  { id: "Newsletter", label: "Newsletter" },
-  { id: "Addcounselor", label: "Add Counselor" },
-  { id: "Security", label: "Security Settings" },
-  { id: "VideoPage", label: "Video Management" },
-  { id: "CounselorReprt", label: "Counselor Report" },
-  { id: "AdminDocumentcheck", label: "Document Check" },
-  { id: "DocumentDelete", label: "Document Delete" },
-  {id: "DocReport", label: "DocReport"},
-  { id: "LeadAnalytics", label: "Lead Analytics" },
-  {id: "slotsquery", label: "Slot Management"},
-  {id: "CRM", label: "CRM"},
+// ✅ Layout.js ke menu ke saath synced.
+// Layout me match ye hota hai: (item.id || item.label).toLowerCase().trim() === permission.toLowerCase().trim()
+// Isliye yaha ka `id` Layout ke item ka `id` (agar hai) warna uska `label` hona chahiye.
+const PERMISSION_GROUPS = [
+  {
+    title: "General",
+    items: [
+      { id: "Dashboard", label: "Dashboard" },
+      { id: "Visitors", label: "Visitors" },
+      { id: "Job Posts", label: "Job Posts" },
+      { id: "Applications", label: "Applications (Resume)" },
+      { id: "Videos", label: "Videos" },
+      { id: "slotmanagement", label: "Slot Management" },
+    ],
+  },
+  {
+    title: "Query & Admission",
+    items: [
+      { id: "All Students", label: "All Students" },
+      { id: "Get Queries", label: "Get Queries" },
+      { id: "Apply Admission", label: "Apply Admission" },
+      { id: "Add Subsidy", label: "Add Subsidy" },
+      { id: "Callback", label: "Callback" },
+    ],
+  },
+  {
+    title: "Course & University",
+    items: [
+      { id: "Add Online Courses", label: "Add Online Courses" },
+      { id: "Edit Online Course", label: "Edit Online Course" },
+      { id: "Add Universities", label: "Add Universities" },
+      { id: "Edit Universities Data", label: "Edit Universities Data" },
+      { id: "Add Blog", label: "Add Blog" },
+      { id: "Get Blog List", label: "Get Blog List" },
+      { id: "Placed Students", label: "Placed Students" },
+      { id: "Add Team", label: "Add Team" },
+      { id: "Our Team", label: "Our Team" },
+      { id: "Banners", label: "Banners" },
+      { id: "State", label: "State" },
+      { id: "Newsletter", label: "Newsletter" },
+    ],
+  },
+  {
+    title: "CRM",
+    items: [
+      { id: "Addcounselor", label: "Add Counselor" },
+      { id: "Counselor Report", label: "Counselor Report" },
+      { id: "Detail Report", label: "Detail Report" },
+      { id: "leadanalytics", label: "Lead Analytics" },
+      { id: "counselorleaderboard", label: "Counselor Leaderboard" },
+      { id: "assignmentconfig", label: "Smart Assignment" },
+      { id: "followupautomation", label: "Follow-up Automation" },
+      { id: "leadscoring", label: "AI Lead Scoring" },
+      { id: "reports", label: "Reports" },
+      { id: "qapanel", label: "Student Q&A" },
+    ],
+  },
+  {
+    title: "Document Management",
+    items: [
+      { id: "AdminDocumentcheck", label: "Admin Document Check" },
+      { id: "DocumentDelete", label: "Document Delete" },
+      { id: "DocReport", label: "Doc Report" },
+    ],
+  },
+  {
+    title: "Employee Management",
+    items: [
+      { id: "employeeupload", label: "Employee Upload" },
+      { id: "dashbord", label: "Employee Dashboard" },
+      { id: "employeealerts", label: "Employee Alerts" },
+      { id: "employeelist", label: "Employee List" },
+    ],
+  },
+  {
+    title: "Security",
+    items: [
+      { id: "securitysettings", label: "Security Settings" },
+      { id: "Security", label: "Security" },
+    ],
+  },
 ];
 
 export default function GiveAccessPage() {
@@ -97,9 +146,18 @@ export default function GiveAccessPage() {
     }
   };
 
+  // Ek group ke saare checkboxes select / clear karne ke liye
+  const toggleGroup = (e, groupTitle, checked) => {
+    e.currentTarget
+      .closest("form")
+      .querySelectorAll(`input[data-group="${groupTitle}"]`)
+      .forEach((el) => {
+        el.checked = checked;
+      });
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-10">
-      
       {/* SECTION: ASSIGN FORM */}
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="bg-indigo-600 p-6 text-white text-center">
@@ -111,13 +169,15 @@ export default function GiveAccessPage() {
           <div className="flex flex-col md:flex-row gap-6 items-end bg-gray-50 p-6 rounded-2xl border border-gray-200">
             <div className="flex-1 space-y-2 w-full">
               <label className="text-sm font-bold text-gray-600 ml-1">SUB-ADMIN EMAIL</label>
-              <input 
-                name="email" type="email" required 
+              <input
+                name="email"
+                type="email"
+                required
                 placeholder="Enter email address"
                 className="w-full p-4 rounded-xl border-2 focus:border-indigo-500 outline-none transition-all"
               />
             </div>
-            <button 
+            <button
               disabled={isPending}
               className="md:w-64 w-full bg-indigo-600 text-white h-[60px] rounded-xl font-bold hover:bg-indigo-700 shadow-lg disabled:bg-gray-400"
             >
@@ -125,22 +185,61 @@ export default function GiveAccessPage() {
             </button>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-gray-700 flex items-center gap-2">
               <CheckCircle className="text-indigo-500" size={20} /> Select Module Access
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {PERMISSIONS_LIST.map((item) => (
-                <label key={item.id} className="flex items-center p-3 border rounded-xl hover:bg-indigo-50 cursor-pointer transition-all group">
-                  <input type="checkbox" name="permissions" value={item.id} className="w-4 h-4 text-indigo-600 rounded border-gray-300" />
-                  <span className="ml-3 text-sm font-medium text-gray-600 group-hover:text-indigo-900">{item.label}</span>
-                </label>
-              ))}
-            </div>
+
+            {PERMISSION_GROUPS.map((group) => (
+              <div key={group.title}>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">{group.title}</h4>
+                  <div className="flex gap-3 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={(e) => toggleGroup(e, group.title, true)}
+                      className="text-indigo-600 hover:underline"
+                    >
+                      Select all
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleGroup(e, group.title, false)}
+                      className="text-gray-400 hover:underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {group.items.map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex items-center p-3 border rounded-xl hover:bg-indigo-50 cursor-pointer transition-all group"
+                    >
+                      <input
+                        type="checkbox"
+                        name="permissions"
+                        value={item.id}
+                        data-group={group.title}
+                        className="w-4 h-4 text-indigo-600 rounded border-gray-300"
+                      />
+                      <span className="ml-3 text-sm font-medium text-gray-600 group-hover:text-indigo-900">
+                        {item.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
           {message.text && (
-            <div className={`p-4 rounded-xl flex items-center gap-2 font-semibold justify-center ${message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+            <div
+              className={`p-4 rounded-xl flex items-center gap-2 font-semibold justify-center ${
+                message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              }`}
+            >
               {message.type === "success" ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
               {message.text}
             </div>
@@ -168,29 +267,42 @@ export default function GiveAccessPage() {
               </thead>
               <tbody>
                 {subAdmins.length === 0 ? (
-                  <tr><td colSpan="3" className="p-10 text-center text-gray-400 italic">No sub-admins found.</td></tr>
+                  <tr>
+                    <td colSpan="3" className="p-10 text-center text-gray-400 italic">
+                      No sub-admins found.
+                    </td>
+                  </tr>
                 ) : (
                   subAdmins.map((user) => (
                     <tr key={user._id} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600"><User size={20} /></div>
+                          <div className="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+                            <User size={20} />
+                          </div>
                           <div>
                             <p className="font-bold text-gray-800">{user.email}</p>
-                            <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">{user.role}</p>
+                            <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">
+                              {user.role}
+                            </p>
                           </div>
                         </div>
                       </td>
                       <td className="p-4">
                         <div className="flex flex-wrap gap-1 max-w-md">
                           {user.permissions?.map((p) => (
-                            <span key={p} className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-bold border border-indigo-100">{p}</span>
+                            <span
+                              key={p}
+                              className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-bold border border-indigo-100"
+                            >
+                              {p}
+                            </span>
                           ))}
                         </div>
                       </td>
                       <td className="p-4 text-right">
-                        <button 
-                          onClick={() => handleRevoke(user.email)} 
+                        <button
+                          onClick={() => handleRevoke(user.email)}
                           className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                         >
                           <Trash2 size={20} />

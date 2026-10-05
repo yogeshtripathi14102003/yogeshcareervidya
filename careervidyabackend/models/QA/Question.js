@@ -12,7 +12,7 @@ const CATEGORIES = [
 
 const questionSchema = new mongoose.Schema(
   {
-    student: { type: mongoose.Schema.Types.ObjectId, ref: "Student", required: true, index: true },
+    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
 
     title: { type: String, required: true, trim: true, maxlength: 200 },
     body: { type: String, required: true }, // rich text HTML from the editor
