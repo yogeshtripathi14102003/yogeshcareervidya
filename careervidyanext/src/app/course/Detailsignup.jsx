@@ -1,3 +1,5 @@
+
+
 // "use client";
 
 // import { useState, useEffect } from "react";
@@ -6,12 +8,15 @@
 // import { flagCourseView, trackEvent } from "@/utlis/analytics.js";
 // import { Check, ShieldCheck, BadgePercent, Lock } from "lucide-react";
 
+// /* ═══════════════════════════════════════════════
+//    INPUT STYLE — Global CSS
+// ═══════════════════════════════════════════════ */
 // const inputStyle =
-//   "w-full h-11 px-3 border border-gray-300 rounded-lg bg-white text-[15px] " +
+//   "w-full h-11 px-3 rounded-lg bg-white text-[15px] " +
 //   "placeholder:text-gray-400 " +
 //   "transition-all duration-150 " +
-//   "focus:border-[#1E90FF] focus:ring-2 focus:ring-[#1E90FF]/20 " +
-//   "outline-none";
+//   "focus:outline-none " +
+//   "focus:ring-2 focus:ring-[var(--cv-primary)]/20";
 
 // export default function Signup() {
 //   const [formData, setFormData] = useState({
@@ -97,9 +102,25 @@
 //   };
 
 //   return (
-// <div className="bg-white rounded-2xl shadow-xl w-[95%] lg:w-[1100px] mx-auto my-6 border-2 border-[#c15304] flex flex-col md:flex-row overflow-hidden">
-//       {/* ================= LEFT SIDE ================= */}
-//       <div className="hidden md:flex md:w-1/2 lg:w-1/2 p-4 lg:p-8 flex-col items-center border-r border-gray-100 bg-[#F7FAFF]">
+//     <div
+//       className="rounded-2xl shadow-2xl w-[95%] lg:w-[1100px] mx-auto my-6 flex flex-col md:flex-row overflow-hidden"
+//       style={{
+//         background: "#fff",
+//         border: "2px solid var(--cv-primary)",
+//         boxShadow: "0 25px 60px -15px rgba(30, 58, 138, 0.3)",
+//       }}
+//     >
+//       {/* ═══════════════════════════════════════════
+//           LEFT SIDE
+//       ═══════════════════════════════════════════ */}
+//       <div
+//         className="hidden md:flex md:w-1/2 p-4 lg:p-8 flex-col items-center"
+//         style={{
+//           background: "var(--cv-primary-light)",
+//           borderRight: "1px solid var(--cv-neutral-border)",
+//         }}
+//       >
+//         {/* University logos marquee */}
 //         <div className="w-full overflow-hidden mb-6">
 //           <div className="flex gap-4 animate-scroll-x">
 //             {[...universities, ...universities].map((uni, i) => {
@@ -112,7 +133,12 @@
 //               return (
 //                 <div
 //                   key={i}
-//                   className="min-w-[80px] lg:min-w-[100px] h-[40px] lg:h-[50px] bg-white border border-gray-200 rounded-xl flex items-center justify-center shadow-sm"
+//                   className="min-w-[80px] lg:min-w-[100px] h-[40px] lg:h-[50px] rounded-xl flex items-center justify-center"
+//                   style={{
+//                     background: "#fff",
+//                     border: "1px solid var(--cv-neutral-border)",
+//                     boxShadow: "0 2px 8px rgba(30, 58, 138, 0.08)",
+//                   }}
 //                 >
 //                   <div className="relative w-full h-full p-1 overflow-hidden">
 //                     <Image
@@ -129,16 +155,25 @@
 //           </div>
 //         </div>
 
-// <div className="text-center">
-//   <h2 className="inline-block text-left text-xl font-bold mb-6 text-[#0B2D58] leading-snug bg-[#dce6f7] rounded-[5px] px-6 py-3">
-//     Your Path to a Successful Career Starts with Career Vidya
-//   </h2>
-// </div>
+//         {/* Main heading — Navy pill style */}
+//         <div className="text-center">
+//           <h2
+//             className="inline-block text-left text-xl font-bold mb-6 leading-snug rounded-lg px-6 py-3"
+//             style={{
+//               color: "var(--cv-primary)",
+//               background: "#fff",
+//               boxShadow: "0 4px 12px rgba(30, 58, 138, 0.08)",
+//             }}
+//           >
+//             Your Path to a Successful Career Starts with Career Vidya
+//           </h2>
+//         </div>
 
+//         {/* Benefits list */}
 //         <ul className="space-y-3 lg:space-y-4 text-left font-sans w-full max-w-[360px]">
 //           {[
-//                "Globally recognized Degree • WES Approved",
-//               "100% Placement Assistance",
+//             "Globally recognized Degree • WES Approved",
+//             "100% Placement Assistance",
 //             "Free Expert Consultation",
 //             "Quick Loan Facility",
 //             "Post Admission Support",
@@ -146,10 +181,20 @@
 //             "Job + Internship Portal",
 //           ].map((t, i) => (
 //             <li key={i} className="flex items-start gap-3 group">
-//               <div className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-md bg-amber-100 text-amber-600">
+//               {/* Navy check circle */}
+//               <div
+//                 className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-md"
+//                 style={{
+//                   background: "var(--cv-primary)",
+//                   color: "#fff",
+//                 }}
+//               >
 //                 <Check className="w-3.5 h-3.5" strokeWidth={3} />
 //               </div>
-//               <span className="text-slate-800 text-sm lg:text-[15px] font-medium leading-tight">
+//               <span
+//                 className="text-sm lg:text-[15px] font-medium leading-tight"
+//                 style={{ color: "var(--cv-neutral-dark)" }}
+//               >
 //                 {t}
 //               </span>
 //             </li>
@@ -157,7 +202,13 @@
 //         </ul>
 
 //         {expanded && (
-//           <div className="relative w-full max-w-[280px] h-[180px] mt-8 rounded-xl overflow-hidden bg-white">
+//           <div
+//             className="relative w-full max-w-[280px] h-[180px] mt-8 rounded-xl overflow-hidden"
+//             style={{
+//               background: "#fff",
+//               border: "1px solid var(--cv-neutral-border)",
+//             }}
+//           >
 //             <Image
 //               src="/images/sir.jpg"
 //               alt="CareerVidya - trusted by students across India"
@@ -165,23 +216,36 @@
 //               className="object-contain"
 //               unoptimized
 //             />
-            
 //           </div>
 //         )}
 //       </div>
 
-//       {/* ================= RIGHT FORM ================= */}
-//       <div className="w-full md:w-1/2 p-6 lg:p-8 bg-white">
+//       {/* ═══════════════════════════════════════════
+//           RIGHT FORM
+//       ═══════════════════════════════════════════ */}
+//       <div className="w-full md:w-1/2 p-6 lg:p-8" style={{ background: "#fff" }}>
+//         {/* Header */}
 //         <div className="text-center mb-6">
-//           <h2 className="text-xl lg:text-2xl font-bold text-[#0B2D58]">
-//             <span className="text-[#c15304]">Apply</span> for Online Courses
+//           <h2
+//             className="text-xl lg:text-2xl font-bold"
+//             style={{ color: "var(--cv-primary)" }}
+//           >
+//             <span style={{ color: "var(--cv-accent)" }}>Apply</span> for Online
+//             Courses
 //           </h2>
-//           <div className="flex items-center justify-center gap-5 mt-3 text-xs">
-//             <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+
+//           <div className="flex items-center justify-center gap-5 mt-3 text-xs flex-wrap">
+//             <span
+//               className="flex items-center gap-1.5 font-semibold"
+//               style={{ color: "var(--cv-primary)" }}
+//             >
 //               <BadgePercent className="w-4 h-4" />
-//               Online Discount of 15% 
+//               Online Discount of 15%
 //             </span>
-//             <span className="flex items-center gap-1.5 text-[#c15304] font-semibold">
+//             <span
+//               className="flex items-center gap-1.5 font-semibold"
+//               style={{ color: "var(--cv-accent)" }}
+//             >
 //               <ShieldCheck className="w-4 h-4" />
 //               Lowest Price Guarantee
 //             </span>
@@ -189,29 +253,51 @@
 //         </div>
 
 //         <form onSubmit={handleSubmit} className="space-y-4">
+//           {/* Row 1: Name + Email */}
 //           <div className="flex flex-col sm:flex-row gap-4">
+//             <Field label="Name" half>
+//               <input
+//                 name="name"
+//                 placeholder="Enter your full name"
+//                 value={formData.name}
+//                 onChange={handleChange}
+//                 className={inputStyle}
+//                 style={{
+//                   border: "1px solid var(--cv-neutral-border)",
+//                   color: "var(--cv-neutral-dark)",
+//                 }}
+//                 onFocus={(e) => {
+//                   e.target.style.borderColor = "var(--cv-primary)";
+//                 }}
+//                 onBlur={(e) => {
+//                   e.target.style.borderColor = "var(--cv-neutral-border)";
+//                 }}
+//               />
+//             </Field>
 
-//           <Field label="Name" half>
-//             <input
-//               name="name"
-//               placeholder="Enter your full name"
-//               value={formData.name}
-//               onChange={handleChange}
-//               className={inputStyle}
-//             />
-//           </Field>
-//              <Field label="Email" half>
+//             <Field label="Email" half>
 //               <input
 //                 name="email"
 //                 placeholder="Enter your email"
 //                 value={formData.email}
 //                 onChange={handleChange}
 //                 className={inputStyle}
+//                 style={{
+//                   border: "1px solid var(--cv-neutral-border)",
+//                   color: "var(--cv-neutral-dark)",
+//                 }}
+//                 onFocus={(e) => {
+//                   e.target.style.borderColor = "var(--cv-primary)";
+//                 }}
+//                 onBlur={(e) => {
+//                   e.target.style.borderColor = "var(--cv-neutral-border)";
+//                 }}
 //               />
 //             </Field>
-// </div>
+//           </div>
+
+//           {/* Row 2: Mobile + State */}
 //           <div className="flex flex-col sm:flex-row gap-4">
-          
 //             <Field label="Mobile Number" half>
 //               <input
 //                 name="mobileNumber"
@@ -219,63 +305,107 @@
 //                 value={formData.mobileNumber}
 //                 onChange={handleChange}
 //                 className={inputStyle}
+//                 style={{
+//                   border: "1px solid var(--cv-neutral-border)",
+//                   color: "var(--cv-neutral-dark)",
+//                 }}
+//                 onFocus={(e) => {
+//                   e.target.style.borderColor = "var(--cv-primary)";
+//                 }}
+//                 onBlur={(e) => {
+//                   e.target.style.borderColor = "var(--cv-neutral-border)";
+//                 }}
 //               />
 //             </Field>
-//               <Field label="State" half>
-//             <input
-//               name="state"
-//               placeholder="Enter your state"
-//               value={formData.state}
-//               onChange={handleChange}
-//               className={inputStyle}
-//             />
-//           </Field>
+
+//             <Field label="State" half>
+//               <input
+//                 name="state"
+//                 placeholder="Enter your state"
+//                 value={formData.state}
+//                 onChange={handleChange}
+//                 className={inputStyle}
+//                 style={{
+//                   border: "1px solid var(--cv-neutral-border)",
+//                   color: "var(--cv-neutral-dark)",
+//                 }}
+//                 onFocus={(e) => {
+//                   e.target.style.borderColor = "var(--cv-primary)";
+//                 }}
+//                 onBlur={(e) => {
+//                   e.target.style.borderColor = "var(--cv-neutral-border)";
+//                 }}
+//               />
+//             </Field>
 //           </div>
 
-        
-
+//           {/* Continue Button */}
 //           {!expanded && (
 //             <>
 //               <button
 //                 type="button"
 //                 onClick={() => setExpanded(true)}
-//                 className="cursor-pointer w-full bg-[#c15304] hover:bg-[#c15304] text-white font-semibold py-3 rounded-lg transition-colors"
+//                 className="cv-btn-cta cursor-pointer w-full py-3"
 //               >
 //                 Continue ↓
 //               </button>
-//               <p className="text-center text-xs text-gray-500 mt-2">
-//                 Just a few more details and CareerVidya will match you with
-//                 the best university for free.
+
+//               <p
+//                 className="text-center text-xs mt-2"
+//                 style={{ color: "var(--cv-neutral-mid)" }}
+//               >
+//                 Just a few more details and CareerVidya will match you with the
+//                 best university for free.
 //               </p>
 //             </>
 //           )}
 
+//           {/* Expanded Form */}
 //           {expanded && (
 //             <>
-//                           <div className="flex flex-col sm:flex-row gap-4">
+//               <div className="flex flex-col sm:flex-row gap-4">
+//                 <Field label="City" half>
+//                   <input
+//                     name="city"
+//                     placeholder="Enter your city"
+//                     value={formData.city}
+//                     onChange={handleChange}
+//                     className={inputStyle}
+//                     style={{
+//                       border: "1px solid var(--cv-neutral-border)",
+//                       color: "var(--cv-neutral-dark)",
+//                     }}
+//                     onFocus={(e) => {
+//                       e.target.style.borderColor = "var(--cv-primary)";
+//                     }}
+//                     onBlur={(e) => {
+//                       e.target.style.borderColor = "var(--cv-neutral-border)";
+//                     }}
+//                   />
+//                 </Field>
 
-//               <Field label="City" half>
-//                 <input
-//                   name="city"
-//                   placeholder="Enter your city"
-//                   value={formData.city}
-//                   onChange={handleChange}
-//                   className={inputStyle}
-//                 />
-//               </Field>
-//                  <Field label="Course" half>
+//                 <Field label="Course" half>
 //                   <input
 //                     name="course"
 //                     placeholder="Enter your course"
 //                     value={formData.course}
 //                     onChange={handleChange}
 //                     className={inputStyle}
+//                     style={{
+//                       border: "1px solid var(--cv-neutral-border)",
+//                       color: "var(--cv-neutral-dark)",
+//                     }}
+//                     onFocus={(e) => {
+//                       e.target.style.borderColor = "var(--cv-primary)";
+//                     }}
+//                     onBlur={(e) => {
+//                       e.target.style.borderColor = "var(--cv-neutral-border)";
+//                     }}
 //                   />
 //                 </Field>
 //               </div>
 
 //               <div className="flex flex-col sm:flex-row gap-4">
-             
 //                 <Field label="Branch" half>
 //                   <input
 //                     name="branch"
@@ -283,14 +413,35 @@
 //                     value={formData.branch}
 //                     onChange={handleChange}
 //                     className={inputStyle}
+//                     style={{
+//                       border: "1px solid var(--cv-neutral-border)",
+//                       color: "var(--cv-neutral-dark)",
+//                     }}
+//                     onFocus={(e) => {
+//                       e.target.style.borderColor = "var(--cv-primary)";
+//                     }}
+//                     onBlur={(e) => {
+//                       e.target.style.borderColor = "var(--cv-neutral-border)";
+//                     }}
 //                   />
 //                 </Field>
-//                  <Field label="Gender" half>
+
+//                 <Field label="Gender" half>
 //                   <select
 //                     name="gender"
 //                     value={formData.gender}
 //                     onChange={handleChange}
 //                     className={inputStyle}
+//                     style={{
+//                       border: "1px solid var(--cv-neutral-border)",
+//                       color: "var(--cv-neutral-dark)",
+//                     }}
+//                     onFocus={(e) => {
+//                       e.target.style.borderColor = "var(--cv-primary)";
+//                     }}
+//                     onBlur={(e) => {
+//                       e.target.style.borderColor = "var(--cv-neutral-border)";
+//                     }}
 //                   >
 //                     <option value="">Select gender</option>
 //                     <option value="male">Male</option>
@@ -301,14 +452,23 @@
 //               </div>
 
 //               <div className="flex flex-col sm:flex-row gap-4">
-               
-//                 <Field label="Address" >
+//                 <Field label="Address">
 //                   <input
 //                     name="addresses"
 //                     placeholder="Enter your address"
 //                     value={formData.addresses}
 //                     onChange={handleChange}
 //                     className={inputStyle}
+//                     style={{
+//                       border: "1px solid var(--cv-neutral-border)",
+//                       color: "var(--cv-neutral-dark)",
+//                     }}
+//                     onFocus={(e) => {
+//                       e.target.style.borderColor = "var(--cv-primary)";
+//                     }}
+//                     onBlur={(e) => {
+//                       e.target.style.borderColor = "var(--cv-neutral-border)";
+//                     }}
 //                   />
 //                 </Field>
 //               </div>
@@ -321,38 +481,68 @@
 //                     value={formData.otp}
 //                     onChange={handleChange}
 //                     className={inputStyle}
+//                     style={{
+//                       border: "1px solid var(--cv-neutral-border)",
+//                       color: "var(--cv-neutral-dark)",
+//                     }}
+//                     onFocus={(e) => {
+//                       e.target.style.borderColor = "var(--cv-primary)";
+//                     }}
+//                     onBlur={(e) => {
+//                       e.target.style.borderColor = "var(--cv-neutral-border)";
+//                     }}
 //                   />
 //                 </Field>
 //               )}
 
-//               {/* Assurance box, matches reference's "cAREERVIDYA Assured" block */}
-//               <div className="flex items-center justify-between gap-3 bg-[#F0F6FF] border border-[#D6E8FF] rounded-xl px-4 py-3">
+//               {/* Assurance box — Navy accent */}
+//               <div
+//                 className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+//                 style={{
+//                   background: "var(--cv-primary-light)",
+//                   border: "1px solid var(--cv-primary-light)",
+//                 }}
+//               >
 //                 <div className="flex items-center gap-3">
 //                   <input
 //                     type="checkbox"
 //                     defaultChecked
 //                     readOnly
-//                     className="w-4 h-4 accent-[#1E90FF]"
+//                     className="w-4 h-4"
+//                     style={{ accentColor: "var(--cv-primary)" }}
 //                   />
 //                   <div>
-//                     <p className="text-sm font-semibold text-[#0B2D58]">
+//                     <p
+//                       className="text-sm font-semibold"
+//                       style={{ color: "var(--cv-primary)" }}
+//                     >
 //                       Career Vidya Assured{" "}
-//                       <span className="text-[#c15304] underline cursor-pointer">
+//                       <span
+//                         className="underline cursor-pointer"
+//                         style={{ color: "var(--cv-accent)" }}
+//                       >
 //                         (Know More)
 //                       </span>
 //                     </p>
-//                     <p className="text-xs text-gray-500">
+//                     <p
+//                       className="text-xs"
+//                       style={{ color: "var(--cv-neutral-mid)" }}
+//                     >
 //                       Get 100% full refund* on cancellation
 //                     </p>
 //                   </div>
 //                 </div>
-//                 <ShieldCheck className="w-7 h-7 text-[#1E90FF] flex-shrink-0" />
+//                 <ShieldCheck
+//                   className="w-7 h-7 flex-shrink-0"
+//                   style={{ color: "var(--cv-primary)" }}
+//                 />
 //               </div>
 
+//               {/* Submit Button — Orange gradient */}
 //               <button
 //                 type="submit"
 //                 disabled={loading}
-//                 className="cursor-pointer w-full p-3.5 rounded-lg text-white font-semibold bg-[#c15304]  transition-colors disabled:opacity-60"
+//                 className="cv-btn-cta cursor-pointer w-full p-3.5 disabled:opacity-60"
 //               >
 //                 {loading
 //                   ? "Please wait..."
@@ -361,14 +551,23 @@
 //                   : "Find Best University →"}
 //               </button>
 
-//               <p className="flex items-center justify-center gap-1.5 text-xs text-emerald-700 font-medium">
+//               {/* Security line */}
+//               <p
+//                 className="flex items-center justify-center gap-1.5 text-xs font-medium"
+//                 style={{ color: "var(--cv-primary)" }}
+//               >
 //                 <Lock className="w-3.5 h-3.5" />
 //                 Your personal information is secure with us
 //               </p>
 
-//               <p className="text-[11px] text-gray-400 text-center leading-relaxed">
-//                 By continuing, I authorize Career Vidya to contact me regarding admission,
-//   counselling, and course-related updates through call, SMS, WhatsApp, or email.
+//               {/* Disclaimer */}
+//               <p
+//                 className="text-[11px] text-center leading-relaxed"
+//                 style={{ color: "var(--cv-neutral-mid)" }}
+//               >
+//                 By continuing, I authorize Career Vidya to contact me regarding
+//                 admission, counselling, and course-related updates through
+//                 call, SMS, WhatsApp, or email.
 //               </p>
 //             </>
 //           )}
@@ -392,10 +591,16 @@
 //   );
 // }
 
+// /* ═══════════════════════════════════════════════
+//    FIELD COMPONENT
+// ═══════════════════════════════════════════════ */
 // function Field({ label, children, half }) {
 //   return (
 //     <div className={`relative ${half ? "w-full sm:w-1/2" : "w-full"}`}>
-//       <label className="block mb-1.5 text-xs font-semibold text-[#4A55A2]">
+//       <label
+//         className="block mb-1.5 text-xs font-semibold"
+//         style={{ color: "var(--cv-primary)" }}
+//       >
 //         {label}
 //       </label>
 //       {children}
@@ -659,9 +864,10 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Row 1: Name + Email */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Field label="Name" half>
+            <Field label="Name" half required>
               <input
                 name="name"
+                required
                 placeholder="Enter your full name"
                 value={formData.name}
                 onChange={handleChange}
@@ -679,9 +885,11 @@ export default function Signup() {
               />
             </Field>
 
-            <Field label="Email" half>
+            <Field label="Email" half required>
               <input
+                type="email"
                 name="email"
+                required
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
@@ -702,9 +910,11 @@ export default function Signup() {
 
           {/* Row 2: Mobile + State */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Field label="Mobile Number" half>
+            <Field label="Mobile Number" half required>
               <input
+                type="tel"
                 name="mobileNumber"
+                required
                 placeholder="Enter your mobile number"
                 value={formData.mobileNumber}
                 onChange={handleChange}
@@ -722,9 +932,10 @@ export default function Signup() {
               />
             </Field>
 
-            <Field label="State" half>
+            <Field label="State" half required>
               <input
                 name="state"
+                required
                 placeholder="Enter your state"
                 value={formData.state}
                 onChange={handleChange}
@@ -768,9 +979,10 @@ export default function Signup() {
           {expanded && (
             <>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Field label="City" half>
+                <Field label="City" half required>
                   <input
                     name="city"
+                    required
                     placeholder="Enter your city"
                     value={formData.city}
                     onChange={handleChange}
@@ -788,9 +1000,10 @@ export default function Signup() {
                   />
                 </Field>
 
-                <Field label="Course" half>
+                <Field label="Course" half required>
                   <input
                     name="course"
+                    required
                     placeholder="Enter your course"
                     value={formData.course}
                     onChange={handleChange}
@@ -830,9 +1043,10 @@ export default function Signup() {
                   />
                 </Field>
 
-                <Field label="Gender" half>
+                <Field label="Gender" half required>
                   <select
                     name="gender"
+                    required
                     value={formData.gender}
                     onChange={handleChange}
                     className={inputStyle}
@@ -878,9 +1092,10 @@ export default function Signup() {
               </div>
 
               {otpSent && (
-                <Field label="OTP">
+                <Field label="OTP" required>
                   <input
                     name="otp"
+                    required
                     placeholder="Enter OTP"
                     value={formData.otp}
                     onChange={handleChange}
@@ -996,16 +1211,16 @@ export default function Signup() {
 }
 
 /* ═══════════════════════════════════════════════
-   FIELD COMPONENT
+   FIELD COMPONENT (Updated with Red Asterisk)
 ═══════════════════════════════════════════════ */
-function Field({ label, children, half }) {
+function Field({ label, children, half, required }) {
   return (
     <div className={`relative ${half ? "w-full sm:w-1/2" : "w-full"}`}>
       <label
         className="block mb-1.5 text-xs font-semibold"
         style={{ color: "var(--cv-primary)" }}
       >
-        {label}
+        {label} {required && <span className="text-red-500 font-bold">*</span>}
       </label>
       {children}
     </div>

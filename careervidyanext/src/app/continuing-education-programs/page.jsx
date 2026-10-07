@@ -451,70 +451,137 @@ export default function ContinuingEducationContent() {
     <>
       <Header />
 
-      <div className="bg-slate-50 text-slate-800 font-[Inter,sans-serif]">
+      <div className="bg-[#F8FAFC] text-slate-800 font-[Inter,sans-serif]">
 
         {/* =====================================================
             HERO SECTION
         ===================================================== */}
-        <section className="relative py-16 px-6 text-center overflow-hidden bg-[#08131F]">
+       <section className="relative py-14 sm:py-16 px-6 text-center overflow-hidden">
+  {/* Same Website Hero Background */}
+  <div
+    className="absolute inset-0"
+    style={{
+      background:
+        "linear-gradient(110deg, #334755 0%, #3D4D56 45%, #59483F 100%)",
+    }}
+  />
 
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(circle at 15% 20%, rgba(30,95,158,0.55), transparent 55%), radial-gradient(circle at 85% 80%, rgba(212,167,44,0.35), transparent 50%), linear-gradient(135deg, #08131F 0%, #0d2338 55%, #123456 100%)",
-            }}
+  {/* Subtle Blue/Orange Glow */}
+  <div
+    className="absolute inset-0"
+    style={{
+      background:
+        "radial-gradient(circle at 18% 50%, rgba(59,130,246,0.10), transparent 40%), radial-gradient(circle at 82% 50%, rgba(249,115,22,0.10), transparent 40%)",
+    }}
+  />
+
+  {/* Dotted Texture */}
+  <div
+    className="absolute inset-0 opacity-[0.12]"
+    style={{
+      backgroundImage:
+        "radial-gradient(rgba(255,255,255,0.55) 1px, transparent 1px)",
+      backgroundSize: "28px 28px",
+    }}
+  />
+
+  <div className="relative max-w-4xl mx-auto">
+
+    <h1
+      className="
+        !text-white
+        text-xl
+        sm:text-2xl
+        md:text-3xl
+        font-extrabold
+        tracking-wide
+        leading-tight
+      "
+    >
+      CONTINUING EDUCATION PROGRAM FOR{" "}
+      <span className="!text-orange-300">
+        WORKING PROFESSIONALS
+      </span>
+    </h1>
+
+    <div className="w-12 h-1 bg-[#F97316] mx-auto mt-4 rounded-full" />
+
+    <div className="mt-8 max-w-xl mx-auto grid grid-cols-3 gap-3">
+
+      {["B. Tech", "M. Tech", "Diploma"].map((p) => (
+        <div
+          key={p}
+          className="
+            group
+            cursor-pointer
+            py-4
+            px-2
+            rounded-xl
+            bg-white/[0.10]
+            backdrop-blur-sm
+            border
+            border-white/15
+            hover:bg-white/[0.16]
+            hover:border-white/25
+            hover:-translate-y-1
+            transition-all
+            duration-300
+          "
+        >
+          <p
+            className="
+              !text-white
+              text-base
+              sm:text-lg
+              font-bold
+              group-hover:!text-orange-200
+              transition-colors
+            "
+          >
+            {p}
+          </p>
+
+          <span
+            className="
+              block
+              w-4
+              h-[2px]
+              bg-[#F97316]
+              mx-auto
+              mt-1.5
+              group-hover:w-8
+              transition-all
+            "
           />
+        </div>
+      ))}
 
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage:
-                "radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)",
-              backgroundSize: "26px 26px",
-            }}
-          />
+    </div>
 
-          <div className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-[#1E5F9E] opacity-30 blur-3xl" />
-
-          <div className="absolute -bottom-20 -right-10 w-80 h-80 rounded-full bg-[#D4A72C] opacity-20 blur-3xl" />
-
-          <div className="relative max-w-4xl mx-auto">
-
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">
-              CONTINUING EDUCATION PROGRAM FOR{" "}
-              <span className="text-amber-400">
-                WORKING PROFESSIONALS
-              </span>
-            </h1>
-
-            <div className="w-12 h-1 bg-amber-500 mx-auto mt-4 rounded-full" />
-
-            <div className="mt-8 max-w-xl mx-auto grid grid-cols-3 gap-3">
-
-              {["B. Tech", "M. Tech", "Diploma"].map((p) => (
-                <div
-                  key={p}
-                  className="group cursor-pointer py-4 px-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:border-amber-400/60 hover:bg-white/10 hover:shadow-lg transition-all"
-                >
-                  <p className="text-base sm:text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
-                    {p}
-                  </p>
-
-                  <span className="block w-4 h-[2px] bg-amber-400 mx-auto mt-1.5 group-hover:w-8 transition-all" />
-                </div>
-              ))}
-
-            </div>
-          </div>
-        </section>
+  </div>
+</section>
 
         {/* =====================================================
             INTRO
         ===================================================== */}
         <section className="max-w-7xl mx-auto px-6 py-12">
 
-          <div className="border-l-4 border-amber-500 bg-white p-6 rounded-r-xl border-y border-r border-slate-200 shadow-sm">
+          <div
+            className="
+              border-l-4
+              border-[#F97316]
+              bg-gradient-to-r
+              from-[#EFF6FF]
+              via-white
+              to-[#FFF7ED]
+              p-6
+              rounded-r-xl
+              border-y
+              border-r
+              border-slate-200
+              shadow-sm
+            "
+          >
 
             <p className="text-slate-700 text-base md:text-lg leading-relaxed font-medium">
               Academic success plays an important role in building a strong and successful
@@ -539,7 +606,7 @@ export default function ContinuingEducationContent() {
           {/* LEFT CONTENT */}
           <div>
 
-            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-2">
+            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-[#1E3A8A] font-bold mb-2">
               Eligible Academic Programmes
             </h2>
 
@@ -554,10 +621,24 @@ export default function ContinuingEducationContent() {
 
                 <li
                   key={p}
-                  className="flex items-center gap-4 border border-slate-200 rounded-lg px-4 py-3 bg-white shadow-sm hover:border-amber-500 hover:shadow-md transition-all"
+                  className="
+                    flex
+                    items-center
+                    gap-4
+                    border
+                    border-slate-200
+                    rounded-lg
+                    px-4
+                    py-3
+                    bg-white
+                    shadow-sm
+                    hover:border-[#F97316]
+                    hover:shadow-md
+                    transition-all
+                  "
                 >
 
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1E5F9E] text-white font-[Fraunces,serif] text-sm font-bold shrink-0">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1E3A8A] text-white font-[Fraunces,serif] text-sm font-bold shrink-0">
                     {i + 1}
                   </span>
 
@@ -580,82 +661,82 @@ export default function ContinuingEducationContent() {
 
           </div>
 
-          {/* =====================================================
-              UPDATED VIDEO CONTAINER
-          ===================================================== */}
-        <div
-  className="
-    relative
-    h-[360px]
-    md:h-[420px]
-    w-full
-    md:w-[400px]
-    mx-auto
-    mt-16
-    rounded-2xl
-    overflow-hidden
-    bg-white
-    border-2
-    border-[#ec7425]
-    shadow-[0_10px_35px_rgba(0,0,0,0.18)]
-  "
->
-  <video
-    ref={videoRef}
-    src="/video/Ai.mp4"
-    className="
-      w-full
-      h-full
-      object-contain
-      block
-      bg-white
-    "
-    autoPlay
-    loop
-    muted
-    playsInline
-    preload="auto"
-    poster="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1600&auto=format&fit=crop"
-  />
+          {/* VIDEO */}
+          <div
+            className="
+              relative
+              h-[360px]
+              md:h-[420px]
+              w-full
+              md:w-[400px]
+              mx-auto
+              mt-16
+              rounded-2xl
+              overflow-hidden
+              bg-white
+              border-2
+              border-[#F97316]
+              shadow-[0_10px_35px_rgba(30,58,138,0.18)]
+            "
+          >
 
-  <button
-    type="button"
-    onClick={toggleMute}
-    aria-label={isMuted ? "Unmute video" : "Mute video"}
-    className="
-      absolute
-      bottom-4
-      right-4
-      z-10
-      bg-black/60
-      hover:bg-black/80
-      text-white
-      rounded-full
-      w-10
-      h-10
-      flex
-      items-center
-      justify-center
-      transition-all
-      border
-      border-white/30
-      shadow-lg
-    "
-  >
-    {isMuted ? "🔇" : "🔊"}
-  </button>
-</div>
+            <video
+              ref={videoRef}
+              src="/video/Ai.mp4"
+              className="
+                w-full
+                h-full
+                object-contain
+                block
+                bg-white
+              "
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              poster="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1600&auto=format&fit=crop"
+            />
+
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
+              className="
+                absolute
+                bottom-4
+                right-4
+                z-10
+                bg-black/60
+                hover:bg-black/80
+                text-white
+                rounded-full
+                w-10
+                h-10
+                flex
+                items-center
+                justify-center
+                transition-all
+                border
+                border-white/30
+                shadow-lg
+              "
+            >
+              {isMuted ? "🔇" : "🔊"}
+            </button>
+
+          </div>
 
         </section>
 
         {/* =====================================================
             ADMISSION & ELIGIBILITY
         ===================================================== */}
-        <section className="bg-slate-100 py-16 border-y border-slate-200">
+        <section className="bg-[#EFF6FF] py-16 border-y border-blue-100">
 
           <div className="max-w-7xl mx-auto px-6">
 
-            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-2">
+            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-[#1E3A8A] font-bold mb-2">
               Admission &amp; Eligibility Conditions
             </h2>
 
@@ -669,14 +750,24 @@ export default function ContinuingEducationContent() {
 
                 <div
                   key={e.title}
-                  className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-amber-500 transition-all"
+                  className="
+                    bg-white
+                    border
+                    border-slate-200
+                    rounded-xl
+                    p-6
+                    shadow-sm
+                    hover:shadow-md
+                    hover:border-[#F97316]
+                    transition-all
+                  "
                 >
 
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#D4A72C] text-[#08131F] font-[Fraunces,serif] text-sm font-bold">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#F97316] text-white font-[Fraunces,serif] text-sm font-bold">
                     0{i + 1}
                   </span>
 
-                  <h3 className="text-slate-900 font-bold mt-4 mb-2">
+                  <h3 className="text-[#1E3A8A] font-bold mt-4 mb-2">
                     {e.title}
                   </h3>
 
@@ -691,7 +782,6 @@ export default function ContinuingEducationContent() {
             </div>
 
           </div>
-
         </section>
 
         {/* =====================================================
@@ -701,7 +791,7 @@ export default function ContinuingEducationContent() {
 
           <div>
 
-            <h2 className="font-[Fraunces,serif] text-2xl text-slate-900 font-bold mb-3">
+            <h2 className="font-[Fraunces,serif] text-2xl text-[#1E3A8A] font-bold mb-3">
               Documents Required at Admission
             </h2>
 
@@ -713,7 +803,7 @@ export default function ContinuingEducationContent() {
 
               <li className="flex gap-3 items-start text-sm text-slate-800 bg-white border border-slate-200 rounded-lg px-4 py-3 shadow-sm">
 
-                <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E5F9E] text-white font-[Fraunces,serif] text-xs font-bold shrink-0 mt-0.5">
+                <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E3A8A] text-white font-[Fraunces,serif] text-xs font-bold shrink-0 mt-0.5">
                   01
                 </span>
 
@@ -725,7 +815,7 @@ export default function ContinuingEducationContent() {
 
               <li className="flex gap-3 items-start text-sm text-slate-800 bg-white border border-slate-200 rounded-lg px-4 py-3 shadow-sm">
 
-                <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E5F9E] text-white font-[Fraunces,serif] text-xs font-bold shrink-0 mt-0.5">
+                <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E3A8A] text-white font-[Fraunces,serif] text-xs font-bold shrink-0 mt-0.5">
                   02
                 </span>
 
@@ -743,7 +833,7 @@ export default function ContinuingEducationContent() {
 
           <div>
 
-            <h2 className="font-[Fraunces,serif] text-2xl text-slate-900 font-bold mb-3">
+            <h2 className="font-[Fraunces,serif] text-2xl text-[#1E3A8A] font-bold mb-3">
               Academic Delivery &amp; Scheduling
             </h2>
 
@@ -757,10 +847,26 @@ export default function ContinuingEducationContent() {
 
                 <div
                   key={s}
-                  className="flex items-center gap-3 border border-slate-200 bg-white rounded-lg px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm hover:border-amber-500 transition-all"
+                  className="
+                    flex
+                    items-center
+                    gap-3
+                    border
+                    border-slate-200
+                    bg-white
+                    rounded-lg
+                    px-4
+                    py-3
+                    text-sm
+                    font-semibold
+                    text-slate-800
+                    shadow-sm
+                    hover:border-[#F97316]
+                    transition-all
+                  "
                 >
 
-                  <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E5F9E] text-white font-[Fraunces,serif] text-xs font-bold shrink-0">
+                  <span className="flex items-center justify-center w-7 h-7 rounded bg-[#1E3A8A] text-white font-[Fraunces,serif] text-xs font-bold shrink-0">
                     {i + 1}
                   </span>
 
@@ -781,9 +887,9 @@ export default function ContinuingEducationContent() {
         ===================================================== */}
         <section className="max-w-7xl mx-auto px-6 pb-16 grid md:grid-cols-2 gap-6">
 
-          <div className="border-t-4 border-[#D4A72C] bg-white border border-slate-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="border-t-4 border-[#F97316] bg-white border border-slate-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
 
-            <h3 className="font-[Fraunces,serif] text-lg text-slate-900 font-bold mb-2">
+            <h3 className="font-[Fraunces,serif] text-lg text-[#1E3A8A] font-bold mb-2">
               Industry Sponsorship
             </h3>
 
@@ -799,9 +905,9 @@ export default function ContinuingEducationContent() {
 
           </div>
 
-          <div className="border-t-4 border-[#08131F] bg-white border border-slate-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="border-t-4 border-[#1E3A8A] bg-white border border-slate-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
 
-            <h3 className="font-[Fraunces,serif] text-lg text-slate-900 font-bold mb-2">
+            <h3 className="font-[Fraunces,serif] text-lg text-[#1E3A8A] font-bold mb-2">
               Regulatory Compliance
             </h3>
 
@@ -818,11 +924,11 @@ export default function ContinuingEducationContent() {
         {/* =====================================================
             FAQ
         ===================================================== */}
-        <section className="bg-slate-100 py-16 border-t border-slate-200">
+        <section className="bg-[#EFF6FF] py-16 border-t border-blue-100">
 
           <div className="max-w-5xl mx-auto px-6">
 
-            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-8 text-center">
+            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-[#1E3A8A] font-bold mb-8 text-center">
               Frequently Asked Questions
             </h2>
 
@@ -836,11 +942,18 @@ export default function ContinuingEducationContent() {
 
                   <div
                     key={item.q}
-                    className={`rounded-lg border transition-all h-fit bg-white ${
-                      isOpen
-                        ? "border-[#D4A72C] shadow-sm"
-                        : "border-slate-200"
-                    }`}
+                    className={`
+                      rounded-lg
+                      border
+                      transition-all
+                      h-fit
+                      bg-white
+                      ${
+                        isOpen
+                          ? "border-[#F97316] shadow-sm"
+                          : "border-slate-200"
+                      }
+                    `}
                   >
 
                     <button
@@ -848,11 +961,11 @@ export default function ContinuingEducationContent() {
                       className="w-full flex items-center justify-between text-left px-5 py-4"
                     >
 
-                      <span className="text-sm font-semibold text-slate-900 pr-4">
+                      <span className="text-sm font-semibold text-[#1E3A8A] pr-4">
                         {item.q}
                       </span>
 
-                      <span className="text-[#D4A72C] font-bold text-lg shrink-0">
+                      <span className="text-[#F97316] font-bold text-lg shrink-0">
                         {isOpen ? "−" : "+"}
                       </span>
 
@@ -869,13 +982,11 @@ export default function ContinuingEducationContent() {
                   </div>
 
                 );
-
               })}
 
             </div>
 
           </div>
-
         </section>
 
         {/* =====================================================
@@ -883,9 +994,23 @@ export default function ContinuingEducationContent() {
         ===================================================== */}
         <section className="max-w-7xl mx-auto px-6 py-16">
 
-          <div className="bg-white border border-slate-200 rounded-2xl p-8 md:p-12 text-center shadow-md">
+          <div
+            className="
+              bg-gradient-to-br
+              from-[#EFF6FF]
+              via-white
+              to-[#FFF7ED]
+              border
+              border-slate-200
+              rounded-2xl
+              p-8
+              md:p-12
+              text-center
+              shadow-md
+            "
+          >
 
-            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-slate-900 font-bold mb-3">
+            <h2 className="font-[Fraunces,serif] text-2xl md:text-3xl text-[#1E3A8A] font-bold mb-3">
               Ready to continue your education?
             </h2>
 
@@ -896,23 +1021,58 @@ export default function ContinuingEducationContent() {
 
             <div className="flex flex-wrap justify-center gap-3">
 
+              {/* Primary */}
               <Link
                 href="/signup"
-                className="bg-[#c15304] text-white font-bold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity shadow-sm"
+                className="
+                  bg-[#EA580C]
+                  text-white
+                  font-bold
+                  text-sm
+                  px-6
+                  py-3
+                  rounded-lg
+                  hover:bg-[#F97316]
+                  transition-colors
+                  shadow-sm
+                "
               >
                 Apply Now
               </Link>
 
+              {/* Secondary */}
               <Link
                 href="/signup"
-                className="bg-[#08131F] text-white font-semibold text-sm px-6 py-3 rounded-lg hover:bg-slate-800 transition-colors"
+                className="
+                  bg-[#1E3A8A]
+                  text-white
+                  font-semibold
+                  text-sm
+                  px-6
+                  py-3
+                  rounded-lg
+                  hover:bg-[#1E40AF]
+                  transition-colors
+                "
               >
                 Download Brochure
               </Link>
 
+              {/* Outline */}
               <Link
                 href="/signup"
-                className="border border-slate-300 text-slate-700 font-semibold text-sm px-6 py-3 rounded-lg hover:bg-slate-50 transition-colors"
+                className="
+                  border
+                  border-[#1E3A8A]/25
+                  text-[#1E3A8A]
+                  font-semibold
+                  text-sm
+                  px-6
+                  py-3
+                  rounded-lg
+                  hover:bg-[#EFF6FF]
+                  transition-colors
+                "
               >
                 Contact for Admissions
               </Link>
@@ -920,7 +1080,6 @@ export default function ContinuingEducationContent() {
             </div>
 
           </div>
-
         </section>
 
       </div>
@@ -929,3 +1088,4 @@ export default function ContinuingEducationContent() {
     </>
   );
 }
+
