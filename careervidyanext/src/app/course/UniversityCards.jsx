@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Signup from "@/app/signup/page.jsx";
@@ -20,6 +20,23 @@ export default function UniversityCards({ universities, courseTitle }) {
   const [showSignup, setShowSignup] = useState(false);
   const [selectedUnis, setSelectedUnis] = useState([]);
   const [showAll, setShowAll] = useState(false);
+
+  // LOGIN STATE
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const check = () => setLoggedIn(!!localStorage.getItem("accessToken"));
+    check();
+
+    window.addEventListener("storage", check);
+    window.addEventListener("focus", check);
+    return () => {
+      window.removeEventListener("storage", check);
+      window.removeEventListener("focus", check);
+    };
+  }, []);
 
   if (!universities || universities.length === 0) {
     return null;
@@ -72,7 +89,7 @@ export default function UniversityCards({ universities, courseTitle }) {
         className="w-full py-12 md:py-16 font-sans"
         style={{ background: "#fff" }}
       >
-        <div className="max-w-[1600px] mx-auto px-4 md:px-10">
+        <div className="py-8 rounded-lg max-w-[1800px] lg:w-[90%] mx-auto px-6">
           {/* ═══════════════════════════════════════════
               HEADER
           ═══════════════════════════════════════════ */}
@@ -119,31 +136,36 @@ export default function UniversityCards({ universities, courseTitle }) {
                       : "1px solid var(--cv-neutral-border)",
                     boxShadow: isCompared
                       ? "0 8px 20px rgba(30, 58, 138, 0.15)"
-                      : "none",
+                      : "0 2px 8px rgba(15, 23, 42, 0.04)",
                   }}
                   onMouseEnter={(e) => {
                     if (!isCompared) {
                       e.currentTarget.style.borderColor = "var(--cv-primary)";
                       e.currentTarget.style.boxShadow =
-                        "0 8px 20px rgba(30, 58, 138, 0.12)";
+                        "0 10px 24px rgba(30, 58, 138, 0.14)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isCompared) {
                       e.currentTarget.style.borderColor =
                         "var(--cv-neutral-border)";
-                      e.currentTarget.style.boxShadow = "none";
+                      e.currentTarget.style.boxShadow =
+                        "0 2px 8px rgba(15, 23, 42, 0.04)";
+                      e.currentTarget.style.transform = "translateY(0)";
                     }
                   }}
                 >
-                  {/* Top Rated Badge — Orange accent */}
+                  {/* ═══════════════════════════════════════
+                      TOP RATED BADGE — Border pe
+                  ═══════════════════════════════════════ */}
                   {uni.isTopRated && (
-                    <div className="absolute top-2 right-2 z-10">
+                    <div className="absolute -top-[1px] -right-[1px] z-10">
                       <span
-                        className="inline-flex items-center gap-1 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                        className="inline-flex items-center gap-1 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-bl-xl rounded-tr-xl"
                         style={{ background: "var(--cv-accent)" }}
                       >
-                        ⭐ Top
+                        ⭐ Top Rated
                       </span>
                     </div>
                   )}
@@ -153,7 +175,9 @@ export default function UniversityCards({ universities, courseTitle }) {
                   ═══════════════════════════════════════ */}
                   <div
                     className="p-4"
-                    style={{ borderBottom: "1px solid var(--cv-neutral-border)" }}
+                    style={{
+                      borderBottom: "1px solid var(--cv-neutral-border)",
+                    }}
                   >
                     <div className="flex items-start gap-3">
                       {/* Logo */}
@@ -185,7 +209,7 @@ export default function UniversityCards({ universities, courseTitle }) {
                       {/* Name + Rating */}
                       <div className="flex-1 min-w-0">
                         <h3
-                          className="text-sm md:text-[15px] font-bold leading-snug mb-1 line-clamp-2"
+                          className="text-sm md:text-[15px] font-bold leading-snug mb-1 line-clamp-2 pr-12"
                           style={{ color: "var(--cv-primary)" }}
                         >
                           {uni.name}
@@ -223,7 +247,7 @@ export default function UniversityCards({ universities, courseTitle }) {
                       </div>
                     </div>
 
-                    {/* Approvals chips — Navy */}
+                    {/* Approvals chips */}
                     {uni.approvals?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2.5">
                         {uni.approvals.slice(0, 2).map((a, i) => (
@@ -335,87 +359,111 @@ export default function UniversityCards({ universities, courseTitle }) {
                     </div>
 
                     {/* ═══════════════════════════════════════
-                        CTA BUTTONS
+                        CTA BUTTONS — EK HI ROW ME
                     ═══════════════════════════════════════ */}
-                    <div className="mt-auto space-y-2">
-                      {/* Apply Now — Navy solid */}
-                      <a
-                        href={uni.applyLink || "#"}
-                        className="block w-full text-center text-white text-xs font-semibold py-2 rounded-md transition-colors"
-                        style={{ background: "var(--cv-primary)" }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            "var(--cv-primary-dark)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "var(--cv-primary)";
-                        }}
-                      >
-                        Apply Now
-                      </a>
-
-                      <div className="flex gap-1.5">
-                        {/* Compare Button */}
-                        <button
-                          type="button"
-                          onClick={() => toggleCompare(uniId)}
-                          className="flex-1 text-xs font-semibold py-2 rounded-md transition-colors"
-                          style={{
-                            background: isCompared
-                              ? "var(--cv-primary-light)"
-                              : "#fff",
-                            color: isCompared
-                              ? "var(--cv-primary)"
-                              : "var(--cv-primary)",
-                            border: isCompared
-                              ? "1px solid var(--cv-primary)"
-                              : "1px solid var(--cv-neutral-border)",
+                    <div
+                      className={`mt-auto grid gap-1.5 ${
+                        !loggedIn && uni.brochureLink
+                          ? "grid-cols-[1fr_auto_auto]"
+                          : !loggedIn
+                          ? "grid-cols-[1fr_auto]"
+                          : uni.brochureLink
+                          ? "grid-cols-[1fr_auto]"
+                          : "grid-cols-1"
+                      }`}
+                    >
+                      {/* Apply Now — sirf logged-out users ko dikhega */}
+                      {!loggedIn && (
+                        <a
+                          href={uni.applyLink || "#"}
+                          className="text-center text-white text-xs font-bold py-2 px-3 rounded-md transition-all whitespace-nowrap"
+                          style={{ background: "var(--cv-primary)" }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              "var(--cv-primary-dark)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              "var(--cv-primary)";
                           }}
                         >
-                          {isCompared ? "✓ Added" : "+ Compare"}
-                        </button>
+                          Apply Now
+                        </a>
+                      )}
 
-                        {/* Brochure Button */}
-                        {uni.brochureLink && (
-                          <a
-                            href={uni.brochureLink}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="flex items-center justify-center w-9 rounded-md transition-colors"
-                            style={{
-                              background: "#fff",
-                              border: "1px solid var(--cv-neutral-border)",
-                              color: "var(--cv-neutral-mid)",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.borderColor =
-                                "var(--cv-primary)";
-                              e.currentTarget.style.color = "var(--cv-primary)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.borderColor =
-                                "var(--cv-neutral-border)";
-                              e.currentTarget.style.color =
-                                "var(--cv-neutral-mid)";
-                            }}
-                            aria-label="Download Brochure"
+                      {/* Compare Button — Navy theme (global CSS) */}
+                      <button
+                        type="button"
+                        onClick={() => toggleCompare(uniId)}
+                        className="text-xs font-bold py-2 px-3 rounded-md transition-all whitespace-nowrap cursor-pointer"
+                        style={{
+                          background: isCompared ? "var(--cv-primary)" : "#fff",
+                          color: isCompared ? "#fff" : "var(--cv-primary)",
+                          border: "1px solid var(--cv-primary)",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isCompared) {
+                            e.currentTarget.style.background =
+                              "var(--cv-primary)";
+                            e.currentTarget.style.color = "#fff";
+                          } else {
+                            e.currentTarget.style.background =
+                              "var(--cv-primary-dark)";
+                            e.currentTarget.style.color = "#fff";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isCompared) {
+                            e.currentTarget.style.background = "#fff";
+                            e.currentTarget.style.color = "var(--cv-primary)";
+                          } else {
+                            e.currentTarget.style.background =
+                              "var(--cv-primary)";
+                            e.currentTarget.style.color = "#fff";
+                          }
+                        }}
+                      >
+                        {isCompared ? "✓ Added" : "+ Compare"}
+                      </button>
+
+                      {/* Brochure Button */}
+                      {uni.brochureLink && (
+                        <a
+                          href={uni.brochureLink}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="flex items-center justify-center w-9 rounded-md transition-colors"
+                          style={{
+                            background: "#fff",
+                            border: "1px solid var(--cv-primary)",
+                            color: "var(--cv-primary)",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              "var(--cv-primary)";
+                            e.currentTarget.style.color = "#fff";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "#fff";
+                            e.currentTarget.style.color = "var(--cv-primary)";
+                          }}
+                          aria-label="Download Brochure"
+                        >
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
-                            <svg
-                              className="w-3.5 h-3.5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                              />
-                            </svg>
-                          </a>
-                        )}
-                      </div>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                          </svg>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </article>
@@ -423,9 +471,7 @@ export default function UniversityCards({ universities, courseTitle }) {
             })}
           </div>
 
-          {/* ═══════════════════════════════════════════
-              VIEW MORE BUTTON
-          ═══════════════════════════════════════════ */}
+          {/* VIEW MORE BUTTON */}
           {hasMore && !showAll && (
             <div className="mt-8 text-center">
               <button
@@ -464,9 +510,7 @@ export default function UniversityCards({ universities, courseTitle }) {
             </div>
           )}
 
-          {/* ═══════════════════════════════════════════
-              SHOW LESS BUTTON
-          ═══════════════════════════════════════════ */}
+          {/* SHOW LESS BUTTON */}
           {hasMore && showAll && (
             <div className="mt-8 text-center">
               <button
@@ -523,9 +567,7 @@ export default function UniversityCards({ universities, courseTitle }) {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          FLOATING COMPARE BAR — Navy bg
-      ═══════════════════════════════════════════ */}
+      {/* FLOATING COMPARE BAR */}
       {selectedUnis.length > 0 && (
         <div
           className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-3 max-w-[95vw]"

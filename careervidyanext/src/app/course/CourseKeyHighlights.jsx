@@ -514,21 +514,22 @@ export default function CourseKeyHighlights({ course }) {
 
       <section
         aria-labelledby="key-highlights-heading"
-        className="w-full py-12 md:py-16 font-sans"
+        className="w-full py-8 md:py-10 font-sans"
         style={{
           background: "#fff",
           borderTop: "1px solid var(--cv-neutral-border)",
           borderBottom: "1px solid var(--cv-neutral-border)",
         }}
       >
-        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12">
+        {/* ✅ CONTAINER — Reduced padding */}
+        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
           {/* ═══════════════════════════════════════════
-              HEADER — Navy heading + Navy underline
+              HEADER
           ═══════════════════════════════════════════ */}
-          <header className="mb-8 md:mb-12">
+          <header className="mb-6 md:mb-8">
             <h2
               id="key-highlights-heading"
-              className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight px-1"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight"
               style={{ color: "var(--cv-primary)" }}
             >
               What You&apos;ll Learn &amp; Gain from {courseName}?
@@ -536,7 +537,7 @@ export default function CourseKeyHighlights({ course }) {
 
             <div
               aria-hidden="true"
-              className="w-16 h-1 mt-4 rounded-full"
+              className="w-16 h-1 mt-3 rounded-full"
               style={{ background: "var(--cv-primary)" }}
             />
           </header>
@@ -544,10 +545,10 @@ export default function CourseKeyHighlights({ course }) {
           {/* ═══════════════════════════════════════════
               GRID
           ═══════════════════════════════════════════ */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
             {/* LEFT: HIGHLIGHTS */}
             <div className="lg:col-span-8">
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 list-none p-0 m-0">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 list-none p-0 m-0">
                 {course.keyHighlights.map((item, i) => {
                   const description =
                     typeof item === "string" ? item : item?.description;
@@ -557,7 +558,7 @@ export default function CourseKeyHighlights({ course }) {
                   return (
                     <li
                       key={item?._id || i}
-                      className="group flex items-start gap-3 p-4 rounded-xl transition-all duration-300"
+                      className="group flex items-start gap-3 p-3.5 rounded-xl transition-all duration-300"
                       style={{
                         background: "var(--cv-neutral-light)",
                         border: "1px solid var(--cv-neutral-border)",
@@ -579,11 +580,11 @@ export default function CourseKeyHighlights({ course }) {
                       {/* Check Icon — Navy */}
                       <div
                         aria-hidden="true"
-                        className="flex-shrink-0 mt-0.5 w-7 h-7 rounded-full flex items-center justify-center transition-colors"
+                        className="flex-shrink-0 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center transition-colors"
                         style={{ background: "var(--cv-primary)" }}
                       >
                         <svg
-                          className="w-3.5 h-3.5 text-white"
+                          className="w-3 h-3 text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -611,11 +612,11 @@ export default function CourseKeyHighlights({ course }) {
             </div>
 
             {/* ═══════════════════════════════════════════
-                RIGHT: ADMISSION CARD — Navy bg
+                RIGHT: ADMISSION CARD
             ═══════════════════════════════════════════ */}
             <div className="lg:col-span-4">
               <div
-                className="lg:sticky lg:top-24 relative rounded-2xl p-6 md:p-8 shadow-lg overflow-hidden"
+                className="lg:sticky lg:top-24 relative rounded-2xl p-5 md:p-6 shadow-lg overflow-hidden"
                 style={{
                   background: "var(--cv-primary)",
                   color: "#fff",
@@ -634,9 +635,9 @@ export default function CourseKeyHighlights({ course }) {
                 />
 
                 <div className="relative z-10">
-                  {/* Label — Orange accent */}
+                  {/* Label */}
                   <span
-                    className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3"
+                    className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2"
                     style={{
                       background: "rgba(255,255,255,0.12)",
                       color: "#fff",
@@ -647,14 +648,14 @@ export default function CourseKeyHighlights({ course }) {
 
                   {/* Title */}
                   <h3
-                    className="text-xl sm:text-2xl font-bold mb-2 leading-snug"
+                    className="text-lg sm:text-xl font-bold mb-2 leading-snug"
                     style={{ color: "#fff" }}
                   >
                     Admission Closing Soon
                   </h3>
 
                   <p
-                    className="text-sm mb-6 leading-relaxed"
+                    className="text-xs sm:text-sm mb-4 leading-relaxed"
                     style={{ color: "rgba(255,255,255,0.8)" }}
                   >
                     Secure your seat before the deadline and enjoy exclusive
@@ -662,7 +663,7 @@ export default function CourseKeyHighlights({ course }) {
                   </p>
 
                   {/* Benefits list */}
-                  <div className="space-y-3 mb-7">
+                  <div className="space-y-2 mb-5">
                     {[
                       "Avoid paying 25% Late Fees",
                       "Secure a seat in your dream university",
@@ -670,7 +671,7 @@ export default function CourseKeyHighlights({ course }) {
                     ].map((text, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-3 p-3 rounded-lg transition-colors"
+                        className="flex items-start gap-2.5 p-2.5 rounded-lg transition-colors"
                         style={{
                           background: "rgba(255,255,255,0.08)",
                           border: "1px solid rgba(255,255,255,0.12)",
@@ -684,7 +685,7 @@ export default function CourseKeyHighlights({ course }) {
                           ✓
                         </span>
                         <p
-                          className="text-sm font-medium leading-snug"
+                          className="text-xs sm:text-sm font-medium leading-snug"
                           style={{ color: "#fff" }}
                         >
                           {text}
@@ -693,19 +694,19 @@ export default function CourseKeyHighlights({ course }) {
                     ))}
                   </div>
 
-                  {/* Enroll Button — Orange gradient */}
+                  {/* Enroll Button */}
                   <button
                     type="button"
                     onClick={() => setShowSignup(true)}
                     aria-label="Enroll now"
-                    className="cv-btn-cta w-full py-3.5 cursor-pointer focus:outline-none"
+                    className="cv-btn-cta w-full py-3 cursor-pointer focus:outline-none text-sm"
                   >
                     Enroll Now →
                   </button>
 
                   {/* Trust line */}
                   <p
-                    className="text-center text-[11px] mt-3"
+                    className="text-center text-[11px] mt-2.5"
                     style={{ color: "rgba(255,255,255,0.7)" }}
                   >
                     🔒 100% Safe &amp; Secure

@@ -739,9 +739,6 @@
 //     );
 // }
 
-
-
-
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -930,6 +927,7 @@ export default function UniversityDetail({ initialData }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ✅ Header hide/show on scroll
   useEffect(() => {
     lastScrollYRef.current = window.scrollY;
     let ticking = false;
@@ -1103,8 +1101,9 @@ export default function UniversityDetail({ initialData }) {
 
   return (
     <>
+      {/* ✅ OUTER DIV — overflow-x-hidden safety */}
       <div
-        className="min-h-screen w-full"
+        className="min-h-screen w-full overflow-x-hidden"
         style={{ background: "#fff", color: "var(--cv-neutral-dark)" }}
       >
         {/* SEO Schemas */}
@@ -1123,18 +1122,24 @@ export default function UniversityDetail({ initialData }) {
           />
         )}
 
-        {/* HEADER */}
+        {/* ═══════════════════════════════════════════════
+            ✅ HEADER — Sticky + Hide/Show (Safe version)
+        ═══════════════════════════════════════════════ */}
         <div
-          className="sticky top-0 z-[60] transition-transform duration-300 ease-in-out will-change-transform"
+          className="sticky top-0 z-[60] w-full max-w-full overflow-x-clip"
           style={{
-            transform: hideHeader ? "translateY(-100%)" : "translateY(0)",
+            transform: hideHeader
+              ? "translate3d(0, -100%, 0)"
+              : "translate3d(0, 0, 0)",
+            transition: "transform 0.3s ease-in-out",
+            willChange: "transform",
           }}
         >
           <Header />
         </div>
 
         {/* ═══════════════════════════════════════════════
-            HERO — NO SHADOW on text, clean white
+            HERO
         ═══════════════════════════════════════════════ */}
         <section
           className="relative w-full overflow-hidden bg-no-repeat bg-center shadow-lg"
@@ -1155,20 +1160,18 @@ export default function UniversityDetail({ initialData }) {
             }}
           ></div>
 
-          <div className="relative z-10 px-6 md:px-20 py-10 lg:py-14 w-full">
+          <div className="relative z-10 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-20 py-8 sm:py-10 lg:py-14">
             <div className="max-w-4xl">
-              {/* ✅ WHITE UNIVERSITY NAME — NO SHADOW */}
               <h1
                 id="university-name"
-                className="!text-white text-3xl md:text-5xl font-extrabold mb-2 leading-tight"
+                className="!text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2 leading-tight"
               >
                 {data.name}
               </h1>
 
               <p className="sr-only">{cleanDesc}</p>
 
-              {/* Rating — NO SHADOW */}
-              <div className="flex items-center mb-4 text-sm">
+              <div className="flex items-center mb-3 sm:mb-4 text-xs sm:text-sm">
                 <Star
                   fill="var(--cv-accent)"
                   color="var(--cv-accent)"
@@ -1176,14 +1179,13 @@ export default function UniversityDetail({ initialData }) {
                   className="mr-1"
                   aria-hidden="true"
                 />
-                <span className="!text-white font-bold text-lg">
+                <span className="!text-white font-bold text-base sm:text-lg">
                   ({reviewsCount} Reviews)
                 </span>
               </div>
 
-              {/* Logo */}
-              <div className="mb-5">
-                <div className="relative h-[75px] w-[150px] bg-white rounded-xl shadow-2xl overflow-hidden p-2">
+              <div className="mb-4 sm:mb-5">
+                <div className="relative h-[60px] w-[120px] sm:h-[75px] sm:w-[150px] bg-white rounded-xl shadow-2xl overflow-hidden p-2">
                   <Image
                     src={getImagePath(data.universityImage)}
                     alt={`${data.name} official logo`}
@@ -1195,15 +1197,14 @@ export default function UniversityDetail({ initialData }) {
                 </div>
               </div>
 
-              {/* Approvals — NO SHADOW on names */}
               {data.approvals?.length > 0 && (
                 <div
-                  className="flex items-center gap-4 mb-6 flex-wrap items-start"
+                  className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4 mb-5 sm:mb-6 max-w-2xl"
                   aria-label="University approvals"
                 >
                   {data.approvals.slice(0, 6).map((approval, index) => (
-                    <div key={index} className="flex flex-col items-center w-20">
-                      <div className="relative w-full h-12 bg-white rounded-lg p-1 shadow-md flex items-center justify-center overflow-hidden">
+                    <div key={index} className="flex flex-col items-center">
+                      <div className="relative w-full h-10 sm:h-12 bg-white rounded-lg p-1 shadow-md flex items-center justify-center overflow-hidden">
                         <Image
                           src={getImagePath(approval.logo)}
                           alt={`${approval.name || "Approval"} logo`}
@@ -1212,7 +1213,7 @@ export default function UniversityDetail({ initialData }) {
                           sizes="80px"
                         />
                       </div>
-                      <p className="!text-white text-[10px] md:text-[11px] font-semibold text-center leading-tight mt-1.5 break-words">
+                      <p className="!text-white text-[9px] sm:text-[10px] md:text-[11px] font-semibold text-center leading-tight mt-1.5 break-words w-full">
                         {approval.name}
                       </p>
                     </div>
@@ -1220,10 +1221,9 @@ export default function UniversityDetail({ initialData }) {
                 </div>
               )}
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+              <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
                 <button
-                  className="cursor-pointer flex-1 text-white font-bold py-3 rounded-xl transition-all shadow-lg text-sm uppercase disabled:opacity-60"
+                  className="cursor-pointer w-full sm:flex-1 text-white font-bold py-3 rounded-xl transition-all shadow-lg text-xs sm:text-sm uppercase disabled:opacity-60"
                   onClick={() => openActionPopup("apply")}
                   disabled={authLoading}
                   aria-label={`Apply now for ${data.name}`}
@@ -1244,7 +1244,7 @@ export default function UniversityDetail({ initialData }) {
                 </button>
 
                 <button
-                  className="flex-1 bg-white font-bold py-3 rounded-xl transition-all shadow-lg text-sm uppercase flex items-center justify-center disabled:opacity-60"
+                  className="w-full sm:flex-1 bg-white font-bold py-3 rounded-xl transition-all shadow-lg text-xs sm:text-sm uppercase flex items-center justify-center disabled:opacity-60"
                   onClick={() => openActionPopup("talk")}
                   disabled={authLoading}
                   aria-label={`Talk to ${data.name}`}
@@ -1265,10 +1265,10 @@ export default function UniversityDetail({ initialData }) {
         </section>
 
         {/* ═══════════════════════════════════════════════
-            STICKY TABS
+            ✅ STICKY TABS NAV — Wapas laaya + Safe version
         ═══════════════════════════════════════════════ */}
         <nav
-          className="sticky top-0 z-50 backdrop-blur-md"
+          className="sticky top-0 z-50 w-full max-w-full backdrop-blur-md overflow-x-clip"
           aria-label="University page sections"
           style={{
             background: "rgba(255,255,255,0.95)",
@@ -1276,12 +1276,12 @@ export default function UniversityDetail({ initialData }) {
             boxShadow: "0 2px 10px -4px rgba(30,58,138,0.1)",
           }}
         >
-          <div className="max-w-7xl mx-auto relative flex items-center">
+          <div className="w-full max-w-[1800px] mx-auto relative flex items-center px-2 sm:px-4">
             <button
               type="button"
               onClick={() => scrollTabsRow("left")}
               aria-label="Scroll tabs left"
-              className="shrink-0 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white transition-colors ml-1"
+              className="shrink-0 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white transition-colors"
               style={{ color: "var(--cv-neutral-mid)" }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = "var(--cv-primary)";
@@ -1297,7 +1297,7 @@ export default function UniversityDetail({ initialData }) {
 
             <div
               ref={tabsScrollRef}
-              className="tabs-scroll-row flex items-center gap-5 md:gap-7 overflow-x-auto whitespace-nowrap px-2 py-2.5 scroll-smooth flex-1"
+              className="tabs-scroll-row flex items-center gap-4 sm:gap-5 md:gap-7 overflow-x-auto whitespace-nowrap px-2 py-2.5 scroll-smooth flex-1"
             >
               {tabs.map((tab, index) => {
                 const isActive = activeTab === tab.id;
@@ -1310,7 +1310,7 @@ export default function UniversityDetail({ initialData }) {
                       handleTabClick(tab);
                     }}
                     aria-current={isActive ? "true" : undefined}
-                    className="inline-block pb-1.5 border-b-[2.5px] text-sm md:text-[15px] whitespace-nowrap cursor-pointer transition-colors"
+                    className="inline-block pb-1.5 border-b-[2.5px] text-xs sm:text-sm md:text-[15px] whitespace-nowrap cursor-pointer transition-colors"
                     style={{
                       color: isActive
                         ? "var(--cv-primary)"
@@ -1341,7 +1341,7 @@ export default function UniversityDetail({ initialData }) {
               type="button"
               onClick={() => scrollTabsRow("right")}
               aria-label="Scroll tabs right"
-              className="shrink-0 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white transition-colors mr-1"
+              className="shrink-0 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white transition-colors"
               style={{ color: "var(--cv-neutral-mid)" }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = "var(--cv-primary)";
@@ -1368,10 +1368,10 @@ export default function UniversityDetail({ initialData }) {
         </nav>
 
         {/* ═══════════════════════════════════════════════
-            MAIN CONTENT — Consistent Navy headings
+            MAIN CONTENT
         ═══════════════════════════════════════════════ */}
-        <main className="max-w-7xl mx-auto px-6 py-12 space-y-12">
-          {/* 1. OVERVIEW — Navy heading */}
+        <main className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 space-y-8 sm:space-y-10 lg:space-y-12 overflow-x-hidden">
+          {/* 1. OVERVIEW */}
           <section
             id="overview"
             ref={overviewRef}
@@ -1379,12 +1379,12 @@ export default function UniversityDetail({ initialData }) {
             aria-labelledby="overview-heading"
           >
             <div
-              className="bg-white rounded-2xl p-8 shadow-sm"
+              className="bg-white rounded-2xl p-5 sm:p-6 lg:p-8 shadow-sm"
               style={{ border: "1px solid var(--cv-neutral-border)" }}
             >
               <h2
                 id="overview-heading"
-                className="text-3xl md:text-4xl font-bold mb-6"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6"
                 style={{ color: "var(--cv-primary)" }}
               >
                 Overview of {data.name}
@@ -1409,93 +1409,95 @@ export default function UniversityDetail({ initialData }) {
             <UniversityCertificate data={data} />
           </section>
 
-          {/* 3. COURSES — Navy bg + White heading */}
-         <section
-  id="courses"
-  ref={coursesRef}
-  className="shadow-lg rounded-2xl overflow-hidden"
-  style={{
-    scrollMarginTop: `${SCROLL_OFFSET}px`,
-    border: "1px solid var(--cv-neutral-border)",
-  }}
-  aria-labelledby="courses-heading"
->
-  {/* ✅ Heading — Navy text on white bg + navy bottom border */}
-  <h2
-    id="courses-heading"
-    className="text-xl md:text-2xl font-bold p-5 text-center uppercase tracking-wide"
-    style={{
-      color: "var(--cv-primary)",
-      background: "#fff",
-      borderBottom: "3px solid var(--cv-primary)",
-    }}
-  >
-    Explore Online Programs at {data.name}
-  </h2>
-
-  <div className="bg-white p-2">
-    {data.courses?.length > 0 ? (
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        {data.courses.map((course, index) => (
-          <div
-            key={index}
-            className="transition border-b"
+          {/* 3. COURSES */}
+          <section
+            id="courses"
+            ref={coursesRef}
+            className="shadow-lg rounded-2xl overflow-hidden"
             style={{
-              borderColor: "var(--cv-neutral-border)",
-              borderRight:
-                index % 2 === 0
-                  ? "1px solid var(--cv-neutral-border)"
-                  : "none",
+              scrollMarginTop: `${SCROLL_OFFSET}px`,
+              border: "1px solid var(--cv-neutral-border)",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "var(--cv-neutral-light)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "#fff")
-            }
+            aria-labelledby="courses-heading"
           >
-            <div className="p-5 flex items-center justify-between gap-4">
-              <span
-                className="font-bold flex-1"
-                style={{ color: "var(--cv-primary)" }}
-              >
-                {course.name}
-              </span>
-              <button
-                onClick={() => openActionPopup("apply")}
-                disabled={authLoading}
-                aria-label={`Apply for ${course.name}`}
-                className="cursor-pointer text-white text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full transition-all whitespace-nowrap flex items-center gap-1 disabled:opacity-60"
-                style={{
-                  background: "var(--cv-grad-cta)",
-                  boxShadow: "0 4px 12px rgba(193, 83, 4, 0.3)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--cv-grad-cta-hover)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "var(--cv-grad-cta)";
-                }}
-              >
-                Apply Now
-                <ChevronRight size={12} aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <p
-        className="p-6 text-center"
-        style={{ color: "var(--cv-neutral-mid)" }}
-      >
-        No courses listed yet.
-      </p>
-    )}
-  </div>
-</section>
+            <h2
+              id="courses-heading"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold p-4 sm:p-5 text-center uppercase tracking-wide"
+              style={{
+                color: "var(--cv-primary)",
+                background: "#fff",
+                borderBottom: "3px solid var(--cv-primary)",
+              }}
+            >
+              Explore Online Programs at {data.name}
+            </h2>
 
-          {/* 4. KEY HIGHLIGHTS */}
+            <div className="bg-white p-2">
+              {data.courses?.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                  {data.courses.map((course, index) => (
+                    <div
+                      key={index}
+                      className="transition border-b"
+                      style={{
+                        borderColor: "var(--cv-neutral-border)",
+                        borderRight:
+                          index % 2 === 0
+                            ? "1px solid var(--cv-neutral-border)"
+                            : "none",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "var(--cv-neutral-light)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "#fff")
+                      }
+                    >
+                      <div className="p-4 sm:p-5 flex items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+                        <span
+                          className="font-bold flex-1 text-sm sm:text-base break-words min-w-0"
+                          style={{ color: "var(--cv-primary)" }}
+                        >
+                          {course.name}
+                        </span>
+                        <button
+                          onClick={() => openActionPopup("apply")}
+                          disabled={authLoading}
+                          aria-label={`Apply for ${course.name}`}
+                          className="cursor-pointer text-white text-[10px] sm:text-xs font-bold py-1.5 px-3 rounded-full transition-all whitespace-nowrap flex items-center gap-1 disabled:opacity-60"
+                          style={{
+                            background: "var(--cv-grad-cta)",
+                            boxShadow: "0 4px 12px rgba(193, 83, 4, 0.3)",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              "var(--cv-grad-cta-hover)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              "var(--cv-grad-cta)";
+                          }}
+                        >
+                          Apply Now
+                          <ChevronRight size={12} aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p
+                  className="p-6 text-center text-sm"
+                  style={{ color: "var(--cv-neutral-mid)" }}
+                >
+                  No courses listed yet.
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* 4-14 Sections */}
           <section
             id="key-highlight"
             ref={highlightRef}
@@ -1504,7 +1506,6 @@ export default function UniversityDetail({ initialData }) {
             <UniversityHighlights data={data} />
           </section>
 
-          {/* 5. CAREER BENEFITS */}
           <section
             id="career-benefits"
             ref={careerBenefitsRef}
@@ -1513,7 +1514,6 @@ export default function UniversityDetail({ initialData }) {
             <CareerVidyaBenefits data={data} />
           </section>
 
-          {/* 6. APPROVALS */}
           <section
             id="approval"
             ref={approvalRef}
@@ -1522,7 +1522,6 @@ export default function UniversityDetail({ initialData }) {
             <Approvel data={data} />
           </section>
 
-          {/* 7. FEE STRUCTURE */}
           <section
             id="fee-structure"
             ref={feesRef}
@@ -1531,7 +1530,6 @@ export default function UniversityDetail({ initialData }) {
             <FeesStructureSection data={data} />
           </section>
 
-          {/* 8. EMI OPTIONS */}
           <section
             id="emi-options"
             ref={emiRef}
@@ -1540,7 +1538,6 @@ export default function UniversityDetail({ initialData }) {
             <EmiOptions data={data} />
           </section>
 
-          {/* 9. ELIGIBILITY */}
           <section
             id="eligibility"
             ref={eligibilityRef}
@@ -1549,7 +1546,6 @@ export default function UniversityDetail({ initialData }) {
             <Eligibility slug={data.slug} data={data} />
           </section>
 
-          {/* 10. LMS */}
           <section
             id="lms"
             ref={lmsRef}
@@ -1558,7 +1554,6 @@ export default function UniversityDetail({ initialData }) {
             <LmsSection data={data} />
           </section>
 
-          {/* 11. EXAM PATTERN */}
           <section
             id="exam-pattern"
             ref={examPatternRef}
@@ -1567,7 +1562,6 @@ export default function UniversityDetail({ initialData }) {
             <ExamPatternSection data={data} />
           </section>
 
-          {/* 12. ADMISSION PROCESS */}
           <section
             id="admission-process"
             ref={admissionRef}
@@ -1576,7 +1570,6 @@ export default function UniversityDetail({ initialData }) {
             <AdmissionProcess data={data} />
           </section>
 
-          {/* 13. PLACEMENT */}
           <section
             id="placement"
             ref={factsRef}
@@ -1585,7 +1578,6 @@ export default function UniversityDetail({ initialData }) {
             <FactsSection data={data} />
           </section>
 
-          {/* 14. FAQ */}
           <section
             id="faq"
             ref={faqRef}

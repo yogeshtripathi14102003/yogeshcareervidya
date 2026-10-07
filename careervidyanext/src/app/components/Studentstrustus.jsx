@@ -43,7 +43,7 @@ export default function WhyStudentsTrustUs() {
       icon: "/icons/callsupport.png",
       title: "24/7 Support",
       description:
-        "Career Vidya offers round-the-clock tech support, online mentoring, and tutoring to assist you anytime you need help.",
+        "CareerVidya offers round-the-clock tech support, online mentoring, and tutoring to assist you anytime you need help.",
     },
   ];
 

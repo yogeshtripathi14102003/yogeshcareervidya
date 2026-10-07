@@ -662,9 +662,11 @@
 //   );
 // }
 
+
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   X,
@@ -674,8 +676,10 @@ import {
   Mail,
   MapPin,
   GraduationCap,
+  BookOpen,
   MessageSquare,
   ShieldCheck,
+  Loader2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/utlis/api";
@@ -683,30 +687,24 @@ import { toast } from "sonner";
 
 const SESSION_KEY = "cv_query_popup_shown";
 
-const inputStyle = {
-  border: "1px solid var(--cv-neutral-border)",
-  color: "var(--cv-neutral-dark)",
-  background: "#fff",
+const INITIAL_FORM = {
+  name: "",
+  email: "",
+  mobile: "",
+  city: "",
+  course: "",
+  branch: "",
+  message: "",
 };
 
-const focusIn = (e) => {
-  e.target.style.borderColor = "var(--cv-primary)";
-  e.target.style.boxShadow = "0 0 0 3px rgba(30,58,138,0.1)";
-};
-
-const focusOut = (e) => {
-  e.target.style.borderColor = "var(--cv-neutral-border)";
-  e.target.style.boxShadow = "none";
-};
-
-/* Circular logo (reused on desktop + mobile) */
+/* Orange ring logo (desktop + mobile) */
 function CircleLogo({ className = "" }) {
   return (
     <div
       className={`w-24 h-24 rounded-full bg-white flex items-center justify-center overflow-hidden ${className}`}
       style={{
-        border: "3px solid var(--cv-primary)",
-      
+        border: "3px solid var(--cv-accent)",
+        boxShadow: "0 4px 14px rgba(193, 83, 4, 0.25)",
       }}
     >
       <Image
@@ -721,89 +719,143 @@ function CircleLogo({ className = "" }) {
   );
 }
 
+/* One reusable field: label + icon + input/select/textarea */
+function Field({
+  label,
+  name,
+  icon: Icon,
+  as = "input",
+  className = "",
+  children,
+  ...props
+}) {
+  const id = `qp-${name}`;
+  const Tag = as;
+  const isSelect = as === "select";
+
+  return (
+    <div className={className}>
+      <label
+        htmlFor={id}
+        className="block text-[12px] font-semibold mb-1"
+        style={{ color: "var(--cv-neutral-dark)" }}
+      >
+        {label}
+        {props.required && (
+          <span style={{ color: "var(--cv-accent)" }}> *</span>
+        )}
+      </label>
+
+      <div className="relative">
+        <Icon
+          size={14}
+          className={`absolute left-3 pointer-events-none z-10 ${
+            as === "textarea" ? "top-3" : "top-1/2 -translate-y-1/2"
+          }`}
+          style={{ color: "var(--cv-neutral-mid)" }}
+        />
+        <Tag
+          id={id}
+          name={name}
+          className={`qp-field w-full rounded-lg pl-9 py-2 text-[13px] outline-none transition ${
+            isSelect ? "appearance-none pr-8 disabled:opacity-50" : "pr-3"
+          } ${as === "textarea" ? "resize-none" : ""}`}
+          {...props}
+        >
+          {children}
+        </Tag>
+        {isSelect && (
+          <span
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]"
+            style={{ color: "var(--cv-neutral-mid)" }}
+          >
+            ▼
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function QueryPopup() {
   const [showPopup, setShowPopup] = useState(false);
-  const [specializations, setSpecializations] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState(INITIAL_FORM);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    city: "",
-    course: "",
-    branch: "",
-    message: "",
-  });
-
-  /* Popup: sirf ek baar per session */
+  /* Show once per session (flag is set only when the popup actually opens) */
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const alreadyShown = sessionStorage.getItem(SESSION_KEY);
-    if (alreadyShown === "true") return;
-
-    sessionStorage.setItem(SESSION_KEY, "true");
+    if (sessionStorage.getItem(SESSION_KEY) === "true") return;
 
     const timer = setTimeout(() => {
+      sessionStorage.setItem(SESSION_KEY, "true");
       setShowPopup(true);
     }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  /* React Query: Courses */
+  const handleClose = useCallback(() => setShowPopup(false), []);
+
+  /* Close on Esc + lock background scroll while open */
+  useEffect(() => {
+    if (!showPopup) return;
+
+    const onKey = (e) => e.key === "Escape" && handleClose();
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [showPopup, handleClose]);
+
+  /* Courses */
   const { data: courses = [] } = useQuery({
     queryKey: ["query-popup-courses"],
     queryFn: async () => {
       const res = await api.get("/api/v1/course");
-      return Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data?.data)
-        ? res.data.data
-        : Array.isArray(res.data?.courses)
-        ? res.data.courses
+      const d = res.data;
+      return Array.isArray(d)
+        ? d
+        : Array.isArray(d?.data)
+        ? d.data
+        : Array.isArray(d?.courses)
+        ? d.courses
         : [];
     },
     staleTime: 30 * 60 * 1000,
     enabled: showPopup,
   });
 
+  /* Derived — no extra state needed */
+  const specializations =
+    courses.find((c) => c.name === formData.course)?.specializations || [];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "course") {
-      const selected = courses.find((c) => c.name === value);
-      setSpecializations(selected?.specializations || []);
-      setFormData((prev) => ({ ...prev, course: value, branch: "" }));
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleClose = () => {
-    setShowPopup(false);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "course" ? { branch: "" } : {}),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     try {
       await api.post("/api/v1/getintouch", formData);
       toast.success("Query submitted successfully! ✅");
-      setFormData({
-        name: "",
-        email: "",
-        mobile: "",
-        city: "",
-        course: "",
-        branch: "",
-        message: "",
-      });
-      setSpecializations([]);
+      setFormData(INITIAL_FORM);
       handleClose();
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong! ❌");
+      toast.error("Something went wrong! Please try again. ❌");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -816,48 +868,32 @@ export default function QueryPopup() {
         background: "rgba(15, 23, 42, 0.75)",
         backdropFilter: "blur(6px)",
       }}
+      onMouseDown={(e) => e.target === e.currentTarget && handleClose()}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Share your query"
     >
       <div
         className="bg-white w-full max-w-3xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col md:flex-row relative overflow-hidden animate-slideUpMobile md:animate-fadeIn"
-        style={{ border: "2px solid var(--cv-primary)" }}
+        style={{ border: "2px solid var(--cv-accent)" }}
       >
-        {/* Close Button */}
+        {/* Close */}
         <button
+          type="button"
           onClick={handleClose}
           aria-label="Close"
-          className="cursor-pointer absolute top-2.5 right-2.5 z-[110] bg-white w-8 h-8 flex items-center justify-center rounded-full shadow-sm transition-colors"
-          style={{
-            border: "1px solid var(--cv-neutral-border)",
-            color: "var(--cv-neutral-mid)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "var(--cv-accent)";
-            e.currentTarget.style.borderColor = "var(--cv-accent)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "var(--cv-neutral-mid)";
-            e.currentTarget.style.borderColor = "var(--cv-neutral-border)";
-          }}
+          className="qp-close cursor-pointer absolute top-2.5 right-2.5 z-[110] bg-white w-8 h-8 flex items-center justify-center rounded-full shadow-sm transition-colors"
         >
           <X size={16} />
         </button>
 
-        {/* LEFT PANEL (Desktop) */}
+        {/* LEFT PANEL (desktop) */}
         <div
-          className="hidden md:flex w-full md:w-[38%] p-5 flex-col justify-between relative"
+          className="hidden md:flex w-[38%] p-5 flex-col justify-between"
           style={{ background: "var(--cv-primary-light)" }}
         >
           <div>
-            {/* Circular Logo - Top */}
             <CircleLogo className="mb-4 ml-1.5 mt-1.5" />
-
-            {/* <div
-              className="inline-flex items-center gap-1.5 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm"
-              style={{ background: "var(--cv-grad-cta)" }}
-            >
-              <Phone size={10} fill="white" />
-              <span>Free Career Guidance</span>
-            </div> */}
 
             <h2
               className="mt-4 text-[20px] leading-tight font-bold"
@@ -891,12 +927,11 @@ export default function QueryPopup() {
           </div>
         </div>
 
-        {/* RIGHT PANEL (Form) */}
+        {/* RIGHT PANEL (form) */}
         <div
-          className="w-full md:w-[62%] bg-white p-4 md:p-5 flex flex-col justify-center overflow-y-auto"
+          className="w-full md:w-[62%] bg-white p-4 md:p-5 overflow-y-auto"
           style={{ color: "var(--cv-neutral-dark)" }}
         >
-          {/* Circular Logo - Mobile */}
           <div className="flex md:hidden justify-center mb-3">
             <CircleLogo />
           </div>
@@ -916,186 +951,133 @@ export default function QueryPopup() {
 
           <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-2.5"
+            className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-2.5"
           >
-            {/* Name */}
-            <div className="relative">
-              <User
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              />
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Your Name"
-                required
-                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={inputStyle}
-                onFocus={focusIn}
-                onBlur={focusOut}
-              />
-            </div>
+            <Field
+              label="Full name"
+              name="name"
+              icon={User}
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g. Rahul Sharma"
+              autoComplete="name"
+              required
+            />
 
-            {/* Email */}
-            <div className="relative">
-              <Mail
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email"
-                required
-                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={inputStyle}
-                onFocus={focusIn}
-                onBlur={focusOut}
-              />
-            </div>
+            <Field
+              label="Email address"
+              name="email"
+              icon={Mail}
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="e.g. rahul@gmail.com"
+              autoComplete="email"
+              required
+            />
 
-            {/* Mobile */}
-            <div className="relative">
-              <Phone
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              />
-              <input
-                type="tel"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleChange}
-                placeholder="Mobile No"
-                required
-                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={inputStyle}
-                onFocus={focusIn}
-                onBlur={focusOut}
-              />
-            </div>
+            <Field
+              label="Mobile number"
+              name="mobile"
+              icon={Phone}
+              type="tel"
+              inputMode="numeric"
+              value={formData.mobile}
+              onChange={handleChange}
+              placeholder="10-digit number"
+              autoComplete="tel-national"
+              pattern="[6-9][0-9]{9}"
+              maxLength={10}
+              title="Enter a valid 10-digit mobile number"
+              required
+            />
 
-            {/* City */}
-            <div className="relative">
-              <MapPin
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              />
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="City"
-                required
-                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition"
-                style={inputStyle}
-                onFocus={focusIn}
-                onBlur={focusOut}
-              />
-            </div>
+            <Field
+              label="City"
+              name="city"
+              icon={MapPin}
+              type="text"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="e.g. New Delhi"
+              autoComplete="address-level2"
+              required
+            />
 
-            {/* Course */}
-            <div className="relative">
-              <GraduationCap
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              />
-              <select
-                name="course"
-                value={formData.course}
-                onChange={handleChange}
-                required
-                className="w-full appearance-none rounded-lg pl-9 pr-8 py-2 text-[13px] outline-none transition"
-                style={inputStyle}
-              >
-                <option value="">Course</option>
-                {courses.map((course) => (
-                  <option key={course._id} value={course.name}>
-                    {course.name}
-                  </option>
-                ))}
-              </select>
-              <span
-                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              >
-                ▼
-              </span>
-            </div>
+            <Field
+              label="Course interested in"
+              name="course"
+              icon={GraduationCap}
+              as="select"
+              value={formData.course}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a course</option>
+              {courses.map((course) => (
+                <option key={course._id} value={course.name}>
+                  {course.name}
+                </option>
+              ))}
+            </Field>
 
-            {/* Branch */}
-            <div className="relative">
-              <GraduationCap
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              />
-              <select
-                name="branch"
-                value={formData.branch}
-                onChange={handleChange}
-                required
-                disabled={!specializations.length}
-                className="w-full appearance-none rounded-lg pl-9 pr-8 py-2 text-[13px] outline-none transition disabled:opacity-50"
-                style={inputStyle}
-              >
-                <option value="">Branch</option>
-                {specializations.map((sp, i) => (
-                  <option key={i} value={sp}>
-                    {sp}
-                  </option>
-                ))}
-              </select>
-              <span
-                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              >
-                ▼
-              </span>
-            </div>
+            <Field
+              label="Branch / specialization"
+              name="branch"
+              icon={BookOpen}
+              as="select"
+              value={formData.branch}
+              onChange={handleChange}
+              disabled={!specializations.length}
+              required
+            >
+              <option value="">
+                {specializations.length
+                  ? "Select a branch"
+                  : "Choose a course first"}
+              </option>
+              {specializations.map((sp) => (
+                <option key={sp} value={sp}>
+                  {sp}
+                </option>
+              ))}
+            </Field>
 
-            {/* Message */}
-            <div className="relative md:col-span-2">
-              <MessageSquare
-                size={14}
-                className="absolute left-3 top-3 pointer-events-none"
-                style={{ color: "var(--cv-neutral-mid)" }}
-              />
-              <textarea
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                placeholder="How can we help you?"
-                required
-                rows="2"
-                className="w-full rounded-lg pl-9 pr-3 py-2 text-[13px] outline-none transition resize-none"
-                style={inputStyle}
-                onFocus={focusIn}
-                onBlur={focusOut}
-              />
-            </div>
+            <Field
+              label="Your message"
+              name="message"
+              icon={MessageSquare}
+              as="textarea"
+              rows={2}
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="e.g. I want to know about MBA fees and admission dates"
+              className="md:col-span-2"
+              required
+            />
 
-            {/* Submit */}
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 mt-1">
               <button
                 type="submit"
-                className="cursor-pointer w-full text-white py-2.5 rounded-lg text-[13px] font-semibold flex items-center justify-center gap-2 transition hover:opacity-90"
+                disabled={submitting}
+                className="cursor-pointer w-full text-white py-2.5 rounded-lg text-[13px] font-semibold flex items-center justify-center gap-2 transition hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed"
                 style={{
                   background: "var(--cv-grad-cta)",
                   boxShadow: "0 4px 12px rgba(193, 83, 4, 0.3)",
                 }}
               >
-                <span>Send Message</span>
-                <Send size={14} />
+                {submitting ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Send message</span>
+                    <Send size={14} />
+                  </>
+                )}
               </button>
 
               <p
@@ -1103,14 +1085,54 @@ export default function QueryPopup() {
                 style={{ color: "var(--cv-neutral-mid)" }}
               >
                 <ShieldCheck size={12} style={{ color: "var(--cv-primary)" }} />
-                Your privacy is completely safe with us.
+                Your details are safe with us and never shared.
               </p>
             </div>
           </form>
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx global>{`
+        .qp-field {
+          border: 1.5px solid var(--cv-neutral-border);
+          border-left: 4px solid var(--cv-primary);
+          border-radius: 10px;
+          color: var(--cv-neutral-dark);
+          background: #fff;
+          transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .qp-field::placeholder {
+          color: #9ca3af;
+          font-size: 12px;
+        }
+        .qp-field:hover:not(:disabled) {
+          border-color: var(--cv-accent);
+          border-left-color: var(--cv-accent);
+        }
+        .qp-field:focus {
+          border-color: var(--cv-accent);
+          border-left-color: var(--cv-accent);
+          background: #fffaf5;
+          box-shadow: 0 0 0 3px rgba(193, 83, 4, 0.15),
+            0 2px 8px rgba(193, 83, 4, 0.12);
+        }
+        .qp-field:user-invalid {
+          border-color: #dc2626;
+          border-left-color: #dc2626;
+          background: #fef2f2;
+        }
+        .qp-field:disabled {
+          background: #f3f4f6;
+          border-left-color: var(--cv-neutral-border);
+        }
+        .qp-close {
+          border: 1px solid var(--cv-neutral-border);
+          color: var(--cv-neutral-mid);
+        }
+        .qp-close:hover {
+          color: var(--cv-accent);
+          border-color: var(--cv-accent);
+        }
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -1136,6 +1158,12 @@ export default function QueryPopup() {
         }
         .animate-slideUpMobile {
           animation: slideUpMobile 0.4s ease-out forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-fadeIn,
+          .animate-slideUpMobile {
+            animation: none;
+          }
         }
       `}</style>
     </div>

@@ -116,22 +116,23 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
 
   return (
     <section
-      className="w-full flex justify-center py-12 font-sans overflow-x-hidden"
+      className="w-full py-8 md:py-10 font-sans overflow-x-hidden"
       style={{ background: "#fff" }}
     >
-      <div className="w-full max-w-[1600px] px-4 md:px-10">
+      {/* ✅ CONTAINER — Same as Overview */}
+      <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
         {/* ═══════════════════════════════════════════
             HEADING — Navy
         ═══════════════════════════════════════════ */}
-        <div className="mb-8 text-left">
+        <div className="mb-6 md:mb-8 text-left">
           <h2
-            className="text-2xl md:text-4xl font-bold leading-tight"
+            className="text-2xl md:text-3xl font-bold leading-tight"
             style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
           >
             Is {dynamicCourseTitle} Worth It?
           </h2>
           <div
-            className="w-16 h-1 mt-4 rounded-full"
+            className="w-16 h-1 mt-3 rounded-full"
             style={{ background: "var(--cv-primary)" }}
           ></div>
         </div>
@@ -141,7 +142,7 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
         ═══════════════════════════════════════════ */}
         {description && (
           <div
-            className="text-base md:text-lg mb-12 text-left max-w-5xl leading-relaxed"
+            className="text-base md:text-lg mb-8 md:mb-10 text-left max-w-5xl leading-relaxed"
             style={{ color: "var(--cv-neutral-mid)", ...TEXT_WRAP_STYLE }}
           >
             <span dangerouslySetInnerHTML={{ __html: description }} />
@@ -153,11 +154,11 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
         ═══════════════════════════════════════════ */}
         <div className="space-y-6">
           {/* Topics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             {topics?.map((topic, index) => (
               <div
                 key={index}
-                className="p-6 rounded-lg shadow-sm transition-all"
+                className="p-5 md:p-6 rounded-lg shadow-sm transition-all"
                 style={{
                   background: "#fff",
                   border: "1px solid var(--cv-neutral-border)",
@@ -180,10 +181,7 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
                     style={{ background: "var(--cv-primary)" }}
                   ></div>
 
-                  <div
-                    className="text-left flex-1"
-                    style={TEXT_WRAP_STYLE}
-                  >
+                  <div className="text-left flex-1" style={TEXT_WRAP_STYLE}>
                     {/* Topic heading — Navy */}
                     <h3
                       className="text-lg md:text-xl font-bold mb-2"
@@ -220,7 +218,7 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
           {/* Image */}
           {image?.url && (
             <div
-              className="relative w-full aspect-[16/9] md:aspect-[21/9] mt-12 rounded-2xl shadow-lg overflow-hidden"
+              className="relative w-full aspect-[16/9] md:aspect-[21/9] mt-8 md:mt-10 rounded-2xl shadow-lg overflow-hidden"
               style={{
                 border: "1px solid var(--cv-neutral-border)",
                 background: "#fff",

@@ -408,7 +408,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Signup from "@/app/signup/page.jsx";
 
 /* LOGIN CHECK */
@@ -417,7 +417,6 @@ const isLoggedIn = () => {
   return !!localStorage.getItem("accessToken");
 };
 
-/* Global CSS for text wrapping */
 const TEXT_WRAP_STYLE = {
   overflowWrap: "anywhere",
   wordBreak: "break-word",
@@ -432,6 +431,19 @@ export default function FeeStructure({
   scholarships,
 }) {
   const [showSignup, setShowSignup] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const check = () => setLoggedIn(isLoggedIn());
+    check();
+
+    window.addEventListener("storage", check);
+    window.addEventListener("focus", check);
+    return () => {
+      window.removeEventListener("storage", check);
+      window.removeEventListener("focus", check);
+    };
+  }, []);
 
   const hasSidebar = feeStructureSidebar?.length > 0;
   const hasDetailed = detailedFees?.length > 0;
@@ -483,14 +495,18 @@ export default function FeeStructure({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
 
+      {/* ✅ Section — WHITE bg */}
       <section
         aria-labelledby="fee-heading"
-        className="w-full py-8 sm:py-12 md:py-16 font-sans overflow-hidden"
-        style={{ background: "var(--cv-neutral-light)" }}
+        className="w-full py-8 md:py-10 bg-white font-sans overflow-hidden"
       >
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-6 md:px-12">
+        {/* ✅ Container — LIGHT bg + rounded */}
+        <div
+          className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6 py-8 md:py-10 rounded-xl"
+          style={{ background: "var(--cv-neutral-light)" }}
+        >
           {/* HEADER */}
-          <header className="text-center mb-8 sm:mb-10 md:mb-12">
+          <header className="text-center mb-8 sm:mb-10">
             <span
               className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase mb-2"
               style={{ color: "var(--cv-accent)" }}
@@ -500,7 +516,7 @@ export default function FeeStructure({
 
             <h2
               id="fee-heading"
-              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3 sm:mb-4 px-2"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3"
               style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
             >
               Fee Structure for {courseTitle || "this Course"}
@@ -515,7 +531,7 @@ export default function FeeStructure({
 
           {/* SIDEBAR + DETAILED */}
           {(hasSidebar || hasDetailed) && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10">
               {/* SIDEBAR */}
               {hasSidebar && (
                 <aside className="lg:col-span-4 xl:col-span-3 min-w-0">
@@ -539,7 +555,10 @@ export default function FeeStructure({
                       >
                         <h3
                           className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-2"
-                          style={{ color: "var(--cv-accent)", ...TEXT_WRAP_STYLE }}
+                          style={{
+                            color: "var(--cv-accent)",
+                            ...TEXT_WRAP_STYLE,
+                          }}
                         >
                           {item.heading}
                         </h3>
@@ -550,7 +569,10 @@ export default function FeeStructure({
                               <li
                                 key={j}
                                 className="flex items-start gap-2 text-xs sm:text-sm leading-snug font-semibold"
-                                style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
+                                style={{
+                                  color: "var(--cv-primary)",
+                                  ...TEXT_WRAP_STYLE,
+                                }}
                               >
                                 <span
                                   aria-hidden="true"
@@ -570,13 +592,15 @@ export default function FeeStructure({
                       </div>
                     ))}
 
-                    <button
-                      type="button"
-                      onClick={handleApplyClick}
-                      className="cv-btn-cta block w-full text-center py-2.5 sm:py-3 text-sm cursor-pointer"
-                    >
-                      Apply Now →
-                    </button>
+                    {!loggedIn && (
+                      <button
+                        type="button"
+                        onClick={handleApplyClick}
+                        className="cv-btn-cta block w-full text-center py-2.5 sm:py-3 text-sm cursor-pointer"
+                      >
+                        Apply Now →
+                      </button>
+                    )}
                   </div>
                 </aside>
               )}
@@ -778,7 +802,7 @@ export default function FeeStructure({
           {/* EMI OPTIONS */}
           {hasEmi && (
             <article
-              className="mb-8 sm:mb-10 md:mb-12 rounded-2xl overflow-hidden shadow-sm"
+              className="mb-8 sm:mb-10 rounded-2xl overflow-hidden shadow-sm"
               style={{
                 background: "#fff",
                 border: "1px solid var(--cv-neutral-border)",
@@ -802,7 +826,10 @@ export default function FeeStructure({
 
                   <p
                     className="text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4"
-                    style={{ color: "var(--cv-neutral-mid)", ...TEXT_WRAP_STYLE }}
+                    style={{
+                      color: "var(--cv-neutral-mid)",
+                      ...TEXT_WRAP_STYLE,
+                    }}
                   >
                     Pay in easy monthly installments with{" "}
                     <strong style={{ color: "var(--cv-primary)" }}>
@@ -851,7 +878,10 @@ export default function FeeStructure({
 
                     <p
                       className="text-xs sm:text-sm mb-3 sm:mb-4"
-                      style={{ color: "rgba(255,255,255,0.8)", ...TEXT_WRAP_STYLE }}
+                      style={{
+                        color: "rgba(255,255,255,0.8)",
+                        ...TEXT_WRAP_STYLE,
+                      }}
                     >
                       per month
                       {emiOptions.maxMonthly && (
@@ -859,24 +889,26 @@ export default function FeeStructure({
                       )}
                     </p>
 
-                    <button
-                      type="button"
-                      onClick={handleApplyClick}
-                      className="inline-block text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-md transition-colors cursor-pointer"
-                      style={{
-                        background: "#fff",
-                        color: "var(--cv-primary)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "var(--cv-primary-light)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "#fff";
-                      }}
-                    >
-                      Check Eligibility →
-                    </button>
+                    {!loggedIn && (
+                      <button
+                        type="button"
+                        onClick={handleApplyClick}
+                        className="inline-block text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-md transition-colors cursor-pointer"
+                        style={{
+                          background: "#fff",
+                          color: "var(--cv-primary)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            "var(--cv-primary-light)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "#fff";
+                        }}
+                      >
+                        Check Eligibility →
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -915,7 +947,10 @@ export default function FeeStructure({
 
                 <p
                   className="text-xs sm:text-sm md:text-base max-w-2xl mx-auto mt-3"
-                  style={{ color: "var(--cv-neutral-mid)", ...TEXT_WRAP_STYLE }}
+                  style={{
+                    color: "var(--cv-neutral-mid)",
+                    ...TEXT_WRAP_STYLE,
+                  }}
                 >
                   Avail exclusive discounts and scholarships to reduce your fees.
                 </p>
@@ -978,29 +1013,31 @@ export default function FeeStructure({
                 ))}
               </div>
 
-              <div className="mt-5 sm:mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={handleApplyClick}
-                  className="cv-btn-cta inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm cursor-pointer"
-                >
-                  Check Scholarship Eligibility
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
+              {!loggedIn && (
+                <div className="mt-5 sm:mt-6 text-center">
+                  <button
+                    type="button"
+                    onClick={handleApplyClick}
+                    className="cv-btn-cta inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm cursor-pointer"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
-                </button>
-              </div>
+                    Check Scholarship Eligibility
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </article>
           )}
         </div>

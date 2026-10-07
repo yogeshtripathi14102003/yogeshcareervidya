@@ -16,15 +16,16 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
 
   return (
     <section
-      className="mt-12 w-full flex justify-center py-10"
+      className="w-full py-8 md:py-10"
       style={{ background: "#fff" }}
     >
-      <div className="w-full max-w-[1600px] px-4 md:px-10">
+      {/* ✅ CONTAINER — Same as Overview */}
+      <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
         {/* ═══════════════════════════════════════════
             MAIN HEADING — Navy
         ═══════════════════════════════════════════ */}
         <h2
-          className="text-3xl font-bold mb-4"
+          className="text-2xl md:text-3xl font-bold mb-3"
           style={{ color: "var(--cv-primary)" }}
         >
           Job Opportunity after {dynamicCourseTitle}
@@ -32,7 +33,7 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
 
         {/* Description — Grey */}
         <p
-          className="mb-6 leading-relaxed max-w-4xl"
+          className="mb-4 leading-relaxed max-w-4xl text-sm md:text-base"
           style={{ color: "var(--cv-neutral-mid)" }}
         >
           Aspirants can take several job opportunities from the{" "}
@@ -42,7 +43,7 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
 
         {/* Note — Light grey */}
         <p
-          className="text-sm italic mb-8"
+          className="text-xs md:text-sm italic mb-6"
           style={{ color: "var(--cv-neutral-mid)" }}
         >
           *The salary is estimated, and data can be driven from Naukri or
@@ -53,7 +54,7 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
             JOB ROLES TABLE
         ═══════════════════════════════════════════ */}
         <div
-          className="overflow-x-auto shadow-xl rounded-xl"
+          className="overflow-x-auto shadow-sm rounded-xl"
           style={{ border: "1px solid var(--cv-neutral-border)" }}
         >
           <table className="min-w-full">
@@ -62,14 +63,14 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider"
+                  className="px-4 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold uppercase tracking-wider"
                   style={{ color: "#fff" }}
                 >
                   Job Roles after {dynamicCourseTitle} course
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider"
+                  className="px-4 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold uppercase tracking-wider"
                   style={{ color: "#fff" }}
                 >
                   Wages in INR (annually)
@@ -90,14 +91,15 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
                         : "none",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "var(--cv-primary-light)";
+                    e.currentTarget.style.background =
+                      "var(--cv-primary-light)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "#fff";
                   }}
                 >
                   <td
-                    className="px-6 py-4 whitespace-nowrap text-sm font-bold"
+                    className="px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm font-bold break-words"
                     style={{
                       color: "var(--cv-neutral-dark)",
                       borderRight: "1px solid var(--cv-neutral-border)",
@@ -106,7 +108,7 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
                     {job.jobPost}
                   </td>
                   <td
-                    className="px-6 py-4 whitespace-nowrap text-sm font-semibold"
+                    className="px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm font-semibold break-words"
                     style={{ color: "var(--cv-primary)" }}
                   >
                     {job.salary}

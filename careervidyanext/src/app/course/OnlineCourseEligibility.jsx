@@ -219,10 +219,9 @@
 //   );
 // }
 
-
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Signup from "@/app/signup/page.jsx";
 
 /* ═══════════════════════════════════════════════
@@ -239,14 +238,26 @@ export default function OnlineCourseEligibility({
   whoShouldPursue,
 }) {
   const [showSignup, setShowSignup] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  /* LOGIN STATE — Live update */
+  useEffect(() => {
+    const check = () => setLoggedIn(isLoggedIn());
+    check();
+
+    window.addEventListener("storage", check);
+    window.addEventListener("focus", check);
+    return () => {
+      window.removeEventListener("storage", check);
+      window.removeEventListener("focus", check);
+    };
+  }, []);
 
   if (!onlineEligibility || onlineEligibility.length === 0) {
     return null;
   }
 
-  /* ═══════════════════════════════════════════════
-     DETECT WHO SHOULD PURSUE
-  ═══════════════════════════════════════════════ */
+  /* DETECT WHO SHOULD PURSUE */
   const isWhoShouldPursue = (item) =>
     item?.heading?.toLowerCase().includes("who should");
 
@@ -257,9 +268,7 @@ export default function OnlineCourseEligibility({
   const whoShouldPursueItem =
     onlineEligibility.find(isWhoShouldPursue) || whoShouldPursue;
 
-  /* ═══════════════════════════════════════════════
-     SEO SCHEMA
-  ═══════════════════════════════════════════════ */
+  /* SEO SCHEMA */
   const schema = {
     "@context": "https://schema.org",
     "@type": "EducationalOccupationalProgram",
@@ -273,9 +282,7 @@ export default function OnlineCourseEligibility({
     })),
   };
 
-  /* ═══════════════════════════════════════════════
-     APPLY CLICK
-  ═══════════════════════════════════════════════ */
+  /* APPLY CLICK */
   const handleApplyClick = () => {
     if (!isLoggedIn()) {
       setShowSignup(true);
@@ -299,14 +306,13 @@ export default function OnlineCourseEligibility({
 
       <section
         aria-labelledby="eligibility-heading"
-        className="w-full py-10 sm:py-12 md:py-16 font-sans"
+        className="w-full py-8 md:py-10 font-sans"
         style={{ background: "#fff" }}
       >
-        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10">
-          {/* ═══════════════════════════════════════════
-              HEADER — Navy heading + Navy underline
-          ═══════════════════════════════════════════ */}
-          <header className="text-center mb-7 sm:mb-8 md:mb-10">
+        {/* ✅ CONTAINER — Same as Overview */}
+        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
+          {/* HEADER */}
+          <header className="text-center mb-6 md:mb-8">
             <h2
               id="eligibility-heading"
               className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3 px-2"
@@ -329,11 +335,9 @@ export default function OnlineCourseEligibility({
             </p>
           </header>
 
-          {/* ═══════════════════════════════════════════
-              ELIGIBILITY CARDS
-          ═══════════════════════════════════════════ */}
+          {/* ELIGIBILITY CARDS */}
           {eligibilityItems.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-7 sm:mb-8 md:mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-6 md:mb-8">
               {eligibilityItems.map((item, i) => (
                 <article
                   key={i}
@@ -350,7 +354,6 @@ export default function OnlineCourseEligibility({
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 >
-                  {/* Sub-heading — Navy accent */}
                   {item.subHeading && (
                     <p
                       className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-1.5"
@@ -360,7 +363,6 @@ export default function OnlineCourseEligibility({
                     </p>
                   )}
 
-                  {/* Heading — Navy */}
                   {item.heading && (
                     <h3
                       className="text-sm sm:text-base md:text-lg font-bold leading-snug mb-2.5 sm:mb-3 break-words"
@@ -370,7 +372,6 @@ export default function OnlineCourseEligibility({
                     </h3>
                   )}
 
-                  {/* Description */}
                   {item.description && (
                     <div
                       className="text-[13px] sm:text-sm leading-relaxed break-words
@@ -383,7 +384,6 @@ export default function OnlineCourseEligibility({
                     />
                   )}
 
-                  {/* Sub-description */}
                   {item.subDescription && (
                     <div
                       className="mt-3 pt-3 text-[13px] sm:text-sm leading-relaxed break-words
@@ -404,9 +404,7 @@ export default function OnlineCourseEligibility({
             </div>
           )}
 
-          {/* ═══════════════════════════════════════════
-              WHO SHOULD PURSUE
-          ═══════════════════════════════════════════ */}
+          {/* WHO SHOULD PURSUE */}
           {whoShouldPursueItem && (
             <article
               aria-labelledby="who-pursue-heading"
@@ -462,33 +460,33 @@ export default function OnlineCourseEligibility({
             </article>
           )}
 
-          {/* ═══════════════════════════════════════════
-              BOTTOM CTA — Orange gradient
-          ═══════════════════════════════════════════ */}
-          <div className="mt-7 sm:mt-8 md:mt-10 text-center">
-            <button
-              type="button"
-              onClick={handleApplyClick}
-              aria-label="Apply now"
-              className="cv-btn-cta inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 sm:px-6 py-3 cursor-pointer"
-            >
-              Apply Now
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
+          {/* BOTTOM CTA — sirf logged out users ko */}
+          {!loggedIn && (
+            <div className="mt-6 md:mt-8 text-center">
+              <button
+                type="button"
+                onClick={handleApplyClick}
+                aria-label="Apply now"
+                className="cv-btn-cta inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 sm:px-6 py-3 cursor-pointer"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </button>
-          </div>
+                Apply Now
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

@@ -123,7 +123,6 @@
 //   );
 // }
 
-
 "use client";
 
 import React from "react";
@@ -136,9 +135,7 @@ export default function Offerdcourse({
     return null;
   }
 
-  /* ═══════════════════════════════════════════════
-     SEO SCHEMA
-  ═══════════════════════════════════════════════ */
+  /* SEO SCHEMA */
   const schema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -161,21 +158,20 @@ export default function Offerdcourse({
 
       <section
         aria-labelledby="offered-courses-heading"
-        className="w-full py-12 md:py-16 font-sans"
+        className="w-full py-8 md:py-10 font-sans"
         style={{
           background: "#fff",
           borderTop: "1px solid var(--cv-neutral-border)",
           borderBottom: "1px solid var(--cv-neutral-border)",
         }}
       >
-        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12">
-          {/* ═══════════════════════════════════════════
-              HEADER — Navy heading + Navy underline
-          ═══════════════════════════════════════════ */}
-          <header className="text-center mb-8 md:mb-12">
+        {/* ✅ CONTAINER — Same as Overview */}
+        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
+          {/* HEADER */}
+          <header className="text-center mb-6 md:mb-8">
             <h2
               id="offered-courses-heading"
-              className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-4 px-2"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-3 px-2"
               style={{ color: "var(--cv-primary)" }}
             >
               Offered {courseName} Programs &amp; Courses
@@ -188,9 +184,7 @@ export default function Offerdcourse({
             />
           </header>
 
-          {/* ═══════════════════════════════════════════
-              GRID
-          ═══════════════════════════════════════════ */}
+          {/* GRID */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             {offeredCourses.map((offer, i) => (
               <article
@@ -211,7 +205,7 @@ export default function Offerdcourse({
                   e.currentTarget.style.boxShadow = "none";
                 }}
               >
-                {/* Card Header — Navy badge + Navy heading */}
+                {/* Card Header */}
                 <div
                   className="px-5 sm:px-6 py-4"
                   style={{
@@ -223,7 +217,6 @@ export default function Offerdcourse({
                     className="text-base sm:text-lg md:text-xl font-bold leading-snug flex items-start gap-3"
                     style={{ color: "var(--cv-primary)" }}
                   >
-                    {/* Number badge — Navy */}
                     <span
                       aria-hidden="true"
                       className="flex-shrink-0 w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center text-white"
@@ -248,7 +241,6 @@ export default function Offerdcourse({
                           className="flex items-start gap-2.5 text-sm md:text-[15px] leading-relaxed"
                           style={{ color: "var(--cv-neutral-dark)" }}
                         >
-                          {/* Check icon — Navy */}
                           <span
                             aria-hidden="true"
                             className="flex-shrink-0 mt-1 w-4 h-4 rounded-full flex items-center justify-center"

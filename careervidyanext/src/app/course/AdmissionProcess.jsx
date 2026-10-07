@@ -16,7 +16,15 @@ export default function AdmissionProcess({ steps, courseTitle }) {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    setLoggedIn(isLoggedIn());
+    const check = () => setLoggedIn(isLoggedIn());
+    check();
+
+    window.addEventListener("storage", check);
+    window.addEventListener("focus", check);
+    return () => {
+      window.removeEventListener("storage", check);
+      window.removeEventListener("focus", check);
+    };
   }, []);
 
   if (!steps || steps.length === 0) return null;
@@ -65,7 +73,7 @@ export default function AdmissionProcess({ steps, courseTitle }) {
 
       <section
         aria-labelledby="admission-heading"
-        className="w-full py-14 md:py-20 font-sans overflow-hidden"
+        className="w-full py-8 md:py-10 font-sans overflow-hidden"
         style={{
           background:
             "linear-gradient(180deg, #fff 0%, var(--cv-neutral-light) 50%, #fff 100%)",
@@ -73,13 +81,14 @@ export default function AdmissionProcess({ steps, courseTitle }) {
         itemScope
         itemType="https://schema.org/HowTo"
       >
-        <div className="max-w-[1500px] mx-auto px-4 sm:px-6 md:px-10">
+        {/* ✅ CONTAINER — Same as Overview */}
+        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
           {/* ═══════════════════════════════════════════
               HEADER
           ═══════════════════════════════════════════ */}
-          <header className="text-center mb-12 md:mb-20">
+          <header className="text-center mb-8 md:mb-10">
             <span
-              className="inline-block text-[10px] sm:text-xs font-semibold tracking-[0.25em] uppercase mb-3"
+              className="inline-block text-[10px] sm:text-xs font-semibold tracking-[0.25em] uppercase mb-2"
               style={{ color: "var(--cv-accent)" }}
             >
               Admission Roadmap
@@ -88,7 +97,7 @@ export default function AdmissionProcess({ steps, courseTitle }) {
             <h2
               id="admission-heading"
               itemProp="name"
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4 px-2"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 px-2"
               style={{ color: "var(--cv-primary)" }}
             >
               Admission Process for{" "}
@@ -99,7 +108,7 @@ export default function AdmissionProcess({ steps, courseTitle }) {
 
             <div
               aria-hidden="true"
-              className="flex items-center justify-center gap-2 mb-4"
+              className="flex items-center justify-center gap-2 mb-3"
             >
               <span
                 className="w-10 h-[2px] rounded-full"
@@ -136,7 +145,7 @@ export default function AdmissionProcess({ steps, courseTitle }) {
               style={{ background: "var(--cv-neutral-border)" }}
             />
 
-            {/* Progress gradient line — Navy → Orange → Navy */}
+            {/* Progress gradient line */}
             <div
               aria-hidden="true"
               className="absolute top-9 left-0 w-full h-[2px] opacity-50"
@@ -297,9 +306,9 @@ export default function AdmissionProcess({ steps, courseTitle }) {
               BOTTOM CTA — Orange gradient
           ═══════════════════════════════════════════ */}
           {!loggedIn && (
-            <div className="mt-14 md:mt-20 text-center">
+            <div className="mt-10 md:mt-12 text-center">
               <p
-                className="text-sm md:text-base mb-5 px-4"
+                className="text-sm md:text-base mb-4 px-4"
                 style={{ color: "var(--cv-neutral-mid)" }}
               >
                 🎯 Ready to begin your journey?

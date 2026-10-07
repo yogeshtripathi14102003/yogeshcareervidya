@@ -61,19 +61,20 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
 
       <section
         aria-labelledby="testimonials-heading"
-        className="w-full py-16 font-sans"
+        className="w-full py-8 md:py-10 font-sans"
         style={{
           background:
             "linear-gradient(180deg, #fff 0%, var(--cv-neutral-light) 100%)",
         }}
       >
-        <div className="max-w-[1400px] mx-auto px-4 md:px-10">
+        {/* ✅ CONTAINER — Same as Overview */}
+        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
           {/* ═══════════════════════════════════════════
               HEADER
           ═══════════════════════════════════════════ */}
-          <header className="text-center mb-12">
+          <header className="text-center mb-8 md:mb-10">
             <span
-              className="inline-block text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-3"
+              className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase mb-2"
               style={{ color: "var(--cv-primary)" }}
             >
               Student Success Stories
@@ -81,7 +82,7 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
 
             <h2
               id="testimonials-heading"
-              className="text-3xl md:text-4xl font-extrabold leading-tight mb-4"
+              className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3"
               style={{ color: "var(--cv-primary)" }}
             >
               What Our{" "}
@@ -100,7 +101,7 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
             {/* Average Rating Summary */}
             {avgRating && (
               <div
-                className="mt-6 inline-flex items-center gap-3 rounded-full px-5 py-2.5 shadow-sm"
+                className="mt-5 inline-flex items-center gap-3 rounded-full px-5 py-2.5 shadow-sm"
                 style={{
                   background: "#fff",
                   border: "1px solid var(--cv-neutral-border)",
@@ -145,14 +146,14 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
           {/* ═══════════════════════════════════════════
               TESTIMONIALS GRID
           ═══════════════════════════════════════════ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {testimonials.map((t, index) => (
               <article
                 key={index}
                 itemScope
                 itemProp="review"
                 itemType="https://schema.org/Review"
-                className="group relative rounded-2xl p-6 md:p-7 shadow-sm transition-all duration-300 flex flex-col"
+                className="group relative rounded-2xl p-5 md:p-6 shadow-sm transition-all duration-300 flex flex-col"
                 style={{
                   background: "#fff",
                   border: "1px solid var(--cv-neutral-border)",
@@ -170,7 +171,7 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
-                {/* Quote Icon — Light Navy */}
+                {/* Quote Icon */}
                 <div
                   aria-hidden="true"
                   className="absolute top-4 right-4 text-5xl font-serif leading-none select-none"
@@ -179,9 +180,9 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                   &ldquo;
                 </div>
 
-                {/* Rating Stars — Orange accent */}
+                {/* Rating Stars */}
                 {t.rating > 0 && (
-                  <div className="flex items-center gap-0.5 mb-4">
+                  <div className="flex items-center gap-0.5 mb-3">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <svg
                         key={star}
@@ -206,7 +207,7 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
                 {t.review && (
                   <div
                     itemProp="reviewBody"
-                    className="text-sm md:text-base leading-relaxed mb-5 flex-1 prose prose-sm max-w-none"
+                    className="text-sm md:text-base leading-relaxed mb-4 flex-1 prose prose-sm max-w-none"
                     style={{ color: "var(--cv-neutral-dark)" }}
                     dangerouslySetInnerHTML={{ __html: t.review }}
                   />
