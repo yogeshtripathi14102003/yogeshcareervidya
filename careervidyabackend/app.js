@@ -241,7 +241,7 @@ app.use("/api/v1/qa", qaRoutes);
 app.use("/api/v1", authRouter);
 app.use("/api/v1", teamRouter);
 app.use("/api/v1/analytics", analyticsRoutes);
-
+app.use("/api/v1/slot", slotRoutes);
 app.use("/api/v1/banner", bannerRouter);
 app.use("/api/v1/ourstudent", ourstudentRouter);
 app.use("/api/v1/", NewslatterRouter);
@@ -266,7 +266,7 @@ app.use("/api/v1/admissionfess", admissionfessRoutes);
 app.use("/api/v1/tickat", ticketRouter);
 app.use("/api/v1/videos", videoRoutes);
 app.use("/api/v1/employees", employeeRouter);
-app.use("/api/v1/slot", slotRoutes);
+
 app.use("/api/v1/manage", manageTeamroutes);
 app.use("/api/v1/reports", reportsRoutes);
 app.use("/api/v1/security-config", securityConfigRoutes);

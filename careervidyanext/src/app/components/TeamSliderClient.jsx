@@ -194,255 +194,255 @@
 //   );
 // }
 
-"use client";
+// "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import Script from "next/script";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ArrowRight,
-  Award,
-  ChevronRightIcon,
-} from "lucide-react";
+// import Image from "next/image";
+// import Link from "next/link";
+// import Script from "next/script";
+// import { Swiper, SwiperSlide } from "swiper/react";
+// import { Navigation, Pagination, Autoplay } from "swiper/modules";
+// import {
+//   ChevronLeft,
+//   ChevronRight,
+//   ArrowRight,
+//   Award,
+//   ChevronRightIcon,
+// } from "lucide-react";
 
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+// import "swiper/css";
+// import "swiper/css/navigation";
+// import "swiper/css/pagination";
 
-export default function TeamSliderClient({ team = [] }) {
-  const SHOW_LIMIT = 6;
+// export default function TeamSliderClient({ team = [] }) {
+//   const SHOW_LIMIT = 6;
 
-  const displayedTeam = team.slice(0, SHOW_LIMIT);
-  const hasMoreMembers = team.length > SHOW_LIMIT;
+//   const displayedTeam = team.slice(0, SHOW_LIMIT);
+//   const hasMoreMembers = team.length > SHOW_LIMIT;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "CareerVidya Expert Career Counselling Team",
-    description:
-      "Meet our expert career counsellors at CareerVidya.",
-    numberOfItems: team.length,
-    itemListElement: team.map((member, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: {
-        "@type": "Person",
-        name: member.name,
-        jobTitle: member.designation || "Expert Counselor",
-        description: `${
-          member.experience || 0
-        }+ years of experience in career counselling`,
-        worksFor: {
-          "@type": "Organization",
-          name: "CareerVidya",
-        },
-      },
-    })),
-  };
+//   const jsonLd = {
+//     "@context": "https://schema.org",
+//     "@type": "ItemList",
+//     name: "CareerVidya Expert Career Counselling Team",
+//     description:
+//       "Meet our expert career counsellors at CareerVidya.",
+//     numberOfItems: team.length,
+//     itemListElement: team.map((member, i) => ({
+//       "@type": "ListItem",
+//       position: i + 1,
+//       item: {
+//         "@type": "Person",
+//         name: member.name,
+//         jobTitle: member.designation || "Expert Counselor",
+//         description: `${
+//           member.experience || 0
+//         }+ years of experience in career counselling`,
+//         worksFor: {
+//           "@type": "Organization",
+//           name: "CareerVidya",
+//         },
+//       },
+//     })),
+//   };
 
-  if (team.length === 0) return null;
+//   if (team.length === 0) return null;
 
-  // Team Member Card
-  const renderCard = (member, idx) => {
-    const displayName = member.name || "Career Counselor";
+//   // Team Member Card
+//   const renderCard = (member, idx) => {
+//     const displayName = member.name || "Career Counselor";
 
-    return (
-      <Link
-        key={idx}
-        href="/our-Team"
-        className="group relative bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 hover:border-[#F97316]/50 hover:bg-white/10 transition-all duration-300 flex flex-col items-center w-full h-full overflow-hidden text-center shadow-lg hover:shadow-2xl hover:-translate-y-2"
-        aria-label={`View CareerVidya expert team page`}
-      >
-        {/* Card Background Subtle Accent */}
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#F97316]/10 rounded-full blur-2xl group-hover:bg-[#F97316]/20 transition-all duration-500" />
+//     return (
+//       <Link
+//         key={idx}
+//         href="/our-Team"
+//         className="group relative bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 hover:border-[#F97316]/50 hover:bg-white/10 transition-all duration-300 flex flex-col items-center w-full h-full overflow-hidden text-center shadow-lg hover:shadow-2xl hover:-translate-y-2"
+//         aria-label={`View CareerVidya expert team page`}
+//       >
+//         {/* Card Background Subtle Accent */}
+//         <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#F97316]/10 rounded-full blur-2xl group-hover:bg-[#F97316]/20 transition-all duration-500" />
 
-        {/* Image Container */}
-        <div className="relative mb-4 flex-shrink-0 mt-2">
-          <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md group-hover:border-[#F97316] transition-all duration-300">
-            <Image
-              src={member.imageUrl}
-              alt={`${displayName} - ${
-                member.designation || "Expert Counselor"
-              } at CareerVidya`}
-              width={128}
-              height={128}
-              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-              loading={idx < 4 ? "eager" : "lazy"}
-              sizes="(max-width: 640px) 112px, 128px"
-            />
-          </div>
+//         {/* Image Container */}
+//         <div className="relative mb-4 flex-shrink-0 mt-2">
+//           <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-white/20 shadow-md group-hover:border-[#F97316] transition-all duration-300">
+//             <Image
+//               src={member.imageUrl}
+//               alt={`${displayName} - ${
+//                 member.designation || "Expert Counselor"
+//               } at CareerVidya`}
+//               width={128}
+//               height={128}
+//               className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+//               loading={idx < 4 ? "eager" : "lazy"}
+//               sizes="(max-width: 640px) 112px, 128px"
+//             />
+//           </div>
 
-          {/* Experience Badge */}
-          <div className="absolute -bottom-2 right-1/2 translate-x-1/2 bg-[#001a41] border border-white/20 text-[#F97316] text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md whitespace-nowrap flex items-center gap-1">
-            <Award size={12} className="text-[#F97316]" />
+//           {/* Experience Badge */}
+//           <div className="absolute -bottom-2 right-1/2 translate-x-1/2 bg-[#001a41] border border-white/20 text-[#F97316] text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md whitespace-nowrap flex items-center gap-1">
+//             <Award size={12} className="text-[#F97316]" />
 
-            <span>{member.experience || 0}+ Yrs Exp</span>
-          </div>
-        </div>
+//             <span>{member.experience || 0}+ Yrs Exp</span>
+//           </div>
+//         </div>
 
-        {/* Counselor Info */}
-        <div className="flex flex-col flex-grow items-center justify-between w-full mt-2">
-          <div>
-            {/* ✅ FORCE WHITE */}
-            <h3 className="text-lg font-bold !text-white mb-0.5 group-hover:!text-[#F97316] transition-colors line-clamp-1">
-              {displayName}
-            </h3>
+//         {/* Counselor Info */}
+//         <div className="flex flex-col flex-grow items-center justify-between w-full mt-2">
+//           <div>
+//             {/* ✅ FORCE WHITE */}
+//             <h3 className="text-lg font-bold !text-white mb-0.5 group-hover:!text-[#F97316] transition-colors line-clamp-1">
+//               {displayName}
+//             </h3>
 
-            {/* ✅ FORCE GRAY-300 */}
-            <p className="!text-gray-300 text-xs font-medium uppercase tracking-wider mb-4">
-              {member.designation || "Expert Counselor"}
-            </p>
-          </div>
+//             {/* ✅ FORCE GRAY-300 */}
+//             <p className="!text-gray-300 text-xs font-medium uppercase tracking-wider mb-4">
+//               {member.designation || "Expert Counselor"}
+//             </p>
+//           </div>
 
-          {/* Action Button */}
-          <div className="w-full mt-auto py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#F97316] text-white text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-white/10 group-hover:border-[#F97316]">
-            <span>Career Advisor</span>
+//           {/* Action Button */}
+//           <div className="w-full mt-auto py-2.5 px-4 rounded-xl bg-white/10 hover:bg-[#F97316] text-white text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-white/10 group-hover:border-[#F97316]">
+//             <span>Career Advisor</span>
 
-            <ChevronRightIcon
-              size={14}
-              className="group-hover:translate-x-1 transition-transform"
-            />
-          </div>
-        </div>
-      </Link>
-    );
-  };
+//             <ChevronRightIcon
+//               size={14}
+//               className="group-hover:translate-x-1 transition-transform"
+//             />
+//           </div>
+//         </div>
+//       </Link>
+//     );
+//   };
 
-  return (
-    <>
-      {/* SEO JSON-LD */}
-      <Script
-        id="team-jsonld"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd),
-        }}
-      />
+//   return (
+//     <>
+//       {/* SEO JSON-LD */}
+//       <Script
+//         id="team-jsonld"
+//         type="application/ld+json"
+//         dangerouslySetInnerHTML={{
+//           __html: JSON.stringify(jsonLd),
+//         }}
+//       />
 
-      <section
-        className="relative bg-[#001a41] py-16 md:py-20 overflow-hidden"
-        aria-label="Expert Career Counselling Team at CareerVidya"
-      >
-        <div className="max-w-[95%] xl:max-w-[1350px] mx-auto px-4 md:px-8">
-          {/* Section Heading */}
-          <div className="text-center mb-10 md:mb-14">
-            {/* ✅ FORCE WHITE */}
-            <h2 className="text-2xl md:text-4xl font-bold !text-white uppercase tracking-wide">
-              Meet Our Expert Team
-            </h2>
+//       <section
+//         className="relative bg-[#001a41] py-16 md:py-20 overflow-hidden"
+//         aria-label="Expert Career Counselling Team at CareerVidya"
+//       >
+//         <div className="max-w-[95%] xl:max-w-[1350px] mx-auto px-4 md:px-8">
+//           {/* Section Heading */}
+//           <div className="text-center mb-10 md:mb-14">
+//             {/* ✅ FORCE WHITE */}
+//             <h2 className="text-2xl md:text-4xl font-bold !text-white uppercase tracking-wide">
+//               Meet Our Expert Team
+//             </h2>
 
-            <div className="w-16 h-1 bg-[#F97316] mx-auto mt-3 rounded-full" />
-          </div>
+//             <div className="w-16 h-1 bg-[#F97316] mx-auto mt-3 rounded-full" />
+//           </div>
 
-          {/* Slider */}
-          {hasMoreMembers ? (
-            <div className="flex items-center gap-2 md:gap-4">
-              {/* Previous Button */}
-              <button
-                type="button"
-                className="swiper-button-prev-team hidden md:flex flex-shrink-0 bg-white/10 backdrop-blur-md p-3 rounded-full shadow-md text-white hover:bg-white hover:text-[#001a41] transition-all z-10 border border-white/20"
-                aria-label="Previous team member"
-              >
-                <ChevronLeft size={24} />
-              </button>
+//           {/* Slider */}
+//           {hasMoreMembers ? (
+//             <div className="flex items-center gap-2 md:gap-4">
+//               {/* Previous Button */}
+//               <button
+//                 type="button"
+//                 className="swiper-button-prev-team hidden md:flex flex-shrink-0 bg-white/10 backdrop-blur-md p-3 rounded-full shadow-md text-white hover:bg-white hover:text-[#001a41] transition-all z-10 border border-white/20"
+//                 aria-label="Previous team member"
+//               >
+//                 <ChevronLeft size={24} />
+//               </button>
 
-              <div className="flex-grow overflow-hidden px-2">
-                <Swiper
-                  modules={[Navigation, Pagination, Autoplay]}
-                  spaceBetween={20}
-                  slidesPerView={1}
-                  navigation={{
-                    nextEl: ".swiper-button-next-team",
-                    prevEl: ".swiper-button-prev-team",
-                  }}
-                  pagination={{
-                    clickable: true,
-                    el: ".custom-pagination",
-                  }}
-                  autoplay={{
-                    delay: 4500,
-                    disableOnInteraction: false,
-                  }}
-                  breakpoints={{
-                    640: { slidesPerView: 2 },
-                    1024: { slidesPerView: 3 },
-                    1280: { slidesPerView: 4 },
-                  }}
-                  className="pb-12 !flex"
-                >
-                  {displayedTeam.map((member, idx) => (
-                    <SwiperSlide key={idx} className="!h-auto flex">
-                      {renderCard(member, idx)}
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </div>
+//               <div className="flex-grow overflow-hidden px-2">
+//                 <Swiper
+//                   modules={[Navigation, Pagination, Autoplay]}
+//                   spaceBetween={20}
+//                   slidesPerView={1}
+//                   navigation={{
+//                     nextEl: ".swiper-button-next-team",
+//                     prevEl: ".swiper-button-prev-team",
+//                   }}
+//                   pagination={{
+//                     clickable: true,
+//                     el: ".custom-pagination",
+//                   }}
+//                   autoplay={{
+//                     delay: 4500,
+//                     disableOnInteraction: false,
+//                   }}
+//                   breakpoints={{
+//                     640: { slidesPerView: 2 },
+//                     1024: { slidesPerView: 3 },
+//                     1280: { slidesPerView: 4 },
+//                   }}
+//                   className="pb-12 !flex"
+//                 >
+//                   {displayedTeam.map((member, idx) => (
+//                     <SwiperSlide key={idx} className="!h-auto flex">
+//                       {renderCard(member, idx)}
+//                     </SwiperSlide>
+//                   ))}
+//                 </Swiper>
+//               </div>
 
-              {/* Next Button */}
-              <button
-                type="button"
-                className="swiper-button-next-team hidden md:flex flex-shrink-0 bg-white/10 backdrop-blur-md p-3 rounded-full shadow-md text-white hover:bg-white hover:text-[#001a41] transition-all z-10 border border-white/20"
-                aria-label="Next team member"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </div>
-          ) : (
-            /* Grid */
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {displayedTeam.map((member, idx) => renderCard(member, idx))}
-            </div>
-          )}
+//               {/* Next Button */}
+//               <button
+//                 type="button"
+//                 className="swiper-button-next-team hidden md:flex flex-shrink-0 bg-white/10 backdrop-blur-md p-3 rounded-full shadow-md text-white hover:bg-white hover:text-[#001a41] transition-all z-10 border border-white/20"
+//                 aria-label="Next team member"
+//               >
+//                 <ChevronRight size={24} />
+//               </button>
+//             </div>
+//           ) : (
+//             /* Grid */
+//             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+//               {displayedTeam.map((member, idx) => renderCard(member, idx))}
+//             </div>
+//           )}
 
-          {/* Pagination */}
-          {hasMoreMembers && (
-            <div
-              className="custom-pagination flex justify-center mt-2"
-              aria-hidden="true"
-            />
-          )}
+//           {/* Pagination */}
+//           {hasMoreMembers && (
+//             <div
+//               className="custom-pagination flex justify-center mt-2"
+//               aria-hidden="true"
+//             />
+//           )}
 
-          {/* View All Experts — Gradient Button */}
-          <div className="text-center mt-10 md:mt-12">
-            <Link
-              href="/our-Team"
-              className="inline-flex items-center gap-2 text-white font-bold text-sm md:text-base px-8 py-2.5 rounded shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-              style={{ background: "var(--cv-grad-cta)" }}
-            >
-              <span>View All Experts</span>
-              <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
+//           {/* View All Experts — Gradient Button */}
+//           <div className="text-center mt-10 md:mt-12">
+//             <Link
+//               href="/our-Team"
+//               className="inline-flex items-center gap-2 text-white font-bold text-sm md:text-base px-8 py-2.5 rounded shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+//               style={{ background: "var(--cv-grad-cta)" }}
+//             >
+//               <span>View All Experts</span>
+//               <ArrowRight size={18} />
+//             </Link>
+//           </div>
+//         </div>
 
-        {/* Swiper Custom CSS */}
-        <style jsx global>{`
-          .swiper-wrapper { display: flex !important; }
-          .swiper-slide { height: auto !important; display: flex !important; }
+//         {/* Swiper Custom CSS */}
+//         <style jsx global>{`
+//           .swiper-wrapper { display: flex !important; }
+//           .swiper-slide { height: auto !important; display: flex !important; }
 
-          .custom-pagination .swiper-pagination-bullet {
-            background: rgba(255, 255, 255, 0.3) !important;
-            opacity: 1;
-            margin: 0 4px !important;
-            width: 8px;
-            height: 8px;
-            transition: all 0.3s ease;
-          }
+//           .custom-pagination .swiper-pagination-bullet {
+//             background: rgba(255, 255, 255, 0.3) !important;
+//             opacity: 1;
+//             margin: 0 4px !important;
+//             width: 8px;
+//             height: 8px;
+//             transition: all 0.3s ease;
+//           }
 
-          .custom-pagination .swiper-pagination-bullet-active {
-            background: #F97316 !important;
-            width: 20px;
-            border-radius: 4px;
-          }
-        `}</style>
-      </section>
-    </>
-  );
-}
+//           .custom-pagination .swiper-pagination-bullet-active {
+//             background: #F97316 !important;
+//             width: 20px;
+//             border-radius: 4px;
+//           }
+//         `}</style>
+//       </section>
+//     </>
+//   );
+// }
 
 
 // "use client";
@@ -715,3 +715,276 @@ export default function TeamSliderClient({ team = [] }) {
 //     </>
 //   );
 // }
+
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import Script from "next/script";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Award,
+  Star,
+} from "lucide-react";
+
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+export default function TeamSliderClient({ team = [] }) {
+  const SHOW_LIMIT = 8;
+
+  const displayedTeam = team.slice(0, SHOW_LIMIT);
+  const hasMoreMembers = team.length > 4;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "CareerVidya Expert Career Counselling Team",
+    description: "Meet our expert career counsellors at CareerVidya.",
+    numberOfItems: team.length,
+    itemListElement: team.map((member, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Person",
+        name: member.name,
+        jobTitle: member.designation || "CAREER COUNSELLOR",
+        description: `${
+          member.experience || 0
+        }+ years of experience in career counselling`,
+        worksFor: {
+          "@type": "Organization",
+          name: "CareerVidya",
+        },
+      },
+    })),
+  };
+
+  if (team.length === 0) return null;
+
+  // Team Member Card Component
+  const renderCard = (member, idx) => {
+    const displayName = member.name || "Career Counselor";
+
+    return (
+      <Link
+        key={idx}
+        href="/our-Team"
+        className="group relative bg-[#031b4e]/80 backdrop-blur-md rounded-2xl p-3 md:p-3.5 border border-[#1b3e82] hover:border-[#F97316] transition-all duration-300 flex flex-col items-center w-full h-full overflow-hidden text-center shadow-lg hover:shadow-2xl hover:-translate-y-1.5"
+        aria-label={`View ${displayName}'s profile`}
+      >
+        {/* Card Image Frame */}
+        <div className="relative w-full aspect-[4/3.5] rounded-xl overflow-hidden mb-3 border border-white/10">
+          <Image
+            src={member.imageUrl}
+            alt={`${displayName} - ${
+              member.designation || "CAREER COUNSELLOR"
+            } at CareerVidya`}
+            fill
+            className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+            loading={idx < 4 ? "eager" : "lazy"}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          />
+
+          {/* Star Rating Badge */}
+          <div className="absolute top-2 right-2 bg-[#000a26]/80 backdrop-blur-md border border-white/20 text-white text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md z-10">
+            <Star size={11} className="text-amber-400 fill-amber-400" />
+            <span className="text-white">{member.rating || "4.8"}</span>
+          </div>
+
+          {/* Experience Badge */}
+          <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 bg-[#001038] border border-[#F97316]/70 text-[#F97316] text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md whitespace-nowrap flex items-center gap-1 z-10">
+            <Award size={12} className="text-[#F97316]" />
+            <span>{member.experience || 0}+ Yrs Exp</span>
+          </div>
+        </div>
+
+        {/* Counselor Details */}
+        <div className="flex flex-col flex-grow items-center justify-between w-full mt-1">
+          <div className="mb-3">
+            {/* Counselor Name - Explicit White Inline Style */}
+            <h3
+              className="text-base font-bold mb-0.5 group-hover:!text-[#F97316] transition-colors line-clamp-1"
+              style={{ color: "#ffffff" }}
+            >
+              {displayName}
+            </h3>
+
+            {/* Designation */}
+            <p className="text-[#a0c0e8] text-[10px] font-bold uppercase tracking-wider">
+              {member.designation || "CAREER COUNSELLOR"}
+            </p>
+          </div>
+
+          {/* Action Button */}
+          <div className="w-full mt-auto py-2 px-3.5 rounded-full bg-[#001748] group-hover:bg-[#F97316] text-white text-[11px] font-bold transition-all duration-300 flex items-center justify-center gap-1.5 border border-[#1d4694] group-hover:border-[#F97316]">
+            <span className="text-white">Career Advisor</span>
+            <ArrowRight
+              size={13}
+              className="text-white group-hover:translate-x-1 transition-transform"
+            />
+          </div>
+        </div>
+      </Link>
+    );
+  };
+
+  return (
+    <>
+      {/* SEO JSON-LD */}
+      <Script
+        id="team-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd),
+        }}
+      />
+
+      <section
+        className="relative py-16 md:py-20 overflow-hidden bg-[#021845]"
+        style={{
+          background:
+            "linear-gradient(135deg, #02143b 0%, #03215e 50%, #011236 100%)",
+        }}
+        aria-label="Expert Career Counselling Team at CareerVidya"
+      >
+        {/* Background Decorative Rings */}
+        <div className="absolute -top-16 -left-16 w-80 h-80 rounded-full border border-white/10 pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full border border-white/5 pointer-events-none" />
+
+        {/* Top Right Orange Corner Glow Accent */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#ea580c]/30 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+        {/* Bottom Left Orange Corner Glow Accent */}
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-[#ea580c]/30 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-[95%] xl:max-w-[1280px] mx-auto px-4 md:px-8 relative z-10">
+          {/* Section Heading */}
+          <div className="text-center mb-10 md:mb-12">
+            {/* MEET OUR (Explicit White Color Inline & Style Fix) */}
+            <h2
+              className="text-2xl md:text-4xl font-extrabold tracking-wider uppercase"
+              style={{ color: "#ffffff" }}
+            >
+              <span style={{ color: "#ffffff" }}> Meet the Experts </span>
+              <span className="text-[#F97316]"> Behind Your Next Step</span>
+            </h2>
+
+            {/* Title Orange Bar */}
+            <div className="w-12 h-1 bg-[#F97316] mx-auto mt-2 rounded-full" />
+
+            {/* Subtitle Text */}
+            <p className="text-[#b4cbef] text-xs md:text-sm max-w-xl mx-auto mt-3 font-normal leading-relaxed">
+              Get guidance from our experienced career counsellors and take the right step towards your dream future.
+            </p>
+          </div>
+
+          {/* Slider Layout (4 Cards on Desktop) */}
+          {hasMoreMembers ? (
+            <div className="relative flex items-center px-2 md:px-6">
+              {/* Previous Nav Button */}
+              <button
+                type="button"
+                className="swiper-button-prev-team hidden md:flex items-center justify-center w-10 h-10 flex-shrink-0 bg-[#02102e]/80 backdrop-blur-md rounded-full shadow-lg text-white hover:bg-[#F97316] transition-all z-20 border border-white/20 absolute -left-2 top-1/2 -translate-y-1/2"
+                aria-label="Previous team member"
+              >
+                <ChevronLeft size={20} className="text-white" />
+              </button>
+
+              <div className="w-full overflow-hidden">
+                <Swiper
+                  modules={[Navigation, Pagination, Autoplay]}
+                  spaceBetween={18}
+                  slidesPerView={1}
+                  navigation={{
+                    nextEl: ".swiper-button-next-team",
+                    prevEl: ".swiper-button-prev-team",
+                  }}
+                  pagination={{
+                    clickable: true,
+                    el: ".custom-pagination",
+                  }}
+                  autoplay={{
+                    delay: 4500,
+                    disableOnInteraction: false,
+                  }}
+                  breakpoints={{
+                    640: { slidesPerView: 2, spaceBetween: 16 },
+                    1024: { slidesPerView: 4, spaceBetween: 18 },
+                  }}
+                  className="pb-12 !flex"
+                >
+                  {displayedTeam.map((member, idx) => (
+                    <SwiperSlide key={idx} className="!h-auto flex">
+                      {renderCard(member, idx)}
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+
+              {/* Next Nav Button */}
+              <button
+                type="button"
+                className="swiper-button-next-team hidden md:flex items-center justify-center w-10 h-10 flex-shrink-0 bg-[#02102e]/80 backdrop-blur-md rounded-full shadow-lg text-white hover:bg-[#F97316] transition-all z-20 border border-white/20 absolute -right-2 top-1/2 -translate-y-1/2"
+                aria-label="Next team member"
+              >
+                <ChevronRight size={20} className="text-white" />
+              </button>
+            </div>
+          ) : (
+            /* Grid Layout */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {displayedTeam.map((member, idx) => renderCard(member, idx))}
+            </div>
+          )}
+
+          {/* Pagination Dots */}
+          {hasMoreMembers && (
+            <div
+              className="custom-pagination flex justify-center items-center gap-1.5 mt-1"
+              aria-hidden="true"
+            />
+          )}
+
+          {/* View All Experts CTA Button */}
+          <div className="text-center mt-8 md:mt-10">
+            <Link
+              href="/our-Team"
+              className="inline-flex items-center gap-2 text-white font-bold text-sm md:text-base px-8 py-3 rounded-full bg-gradient-to-r from-[#FF5E14] to-[#F97316] hover:from-[#ea5007] hover:to-[#e06103] shadow-lg shadow-orange-600/30 hover:scale-105 transition-all duration-300"
+            >
+              <span className="text-white">View All Experts</span>
+              <ArrowRight size={18} className="text-white" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Swiper Custom Styling & Global Force Text Color */}
+        <style jsx global>{`
+          .swiper-wrapper { display: flex !important; }
+          .swiper-slide { height: auto !important; display: flex !important; }
+
+          .custom-pagination .swiper-pagination-bullet {
+            background: rgba(255, 255, 255, 0.3) !important;
+            opacity: 1;
+            margin: 0 4px !important;
+            width: 8px;
+            height: 8px;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+          }
+
+          .custom-pagination .swiper-pagination-bullet-active {
+            background: #F97316 !important;
+            width: 22px;
+            border-radius: 10px;
+          }
+        `}</style>
+      </section>
+    </>
+  );
+}

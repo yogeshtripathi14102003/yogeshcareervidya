@@ -1,125 +1,222 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
-import { Copy } from "lucide-react";
+import {
+  Copy,
+  Check,
+  MessageSquare,
+  UserCheck,
+  Award,
+  GraduationCap,
+  Share2,
+} from "lucide-react";
 import GetAdmissionForm from "@/app/user/component/Getadmissionfrom.jsx";
+
+const SHARE_LINK = "https://careervidya.in/explore";
+
+const SOCIAL_LINKS = [
+  { name: "LinkedIn", url: "https://www.linkedin.com/company/career-vidya/", img: "/images/i5.png" },
+  { name: "X", url: "https://x.com/CareerVidya", img: "/images/i4.png" },
+  { name: "Instagram", url: "https://www.instagram.com/career_vidya/", img: "/images/i3.png" },
+  { name: "Facebook", url: "https://www.facebook.com/Career-Vidya", img: "/images/i2.png" },
+  { name: "YouTube", url: "https://youtube.com/@careervidya02", img: "/images/i1.png" },
+];
 
 export default function DashboardPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const shareLink = "https://careervidya.in/explore";
+  const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Aapki provide ki gayi images array
-  const socialLinks = [
-    { name: "LinkedIn", url: "https://www.linkedin.com/company/career-vidya/", img: "/images/i5.png" },
-    { name: "X", url: "https://x.com/CareerVidya", img: "/images/i4.png" },
-    { name: "Instagram", url: "https://www.instagram.com/career_vidya/", img: "/images/i3.png" },
-    { name: "Facebook", url: "https://www.facebook.com/Career-Vidya", img: "/images/i2.png" },
-    { name: "YouTube", url: "https://youtube.com/@careervidya02", img: "/images/i1.png" },
-  ];
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const openForm = () => setIsFormOpen(true);
   const closeForm = () => setIsFormOpen(false);
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(shareLink);
-    alert("Link copied!");
+  // Modal khula ho to body scroll lock + Escape se close
+  useEffect(() => {
+    if (!isFormOpen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKey = (e) => {
+      if (e.key === "Escape") setIsFormOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isFormOpen]);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(SHARE_LINK);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
   };
 
   return (
     <>
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatCard title="Total Queries" value="0" />
-        <StatCard title="Profile Completion" value="80%" />
-        <StatCard title="Certificates" value="0" />
+      {/* Stats */}
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        <StatCard title="Total Queries" value="0" Icon={MessageSquare} />
+        <StatCard
+          title="Profile Completion"
+          value="80%"
+          Icon={UserCheck}
+          progress={80}
+        />
+        <StatCard title="Certificates" value="0" Icon={Award} />
       </div>
 
-      {/* Enroll Card */}
-      <div className="bg-white border rounded p-6 mb-6">
-        <h2 className="text-sm font-medium  mb-2">Continue Learning</h2>
-        <p className="text-xs text-gray-500 mb-3">Access your enrolled courses.</p>
+      {/* Continue Learning */}
+      <div className="mb-6 flex flex-col gap-4 rounded-xl border border-neutral-border bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className="cv-icon-gradient h-11 w-11 shrink-0">
+            <GraduationCap size={20} />
+          </div>
+          <div className="min-w-0">
+            <h2 className="m-0 text-base font-semibold text-neutral-dark">
+              Continue Learning
+            </h2>
+            <p className="m-0 mt-0.5 text-sm text-neutral-mid">
+              Access your enrolled courses.
+            </p>
+          </div>
+        </div>
+
         <button
+          type="button"
           onClick={openForm}
-          className="px-4 py-2 bg-blue-400 cursor-pointer text-white text-sm rounded hover:bg-blue-700 transition"
+          className="cv-btn-cta min-h-11 w-full px-6 text-sm sm:w-auto"
         >
           Enroll Now
         </button>
       </div>
 
-      {/* --- Social Share Section (As per Image) --- */}
-      <div className="bg-[#f0f7ff] border border-blue-100 rounded-xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
-        
-        {/* Social Icons using Images */}
-      {/* Social Icons using Images */}
-<div className="flex gap-4 mb-6">
-  {socialLinks.map((social, index) => (
-    <a 
-      key={index} 
-      href={social.url} 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className="group transition-all duration-300 hover:-translate-y-1"
-    >
-      {/* Icon Container - Isse saare icons same size aur shadow wale banenge */}
-      <div className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-md border border-gray-50 group-hover:shadow-lg transition-shadow">
-        <Image 
-          src={social.img} 
-          alt={social.name} 
-          width={60}
-          height={60}
-          className="w-7 h-7 object-contain" // Icon ka size yahan se control hoga
-        />
-      </div>
-    </a>
-  ))}
-</div>
+      {/* Social share */}
+      <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-primary/10 bg-primary-light px-4 py-8 sm:p-8">
+        <div className="mb-1 flex items-center gap-2 text-primary">
+          <Share2 size={17} />
+          <h3 className="m-0 text-sm font-semibold">Share CareerVidya</h3>
+        </div>
+        <p className="m-0 mb-5 text-center text-xs text-neutral-mid">
+          Follow us and share the link with your friends.
+        </p>
 
-        {/* Link Copy Box */}
-        <div className="relative flex items-center bg-white border border-blue-200 rounded-lg p-1 pl-4 w-full max-w-sm shadow-sm">
-          <span className="text-gray-500 text-sm truncate mr-2 flex-1">
-            {shareLink}
+        <div className="mb-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+          {SOCIAL_LINKS.map((social) => (
+            <a
+              key={social.name}
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.name}
+              title={social.name}
+              className="group transition-transform duration-300 hover:-translate-y-1"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-neutral-border bg-white shadow-md transition-shadow group-hover:shadow-lg">
+                <Image
+                  src={social.img}
+                  alt={social.name}
+                  width={60}
+                  height={60}
+                  className="h-7 w-7 object-contain"
+                />
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* Copy box */}
+        <div className="flex w-full min-w-0 max-w-sm items-center rounded-lg border border-primary/20 bg-white p-1 pl-3 shadow-sm sm:pl-4">
+          <span className="mr-2 min-w-0 flex-1 truncate text-sm text-neutral-mid">
+            {SHARE_LINK}
           </span>
-          <div className="h-8 w-[1px] bg-gray-100 mx-1"></div> {/* Vertical Divider */}
-          <button 
+
+          <div className="mx-1 h-8 w-px shrink-0 bg-neutral-border" />
+
+          <button
+            type="button"
             onClick={copyToClipboard}
-            className="flex items-center gap-1 px-4 py-2 text-[#1889b9] font-semibold text-sm hover:bg-blue-50 transition"
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold transition sm:px-4 ${
+              copied
+                ? "bg-emerald-50 text-emerald-700"
+                : "text-primary hover:bg-primary-light"
+            }`}
           >
-            <Copy size={16} />
-            Copy
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            {copied ? "Copied!" : "Copy"}
           </button>
         </div>
 
-        {/* Mascot Character Placeholder */}
-        <div className="absolute right-4 bottom-0 hidden md:block">
-           {/* <img src="/images/mascot.png" alt="mascot" className="w-16 h-auto" />  */}
-           {/* Agar mascot image nahi hai toh niche wala emoji rehne dena */}
-           <p className="text-[40px]">😊</p>
-        </div>
+        <p className="pointer-events-none absolute bottom-0 right-4 m-0 hidden text-[40px] md:block">
+          😊
+        </p>
       </div>
 
-      {/* Modal / Form */}
-      {isFormOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded p-6 w-full max-w-md relative shadow-xl">
-            <button
-              onClick={closeForm}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xl"
-            >
-              ✕
-            </button>
-            <GetAdmissionForm closeForm={closeForm} />
-          </div>
-        </div>
-      )}
+      {/* Admission form modal (body mein render hota hai, header ke upar) */}
+      {isFormOpen &&
+        mounted &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] overflow-y-auto overscroll-contain bg-neutral-dark/50"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) closeForm();
+            }}
+          >
+            <div className="flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6">
+              <div className="w-full max-w-3xl">
+                <GetAdmissionForm closeForm={closeForm} />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }
 
-// StatCard Component
-const StatCard = ({ title, value }) => (
-  <div className="bg-white border rounded p-4 shadow-sm">
-    <p className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">{title}</p>
-    <p className="text-lg font-bold text-[#1889b9]">{value}</p>
-  </div>
-);
+/* ================= STAT CARD ================= */
+
+function StatCard({ title, value, Icon, progress }) {
+  return (
+    <div className="min-w-0 rounded-xl border border-neutral-border bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="m-0 truncate text-[11px] font-semibold uppercase tracking-wider text-neutral-mid">
+            {title}
+          </p>
+          <p className="m-0 mt-1 text-2xl font-bold leading-none text-primary">
+            {value}
+          </p>
+        </div>
+
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-light text-accent">
+          <Icon size={19} />
+        </div>
+      </div>
+
+      {typeof progress === "number" && (
+        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-neutral-border">
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${progress}%`,
+              background: "var(--cv-grad-horizontal)",
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}

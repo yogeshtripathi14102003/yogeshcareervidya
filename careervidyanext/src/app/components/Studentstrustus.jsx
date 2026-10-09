@@ -11,7 +11,7 @@ export default function WhyStudentsTrustUs() {
   const features = [
     {
       icon: "/icons/export.png",
-      title: "#1 Application Platform for Students",
+      title: "Application Platform for Students",
       description:
         "Simplify your admission journey — apply to top universities in minutes through our trusted and efficient platform.",
     },
@@ -91,68 +91,69 @@ export default function WhyStudentsTrustUs() {
       <section
         ref={sectionRef}
         aria-label="Why Students Trust CareerVidya"
-        className={`py-14 transition-all duration-1000 ease-out
-        ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
+        className={`py-14 transition-all duration-1000 ease-out ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"
+        }`}
         style={{ background: "#F8FAFC" }}
       >
         <div className="max-w-7xl mx-auto px-4">
-          {/* ✅ Heading — Primary navy */}
-          <h2
-            className={`text-2xl md:text-4xl font-semibold text-center mb-12
-            transition-all duration-1000 delay-200
-            ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+          {/* Main Section Header Container */}
+          <div
+            className={`text-center mb-12 transition-all duration-1000 delay-200 ${
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
           >
-            <span className="font-bold" style={{ color: "#1E3A8A" }}>
-              Why Students Trust Us
-            </span>
-          </h2>
+            {/* Main Heading */}
+            <h2 className="text-2xl md:text-4xl font-semibold mb-3">
+              <span
+                className="font-bold !text-[#1E3A8A]"
+                style={{ color: "#1E3A8A" }}
+              >
+                Why Students   <span className="text-[#F97316]">  Trust Us</span>
+              </span>
+            </h2>
+
+            {/* Sub Heading (Heading ke niche) */}
+            <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
+              Discover how CareerVidya simplifies your education journey with end-to-end guidance and flexible learning solutions.
+            </p>
+          </div>
 
           <div className="grid gap-6 md:grid-cols-3">
             {features.map((item, index) => (
               <div
                 key={index}
                 style={{ transitionDelay: `${index * 120}ms` }}
-                className={`group relative bg-white rounded-xl p-6
-                shadow-sm transition-all duration-700 ease-out
-                ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#1E3A8A";
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, #FFF7ED 0%, #EFF6FF 100%)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(30, 58, 138, 0.15)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "transparent";
-                  e.currentTarget.style.background = "#ffffff";
-                  e.currentTarget.style.boxShadow =
-                    "0 1px 3px rgba(0, 0, 0, 0.05)";
-                }}
+                className={`group relative bg-white rounded-xl p-5 border border-transparent shadow-sm hover:border-[#1E3A8A] hover:bg-gradient-to-br hover:from-[#FFF7ED] hover:to-[#EFF6FF] hover:shadow-md transition-all duration-300 ease-out flex flex-col justify-start ${
+                  visible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
+                }`}
               >
-                <div className="flex justify-start mb-3">
-                  <Image
-                    src={item.icon}
-                    alt={`${item.title} icon`}
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                    loading={index < 3 ? "eager" : "lazy"}
-                  />
+                {/* Header Container: Icon & Heading Side-by-Side */}
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="flex-shrink-0">
+                    <Image
+                      src={item.icon}
+                      alt={`${item.title} icon`}
+                      width={36}
+                      height={36}
+                      className="object-contain"
+                      loading={index < 3 ? "eager" : "lazy"}
+                    />
+                  </div>
+
+                  {/* Card Title */}
+                  <h3
+                    className="text-base font-bold leading-snug !text-[#1E3A8A]"
+                    style={{ color: "#1E3A8A" }}
+                  >
+                    {item.title}
+                  </h3>
                 </div>
 
-                {/* ✅ Title — Primary navy */}
-                <h3
-                  className="text-lg font-semibold mb-2"
-                  style={{ color: "#1E3A8A" }}
-                >
-                  {item.title}
-                </h3>
-
-                {/* ✅ Description — Neutral mid */}
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ color: "#64748B" }}
-                >
+                {/* Description */}
+                <p className="text-sm text-slate-500 leading-relaxed">
                   {item.description}
                 </p>
               </div>

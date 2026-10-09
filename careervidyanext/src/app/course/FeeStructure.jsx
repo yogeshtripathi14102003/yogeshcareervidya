@@ -406,10 +406,10 @@
 //   );
 // }
 
+
 "use client";
 
 import { useEffect, useState } from "react";
-import Signup from "@/app/signup/page.jsx";
 
 /* LOGIN CHECK */
 const isLoggedIn = () => {
@@ -430,7 +430,6 @@ export default function FeeStructure({
   emiOptions,
   scholarships,
 }) {
-  const [showSignup, setShowSignup] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -477,17 +476,6 @@ export default function FeeStructure({
     }),
   };
 
-  const handleApplyClick = () => {
-    if (!isLoggedIn()) {
-      setShowSignup(true);
-      return;
-    }
-    const target =
-      document.getElementById("apply") || document.getElementById("signup");
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
-    else window.location.hash = "#apply";
-  };
-
   return (
     <>
       <script
@@ -498,11 +486,11 @@ export default function FeeStructure({
       {/* ✅ Section — WHITE bg */}
       <section
         aria-labelledby="fee-heading"
-        className="w-full py-8 md:py-10 bg-white font-sans overflow-hidden"
+        className="w-full py-8 md:py-12 bg-white font-sans overflow-hidden"
       >
         {/* ✅ Container — LIGHT bg + rounded */}
         <div
-          className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6 py-8 md:py-10 rounded-xl"
+          className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6 py-8 md:py-10 rounded-2xl shadow-sm"
           style={{ background: "var(--cv-neutral-light)" }}
         >
           {/* HEADER */}
@@ -516,7 +504,7 @@ export default function FeeStructure({
 
             <h2
               id="fee-heading"
-              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-3"
               style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
             >
               Fee Structure for {courseTitle || "this Course"}
@@ -531,7 +519,7 @@ export default function FeeStructure({
 
           {/* SIDEBAR + DETAILED */}
           {(hasSidebar || hasDetailed) && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 mb-8 sm:mb-10">
               {/* SIDEBAR */}
               {hasSidebar && (
                 <aside className="lg:col-span-4 xl:col-span-3 min-w-0">
@@ -539,22 +527,15 @@ export default function FeeStructure({
                     {feeStructureSidebar.map((item, i) => (
                       <div
                         key={i}
-                        className="rounded-xl p-4 shadow-sm transition-all"
+                        className="rounded-xl p-4 sm:p-5 shadow-sm transition-all"
                         style={{
                           background: "#fff",
                           border: "1px solid var(--cv-neutral-border)",
                           borderLeft: "4px solid var(--cv-primary)",
                         }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.boxShadow =
-                            "0 8px 20px rgba(30, 58, 138, 0.12)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.boxShadow = "none";
-                        }}
                       >
                         <h3
-                          className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-2"
+                          className="text-[11px] font-bold uppercase tracking-wider mb-3"
                           style={{
                             color: "var(--cv-accent)",
                             ...TEXT_WRAP_STYLE,
@@ -564,11 +545,11 @@ export default function FeeStructure({
                         </h3>
 
                         {item.points?.length > 0 && (
-                          <ul className="space-y-1.5 list-none p-0 m-0">
+                          <ul className="space-y-2 list-none p-0 m-0">
                             {item.points.map((point, j) => (
                               <li
                                 key={j}
-                                className="flex items-start gap-2 text-xs sm:text-sm leading-snug font-semibold"
+                                className="flex items-start gap-2.5 text-xs sm:text-sm leading-snug font-medium"
                                 style={{
                                   color: "var(--cv-primary)",
                                   ...TEXT_WRAP_STYLE,
@@ -576,7 +557,7 @@ export default function FeeStructure({
                               >
                                 <span
                                   aria-hidden="true"
-                                  className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-1.5"
+                                  className="flex-shrink-0 w-2 h-2 rounded-full mt-1.5"
                                   style={{ background: "var(--cv-accent)" }}
                                 />
                                 <span
@@ -591,27 +572,17 @@ export default function FeeStructure({
                         )}
                       </div>
                     ))}
-
-                    {!loggedIn && (
-                      <button
-                        type="button"
-                        onClick={handleApplyClick}
-                        className="cv-btn-cta block w-full text-center py-2.5 sm:py-3 text-sm cursor-pointer"
-                      >
-                        Apply Now →
-                      </button>
-                    )}
                   </div>
                 </aside>
               )}
 
-              {/* DETAILED FEES */}
+              {/* DETAILED FEES TABLE & CARDS */}
               {hasDetailed && (
                 <div
                   className={
                     hasSidebar
-                      ? "lg:col-span-8 xl:col-span-9 space-y-3 sm:space-y-4 min-w-0"
-                      : "lg:col-span-12 space-y-3 sm:space-y-4 min-w-0"
+                      ? "lg:col-span-8 xl:col-span-9 space-y-5 min-w-0"
+                      : "lg:col-span-12 space-y-5 min-w-0"
                   }
                 >
                   {detailedFees.map((section, i) => (
@@ -624,14 +595,14 @@ export default function FeeStructure({
                       }}
                     >
                       <div
-                        className="px-4 sm:px-6 py-3 sm:py-4"
+                        className="px-5 sm:px-6 py-4"
                         style={{
                           background: "var(--cv-primary)",
                           borderBottom: "1px solid var(--cv-primary-dark)",
                         }}
                       >
                         <h3
-                          className="text-sm sm:text-base md:text-lg font-bold"
+                          className="text-base sm:text-lg font-bold tracking-wide"
                           style={{ color: "#fff", ...TEXT_WRAP_STYLE }}
                         >
                           {section.heading}
@@ -639,7 +610,7 @@ export default function FeeStructure({
 
                         {section.description && (
                           <div
-                            className="text-[11px] sm:text-xs md:text-sm mt-1 prose prose-sm max-w-none [&_p]:my-0"
+                            className="text-xs sm:text-sm mt-1 prose prose-sm max-w-none [&_p]:my-0"
                             style={{
                               color: "rgba(255,255,255,0.85)",
                               ...TEXT_WRAP_STYLE,
@@ -653,56 +624,36 @@ export default function FeeStructure({
 
                       {section.table?.length > 0 && (
                         <>
-                          {/* Desktop table */}
+                          {/* Desktop Table View */}
                           <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full border-collapse">
+                            <table className="w-full border-collapse text-left">
                               <thead>
                                 <tr
                                   style={{
-                                    background: "var(--cv-primary-light)",
+                                    background: "#f8fafc",
                                     borderBottom:
-                                      "1px solid var(--cv-neutral-border)",
+                                      "2px solid var(--cv-neutral-border)",
                                   }}
                                 >
-                                  <th
-                                    className="text-left px-4 lg:px-5 py-3 text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ color: "var(--cv-primary)" }}
-                                  >
+                                  <th className="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 w-1/3">
                                     University
                                   </th>
-                                  <th
-                                    className="text-left px-4 lg:px-5 py-3 text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ color: "var(--cv-primary)" }}
-                                  >
+                                  <th className="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700 w-1/4">
                                     Course Fees
                                   </th>
-                                  <th
-                                    className="text-left px-4 lg:px-5 py-3 text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ color: "var(--cv-primary)" }}
-                                  >
-                                    Details
+                                  <th className="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-700">
+                                    Details & Breakdown
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody>
+                              <tbody className="divide-y divide-slate-100">
                                 {section.table.map((row, j) => (
                                   <tr
                                     key={j}
-                                    className="transition-colors"
-                                    style={{
-                                      borderBottom:
-                                        "1px solid var(--cv-neutral-border)",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.background =
-                                        "var(--cv-primary-light)";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.background = "#fff";
-                                    }}
+                                    className="transition-colors hover:bg-slate-50/80"
                                   >
                                     <td
-                                      className="px-4 lg:px-5 py-4 font-semibold text-sm"
+                                      className="px-5 py-4 font-semibold text-sm align-top"
                                       style={{
                                         color: "var(--cv-primary)",
                                         ...TEXT_WRAP_STYLE,
@@ -710,25 +661,21 @@ export default function FeeStructure({
                                     >
                                       {row.universityName}
                                     </td>
-                                    <td className="px-4 lg:px-5 py-4">
-                                      <span
-                                        className="inline-block px-2.5 sm:px-3 py-1 rounded-md text-white font-bold text-xs"
+                                    <td className="px-5 py-4 align-top">
+                                      <div
+                                        className="inline-flex items-center px-3 py-1.5 rounded-lg font-bold text-sm"
                                         style={{
-                                          background: "var(--cv-primary)",
-                                          whiteSpace: "normal",
-                                          wordBreak: "break-word",
-                                          overflowWrap: "anywhere",
+                                          background: "rgba(30, 58, 138, 0.08)",
+                                          color: "var(--cv-primary)",
+                                          border: "1px solid rgba(30, 58, 138, 0.2)",
                                         }}
                                       >
                                         {row.courseFees}
-                                      </span>
+                                      </div>
                                     </td>
                                     <td
-                                      className="px-4 lg:px-5 py-4 text-xs"
-                                      style={{
-                                        color: "var(--cv-neutral-mid)",
-                                        ...TEXT_WRAP_STYLE,
-                                      }}
+                                      className="px-5 py-4 text-xs sm:text-sm leading-relaxed text-slate-600 align-top"
+                                      style={TEXT_WRAP_STYLE}
                                     >
                                       {row.detailedFeeStructure || "—"}
                                     </td>
@@ -738,19 +685,12 @@ export default function FeeStructure({
                             </table>
                           </div>
 
-                          {/* Mobile cards */}
-                          <div className="md:hidden">
+                          {/* Mobile Cards View */}
+                          <div className="md:hidden divide-y divide-slate-100">
                             {section.table.map((row, j) => (
-                              <div
-                                key={j}
-                                className="p-4"
-                                style={{
-                                  borderBottom:
-                                    "1px solid var(--cv-neutral-border)",
-                                }}
-                              >
+                              <div key={j} className="p-4 space-y-2">
                                 <p
-                                  className="font-semibold text-sm mb-2"
+                                  className="font-bold text-base"
                                   style={{
                                     color: "var(--cv-primary)",
                                     ...TEXT_WRAP_STYLE,
@@ -758,19 +698,15 @@ export default function FeeStructure({
                                 >
                                   {row.universityName}
                                 </p>
-                                <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
-                                  <span
-                                    className="text-[10px] uppercase tracking-widest"
-                                    style={{ color: "var(--cv-neutral-mid)" }}
-                                  >
+                                <div className="flex items-center justify-between gap-2 pt-1">
+                                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     Course Fees
                                   </span>
                                   <span
-                                    className="inline-block px-2.5 py-0.5 rounded-md text-white font-bold text-[11px]"
+                                    className="px-3 py-1 rounded-md font-bold text-xs"
                                     style={{
                                       background: "var(--cv-primary)",
-                                      whiteSpace: "normal",
-                                      wordBreak: "break-word",
+                                      color: "#fff",
                                     }}
                                   >
                                     {row.courseFees}
@@ -778,11 +714,8 @@ export default function FeeStructure({
                                 </div>
                                 {row.detailedFeeStructure && (
                                   <p
-                                    className="text-xs mt-1"
-                                    style={{
-                                      color: "var(--cv-neutral-mid)",
-                                      ...TEXT_WRAP_STYLE,
-                                    }}
+                                    className="text-xs text-slate-600 pt-1 leading-relaxed"
+                                    style={TEXT_WRAP_STYLE}
                                   >
                                     {row.detailedFeeStructure}
                                   </p>
@@ -809,7 +742,7 @@ export default function FeeStructure({
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-12">
-                <div className="md:col-span-7 p-4 sm:p-6 md:p-8 min-w-0">
+                <div className="md:col-span-7 p-5 sm:p-6 md:p-8 min-w-0">
                   <span
                     className="inline-block text-[10px] font-bold uppercase tracking-widest mb-2"
                     style={{ color: "var(--cv-accent)" }}
@@ -818,14 +751,14 @@ export default function FeeStructure({
                   </span>
 
                   <h3
-                    className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 sm:mb-3"
+                    className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3"
                     style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
                   >
                     Easy EMI Options Available
                   </h3>
 
                   <p
-                    className="text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4"
+                    className="text-xs sm:text-sm md:text-base leading-relaxed mb-4"
                     style={{
                       color: "var(--cv-neutral-mid)",
                       ...TEXT_WRAP_STYLE,
@@ -843,11 +776,10 @@ export default function FeeStructure({
                       {emiOptions.tenureMonths.map((months, i) => (
                         <span
                           key={i}
-                          className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-white text-[10px] sm:text-[11px] font-bold"
+                          className="px-3 py-1 rounded-md text-slate-700 text-xs font-semibold"
                           style={{
-                            background: "var(--cv-primary)",
-                            whiteSpace: "normal",
-                            wordBreak: "break-word",
+                            background: "#f1f5f9",
+                            border: "1px solid #cbd5e1",
                           }}
                         >
                           {months} Months
@@ -858,28 +790,28 @@ export default function FeeStructure({
                 </div>
 
                 <div
-                  className="md:col-span-5 flex items-center justify-center p-5 sm:p-6 md:p-8"
+                  className="md:col-span-5 flex items-center justify-center p-6 sm:p-8"
                   style={{ background: "var(--cv-primary)" }}
                 >
                   <div className="text-center text-white min-w-0">
                     <p
-                      className="text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1.5"
+                      className="text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1"
                       style={{ color: "rgba(255,255,255,0.75)" }}
                     >
                       Starting from
                     </p>
 
                     <p
-                      className="text-3xl sm:text-4xl md:text-5xl font-bold leading-none mb-1.5"
+                      className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-none mb-2"
                       style={{ color: "#fff", ...TEXT_WRAP_STYLE }}
                     >
                       {emiOptions.minMonthly || "₹3,000"}
                     </p>
 
                     <p
-                      className="text-xs sm:text-sm mb-3 sm:mb-4"
+                      className="text-xs sm:text-sm"
                       style={{
-                        color: "rgba(255,255,255,0.8)",
+                        color: "rgba(255,255,255,0.85)",
                         ...TEXT_WRAP_STYLE,
                       }}
                     >
@@ -888,27 +820,6 @@ export default function FeeStructure({
                         <> — up to {emiOptions.maxMonthly}</>
                       )}
                     </p>
-
-                    {!loggedIn && (
-                      <button
-                        type="button"
-                        onClick={handleApplyClick}
-                        className="inline-block text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-md transition-colors cursor-pointer"
-                        style={{
-                          background: "#fff",
-                          color: "var(--cv-primary)",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            "var(--cv-primary-light)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "#fff";
-                        }}
-                      >
-                        Check Eligibility →
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -918,13 +829,13 @@ export default function FeeStructure({
           {/* SCHOLARSHIPS */}
           {hasScholarships && (
             <article
-              className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm"
+              className="rounded-2xl p-5 sm:p-6 md:p-8 shadow-sm"
               style={{
                 border: "1px solid var(--cv-neutral-border)",
                 background: "#fff",
               }}
             >
-              <header className="text-center mb-5 sm:mb-6 md:mb-8">
+              <header className="text-center mb-6 sm:mb-8">
                 <span
                   className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-2"
                   style={{ color: "var(--cv-accent)" }}
@@ -933,7 +844,7 @@ export default function FeeStructure({
                 </span>
 
                 <h3
-                  className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 leading-tight"
+                  className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 leading-tight"
                   style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
                 >
                   Scholarships &amp; Financial Aid
@@ -956,27 +867,20 @@ export default function FeeStructure({
                 </p>
               </header>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {scholarships.map((s, i) => (
                   <div
                     key={i}
-                    className="relative rounded-xl p-4 sm:p-5 transition-all min-w-0"
+                    className="relative rounded-xl p-5 transition-all min-w-0"
                     style={{
                       background: "var(--cv-neutral-light)",
                       border: "1px solid var(--cv-neutral-border)",
                       borderTop: "4px solid var(--cv-primary)",
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow =
-                        "0 8px 20px rgba(30, 58, 138, 0.12)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
                   >
                     {s.discount && (
                       <span
-                        className="inline-block text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-2.5"
+                        className="inline-block text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-3"
                         style={{
                           background: "var(--cv-primary)",
                           whiteSpace: "normal",
@@ -989,7 +893,7 @@ export default function FeeStructure({
 
                     {s.title && (
                       <h4
-                        className="text-sm sm:text-base font-bold mb-1.5 leading-snug"
+                        className="text-base font-bold mb-2 leading-snug"
                         style={{
                           color: "var(--cv-primary)",
                           ...TEXT_WRAP_STYLE,
@@ -1001,55 +905,18 @@ export default function FeeStructure({
 
                     {s.description && (
                       <div
-                        className="text-xs leading-relaxed prose prose-sm max-w-none [&_p]:my-0"
-                        style={{
-                          color: "var(--cv-neutral-mid)",
-                          ...TEXT_WRAP_STYLE,
-                        }}
+                        className="text-xs sm:text-sm leading-relaxed text-slate-600 prose prose-sm max-w-none [&_p]:my-0"
+                        style={{ ...TEXT_WRAP_STYLE }}
                         dangerouslySetInnerHTML={{ __html: s.description }}
                       />
                     )}
                   </div>
                 ))}
               </div>
-
-              {!loggedIn && (
-                <div className="mt-5 sm:mt-6 text-center">
-                  <button
-                    type="button"
-                    onClick={handleApplyClick}
-                    className="cv-btn-cta inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 sm:py-3 text-xs sm:text-sm cursor-pointer"
-                  >
-                    Check Scholarship Eligibility
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
             </article>
           )}
         </div>
       </section>
-
-      {/* SIGNUP MODAL */}
-      {showSignup && (
-        <Signup
-          onClose={() => setShowSignup(false)}
-          courseName={courseTitle}
-        />
-      )}
     </>
   );
 }

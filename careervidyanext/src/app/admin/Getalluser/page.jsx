@@ -276,11 +276,9 @@
 //   );
 // }
 
-
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "@/utlis/api.js";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -288,6 +286,7 @@ import { saveAs } from "file-saver";
 import Getuseroffer from "@/app/admin/components/GetuserOffer.jsx";
 import NotificationManager from "@/app/admin/components/NotificationManager.jsx";
 import Getuseruniversity from "@/app/admin/components/Getuseruniversity.jsx";
+import Pagination from "@/app/admin/components/Pagination.jsx";
 
 import {
   Search,
@@ -315,7 +314,6 @@ import {
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
-  const [filteredStudents, setFilteredStudents] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [search, setSearch] = useState("");
@@ -326,18 +324,57 @@ export default function StudentsPage() {
 
   const [selectedStudent, setSelectedStudent] = useState(null);
 
+  /* ================= PAGINATION STATE ================= */
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   /* ================= FETCH STUDENTS ================= */
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
 
-      const res = await api.get("/api/v1/students");
+      // Backend default me sirf 10 record deta hai, isliye saare pages fetch karte hain
+      const limit = 100;
+      let pageNo = 1;
+      let all = [];
+      let total = null;
+      let prevFirstId = null;
 
-      const data = res.data.students || [];
+      while (pageNo <= 200) {
+        const res = await api.get("/api/v1/students", {
+          params: { page: pageNo, limit },
+        });
 
-      setStudents(data);
-      setFilteredStudents(data);
+        const batch = res.data.students || [];
+        const meta = res.data.pagination || {};
+
+        const apiTotal =
+          res.data.total ??
+          res.data.totalStudents ??
+          res.data.totalCount ??
+          res.data.count ??
+          meta.total ??
+          meta.totalItems ??
+          meta.totalStudents ??
+          null;
+
+        if (apiTotal !== null) total = Number(apiTotal);
+
+        // Agar backend page param ignore kare to same data dobara aayega -> stop
+        if (batch.length === 0 || batch[0]?._id === prevFirstId) break;
+        prevFirstId = batch[0]?._id;
+
+        all = [...all, ...batch];
+
+        // Total pata hai to poora milte hi ruk jao, warna khali page aane tak chalte raho
+        if (total !== null && all.length >= total) break;
+
+        pageNo += 1;
+      }
+
+      setStudents(all);
     } catch (err) {
       console.error("Error fetching students:", err);
     } finally {
@@ -351,43 +388,69 @@ export default function StudentsPage() {
 
   /* ================= FILTER LOGIC ================= */
 
-  useEffect(() => {
+  const filteredStudents = useMemo(() => {
     let data = [...students];
 
-    // Search filter — now covers all key fields
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    // Search filter — saare key fields (number/string dono safe)
+    const q = search.trim().toLowerCase();
 
-      data = data.filter(
-        (s) =>
-          s.name?.toLowerCase().includes(q) ||
-          s.email?.toLowerCase().includes(q) ||
-          s.mobileNumber?.includes(q) ||
-          s.course?.toLowerCase().includes(q) ||
-          s.branch?.toLowerCase().includes(q) ||
-          s.specialization?.toLowerCase().includes(q) ||
-          s.city?.toLowerCase().includes(q) ||
-          s.state?.toLowerCase().includes(q) ||
-          s.subsidyCoupon?.toLowerCase().includes(q) ||
-          s.role?.toLowerCase().includes(q)
+    if (q) {
+      data = data.filter((s) =>
+        [
+          s.name,
+          s.email,
+          s.mobileNumber,
+          s.gender,
+          s.course,
+          s.branch,
+          s.specialization,
+          s.city,
+          s.state,
+          s.addresses,
+          s.subsidyCoupon,
+          s.role,
+        ].some((v) => String(v ?? "").toLowerCase().includes(q))
       );
     }
 
-    // Date range filter
+    // Date range filter (local time, from = din ki shuruaat, to = din ka end)
     if (fromDate) {
-      data = data.filter(
-        (s) => new Date(s.createdAt) >= new Date(fromDate)
-      );
+      const from = new Date(`${fromDate}T00:00:00`);
+      data = data.filter((s) => {
+        const d = new Date(s.createdAt);
+        return !isNaN(d) && d >= from;
+      });
     }
 
     if (toDate) {
-      data = data.filter(
-        (s) => new Date(s.createdAt) <= new Date(toDate)
-      );
+      const to = new Date(`${toDate}T23:59:59.999`);
+      data = data.filter((s) => {
+        const d = new Date(s.createdAt);
+        return !isNaN(d) && d <= to;
+      });
     }
 
-    setFilteredStudents(data);
-  }, [search, fromDate, toDate, students]);
+    return data;
+  }, [students, search, fromDate, toDate]);
+
+  // Filter badalne par pehle page par wapas (delete/refresh par page nahi badlega)
+  useEffect(() => {
+    setPage(1);
+  }, [search, fromDate, toDate]);
+
+  /* ================= PAGINATED DATA ================= */
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredStudents.length / pageSize)
+  );
+  const safePage = Math.min(page, totalPages);
+  const startIndex = (safePage - 1) * pageSize;
+
+  const paginatedStudents = filteredStudents.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   /* ================= DELETE ================= */
 
@@ -415,6 +478,7 @@ export default function StudentsPage() {
       return;
     }
 
+    // Note: sab filtered records export hote hain (sirf current page nahi)
     const excelData = filteredStudents.map((s) => ({
       Name: s.name || "—",
       Email: s.email || "—",
@@ -798,14 +862,14 @@ export default function StudentsPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredStudents.map((s, index) => (
+                    paginatedStudents.map((s, index) => (
                       <tr
                         key={s._id}
                         className="hover:bg-slate-50/70 transition"
                       >
-                        {/* # */}
+                        {/* # (pagination ke saath continue) */}
                         <td className="px-3 py-2 text-slate-500 whitespace-nowrap">
-                          {index + 1}
+                          {startIndex + index + 1}
                         </td>
 
                         {/* Name */}
@@ -951,6 +1015,15 @@ export default function StudentsPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            {!loading && (
+              <Pagination
+                currentPage={safePage}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
+            )}
           </div>
         )}
 

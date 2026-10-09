@@ -363,7 +363,7 @@ export default function UniversitiesPage() {
               className="text-2xl md:text-4xl font-bold leading-tight"
               style={{ color: "#1E3A8A" }}
             >
-              Explore over 100 online universities & Compare on 30+ factors
+              Explore over 100 online universities & Compare on 30+ factors 
             </h2>
             <div
               className="w-14 h-1 mt-3 rounded-full"

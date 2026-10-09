@@ -3374,8 +3374,8 @@ export default function Page() {
           background-repeat: no-repeat;
         }
 
-        .cv-hero-bg.mode-vidya { background-image: url('/images/testin6.jpeg'); }
-        .cv-hero-bg.mode-career { background-image: url('/images/testing5.jpeg'); }
+        .cv-hero-bg.mode-vidya { background-image: url('/images/testing9.jpeg'); }
+        .cv-hero-bg.mode-career { background-image: url('/images/testing9.jpeg'); }
 
         .cv-hero-bg .cv-hero-center { margin-top: 0; }
         .cv-hero-bg .cv-form-card { margin-bottom: 0; }

@@ -138,11 +138,11 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
         </div>
 
         {/* ═══════════════════════════════════════════
-            DESCRIPTION
+            DESCRIPTION (FULL WIDTH)
         ═══════════════════════════════════════════ */}
         {description && (
           <div
-            className="text-base md:text-lg mb-8 md:mb-10 text-left max-w-5xl leading-relaxed"
+            className="w-full text-base md:text-lg mb-8 md:mb-10 text-left leading-relaxed"
             style={{ color: "var(--cv-neutral-mid)", ...TEXT_WRAP_STYLE }}
           >
             <span dangerouslySetInnerHTML={{ __html: description }} />

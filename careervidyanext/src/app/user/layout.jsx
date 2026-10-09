@@ -123,7 +123,7 @@ function UserShell({ children }) {
             </div>
 
             <SidebarLink href="#" icon={<Wallet size={20} />} label="Best EMI Options" />
-            <SidebarLink href="#" icon={<Search size={20} />} label="Career Finder" />
+            <SidebarLink href="https://careervidya.in/whycareervidya/career-finder" icon={<Search size={20} />} label="Career Finder" />
             <SidebarLink href="#" icon={<Video size={20} />} label="University Expo" />
             
             <div className="relative group">

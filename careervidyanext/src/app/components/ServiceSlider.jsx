@@ -35,7 +35,7 @@ const IBASection = () => {
     () => {
       const mm = gsap.matchMedia();
 
-      // Text block slide-in (desktop only, same as before)
+      // Text block slide-in (desktop only)
       mm.add("(min-width: 768px)", () => {
         gsap.fromTo(
           ".animate-left",
@@ -53,9 +53,7 @@ const IBASection = () => {
         );
       });
 
-      // Images: one-by-one sequential reveal as user scrolls
-      // Each image gets its own trigger so they "wait their turn"
-      // instead of all animating together.
+      // Images sequential reveal on scroll
       const cards = gsap.utils.toArray(".iba-card");
 
       cards.forEach((card, index) => {
@@ -76,10 +74,10 @@ const IBASection = () => {
               trigger: card,
               start: "top 85%",
               end: "top 55%",
-              scrub: 0.6, // ties the reveal directly to scroll position
+              scrub: 0.6,
               toggleActions: "play none none reverse",
             },
-            delay: index * 0.15, // slight cascade so they don't feel identical
+            delay: index * 0.15,
           }
         );
       });
@@ -117,14 +115,17 @@ const IBASection = () => {
         className="px-5 py-8 bg-gray-50"
         aria-label="CareerVidya Indian Business Award Recognition"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          
           {/* LEFT CONTENT */}
-          <div className="lg:col-span-4 text-center lg:text-left mt-6 lg:mt-14">
-            <div className="animate-left space-y-4 px-2">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-[#0056B3]">
+          <div className="lg:col-span-4 text-left">
+            <div className="animate-left space-y-4">
+              {/* Heading 1 - Chhota size, 2 lines wrapping & Deep Blue Color */}
+              <h2 className="text-lg md:text-xl font-bold !text-[#1E3A8A] leading-snug max-w-md">
                 Where Real Stories Meet Honest Truth and Real Impact.
               </h2>
-              <p className="text-base md:text-xl text-gray-700 text-justify [hyphens:auto] [text-justify:inter-word]">
+
+              <p className="text-lg text-gray-600 leading-relaxed text-justify [hyphens:auto] [text-justify:inter-word]">
                 Career Vidya Is Proudly Recognized with The Prestigious Indian
                 Business Award for Transforming Student Careers Through
                 Expert Guidance and Online Education. From Simplifying Career
@@ -141,13 +142,12 @@ const IBASection = () => {
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="lg:col-span-8 text-center space-y-8">
-            <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-[#0056B3] uppercase">
-              India's Leading Career Platform Awarded at IBA
+          <div className="lg:col-span-8 text-center space-y-6">
+            <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold !text-[#1E3A8A] uppercase leading-snug">
+              India's Leading Career Platform <span className="text-[#F97316]">  Awarded at IBA</span>
             </h3>
 
-            {/* 1 col mobile (so images stack and reveal one-by-one naturally),
-                3 col desktop */}
+            {/* Images Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {staticBanners.map((item, index) => (
                 <div
@@ -167,6 +167,7 @@ const IBASection = () => {
               ))}
             </div>
           </div>
+
         </div>
       </section>
     </>

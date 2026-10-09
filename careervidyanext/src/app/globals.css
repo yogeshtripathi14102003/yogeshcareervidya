@@ -118,7 +118,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  color: var(--cv-neutral-dark);
+  /* color: var(--cv-neutral-dark); */
 }
 
 input, textarea, select {

@@ -169,7 +169,8 @@ export default function AdmissionProcess() {
               : "opacity-0 -translate-y-4"
           }`}
         >
-          <span className="text-[#0056B3]">Admission Process With Universities</span>
+          <span className="text-[#0056B3]">Admission Process</span>
+          <span className="text-[#F97316]">  With Universities</span>
         </h2>
 
         {/* Step progress helper text (screen-reader + visual) */}
