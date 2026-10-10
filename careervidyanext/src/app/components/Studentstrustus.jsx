@@ -115,8 +115,7 @@ export default function WhyStudentsTrustUs() {
 
             {/* Sub Heading (Heading ke niche) */}
             <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              Discover how CareerVidya simplifies your education journey with end-to-end guidance and flexible learning solutions.
-            </p>
+Clear advice, personalised recommendations and support at every step, from exploring courses to taking admission.            </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">

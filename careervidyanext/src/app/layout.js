@@ -138,6 +138,7 @@
 //     );
 // }
 
+
 import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -145,6 +146,7 @@ import AutoLogout from "../app/components/AutoLogout.js";
 import VisitorTracker from "@/app/components/VisitorTracker.jsx";
 import CopyProtection from "./components/CopyProtection";
 import ChatbotFloating from "./components/ChatbotFloating";
+// import Chatbot from "./components/Chatbot"; // ✅ ADD
 import FloatingButtons from "./components/FloatingButtons";
 import { AuthProvider } from "@/context/AuthContext.jsx";
 import QueryProvider from "@/providers/QueryProvider.jsx";
@@ -263,6 +265,8 @@ export default function RootLayout({ children }) {
                             videoUrl="https://www.youtube.com/embed/VIDEO_ID"
                         />
 
+
+{/* <Chatbot /> */}
                         <ChatbotFloating />
                         {children}
                         <Toaster richColors position="top-right" closeButton />

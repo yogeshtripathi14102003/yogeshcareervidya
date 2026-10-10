@@ -14,13 +14,12 @@ const isLoggedIn = () => {
 
 /* Partner logos - EMI/Loan partners */
 const partners = [
-  { name: "LIQUILOANS", src: "/logos/liquiloans.png", alt: "LiquiLoans" },
-  { name: "EarlySalary", src: "/logos/earlysalary.png", alt: "EarlySalary" },
-  { name: "eduvanz", src: "/logos/eduvanz.png", alt: "Eduvanz" },
-  { name: "FinancePeer", src: "/logos/financepeer.png", alt: "FinancePeer" },
-  { name: "PropelId", src: "/logos/propelid.png", alt: "PropelId" },
-  { name: "Credenc", src: "/logos/credenc.png", alt: "Credenc" },
-  { name: "Jodo", src: "/logos/jodo.png", alt: "Jodo" },
+  { name: "LIQUILOANS", src: "/images/benifit1.jpg", alt: "LiquiLoans" },
+  { name: "EarlySalary", src: "/images/benifit2.jpg", alt: "EarlySalary" },
+  { name: "eduvanz", src: "/images/benifit3.jpg", alt: "Eduvanz" },
+  { name: "FinancePeer", src: "/images/benifit4.jpg", alt: "FinancePeer" },
+  { name: "PropelId", src: "/images/benifit5.jpg", alt: "PropelId" },
+  { name: "Credenc", src: "/images/benifit6.jpg", alt: "Credenc" },
 ];
 
 export default function Careervidyabenifit({
@@ -161,20 +160,20 @@ export default function Careervidyabenifit({
             </div>
           )}
 
-          {/* PARTNER LOGOS */}
-          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 mt-5 sm:mt-6 items-center justify-items-center">
+          {/* PARTNER LOGOS — image fits the box size */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mt-5 sm:mt-6 items-center justify-items-center">
             {partners.map((partner) => (
               <div
                 key={partner.name}
-                className="p-2 sm:p-3 rounded-md flex items-center justify-center w-full h-12 sm:h-14 md:h-16"
+                className="relative rounded-md overflow-hidden w-full h-16 sm:h-20 md:h-24"
                 style={{ background: "#fff" }}
               >
                 <Image
                   src={partner.src}
                   alt={partner.alt}
-                  width={100}
-                  height={40}
-                  className="object-contain w-full h-full max-w-[80px] sm:max-w-[100px]"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
+                  className="object-contain p-1"
                 />
               </div>
             ))}

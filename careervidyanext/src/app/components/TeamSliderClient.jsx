@@ -823,7 +823,7 @@ export default function TeamSliderClient({ team = [] }) {
 
           {/* Action Button */}
           <div className="w-full mt-auto py-2 px-3.5 rounded-full bg-[#001748] group-hover:bg-[#F97316] text-white text-[11px] font-bold transition-all duration-300 flex items-center justify-center gap-1.5 border border-[#1d4694] group-hover:border-[#F97316]">
-            <span className="text-white">Career Advisor</span>
+            <span className="text-white">view profile</span>
             <ArrowRight
               size={13}
               className="text-white group-hover:translate-x-1 transition-transform"
@@ -880,7 +880,7 @@ export default function TeamSliderClient({ team = [] }) {
 
             {/* Subtitle Text */}
             <p className="text-[#b4cbef] text-xs md:text-sm max-w-xl mx-auto mt-3 font-normal leading-relaxed">
-              Get guidance from our experienced career counsellors and take the right step towards your dream future.
+             Explore our advisors’ experience and expertise, and discover how they can help you choose the right course for your goals.
             </p>
           </div>
 
