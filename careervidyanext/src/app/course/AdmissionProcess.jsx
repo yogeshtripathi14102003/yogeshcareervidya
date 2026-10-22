@@ -97,7 +97,7 @@ export default function AdmissionProcess({ steps, courseTitle }) {
             <h2
               id="admission-heading"
               itemProp="name"
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 px-2"
+              className="text-2xl sm:text-3xl md:text-3xl lg:text-3xl font-bold leading-tight mb-3 px-2"
               style={{ color: "var(--cv-primary)" }}
             >
               Admission Process for{" "}
@@ -218,7 +218,7 @@ export default function AdmissionProcess({ steps, courseTitle }) {
                         <div
                           itemProp="text"
                           className="text-xs xl:text-sm leading-relaxed prose prose-sm max-w-none break-words prose-p:my-1 prose-ul:my-2 prose-li:my-0.5"
-                          style={{ color: "var(--cv-neutral-mid)" }}
+                          style={{ color: "var(--cv-neutral-dark)" }}
                           dangerouslySetInnerHTML={{ __html: step.description }}
                         />
                       )}

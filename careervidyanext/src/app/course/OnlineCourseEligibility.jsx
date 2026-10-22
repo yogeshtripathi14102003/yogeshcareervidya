@@ -315,7 +315,7 @@ export default function OnlineCourseEligibility({
           <header className="text-center mb-6 md:mb-8">
             <h2
               id="eligibility-heading"
-              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3 px-2"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-bold leading-tight mb-3 px-2"
               style={{ color: "var(--cv-primary)" }}
             >
               Eligibility for {courseTitle || "this Course"}

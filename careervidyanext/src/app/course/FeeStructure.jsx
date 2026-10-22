@@ -504,7 +504,7 @@ export default function FeeStructure({
 
             <h2
               id="fee-heading"
-              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-3"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-extrabold leading-tight mb-3"
               style={{ color: "var(--cv-primary)", ...TEXT_WRAP_STYLE }}
             >
               Fee Structure for {courseTitle || "this Course"}

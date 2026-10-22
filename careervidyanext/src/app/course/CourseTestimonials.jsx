@@ -82,7 +82,7 @@ export default function CourseTestimonials({ testimonials, courseTitle }) {
 
             <h2
               id="testimonials-heading"
-              className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3"
+              className="text-2xl md:text-3xl lg:text-3xl font-bold leading-tight mb-3"
               style={{ color: "var(--cv-primary)" }}
             >
               What Our{" "}

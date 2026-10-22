@@ -529,7 +529,7 @@ export default function CourseKeyHighlights({ course }) {
           <header className="mb-6 md:mb-8">
             <h2
               id="key-highlights-heading"
-              className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight"
+              className="text-2xl sm:text-xl md:text-3xl font-bold leading-tight"
               style={{ color: "var(--cv-primary)" }}
             >
               What You&apos;ll Learn &amp; Gain from {courseName}?

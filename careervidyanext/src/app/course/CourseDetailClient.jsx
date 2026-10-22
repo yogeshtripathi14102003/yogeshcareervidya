@@ -1184,62 +1184,89 @@ export default function CourseDetailClient({ course }) {
               2. WHY CHOOSE US
               ================================================== */}
 
-        {showSection("why-choose") && normalizedWhyChooseUs?.length > 0 && (
+ 
+{showSection("why-choose") && normalizedWhyChooseUs?.length > 0 && (
   <section
     id="why-choose"
-    className="relative w-full py-12 bg-white overflow-hidden"
+    className="w-full overflow-hidden bg-white py-4 sm:py-6"
   >
-    <div className="py-8 rounded-lg max-w-[1800px] lg:w-[90%] mx-auto px-6">
-      <header className="text-center mb-8">
-        <h2 className="text-3xl md:text-2xl font-black text-[#002147] mb-3">
-          Why {course?.name}?
-        </h2>
+    {/* SAME CONTAINER AS COURSE OVERVIEW */}
+    <div className="w-full px-3 sm:px-5 lg:px-10">
+      <div className="w-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7 md:p-9">
 
-        <div
-          aria-hidden="true"
-          className="w-16 h-1 bg-[#002147] mx-auto rounded-full"
-        />
-      </header>
+        {/* SECTION HEADING */}
+        <header className="mb-6">
+          <h2 className="text-xl font-bold leading-tight text-[#1E3A8A] sm:text-2xl md:text-[28px]">
+            Why Choose {course?.name || "This Course"}?
+          </h2>
 
-      <div className="space-y-8">
-        {normalizedWhyChooseUs.map((item, i) => (
-          <article
-            key={i}
-            className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
-              i % 2 !== 0 ? "lg:flex-row-reverse" : ""
-            }`}
-          >
-            <div className="w-full lg:w-1/2 flex flex-col justify-center py-2 min-w-0">
-              <p className="course-content-safe text-gray-600 text-sm md:text-base leading-relaxed text-justify font-medium">
-                {item?.description || ""}
-              </p>
-            </div>
+          <div
+            aria-hidden="true"
+            className="mt-3 h-1 w-16 rounded-full bg-[#F97316]"
+          />
+        </header>
 
-            <div className="w-full lg:w-1/2 group min-w-0">
-              <div className="relative h-[250px] md:h-[300px] overflow-hidden rounded-[1.5rem] bg-slate-50 border border-slate-100 shadow-sm">
-                {item?.image?.url ? (
-                  <Image
-                    src={item.image.url}
-                    alt={
-                      item?.heading
-                        ? `${normalizeRichText(item.heading)} - ${course?.name}`
-                        : `Why choose ${course?.name}`
-                    }
-                    fill
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    className="object-contain p-4"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-                    <p className="text-sm font-semibold text-[#002147]">
-                      Coming Soon
+        {/* WHY CHOOSE CONTENT */}
+        <div className="space-y-7">
+          {normalizedWhyChooseUs.map((item, i) => (
+            <article key={i} className="w-full min-w-0">
+
+              {/* ITEM HEADING */}
+              {item?.heading && (
+                <h3 className="mb-3 text-lg font-bold leading-snug text-[#111827] sm:text-xl">
+                  {normalizeRichText(item.heading)}
+                </h3>
+              )}
+
+              {/* TEXT + IMAGE */}
+              <div
+                className={`flex min-w-0 flex-col items-start gap-4 lg:flex-row lg:items-center lg:gap-6 ${
+                  i % 2 !== 0 ? "lg:flex-row-reverse" : ""
+                }`}
+              >
+                {/* DESCRIPTION - 65% */}
+                <div className="w-full min-w-0 lg:w-[65%] lg:flex-none">
+                  {item?.description && (
+                    <p className="course-content-safe text-sm font-normal leading-7 text-[#111827] sm:text-base sm:leading-8 md:text-[16px]">
+                      {item.description}
                     </p>
+                  )}
+                </div>
+
+                {/* IMAGE - 35% */}
+                <div className="w-full min-w-0 lg:w-[35%] lg:flex-none">
+                  <div className="relative h-[180px] w-full overflow-hidden rounded-xl border border-gray-200 bg-[#F8FAFC] sm:h-[220px] md:h-[250px]">
+                    {item?.image?.url ? (
+                      <Image
+                        src={item.image.url}
+                        alt={
+                          item?.heading
+                            ? `${normalizeRichText(item.heading)} - ${
+                                course?.name || "Course"
+                              }`
+                            : `Why choose ${
+                                course?.name || "this course"
+                              }`
+                        }
+                        fill
+                        sizes="(min-width: 1024px) 35vw, 100vw"
+                        className="object-contain p-2"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center p-4 text-center">
+                        <p className="text-sm font-medium text-gray-500">
+                          Image coming soon
+                        </p>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))}
+        </div>
+
       </div>
     </div>
   </section>
@@ -1307,7 +1334,7 @@ export default function CourseDetailClient({ course }) {
         </span>
 
         <h2
-          className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-3"
+          className="text-2xl sm:text-3xl md:text-3xl font-bold leading-tight mb-3"
           style={{ color: "var(--cv-primary)" }}
         >
           Course Subjects / Syllabus
@@ -1333,7 +1360,7 @@ export default function CourseDetailClient({ course }) {
 
         <p
           className="text-sm md:text-base max-w-2xl mx-auto mt-3 px-4"
-          style={{ color: "var(--cv-neutral-mid)" }}
+          style={{ color: "var(--cv-neutral-dark)" }}
         >
           Complete semester-wise breakdown of the {course?.name} curriculum.
         </p>

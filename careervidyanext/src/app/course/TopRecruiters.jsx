@@ -36,7 +36,7 @@ export default function TopRecruiters({ topRecruiters, courseTitle }) {
         {/* Description — Grey */}
         <p
           className="mb-4 leading-relaxed max-w-5xl text-sm md:text-base"
-          style={{ color: "var(--cv-neutral-mid)" }}
+          style={{ color: "var(--cv-neutral-dark)" }}
         >
           Multiple top recruiters of the top MNCs in India and abroad can hire
           online {dynamicCourseTitle} course graduates and offer higher
@@ -48,7 +48,7 @@ export default function TopRecruiters({ topRecruiters, courseTitle }) {
         {/* Note */}
         <p
           className="text-xs md:text-sm italic mb-5"
-          style={{ color: "var(--cv-neutral-mid)" }}
+          style={{ color: "var(--cv-neutral-dark)" }}
         >
           *The Naukri Jobs or Companies portal can cover the salary data range
           or the top companies that hire the online {dynamicCourseTitle} course

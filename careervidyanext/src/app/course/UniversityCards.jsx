@@ -713,7 +713,8 @@ export default function UniversityCardsCompact({ universities, courseTitle }) {
           <header className="mb-6 md:mb-8">
             <h2
               id="university-heading"
-              className="text-xl md:text-2xl font-bold leading-tight text-[#0a2540]"
+              className="text-xl md:text-2xl font-bold leading-tight "
+               style={{ color: "var(--cv-primary)" }}
             >
               Top Universities for {courseTitle || "this Course"}
             </h2>

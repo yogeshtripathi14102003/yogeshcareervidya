@@ -1,190 +1,4 @@
-// "use client";
 
-// import { useState } from "react";
-// import Signup from "@/app/signup/page.jsx";
-
-// /* ================= LOGIN CHECK ================= */
-// const isLoggedIn = () => {
-//   if (typeof window === "undefined") return false;
-//   return !!localStorage.getItem("accessToken"); 
-// };
-
-// /* ================= PDF DOWNLOAD WITH NAME ================= */
-// const downloadPdfWithName = async (url, fileName) => {
-//   try {
-//     const response = await fetch(url);
-//     const blob = await response.blob();
-//     const link = document.createElement("a");
-//     link.href = window.URL.createObjectURL(blob);
-//     link.download = fileName;
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-//     window.URL.revokeObjectURL(link.href);
-//   } catch (error) {
-//     alert("Unable to download syllabus");
-//     console.error(error);
-//   }
-// };
-
-// /* ================= VIDEO MODAL ================= */
-// function VideoModal({ videoUrl, onClose }) {
-//   const getEmbedUrl = (url) => {
-//     if (!url) return null;
-//     if (url.includes("youtube.com/embed/")) return url;
-//     let id = "";
-//     if (url.includes("watch?v=")) id = url.split("v=")[1].split("&")[0];
-//     else if (url.includes("youtu.be/")) id = url.split("youtu.be/")[1];
-//     else if (url.includes("shorts/")) id = url.split("shorts/")[1];
-//     return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-//   };
-
-//   return (
-//     <div className="fixed inset-0 z-[1000] bg-black/90 flex items-center justify-center p-4">
-//       <div className="absolute inset-0" onClick={onClose}></div>
-//       <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden">
-//         <button
-//           onClick={onClose}
-//           className="absolute top-4 right-4 z-50 bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center"
-//         >
-//           ✕
-//         </button>
-//         <iframe
-//           src={getEmbedUrl(videoUrl)}
-//           className="w-full h-full"
-//           allow="autoplay; encrypted-media"
-//           allowFullScreen
-//           title="Course Preview Video"
-//         />
-//       </div>
-//     </div>
-//   );
-// }
-
-// /* ================= MAIN COMPONENT ================= */
-// export default function CourseOverview({ course }) {
-//   const [showSignup, setShowSignup] = useState(false);
-//   const [selectedVideo, setSelectedVideo] = useState(null);
-
-//   if (!course?.overview?.length) return null;
-
-//   const handleSyllabusClick = async () => {
-//     if (!isLoggedIn()) {
-//       setShowSignup(true);
-//       return;
-//     }
-//     if (!course?.syllabusPdf?.url) {
-//       alert("Syllabus not available");
-//       return;
-//     }
-//     await downloadPdfWithName(
-//       course.syllabusPdf.url,
-//       `${course.courseName || "Course"}-Full-Syllabus.pdf`
-//     );
-//   };
-
-//   // SEO Schema - Isse Google ko data samajhne mein aasani hogi
-//   const schemaData = {
-//     "@context": "https://schema.org",
-//     "@type": "Course",
-//     "name": course.courseName || "Online Course",
-//     "description": course.overview[0]?.description || "Professional course overview",
-//     "provider": {
-//       "@type": "Organization",
-//       "name": "Career Vidya",
-//       "url": "https://careervidya.in"
-//     }
-//   };
-
-//   return (
-//     <>
-//       {/* SEO Structured Data */}
-//       <script
-//         type="application/ld+json"
-//         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-//       />
-
-//       <section className="w-full bg-white pt-10">
-//         <div className=" bg-[#dce6f7] py-2 rounded-[5px]  max-w-[1800px] lg:w-[90%] mx-auto px-6">
-//           {course.overview.map((item, i) => (
-//             <article
-//               key={i}
-//               className={`flex flex-col lg:flex-row items-center gap-10 mb-16 ${
-//                 i % 2 ? "lg:flex-row-reverse" : ""
-//               }`}
-//             >
-//               {/* IMAGE SECTION - Standard img for 100% visibility */}
-//             <div className="w-full lg:w-1/2 rounded-xl bg-white shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
-//                 {item.image?.url ? (
-//                   <img
-//                     src={item.image.url}
-//                     alt={`${course.courseName} - ${item.heading}`} // SEO Alt Tag
-//                     className="w-full max-h-[350px] object-contain"
-//                     loading="lazy"
-//                   />
-//                 ) : (
-//                   <div className="h-[250px] bg-slate-100 flex items-center justify-center rounded-xl text-slate-400 italic">
-//                     Preview Coming Soon
-//                   </div>
-//                 )}
-//               </div>
-
-//               {/* CONTENT SECTION */}
-//               <div className="w-full lg:w-1/2">
-//                 <span className="text-xs font-bold text-blue-600 uppercase">
-//                   Course Module {i + 1}
-//                 </span>
-
-//                 <h2 className="text-2xl md:text-3xl font-extrabold text-[#002147] mt-2">
-//                   {item.heading}
-//                 </h2>
-
-//                 {/* DESCRIPTION - Wahi purana size (text-slate-600 mt-4 mb-6) */}
-//                 <p className="text-slate-600 mt-4 mb-6 text-justify">
-//                   {item.description}
-//                 </p>
-
-//                 <div className="flex gap-4 flex-wrap">
-//                   <button
-//                     onClick={handleSyllabusClick}
-//                     className=" cursor-pointer   bg-[#c15304] text-white px-2 py-2 rounded-[5px] font-bold transition-all hover:opacity-90 active:scale-95"
-//                   >
-//                     Get Full Syllabus
-//                   </button>
-
-//                   {item.videoLink && (
-//                     <button
-//                       onClick={() => setSelectedVideo(item.videoLink)}
-//                       className=" cursor-pointer   bg-[#c15304] flex items-center gap-2 px-2 rounded-[5px] font-bold text-white group"
-//                     >
-//                       <span className="group-hover:text-blue-whaite transition-colors">▶ Watch Video</span>
-//                     </button>
-//                   )}
-//                 </div>
-//               </div>
-//             </article>
-//           ))}
-//         </div>
-//       </section>
-
-//       {/* VIDEO MODAL */}
-//       {selectedVideo && (
-//         <VideoModal
-//           videoUrl={selectedVideo}
-//           onClose={() => setSelectedVideo(null)}
-//         />
-//       )}
-
-//       {/* SIGNUP MODAL */}
-//       {showSignup && (
-//         <Signup
-//           onClose={() => setShowSignup(false)}
-//           courseName={course.courseName}
-//         />
-//       )}
-//     </>
-//   );
-// }
 
 
 // // "use client";
@@ -388,52 +202,352 @@
 
 
 
+// "use client";
+
+// import { useState } from "react";
+// import Image from "next/image";
+// import Signup from "@/app/signup/page.jsx";
+
+// /* ═══════════════════════════════════════════════
+//    LOGIN CHECK
+// ═══════════════════════════════════════════════ */
+// const isLoggedIn = () => {
+//   if (typeof window === "undefined") return false;
+//   return !!localStorage.getItem("accessToken");
+// };
+
+// /* ═══════════════════════════════════════════════
+//    PDF DOWNLOAD
+// ═══════════════════════════════════════════════ */
+// const downloadPdfWithName = async (url, fileName) => {
+//   try {
+//     const response = await fetch(url);
+//     const blob = await response.blob();
+//     const link = document.createElement("a");
+//     link.href = window.URL.createObjectURL(blob);
+//     link.download = fileName;
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//     window.URL.revokeObjectURL(link.href);
+//   } catch (error) {
+//     alert("Unable to download syllabus");
+//     console.error(error);
+//   }
+// };
+
+// /* ═══════════════════════════════════════════════
+//    VIDEO MODAL
+// ═══════════════════════════════════════════════ */
+// function VideoModal({ videoUrl, onClose }) {
+//   const getEmbedUrl = (url) => {
+//     if (!url) return null;
+//     if (url.includes("youtube.com/embed/")) return url;
+//     let id = "";
+//     if (url.includes("watch?v=")) id = url.split("v=")[1].split("&")[0];
+//     else if (url.includes("youtu.be/")) id = url.split("youtu.be/")[1];
+//     else if (url.includes("shorts/")) id = url.split("shorts/")[1];
+//     return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+//   };
+
+//   return (
+//     <div
+//       role="dialog"
+//       aria-modal="true"
+//       aria-label="Course preview video"
+//       className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+//       style={{ background: "rgba(15, 23, 42, 0.92)" }}
+//     >
+//       <div className="absolute inset-0" onClick={onClose}></div>
+//       <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden">
+//         <button
+//           onClick={onClose}
+//           aria-label="Close video"
+//           className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-white cursor-pointer transition-all"
+//           style={{ background: "var(--cv-accent)" }}
+//           onMouseEnter={(e) =>
+//             (e.currentTarget.style.background = "var(--cv-accent-dark)")
+//           }
+//           onMouseLeave={(e) =>
+//             (e.currentTarget.style.background = "var(--cv-accent)")
+//           }
+//         >
+//           ✕
+//         </button>
+//         <iframe
+//           src={getEmbedUrl(videoUrl)}
+//           className="w-full h-full"
+//           allow="autoplay; encrypted-media"
+//           allowFullScreen
+//           title="Course Preview Video"
+//         />
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* ═══════════════════════════════════════════════
+//    MAIN COMPONENT
+// ═══════════════════════════════════════════════ */
+// export default function CourseOverview({ course }) {
+//   const [showSignup, setShowSignup] = useState(false);
+//   const [selectedVideo, setSelectedVideo] = useState(null);
+
+//   if (!course?.overview?.length) return null;
+
+//   const courseName = course.courseName || course.name || "Online Course";
+
+//   const handleSyllabusClick = async () => {
+//     if (!isLoggedIn()) {
+//       setShowSignup(true);
+//       return;
+//     }
+//     if (!course?.syllabusPdf?.url) {
+//       alert("Syllabus not available");
+//       return;
+//     }
+//     await downloadPdfWithName(
+//       course.syllabusPdf.url,
+//       `${courseName}-Full-Syllabus.pdf`
+//     );
+//   };
+
+//   const handleVideoClick = (videoLink) => {
+//     if (!videoLink) {
+//       alert("Video will be available soon");
+//       return;
+//     }
+//     setSelectedVideo(videoLink);
+//   };
+
+//   /* ═══════════════════════════════════════════════
+//      SEO Schema
+//   ═══════════════════════════════════════════════ */
+//   const schemaData = {
+//     "@context": "https://schema.org",
+//     "@type": "Course",
+//     name: courseName,
+//     description:
+//       course.overview[0]?.description?.replace(/<[^>]*>/g, "").trim() ||
+//       "Professional course overview",
+//     provider: {
+//       "@type": "Organization",
+//       name: "Career Vidya",
+//       url: "https://careervidya.in",
+//     },
+//     ...(course?.duration && { timeRequired: course.duration }),
+//     ...(course?.category && { educationalLevel: course.category }),
+//   };
+
+//   return (
+//     <>
+//       {/* SEO Structured Data */}
+//       <script
+//         type="application/ld+json"
+//         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+//       />
+
+//       <section
+//         aria-labelledby="course-overview-heading"
+//         className="w-full pt-10"
+//         style={{ background: "#fff" }}
+//       >
+//         <h2 id="course-overview-heading" className="sr-only">
+//           Course Overview
+//         </h2>
+
+//         {/* Outer container — Light navy bg */}
+//         <div
+//           className="py-8 rounded-lg max-w-[1800px] lg:w-[90%] mx-auto px-6"
+//           style={{ background: "var(--cv-primary-light)" }}
+//         >
+//           {course.overview.map((item, i) => (
+//             <article
+//               key={i}
+//               className={`flex flex-col lg:flex-row items-center gap-10 mb-16 last:mb-0 ${
+//                 i % 2 ? "lg:flex-row-reverse" : ""
+//               }`}
+//             >
+//               {/* ═══════════════════════════════════════════
+//                   IMAGE
+//               ═══════════════════════════════════════════ */}
+//               <div
+//                 className="w-full lg:w-1/2 relative h-[300px] md:h-[350px] rounded-xl overflow-hidden"
+//                 style={{
+//                   background: "#fff",
+//                   boxShadow: "0 10px 30px rgba(30, 58, 138, 0.12)",
+//                   border: "1px solid var(--cv-neutral-border)",
+//                 }}
+//               >
+//                 {item.image?.url ? (
+//                   <Image
+//                     src={item.image.url}
+//                     alt={`${courseName} - ${
+//                       item.heading || `Overview ${i + 1}`
+//                     }`}
+//                     fill
+//                     sizes="(min-width: 1024px) 50vw, 100vw"
+//                     className="object-contain p-4"
+//                   />
+//                 ) : (
+//                   <div
+//                     className="h-full flex items-center justify-center rounded-xl italic text-sm md:text-base"
+//                     style={{ color: "var(--cv-neutral-mid)" }}
+//                   >
+//                     Preview Coming Soon
+//                   </div>
+//                 )}
+//               </div>
+
+//               {/* ═══════════════════════════════════════════
+//                   CONTENT
+//               ═══════════════════════════════════════════ */}
+//               <div className="w-full lg:w-1/2">
+//                 {/* Eyebrow — Navy */}
+//                 <span
+//                   className="text-xs font-bold uppercase tracking-wide"
+//                   style={{ color: "var(--cv-primary)" }}
+//                 >
+//                   Course Module {i + 1}
+//                 </span>
+
+//                 {/* Heading — Navy */}
+//                 <h2
+//                   className="text-2xl md:text-3xl font-extrabold mt-2"
+//                   style={{ color: "var(--cv-primary)" }}
+//                 >
+//                   {item.heading}
+//                 </h2>
+
+//                 {/* Description — Grey */}
+//                 <p
+//                   className="mt-4 mb-6 text-justify leading-relaxed"
+//                   style={{ color: "var(--cv-neutral-mid)" }}
+//                 >
+//                   {item.description}
+//                 </p>
+
+//                 {/* ═══════════════════════════════════════════
+//                     BUTTONS — Global CSS
+//                 ═══════════════════════════════════════════ */}
+//                 <div className="flex gap-4 flex-wrap">
+//                   {/* Get Full Syllabus — Orange gradient (cv-btn-cta) */}
+//                   <button
+//                     type="button"
+//                     onClick={handleSyllabusClick}
+//                     aria-label={`Get full syllabus for ${courseName}`}
+//                     className="cv-btn-cta cursor-pointer px-4 py-2 active:scale-95"
+//                   >
+//                     Get Full Syllabus
+//                   </button>
+
+//                   {/* Watch Video — Navy solid */}
+//                   <button
+//                     type="button"
+//                     onClick={() => handleVideoClick(item.videoLink)}
+//                     aria-label="Watch course video"
+//                     className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-white group transition-all active:scale-95"
+//                     style={{
+//                       background: "var(--cv-primary)",
+//                       boxShadow: "0 4px 12px rgba(30, 58, 138, 0.25)",
+//                     }}
+//                     onMouseEnter={(e) => {
+//                       e.currentTarget.style.background = "var(--cv-primary-dark)";
+//                       e.currentTarget.style.transform = "translateY(-1px)";
+//                     }}
+//                     onMouseLeave={(e) => {
+//                       e.currentTarget.style.background = "var(--cv-primary)";
+//                       e.currentTarget.style.transform = "translateY(0)";
+//                     }}
+//                   >
+//                     <span>▶ Watch Video</span>
+//                   </button>
+//                 </div>
+//               </div>
+//             </article>
+//           ))}
+//         </div>
+//       </section>
+
+//       {/* VIDEO MODAL */}
+//       {selectedVideo && (
+//         <VideoModal
+//           videoUrl={selectedVideo}
+//           onClose={() => setSelectedVideo(null)}
+//         />
+//       )}
+
+//       {/* SIGNUP MODAL */}
+//       {showSignup && (
+//         <Signup
+//           onClose={() => setShowSignup(false)}
+//           courseName={courseName}
+//         />
+//       )}
+//     </>
+//   );
+// }
+
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Signup from "@/app/signup/page.jsx";
 
-/* ═══════════════════════════════════════════════
-   LOGIN CHECK
-═══════════════════════════════════════════════ */
+/* LOGIN CHECK */
 const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("accessToken");
 };
 
-/* ═══════════════════════════════════════════════
-   PDF DOWNLOAD
-═══════════════════════════════════════════════ */
+/* PDF DOWNLOAD */
 const downloadPdfWithName = async (url, fileName) => {
   try {
     const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Unable to download syllabus");
+    }
+
     const blob = await response.blob();
     const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
+    const objectUrl = window.URL.createObjectURL(blob);
+
+    link.href = objectUrl;
     link.download = fileName;
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    window.URL.revokeObjectURL(link.href);
+
+    window.URL.revokeObjectURL(objectUrl);
   } catch (error) {
     alert("Unable to download syllabus");
     console.error(error);
   }
 };
 
-/* ═══════════════════════════════════════════════
-   VIDEO MODAL
-═══════════════════════════════════════════════ */
+/* VIDEO MODAL */
 function VideoModal({ videoUrl, onClose }) {
   const getEmbedUrl = (url) => {
     if (!url) return null;
-    if (url.includes("youtube.com/embed/")) return url;
+
+    if (url.includes("youtube.com/embed/")) {
+      return url;
+    }
+
     let id = "";
-    if (url.includes("watch?v=")) id = url.split("v=")[1].split("&")[0];
-    else if (url.includes("youtu.be/")) id = url.split("youtu.be/")[1];
-    else if (url.includes("shorts/")) id = url.split("shorts/")[1];
-    return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+
+    if (url.includes("watch?v=")) {
+      id = url.split("v=")[1].split("&")[0];
+    } else if (url.includes("youtu.be/")) {
+      id = url.split("youtu.be/")[1].split("?")[0];
+    } else if (url.includes("shorts/")) {
+      id = url.split("shorts/")[1].split("?")[0];
+    }
+
+    return id
+      ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`
+      : url;
   };
 
   return (
@@ -441,29 +555,28 @@ function VideoModal({ videoUrl, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label="Course preview video"
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-4"
       style={{ background: "rgba(15, 23, 42, 0.92)" }}
+      onClick={onClose}
     >
-      <div className="absolute inset-0" onClick={onClose}></div>
-      <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden">
+      <div
+        className="relative w-full max-w-4xl aspect-video bg-black rounded-xl sm:rounded-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close video"
-          className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center text-white cursor-pointer transition-all"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 z-50 w-9 h-9 rounded-full flex items-center justify-center text-white cursor-pointer"
           style={{ background: "var(--cv-accent)" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "var(--cv-accent-dark)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "var(--cv-accent)")
-          }
         >
           ✕
         </button>
+
         <iframe
           src={getEmbedUrl(videoUrl)}
           className="w-full h-full"
-          allow="autoplay; encrypted-media"
+          allow="autoplay; encrypted-media; picture-in-picture"
           allowFullScreen
           title="Course Preview Video"
         />
@@ -472,186 +585,156 @@ function VideoModal({ videoUrl, onClose }) {
   );
 }
 
-/* ═══════════════════════════════════════════════
-   MAIN COMPONENT
-═══════════════════════════════════════════════ */
+/* MAIN COMPONENT */
 export default function CourseOverview({ course }) {
   const [showSignup, setShowSignup] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
   if (!course?.overview?.length) return null;
 
-  const courseName = course.courseName || course.name || "Online Course";
+  const courseName =
+    course.courseName || course.name || "Online Course";
 
+  /* SYLLABUS BUTTON */
   const handleSyllabusClick = async () => {
     if (!isLoggedIn()) {
       setShowSignup(true);
       return;
     }
+
     if (!course?.syllabusPdf?.url) {
       alert("Syllabus not available");
       return;
     }
+
     await downloadPdfWithName(
       course.syllabusPdf.url,
       `${courseName}-Full-Syllabus.pdf`
     );
   };
 
+  /* VIDEO BUTTON */
   const handleVideoClick = (videoLink) => {
     if (!videoLink) {
       alert("Video will be available soon");
       return;
     }
+
     setSelectedVideo(videoLink);
   };
 
-  /* ═══════════════════════════════════════════════
-     SEO Schema
-  ═══════════════════════════════════════════════ */
+  /* SEO SCHEMA */
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "Course",
     name: courseName,
     description:
-      course.overview[0]?.description?.replace(/<[^>]*>/g, "").trim() ||
-      "Professional course overview",
+      course.overview[0]?.description
+        ?.replace(/<[^>]*>/g, "")
+        .trim() || "Professional course overview",
     provider: {
       "@type": "Organization",
       name: "Career Vidya",
       url: "https://careervidya.in",
     },
-    ...(course?.duration && { timeRequired: course.duration }),
-    ...(course?.category && { educationalLevel: course.category }),
+    ...(course?.duration && {
+      timeRequired: course.duration,
+    }),
+    ...(course?.category && {
+      educationalLevel: course.category,
+    }),
   };
 
   return (
     <>
-      {/* SEO Structured Data */}
+      {/* SEO STRUCTURED DATA */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(schemaData),
+        }}
       />
 
+      {/* COURSE OVERVIEW SECTION */}
       <section
         aria-labelledby="course-overview-heading"
-        className="w-full pt-10"
-        style={{ background: "#fff" }}
+        className="w-full bg-white py-4 sm:py-6"
       >
-        <h2 id="course-overview-heading" className="sr-only">
-          Course Overview
-        </h2>
+        <div className="w-full px-3 sm:px-5 lg:px-10">
+          <div className="w-full rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 md:p-9 shadow-sm">
 
-        {/* Outer container — Light navy bg */}
-        <div
-          className="py-8 rounded-lg max-w-[1800px] lg:w-[90%] mx-auto px-6"
-          style={{ background: "var(--cv-primary-light)" }}
-        >
-          {course.overview.map((item, i) => (
-            <article
-              key={i}
-              className={`flex flex-col lg:flex-row items-center gap-10 mb-16 last:mb-0 ${
-                i % 2 ? "lg:flex-row-reverse" : ""
-              }`}
+            {/* MAIN HEADING */}
+            <h2
+              id="course-overview-heading"
+              className="mb-6 text-xl sm:text-2xl md:text-[28px] font-extrabold leading-tight text-[#1E3A8A]"
             >
-              {/* ═══════════════════════════════════════════
-                  IMAGE
-              ═══════════════════════════════════════════ */}
-              <div
-                className="w-full lg:w-1/2 relative h-[300px] md:h-[350px] rounded-xl overflow-hidden"
-                style={{
-                  background: "#fff",
-                  boxShadow: "0 10px 30px rgba(30, 58, 138, 0.12)",
-                  border: "1px solid var(--cv-neutral-border)",
-                }}
+              Overview of {courseName}
+            </h2>
+
+            {/* COURSE OVERVIEW CONTENT */}
+            {course.overview.map((item, i) => (
+              <article
+                key={i}
+                className="w-full mb-7 last:mb-0"
               >
-                {item.image?.url ? (
-                  <Image
-                    src={item.image.url}
-                    alt={`${courseName} - ${
-                      item.heading || `Overview ${i + 1}`
-                    }`}
-                    fill
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    className="object-contain p-4"
-                  />
-                ) : (
-                  <div
-                    className="h-full flex items-center justify-center rounded-xl italic text-sm md:text-base"
-                    style={{ color: "var(--cv-neutral-mid)" }}
-                  >
-                    Preview Coming Soon
-                  </div>
+                {/* COURSE HEADING */}
+                {item.heading && (
+                  <h3 className="mb-3 text-lg sm:text-xl font-bold leading-snug text-[#111827]">
+                    {item.heading}
+                  </h3>
                 )}
-              </div>
 
-              {/* ═══════════════════════════════════════════
-                  CONTENT
-              ═══════════════════════════════════════════ */}
-              <div className="w-full lg:w-1/2">
-                {/* Eyebrow — Navy */}
-                <span
-                  className="text-xs font-bold uppercase tracking-wide"
-                  style={{ color: "var(--cv-primary)" }}
-                >
-                  Course Module {i + 1}
-                </span>
+                {/* COURSE DESCRIPTION */}
+                {item.description && (
+                  <p className="mb-5 text-sm sm:text-base md:text-[17px] font-normal leading-7 sm:leading-8 text-[#111827]">
+                    {item.description}
+                  </p>
+                )}
 
-                {/* Heading — Navy */}
-                <h2
-                  className="text-2xl md:text-3xl font-extrabold mt-2"
-                  style={{ color: "var(--cv-primary)" }}
-                >
-                  {item.heading}
-                </h2>
+                {/* ACTION BUTTONS */}
+                <div className="flex flex-col min-[420px]:flex-row items-stretch min-[420px]:items-center gap-3">
 
-                {/* Description — Grey */}
-                <p
-                  className="mt-4 mb-6 text-justify leading-relaxed"
-                  style={{ color: "var(--cv-neutral-mid)" }}
-                >
-                  {item.description}
-                </p>
-
-                {/* ═══════════════════════════════════════════
-                    BUTTONS — Global CSS
-                ═══════════════════════════════════════════ */}
-                <div className="flex gap-4 flex-wrap">
-                  {/* Get Full Syllabus — Orange gradient (cv-btn-cta) */}
+                  {/* GET FULL SYLLABUS */}
                   <button
                     type="button"
                     onClick={handleSyllabusClick}
                     aria-label={`Get full syllabus for ${courseName}`}
-                    className="cv-btn-cta cursor-pointer px-4 py-2 active:scale-95"
+                    className="cv-btn-cta w-full min-[420px]:w-auto cursor-pointer px-5 py-3 text-sm sm:text-base text-center active:scale-95 transition-transform"
                   >
                     Get Full Syllabus
                   </button>
 
-                  {/* Watch Video — Navy solid */}
+                  {/* WATCH VIDEO */}
                   <button
                     type="button"
-                    onClick={() => handleVideoClick(item.videoLink)}
-                    aria-label="Watch course video"
-                    className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-white group transition-all active:scale-95"
+                    onClick={() =>
+                      handleVideoClick(item.videoLink)
+                    }
+                    aria-label={`Watch ${courseName} course video`}
+                    className="w-full min-[420px]:w-auto cursor-pointer flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-bold text-white text-sm sm:text-base transition-all active:scale-95"
                     style={{
                       background: "var(--cv-primary)",
-                      boxShadow: "0 4px 12px rgba(30, 58, 138, 0.25)",
+                      boxShadow:
+                        "0 4px 12px rgba(30, 58, 138, 0.18)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "var(--cv-primary-dark)";
-                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.background =
+                        "var(--cv-primary-dark)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "var(--cv-primary)";
-                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.background =
+                        "var(--cv-primary)";
                     }}
                   >
-                    <span>▶ Watch Video</span>
+                    <span aria-hidden="true">▶</span>
+                    Watch Video
                   </button>
+
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+
+          </div>
         </div>
       </section>
 

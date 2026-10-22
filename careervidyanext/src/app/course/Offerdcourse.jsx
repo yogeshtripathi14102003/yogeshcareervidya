@@ -123,6 +123,7 @@
 //   );
 // }
 
+
 "use client";
 
 import React from "react";
@@ -151,9 +152,12 @@ export default function Offerdcourse({
 
   return (
     <>
+      {/* SEO STRUCTURED DATA */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(schema),
+        }}
       />
 
       <section
@@ -165,14 +169,17 @@ export default function Offerdcourse({
           borderBottom: "1px solid var(--cv-neutral-border)",
         }}
       >
-        {/* ✅ CONTAINER — Same as Overview */}
-        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6">
+        {/* MAIN CONTAINER */}
+        <div className="max-w-[1800px] lg:w-[90%] mx-auto px-4 sm:px-6 min-w-0">
+
           {/* HEADER */}
           <header className="text-center mb-6 md:mb-8">
             <h2
               id="offered-courses-heading"
-              className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-3 px-2"
-              style={{ color: "var(--cv-primary)" }}
+              className="text-2xl sm:text-2xl md:text-3xl font-bold leading-tight mb-3 px-2"
+              style={{
+                color: "var(--cv-primary)",
+              }}
             >
               Offered {courseName} Programs &amp; Courses
             </h2>
@@ -180,81 +187,103 @@ export default function Offerdcourse({
             <div
               aria-hidden="true"
               className="w-16 h-1 mx-auto rounded-full"
-              style={{ background: "var(--cv-primary)" }}
+              style={{
+                background: "var(--cv-primary)",
+              }}
             />
           </header>
 
-          {/* GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+          {/* COURSES GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 w-full min-w-0">
             {offeredCourses.map((offer, i) => (
               <article
                 key={i}
-                className="group rounded-2xl shadow-sm transition-all duration-300 overflow-hidden flex flex-col"
+                className="group min-w-0 w-full rounded-xl sm:rounded-2xl shadow-sm transition-all duration-300 overflow-hidden flex flex-col"
                 style={{
                   background: "#fff",
                   border: "1px solid var(--cv-neutral-border)",
+                  boxSizing: "border-box",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--cv-primary)";
+                  e.currentTarget.style.borderColor =
+                    "var(--cv-primary)";
+
                   e.currentTarget.style.boxShadow =
                     "0 12px 24px rgba(30, 58, 138, 0.12)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor =
                     "var(--cv-neutral-border)";
+
                   e.currentTarget.style.boxShadow = "none";
                 }}
               >
-                {/* Card Header */}
+                {/* CARD HEADER */}
                 <div
-                  className="px-5 sm:px-6 py-4"
+                  className="px-4 sm:px-5 py-3.5 sm:py-4 w-full min-w-0"
                   style={{
-                    borderBottom: "1px solid var(--cv-neutral-border)",
+                    borderBottom:
+                      "1px solid var(--cv-neutral-border)",
                     background: "var(--cv-neutral-light)",
+                    boxSizing: "border-box",
                   }}
                 >
                   <h3
-                    className="text-base sm:text-lg md:text-xl font-bold leading-snug flex items-start gap-3"
-                    style={{ color: "var(--cv-primary)" }}
+                    className="text-base sm:text-lg md:text-xl font-bold leading-snug flex items-start gap-3 min-w-0"
+                    style={{
+                      color: "var(--cv-primary)",
+                    }}
                   >
+                    {/* SECTION NUMBER */}
                     <span
                       aria-hidden="true"
                       className="flex-shrink-0 w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center text-white"
-                      style={{ background: "var(--cv-primary)" }}
+                      style={{
+                        background: "var(--cv-primary)",
+                      }}
                     >
                       {String(i + 1).padStart(2, "0")}
                     </span>
 
-                    <span className="flex-1 pt-1">
+                    {/* HEADING */}
+                    <span className="flex-1 min-w-0 pt-1 whitespace-normal break-words">
                       {offer.heading || `Program ${i + 1}`}
                     </span>
                   </h3>
                 </div>
 
-                {/* Points */}
-                <div className="p-5 sm:p-6 flex-1">
+                {/* POINTS SECTION */}
+                <div className="p-4 sm:p-5 flex-1 min-w-0 w-full overflow-hidden">
                   {offer.points?.length > 0 ? (
-                    <ul className="space-y-2.5 list-none p-0 m-0">
+                    <ul className="flex flex-col gap-2.5 list-none p-0 m-0 w-full min-w-0">
                       {offer.points.map((point, j) => (
                         <li
                           key={j}
-                          className="flex items-start gap-2.5 text-sm md:text-[15px] leading-relaxed"
-                          style={{ color: "var(--cv-neutral-dark)" }}
+                          className="flex items-start gap-3 w-full min-w-0 rounded-lg px-3 py-3"
+                          style={{
+                            background: "#F8FAFC",
+                            border:
+                              "1px solid var(--cv-neutral-border)",
+                            boxSizing: "border-box",
+                          }}
                         >
+                          {/* CHECK ICON */}
                           <span
                             aria-hidden="true"
-                            className="flex-shrink-0 mt-1 w-4 h-4 rounded-full flex items-center justify-center"
+                            className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center"
                             style={{
                               background: "var(--cv-primary-light)",
                             }}
                           >
                             <svg
-                              className="w-2.5 h-2.5"
+                              className="w-3 h-3"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
-                              strokeWidth="3.5"
-                              style={{ color: "var(--cv-primary)" }}
+                              strokeWidth="3"
+                              style={{
+                                color: "var(--cv-primary)",
+                              }}
                             >
                               <path
                                 strokeLinecap="round"
@@ -264,14 +293,26 @@ export default function Offerdcourse({
                             </svg>
                           </span>
 
-                          <span className="flex-1 break-words">{point}</span>
+                          {/* POINT TEXT */}
+                          <span
+                            className="flex-1 min-w-0 text-sm sm:text-[15px] leading-relaxed whitespace-normal"
+                            style={{
+                              color: "var(--cv-neutral-dark)",
+                              overflowWrap: "anywhere",
+                              wordBreak: "normal",
+                            }}
+                          >
+                            {point}
+                          </span>
                         </li>
                       ))}
                     </ul>
                   ) : (
                     <p
                       className="text-xs sm:text-sm italic"
-                      style={{ color: "var(--cv-neutral-mid)" }}
+                      style={{
+                        color: "var(--cv-neutral-mid)",
+                      }}
                     >
                       No specific programs listed for this section.
                     </p>

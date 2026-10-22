@@ -93,6 +93,8 @@
 //   );
 // }
 
+
+
 import React from "react";
 import Image from "next/image";
 
@@ -142,8 +144,8 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
         ═══════════════════════════════════════════ */}
         {description && (
           <div
-            className="w-full text-base md:text-lg mb-8 md:mb-10 text-left leading-relaxed"
-            style={{ color: "var(--cv-neutral-mid)", ...TEXT_WRAP_STYLE }}
+            className="w-full text-base md:text-lg mb-8 md:mb-10 text-left leading-relaxed  text-[#111827]"
+            style={{ color: "var(--cv-neutral-dark)", ...TEXT_WRAP_STYLE }}
           >
             <span dangerouslySetInnerHTML={{ __html: description }} />
           </div>
@@ -198,7 +200,7 @@ export default function CourseWorthIt({ onlineCourseWorthIt, courseTitle }) {
                       <div
                         className="text-sm md:text-base leading-relaxed"
                         style={{
-                          color: "var(--cv-neutral-mid)",
+                          color: "var(--cv-neutral-dark)",
                           ...TEXT_WRAP_STYLE,
                         }}
                       >

@@ -36,7 +36,7 @@ export default function JobOpportunities({ jobOpportunities, courseTitle }) {
         {/* Description — Grey */}
         <p
           className="mb-4 leading-relaxed max-w-4xl text-sm md:text-base"
-          style={{ color: "var(--cv-neutral-mid)" }}
+          style={{ color: "var(--cv-neutral-dark)" }}
         >
           Aspirants can take several job opportunities from the{" "}
           {dynamicCourseTitle} course; therefore, there are several job roles
