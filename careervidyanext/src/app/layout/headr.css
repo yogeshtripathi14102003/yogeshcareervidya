@@ -1014,3 +1014,86 @@
     max-width: min(520px, 94vw);
   }
 }
+
+/* ================================================= */
+/* MORE DROPDOWN — 5 COLUMN, ONE ROW, CENTERED       */
+/* (NEW — must stay at the very bottom)              */
+/* ================================================= */
+.nav-center > .mega-menu-wrap.mega-menu-wrap--more { position: static; }
+
+@media (min-width: 1024px) {
+
+  /* Panel: fixed width, screen ke center me */
+  .nav-center > .mega-menu-wrap.mega-menu-wrap--more .mega-panel {
+    left: 50% !important;
+    right: auto !important;
+    width: min(1100px, 96vw) !important;
+    max-width: 96vw !important;
+    transform: translateX(-50%) translateY(-6px);
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+    box-shadow: 0 18px 50px rgba(30, 58, 138, 0.14);
+  }
+
+  .nav-center > .mega-menu-wrap.mega-menu-wrap--more:hover .mega-panel {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Grid: hamesha 5 columns, ek row */
+  .nav-center .mega-panel-inner.mega-panel-inner--more {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-auto-flow: row;
+    gap: 0;
+    padding: 26px 8px;
+  }
+
+  /* Columns ke beech soft divider */
+  .mega-panel-inner--more > div {
+    padding: 0 16px;
+    min-width: 0;
+    border-left: 1px dashed var(--cv-neutral-border, #e5e7eb);
+  }
+  .mega-panel-inner--more > div:first-child { border-left: none; }
+
+  /* Cute touches */
+  .mega-panel-inner--more .mega-icon-chip {
+    transition: transform .25s ease;
+  }
+  .mega-panel-inner--more .mega-menu-item:hover .mega-icon-chip {
+    transform: scale(1.12) rotate(-6deg);
+  }
+  .mega-panel-inner--more .mega-col-heading-dash { transition: width .3s ease; }
+  .mega-panel-inner--more > div:hover .mega-col-heading-dash { width: 34px; }
+}
+
+@media (min-width: 1440px) {
+  .nav-center > .mega-menu-wrap.mega-menu-wrap--more .mega-panel {
+    width: min(1280px, 96vw) !important;
+  }
+  .mega-panel-inner--more > div { padding: 0 22px; }
+}
+
+/* ================================================= */
+/* MORE — saare 5 columns EQUAL width (ADD-ONLY)     */
+/* ================================================= */
+@media (min-width: 1024px) {
+  .nav-center > .mega-menu-wrap.mega-menu-wrap--more .mega-panel {
+    width: min(1500px, 96vw) !important;
+  }
+
+  .nav-center .mega-panel-inner.mega-panel-inner--more {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  /* Padding bhi sab columns me same */
+  .mega-panel-inner--more > div { padding: 0 20px; }
+}
+
+@media (min-width: 1440px) {
+  .nav-center > .mega-menu-wrap.mega-menu-wrap--more .mega-panel {
+    width: min(1500px, 96vw) !important;
+  }
+  .mega-panel-inner--more > div { padding: 0 24px; }
+}

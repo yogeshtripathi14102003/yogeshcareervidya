@@ -706,6 +706,7 @@ const AdminShell = ({ children }) => {
         { href: "/admin/bannerlist", label: "Banners", icon: ImageIcon },
         { href: "/admin/state", label: "State", icon: MapPin },
         { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+        {href:"/admin/Addcoupon", label: "Add Coupon", icon: Users},
       ],
     },
 

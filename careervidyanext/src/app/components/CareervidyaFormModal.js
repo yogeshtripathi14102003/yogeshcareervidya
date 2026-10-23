@@ -3,1000 +3,1000 @@
 
 
 
-"use client";
-
-import { useState, useRef, useEffect } from "react";
-import {
-  X,
-  Minus,
-  GraduationCap,
-  ChevronDown,
-  Send,
-  CheckCircle,
-} from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import api from "@/utlis/api";
-import { toast } from "sonner";
-
-export default function CareerVidyaPremiumWidget() {
-  /* ═══════════════════════════════════════════════
-     VIDEO STATES
-  ═══════════════════════════════════════════════ */
-  const [showPreview, setShowPreview] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const videoRef = useRef(null);
-
-  /* ═══════════════════════════════════════════════
-     FORM STATES
-  ═══════════════════════════════════════════════ */
-  const [specializations, setSpecializations] = useState([]);
-  const [formData, setFormData] = useState({
-    name: "",
-    mobile: "",
-    course: "",
-    branch: "",
-    email: "This is EQ leads",
-    city: "NA",
-    message: "NA",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-
-  /* ═══════════════════════════════════════════════
-     ✅ REACT QUERY — Courses
-  ═══════════════════════════════════════════════ */
-  const { data: courses = [] } = useQuery({
-    queryKey: ["widget-courses"],
-    queryFn: async () => {
-      const res = await api.get("/api/v1/course");
-      const courseArray = Array.isArray(res.data)
-        ? res.data
-        : res.data?.data || res.data?.courses || [];
-      return courseArray;
-    },
-    staleTime: 5 * 60 * 1000,
-    enabled: isFormOpen,
-  });
-
-  /* ═══════════════════════════════════════════════
-     VIDEO CONTROLS
-  ═══════════════════════════════════════════════ */
-  const openVideo = () => {
-    setIsOpen(true);
-    setTimeout(() => videoRef.current?.play(), 150);
-  };
-
-  const closeVideo = () => {
-    setIsOpen(false);
-    if (videoRef.current) videoRef.current.pause();
-  };
-
-  const openCounsellingForm = () => {
-    setIsFormOpen(true);
-    setSubmitSuccess(false);
-  };
-
-  const closeCounsellingForm = () => {
-    setIsFormOpen(false);
-    setSubmitSuccess(false);
-  };
-
-  /* ═══════════════════════════════════════════════
-     COURSE / BRANCH CHANGE
-  ═══════════════════════════════════════════════ */
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "course") {
-      const selectedCourse = courses.find(
-        (course) => course.name === value || course.title === value
-      );
-      const branches =
-        selectedCourse?.specializations ||
-        selectedCourse?.branches ||
-        selectedCourse?.specialization ||
-        [];
-      setSpecializations(Array.isArray(branches) ? branches : []);
-      setFormData((prev) => ({ ...prev, course: value, branch: "" }));
-      return;
-    }
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  /* ═══════════════════════════════════════════════
-     SUBMIT FORM
-  ═══════════════════════════════════════════════ */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isSubmitting) return;
-
-    if (formData.mobile.length !== 10) {
-      toast.error("Please enter a valid 10-digit mobile number.");
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      await api.post("/api/v1/getintouch", formData);
-      setSubmitSuccess(true);
-      toast.success("Counselling request submitted successfully!");
-      setFormData({
-        name: "",
-        mobile: "",
-        course: "",
-        branch: "",
-        email: "This is EQ leads",
-        city: "NA",
-        message: "NA",
-      });
-      setSpecializations([]);
-      setTimeout(() => {
-        setIsFormOpen(false);
-        setSubmitSuccess(false);
-      }, 2000);
-    } catch (error) {
-      console.error("Counselling submission error:", error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <>
-      {/* ═══════════════════════════════════════════
-          SMALL FLOATING VIDEO
-      ═══════════════════════════════════════════ */}
-      {showPreview && !isOpen && (
-        <div style={bubbleWrapperStyle}>
-          <div style={bubbleContainer}>
-            {/* HIDE BUTTON */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowPreview(false);
-              }}
-              style={hideBtnStyle}
-              aria-label="Hide career advice video"
-              title="Hide"
-            >
-              <Minus size={15} strokeWidth={2.5} />
-            </button>
-
-            {/* VIDEO CLICK AREA */}
-            <div onClick={openVideo} style={videoClickAreaStyle}>
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                style={previewVideoStyle}
-              >
-                <source src="/video/home1.mp4" type="video/mp4" />
-              </video>
-
-              {/* PLAY BUTTON */}
-              <div style={previewOverlay}>
-                <div style={playCircle}>
-                  <span style={playTriangle} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════
-          EXPANDED VIDEO CARD
-      ═══════════════════════════════════════════ */}
-      {isOpen && (
-        <div style={modalOverlay}>
-          <div style={glassCardStyle}>
-            {/* CLOSE */}
-            <button
-              onClick={closeVideo}
-              style={closeBtnStyle}
-              aria-label="Close video"
-            >
-              <X size={18} strokeWidth={2.5} />
-            </button>
-
-            {/* VIDEO */}
-            <div style={videoSectionStyle}>
-              <video
-                ref={videoRef}
-                controls
-                playsInline
-                preload="auto"
-                style={videoStyle}
-              >
-                <source src="/video/home1.mp4" type="video/mp4" />
-              </video>
-            </div>
-
-            {/* CONTENT */}
-            <div style={contentAreaStyle}>
-              <h3 style={titleStyle}>Get Free Expert Career Advice?</h3>
-
-              <div style={dividerStyle}>
-                <span style={dividerLine} />
-                <span style={dividerDot} />
-                <span style={dividerLine} />
-              </div>
-
-              <p style={descStyle}>
-                Get personalized guidance to plan your career with confidence.
-              </p>
-
-              <button onClick={openCounsellingForm} style={premiumCtaBtn}>
-                <GraduationCap size={17} />
-                Book Free Counselling
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════
-          COUNSELLING FORM
-      ═══════════════════════════════════════════ */}
-      {isFormOpen && (
-        <div style={formOverlay}>
-          <div style={formModal} className="career-form-modal">
-            {/* CLOSE FORM */}
-            <button
-              onClick={closeCounsellingForm}
-              style={formCloseBtn}
-              aria-label="Close counselling form"
-            >
-              <X size={19} strokeWidth={2.5} />
-            </button>
-
-            {/* LEFT IMAGE */}
-            <div style={formImageSection} className="career-form-image">
-              <div style={formImageWrapper}>
-                <img
-                  src="/images/112.jpeg"
-                  alt="Career Counselling"
-                  style={formImage}
-                />
-              </div>
-            </div>
-
-            {/* RIGHT FORM */}
-            <div style={formSection} className="career-form-section">
-              {/* BRAND HEADER */}
-              <div style={formHeaderStyle}>
-                <div style={brandRowStyle}>
-                  <img
-                    src="/images/n12.png"
-                    alt="CareerVidya"
-                    style={logoImage}
-                  />
-                  <div style={brandDivider} />
-                  <div style={brandText}>
-                    <span style={brandTextTop}>Expert Guidance</span>
-                    <span style={brandTextBottom}>For Your Career</span>
-                  </div>
-                </div>
-
-                <h2 style={formTitle}>Book Free Counselling</h2>
-                <p style={formSubtitle}>
-                  Speak with our career expert and get personalized guidance
-                  for your future.
-                </p>
-              </div>
-
-              {/* TRUST BADGES */}
-              <div style={badgesWrapper}>
-                <span style={badge}>✓ No-Cost EMI</span>
-                <span style={badgeDivider}>|</span>
-                <span style={badge}>🎓 Govt-Approved</span>
-                <span style={badgeDivider}>|</span>
-                <span style={badge}>💼 Placement Support</span>
-              </div>
-
-              {/* SUCCESS OR FORM */}
-              {submitSuccess ? (
-                <div style={successContainer}>
-                  <CheckCircle size={55} color="#16a34a" />
-                  <h3 style={successTitle}>Thank You!</h3>
-                  <p style={successText}>
-                    Your counselling request has been submitted successfully.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} style={formStyle}>
-                  {/* NAME */}
-                  <label style={labelStyle}>Full Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your name"
-                    required
-                    style={inputStyle}
-                  />
-
-                  {/* MOBILE */}
-                  <label style={labelStyle}>Phone Number *</label>
-                  <input
-                    type="tel"
-                    name="mobile"
-                    value={formData.mobile}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "");
-                      if (value.length <= 10) {
-                        setFormData((prev) => ({ ...prev, mobile: value }));
-                      }
-                    }}
-                    placeholder="Enter mobile number"
-                    maxLength={10}
-                    inputMode="numeric"
-                    required
-                    style={inputStyle}
-                  />
-
-                  {/* COURSE */}
-                  <label style={labelStyle}>Course *</label>
-                  <div style={selectWrapper}>
-                    <select
-                      name="course"
-                      value={formData.course}
-                      onChange={handleChange}
-                      required
-                      style={selectStyle}
-                    >
-                      <option value="">Select Course</option>
-                      {courses.map((course, index) => {
-                        const courseName = course.name || course.title;
-                        return (
-                          <option
-                            key={course._id || course.id || index}
-                            value={courseName}
-                          >
-                            {courseName}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <ChevronDown size={17} style={selectArrow} />
-                  </div>
-
-                  {/* BRANCH */}
-                  <label style={labelStyle}>Branch *</label>
-                  <div style={selectWrapper}>
-                    <select
-                      name="branch"
-                      value={formData.branch}
-                      onChange={handleChange}
-                      required
-                      disabled={!specializations.length}
-                      style={{
-                        ...selectStyle,
-                        color: !specializations.length ? "#999" : "#222",
-                        cursor: !specializations.length
-                          ? "not-allowed"
-                          : "pointer",
-                      }}
-                    >
-                      <option value="">
-                        {specializations.length
-                          ? "Select Branch"
-                          : "Select Course First"}
-                      </option>
-                      {specializations.map((specialization, index) => {
-                        const value =
-                          typeof specialization === "string"
-                            ? specialization
-                            : specialization?.name ||
-                              specialization?.title ||
-                              "";
-                        return (
-                          <option key={index} value={value}>
-                            {value}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <ChevronDown size={17} style={selectArrow} />
-                  </div>
-
-                  {/* SUBMIT */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    style={{
-                      ...submitButtonStyle,
-                      opacity: isSubmitting ? 0.7 : 1,
-                      cursor: isSubmitting ? "not-allowed" : "pointer",
-                    }}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span style={loaderStyle} />
-                        SUBMITTING...
-                      </>
-                    ) : (
-                      <>
-                        SUBMIT
-                        <Send size={14} />
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════
-          RESPONSIVE CSS
-      ═══════════════════════════════════════════ */}
-      <style jsx>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        @media (max-width: 700px) {
-          .career-form-modal {
-            width: 94vw !important;
-            max-width: 94vw !important;
-            max-height: 92vh !important;
-            overflow-y: auto !important;
-            display: flex !important;
-            flex-direction: column !important;
-          }
-          .career-form-image {
-            display: none !important;
-          }
-          .career-form-section {
-            width: 100% !important;
-            box-sizing: border-box !important;
-            padding: 25px 20px 28px !important;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .career-floating-widget {
-            right: 15px !important;
-            bottom: 25px !important;
-          }
-          .career-floating-card {
-            width: 115px !important;
-            height: 155px !important;
-          }
-          .career-brand-row {
-            gap: 8px !important;
-          }
-          .career-logo {
-            width: 130px !important;
-            height: 44px !important;
-          }
-          .career-brand-text-top,
-          .career-brand-text-bottom {
-            font-size: 9px !important;
-          }
-          .career-form-title {
-            font-size: 19px !important;
-          }
-        }
-      `}</style>
-    </>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   FLOATING VIDEO STYLES
-═══════════════════════════════════════════════ */
-
-const bubbleWrapperStyle = {
-  position: "fixed",
-  bottom: "40px",
-  right: "30px",
-  zIndex: 9999,
-  cursor: "pointer",
-};
-
-const bubbleContainer = {
-  position: "relative",
-  width: "135px",
-  height: "175px",
-  borderRadius: "12px",
-  overflow: "hidden",
-  background: "#000",
-  border: "2px solid var(--cv-primary)",
-  boxShadow: "0 12px 30px rgba(30, 58, 138, 0.35)",
-  boxSizing: "border-box",
-};
-
-const videoClickAreaStyle = {
-  position: "absolute",
-  inset: "0",
-  cursor: "pointer",
-};
-
-const previewVideoStyle = {
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-  display: "block",
-  background: "#000",
-};
-
-const hideBtnStyle = {
-  position: "absolute",
-  top: "7px",
-  right: "7px",
-  zIndex: 30,
-  width: "27px",
-  height: "27px",
-  padding: "0",
-  borderRadius: "50%",
-  background: "rgba(0,0,0,0.68)",
-  border: "1px solid rgba(255,255,255,0.95)",
-  color: "#fff",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-  backdropFilter: "blur(4px)",
-};
-
-const previewOverlay = {
-  position: "absolute",
-  inset: "0",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  pointerEvents: "none",
-  background:
-    "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.35))",
-};
-
-const playCircle = {
-  width: "46px",
-  height: "46px",
-  borderRadius: "50%",
-  background: "rgba(0,0,0,0.55)",
-  border: "2px solid rgba(255,255,255,0.95)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
-};
-
-const playTriangle = {
-  width: "0",
-  height: "0",
-  borderTop: "8px solid transparent",
-  borderBottom: "8px solid transparent",
-  borderLeft: "12px solid #fff",
-  marginLeft: "3px",
-};
-
-/* ═══════════════════════════════════════════════
-   VIDEO MODAL STYLES
-═══════════════════════════════════════════════ */
-
-const modalOverlay = {
-  position: "fixed",
-  inset: "0",
-  zIndex: 10000,
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "center",
-  paddingTop: "7vh",
-  paddingBottom: "30px",
-  paddingLeft: "20px",
-  paddingRight: "20px",
-  background: "rgba(15, 23, 42, 0.7)",
-  backdropFilter: "blur(6px)",
-  WebkitBackdropFilter: "blur(6px)",
-  overflowY: "auto",
-  boxSizing: "border-box",
-};
-
-const glassCardStyle = {
-  position: "relative",
-  width: "440px",
-  maxWidth: "95vw",
-  background: "#fff",
-  borderRadius: "20px",
-  overflow: "hidden",
-  border: "3px solid var(--cv-primary)",
-  boxShadow:
-    "0 25px 70px rgba(30, 58, 138, 0.35), 0 0 25px rgba(30, 58, 138, 0.15)",
-};
-
-const videoSectionStyle = {
-  width: "100%",
-  height: "500px",
-  background: "#000",
-  borderBottom: "3px solid var(--cv-primary)",
-  overflow: "hidden",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const videoStyle = {
-  width: "100%",
-  height: "100%",
-  objectFit: "contain",
-  display: "block",
-  background: "#000",
-};
-
-const closeBtnStyle = {
-  position: "absolute",
-  top: "12px",
-  right: "12px",
-  zIndex: 20,
-  width: "34px",
-  height: "34px",
-  borderRadius: "50%",
-  background: "rgba(255,255,255,0.95)",
-  border: "2px solid var(--cv-primary)",
-  color: "var(--cv-neutral-dark)",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  boxShadow: "0 3px 12px rgba(0,0,0,0.2)",
-};
-
-const contentAreaStyle = {
-  padding: "20px 22px 23px",
-  textAlign: "center",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  background: "#fff",
-};
-
-const titleStyle = {
-  margin: "0",
-  fontSize: "20px",
-  lineHeight: "1.3",
-  fontWeight: "700",
-  color: "var(--cv-neutral-dark)",
-};
-
-const dividerStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  margin: "9px 0 10px",
-};
-
-const dividerLine = {
-  width: "45px",
-  height: "2px",
-  background: "var(--cv-primary)",
-  borderRadius: "10px",
-};
-
-const dividerDot = {
-  width: "8px",
-  height: "8px",
-  borderRadius: "50%",
-  background: "var(--cv-primary)",
-};
-
-const descStyle = {
-  margin: "0 0 16px",
-  fontSize: "13px",
-  lineHeight: "1.5",
-  color: "var(--cv-neutral-mid)",
-  maxWidth: "390px",
-};
-
-/* CTA — Gradient orange */
-const premiumCtaBtn = {
-  width: "100%",
-  maxWidth: "250px",
-  padding: "11px 18px",
-  background: "var(--cv-grad-cta)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "30px",
-  fontWeight: "600",
-  cursor: "pointer",
-  fontSize: "13px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  boxShadow: "0 6px 18px rgba(193, 83, 4, 0.35)",
-};
-
-/* ═══════════════════════════════════════════════
-   FORM STYLES
-═══════════════════════════════════════════════ */
-
-const formOverlay = {
-  position: "fixed",
-  inset: "0",
-  zIndex: 11000,
-  background: "rgba(15, 23, 42, 0.75)",
-  backdropFilter: "blur(5px)",
-  WebkitBackdropFilter: "blur(5px)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "15px",
-  overflowY: "auto",
-  boxSizing: "border-box",
-};
-
-const formModal = {
-  position: "relative",
-  width: "100%",
-  maxWidth: "750px",
-  background: "#fff",
-  borderRadius: "9px",
-  display: "flex",
-  flexDirection: "row",
-  overflow: "hidden",
-  boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
-  border: "2px solid var(--cv-primary)",
-  boxSizing: "border-box",
-};
-
-const formCloseBtn = {
-  position: "absolute",
-  top: "10px",
-  right: "10px",
-  width: "32px",
-  height: "32px",
-  borderRadius: "50%",
-  border: "none",
-  background: "rgba(255,255,255,0.95)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-  zIndex: 30,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-};
-
-const formImageSection = {
-  width: "40%",
-  padding: "15px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "#fff",
-  boxSizing: "border-box",
-};
-
-const formImageWrapper = {
-  position: "relative",
-  width: "100%",
-  height: "400px",
-  borderRadius: "10px",
-  overflow: "hidden",
-};
-
-const formImage = {
-  position: "absolute",
-  inset: "0",
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-};
-
-const formSection = {
-  width: "60%",
-  padding: "25px 40px 30px",
-  textAlign: "center",
-  background: "#fff",
-  boxSizing: "border-box",
-};
-
-const formHeaderStyle = {
-  textAlign: "center",
-  marginBottom: "8px",
-};
-
-const brandRowStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "12px",
-  marginBottom: "8px",
-};
-
-const logoImage = {
-  width: "85px",
-  height: "85px",
-  display: "block",
-};
-
-const brandDivider = {
-  width: "1px",
-  height: "34px",
-  background: "var(--cv-neutral-border)",
-  flexShrink: 0,
-};
-
-const brandText = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
-  textAlign: "left",
-  lineHeight: "1.25",
-};
-
-const brandTextTop = {
-  fontSize: "11px",
-  fontWeight: "700",
-  color: "var(--cv-primary)",
-  textTransform: "uppercase",
-  letterSpacing: "0.4px",
-};
-
-const brandTextBottom = {
-  fontSize: "11px",
-  fontWeight: "600",
-  color: "var(--cv-neutral-mid)",
-};
-
-const formTitle = {
-  margin: "0 0 4px",
-  fontSize: "21px",
-  lineHeight: "1.3",
-  fontWeight: "700",
-  color: "var(--cv-neutral-dark)",
-};
-
-const formSubtitle = {
-  margin: "0 auto 9px",
-  fontSize: "11.5px",
-  lineHeight: "1.45",
-  color: "var(--cv-neutral-mid)",
-  maxWidth: "350px",
-};
-
-const badgesWrapper = {
-  display: "flex",
-  flexWrap: "wrap",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "5px",
-  marginBottom: "8px",
-  fontSize: "9px",
-  fontWeight: "700",
-  color: "var(--cv-primary)",
-};
-
-const badge = {
-  whiteSpace: "nowrap",
-};
-
-const badgeDivider = {
-  color: "var(--cv-neutral-border)",
-};
-
-const formStyle = {
-  width: "100%",
-  textAlign: "left",
-};
-
-const labelStyle = {
-  display: "block",
-  fontSize: "11px",
-  fontWeight: "600",
-  marginBottom: "4px",
-  marginTop: "9px",
-  color: "var(--cv-neutral-dark)",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px 11px",
-  borderRadius: "6px",
-  border: "1px solid var(--cv-neutral-border)",
-  background: "#fff",
-  fontSize: "13px",
-  outline: "none",
-  boxSizing: "border-box",
-  color: "var(--cv-neutral-dark)",
-};
-
-const selectWrapper = {
-  position: "relative",
-  width: "100%",
-};
-
-const selectStyle = {
-  width: "100%",
-  padding: "10px 35px 10px 11px",
-  borderRadius: "6px",
-  border: "1px solid var(--cv-neutral-border)",
-  background: "#fff",
-  fontSize: "13px",
-  outline: "none",
-  appearance: "none",
-  WebkitAppearance: "none",
-  boxSizing: "border-box",
-  color: "var(--cv-neutral-dark)",
-  cursor: "pointer",
-};
-
-const selectArrow = {
-  position: "absolute",
-  right: "11px",
-  top: "50%",
-  transform: "translateY(-50%)",
-  color: "var(--cv-neutral-mid)",
-  pointerEvents: "none",
-};
-
-/* Submit — Gradient orange */
-const submitButtonStyle = {
-  marginTop: "18px",
-  width: "50%",
-  minHeight: "42px",
-  padding: "10px 14px",
-  background: "var(--cv-grad-cta)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "5px",
-  fontWeight: "700",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  fontSize: "12px",
-  boxShadow: "0 4px 12px rgba(193, 83, 4, 0.3)",
-};
-
-const loaderStyle = {
-  width: "14px",
-  height: "14px",
-  border: "2px solid rgba(255,255,255,0.4)",
-  borderTop: "2px solid #fff",
-  borderRadius: "50%",
-  display: "inline-block",
-  animation: "spin 0.7s linear infinite",
-};
-
-const successContainer = {
-  minHeight: "300px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  textAlign: "center",
-};
-
-const successTitle = {
-  margin: "12px 0 5px",
-  fontSize: "22px",
-  color: "var(--cv-primary)",
-};
-
-const successText = {
-  margin: "0",
-  fontSize: "13px",
-  color: "var(--cv-neutral-mid)",
-  lineHeight: "1.5",
-  maxWidth: "300px",
-};
+// "use client";
+
+// import { useState, useRef, useEffect } from "react";
+// import {
+//   X,
+//   Minus,
+//   GraduationCap,
+//   ChevronDown,
+//   Send,
+//   CheckCircle,
+// } from "lucide-react";
+// import { useQuery } from "@tanstack/react-query";
+// import api from "@/utlis/api";
+// import { toast } from "sonner";
+
+// export default function CareerVidyaPremiumWidget() {
+//   /* ═══════════════════════════════════════════════
+//      VIDEO STATES
+//   ═══════════════════════════════════════════════ */
+//   const [showPreview, setShowPreview] = useState(true);
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [isFormOpen, setIsFormOpen] = useState(false);
+//   const videoRef = useRef(null);
+
+//   /* ═══════════════════════════════════════════════
+//      FORM STATES
+//   ═══════════════════════════════════════════════ */
+//   const [specializations, setSpecializations] = useState([]);
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     mobile: "",
+//     course: "",
+//     branch: "",
+//     email: "This is EQ leads",
+//     city: "NA",
+//     message: "NA",
+//   });
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+//   /* ═══════════════════════════════════════════════
+//      ✅ REACT QUERY — Courses
+//   ═══════════════════════════════════════════════ */
+//   const { data: courses = [] } = useQuery({
+//     queryKey: ["widget-courses"],
+//     queryFn: async () => {
+//       const res = await api.get("/api/v1/course");
+//       const courseArray = Array.isArray(res.data)
+//         ? res.data
+//         : res.data?.data || res.data?.courses || [];
+//       return courseArray;
+//     },
+//     staleTime: 5 * 60 * 1000,
+//     enabled: isFormOpen,
+//   });
+
+//   /* ═══════════════════════════════════════════════
+//      VIDEO CONTROLS
+//   ═══════════════════════════════════════════════ */
+//   const openVideo = () => {
+//     setIsOpen(true);
+//     setTimeout(() => videoRef.current?.play(), 150);
+//   };
+
+//   const closeVideo = () => {
+//     setIsOpen(false);
+//     if (videoRef.current) videoRef.current.pause();
+//   };
+
+//   const openCounsellingForm = () => {
+//     setIsFormOpen(true);
+//     setSubmitSuccess(false);
+//   };
+
+//   const closeCounsellingForm = () => {
+//     setIsFormOpen(false);
+//     setSubmitSuccess(false);
+//   };
+
+//   /* ═══════════════════════════════════════════════
+//      COURSE / BRANCH CHANGE
+//   ═══════════════════════════════════════════════ */
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     if (name === "course") {
+//       const selectedCourse = courses.find(
+//         (course) => course.name === value || course.title === value
+//       );
+//       const branches =
+//         selectedCourse?.specializations ||
+//         selectedCourse?.branches ||
+//         selectedCourse?.specialization ||
+//         [];
+//       setSpecializations(Array.isArray(branches) ? branches : []);
+//       setFormData((prev) => ({ ...prev, course: value, branch: "" }));
+//       return;
+//     }
+//     setFormData((prev) => ({ ...prev, [name]: value }));
+//   };
+
+//   /* ═══════════════════════════════════════════════
+//      SUBMIT FORM
+//   ═══════════════════════════════════════════════ */
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (isSubmitting) return;
+
+//     if (formData.mobile.length !== 10) {
+//       toast.error("Please enter a valid 10-digit mobile number.");
+//       return;
+//     }
+
+//     try {
+//       setIsSubmitting(true);
+//       await api.post("/api/v1/getintouch", formData);
+//       setSubmitSuccess(true);
+//       toast.success("Counselling request submitted successfully!");
+//       setFormData({
+//         name: "",
+//         mobile: "",
+//         course: "",
+//         branch: "",
+//         email: "This is EQ leads",
+//         city: "NA",
+//         message: "NA",
+//       });
+//       setSpecializations([]);
+//       setTimeout(() => {
+//         setIsFormOpen(false);
+//         setSubmitSuccess(false);
+//       }, 2000);
+//     } catch (error) {
+//       console.error("Counselling submission error:", error);
+//       toast.error("Something went wrong. Please try again.");
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   return (
+//     <>
+//       {/* ═══════════════════════════════════════════
+//           SMALL FLOATING VIDEO
+//       ═══════════════════════════════════════════ */}
+//       {showPreview && !isOpen && (
+//         <div style={bubbleWrapperStyle}>
+//           <div style={bubbleContainer}>
+//             {/* HIDE BUTTON */}
+//             <button
+//               type="button"
+//               onClick={(e) => {
+//                 e.stopPropagation();
+//                 setShowPreview(false);
+//               }}
+//               style={hideBtnStyle}
+//               aria-label="Hide career advice video"
+//               title="Hide"
+//             >
+//               <Minus size={15} strokeWidth={2.5} />
+//             </button>
+
+//             {/* VIDEO CLICK AREA */}
+//             <div onClick={openVideo} style={videoClickAreaStyle}>
+//               <video
+//                 autoPlay
+//                 muted
+//                 loop
+//                 playsInline
+//                 preload="auto"
+//                 style={previewVideoStyle}
+//               >
+//                 <source src="/video/home1.mp4" type="video/mp4" />
+//               </video>
+
+//               {/* PLAY BUTTON */}
+//               <div style={previewOverlay}>
+//                 <div style={playCircle}>
+//                   <span style={playTriangle} />
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ═══════════════════════════════════════════
+//           EXPANDED VIDEO CARD
+//       ═══════════════════════════════════════════ */}
+//       {isOpen && (
+//         <div style={modalOverlay}>
+//           <div style={glassCardStyle}>
+//             {/* CLOSE */}
+//             <button
+//               onClick={closeVideo}
+//               style={closeBtnStyle}
+//               aria-label="Close video"
+//             >
+//               <X size={18} strokeWidth={2.5} />
+//             </button>
+
+//             {/* VIDEO */}
+//             <div style={videoSectionStyle}>
+//               <video
+//                 ref={videoRef}
+//                 controls
+//                 playsInline
+//                 preload="auto"
+//                 style={videoStyle}
+//               >
+//                 <source src="/video/home1.mp4" type="video/mp4" />
+//               </video>
+//             </div>
+
+//             {/* CONTENT */}
+//             <div style={contentAreaStyle}>
+//               <h3 style={titleStyle}>Get Free Expert Career Advice?</h3>
+
+//               <div style={dividerStyle}>
+//                 <span style={dividerLine} />
+//                 <span style={dividerDot} />
+//                 <span style={dividerLine} />
+//               </div>
+
+//               <p style={descStyle}>
+//                 Get personalized guidance to plan your career with confidence.
+//               </p>
+
+//               <button onClick={openCounsellingForm} style={premiumCtaBtn}>
+//                 <GraduationCap size={17} />
+//                 Book Free Counselling
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ═══════════════════════════════════════════
+//           COUNSELLING FORM
+//       ═══════════════════════════════════════════ */}
+//       {isFormOpen && (
+//         <div style={formOverlay}>
+//           <div style={formModal} className="career-form-modal">
+//             {/* CLOSE FORM */}
+//             <button
+//               onClick={closeCounsellingForm}
+//               style={formCloseBtn}
+//               aria-label="Close counselling form"
+//             >
+//               <X size={19} strokeWidth={2.5} />
+//             </button>
+
+//             {/* LEFT IMAGE */}
+//             <div style={formImageSection} className="career-form-image">
+//               <div style={formImageWrapper}>
+//                 <img
+//                   src="/images/112.jpeg"
+//                   alt="Career Counselling"
+//                   style={formImage}
+//                 />
+//               </div>
+//             </div>
+
+//             {/* RIGHT FORM */}
+//             <div style={formSection} className="career-form-section">
+//               {/* BRAND HEADER */}
+//               <div style={formHeaderStyle}>
+//                 <div style={brandRowStyle}>
+//                   <img
+//                     src="/images/n12.png"
+//                     alt="CareerVidya"
+//                     style={logoImage}
+//                   />
+//                   <div style={brandDivider} />
+//                   <div style={brandText}>
+//                     <span style={brandTextTop}>Expert Guidance</span>
+//                     <span style={brandTextBottom}>For Your Career</span>
+//                   </div>
+//                 </div>
+
+//                 <h2 style={formTitle}>Book Free Counselling</h2>
+//                 <p style={formSubtitle}>
+//                   Speak with our career expert and get personalized guidance
+//                   for your future.
+//                 </p>
+//               </div>
+
+//               {/* TRUST BADGES */}
+//               <div style={badgesWrapper}>
+//                 <span style={badge}>✓ No-Cost EMI</span>
+//                 <span style={badgeDivider}>|</span>
+//                 <span style={badge}>🎓 Govt-Approved</span>
+//                 <span style={badgeDivider}>|</span>
+//                 <span style={badge}>💼 Placement Support</span>
+//               </div>
+
+//               {/* SUCCESS OR FORM */}
+//               {submitSuccess ? (
+//                 <div style={successContainer}>
+//                   <CheckCircle size={55} color="#16a34a" />
+//                   <h3 style={successTitle}>Thank You!</h3>
+//                   <p style={successText}>
+//                     Your counselling request has been submitted successfully.
+//                   </p>
+//                 </div>
+//               ) : (
+//                 <form onSubmit={handleSubmit} style={formStyle}>
+//                   {/* NAME */}
+//                   <label style={labelStyle}>Full Name *</label>
+//                   <input
+//                     type="text"
+//                     name="name"
+//                     value={formData.name}
+//                     onChange={handleChange}
+//                     placeholder="Enter your name"
+//                     required
+//                     style={inputStyle}
+//                   />
+
+//                   {/* MOBILE */}
+//                   <label style={labelStyle}>Phone Number *</label>
+//                   <input
+//                     type="tel"
+//                     name="mobile"
+//                     value={formData.mobile}
+//                     onChange={(e) => {
+//                       const value = e.target.value.replace(/\D/g, "");
+//                       if (value.length <= 10) {
+//                         setFormData((prev) => ({ ...prev, mobile: value }));
+//                       }
+//                     }}
+//                     placeholder="Enter mobile number"
+//                     maxLength={10}
+//                     inputMode="numeric"
+//                     required
+//                     style={inputStyle}
+//                   />
+
+//                   {/* COURSE */}
+//                   <label style={labelStyle}>Course *</label>
+//                   <div style={selectWrapper}>
+//                     <select
+//                       name="course"
+//                       value={formData.course}
+//                       onChange={handleChange}
+//                       required
+//                       style={selectStyle}
+//                     >
+//                       <option value="">Select Course</option>
+//                       {courses.map((course, index) => {
+//                         const courseName = course.name || course.title;
+//                         return (
+//                           <option
+//                             key={course._id || course.id || index}
+//                             value={courseName}
+//                           >
+//                             {courseName}
+//                           </option>
+//                         );
+//                       })}
+//                     </select>
+//                     <ChevronDown size={17} style={selectArrow} />
+//                   </div>
+
+//                   {/* BRANCH */}
+//                   <label style={labelStyle}>Branch *</label>
+//                   <div style={selectWrapper}>
+//                     <select
+//                       name="branch"
+//                       value={formData.branch}
+//                       onChange={handleChange}
+//                       required
+//                       disabled={!specializations.length}
+//                       style={{
+//                         ...selectStyle,
+//                         color: !specializations.length ? "#999" : "#222",
+//                         cursor: !specializations.length
+//                           ? "not-allowed"
+//                           : "pointer",
+//                       }}
+//                     >
+//                       <option value="">
+//                         {specializations.length
+//                           ? "Select Branch"
+//                           : "Select Course First"}
+//                       </option>
+//                       {specializations.map((specialization, index) => {
+//                         const value =
+//                           typeof specialization === "string"
+//                             ? specialization
+//                             : specialization?.name ||
+//                               specialization?.title ||
+//                               "";
+//                         return (
+//                           <option key={index} value={value}>
+//                             {value}
+//                           </option>
+//                         );
+//                       })}
+//                     </select>
+//                     <ChevronDown size={17} style={selectArrow} />
+//                   </div>
+
+//                   {/* SUBMIT */}
+//                   <button
+//                     type="submit"
+//                     disabled={isSubmitting}
+//                     style={{
+//                       ...submitButtonStyle,
+//                       opacity: isSubmitting ? 0.7 : 1,
+//                       cursor: isSubmitting ? "not-allowed" : "pointer",
+//                     }}
+//                   >
+//                     {isSubmitting ? (
+//                       <>
+//                         <span style={loaderStyle} />
+//                         SUBMITTING...
+//                       </>
+//                     ) : (
+//                       <>
+//                         SUBMIT
+//                         <Send size={14} />
+//                       </>
+//                     )}
+//                   </button>
+//                 </form>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ═══════════════════════════════════════════
+//           RESPONSIVE CSS
+//       ═══════════════════════════════════════════ */}
+//       <style jsx>{`
+//         @keyframes spin {
+//           from {
+//             transform: rotate(0deg);
+//           }
+//           to {
+//             transform: rotate(360deg);
+//           }
+//         }
+
+//         @media (max-width: 700px) {
+//           .career-form-modal {
+//             width: 94vw !important;
+//             max-width: 94vw !important;
+//             max-height: 92vh !important;
+//             overflow-y: auto !important;
+//             display: flex !important;
+//             flex-direction: column !important;
+//           }
+//           .career-form-image {
+//             display: none !important;
+//           }
+//           .career-form-section {
+//             width: 100% !important;
+//             box-sizing: border-box !important;
+//             padding: 25px 20px 28px !important;
+//           }
+//         }
+
+//         @media (max-width: 480px) {
+//           .career-floating-widget {
+//             right: 15px !important;
+//             bottom: 25px !important;
+//           }
+//           .career-floating-card {
+//             width: 115px !important;
+//             height: 155px !important;
+//           }
+//           .career-brand-row {
+//             gap: 8px !important;
+//           }
+//           .career-logo {
+//             width: 130px !important;
+//             height: 44px !important;
+//           }
+//           .career-brand-text-top,
+//           .career-brand-text-bottom {
+//             font-size: 9px !important;
+//           }
+//           .career-form-title {
+//             font-size: 19px !important;
+//           }
+//         }
+//       `}</style>
+//     </>
+//   );
+// }
+
+// /* ═══════════════════════════════════════════════
+//    FLOATING VIDEO STYLES
+// ═══════════════════════════════════════════════ */
+
+// const bubbleWrapperStyle = {
+//   position: "fixed",
+//   bottom: "40px",
+//   right: "30px",
+//   zIndex: 9999,
+//   cursor: "pointer",
+// };
+
+// const bubbleContainer = {
+//   position: "relative",
+//   width: "135px",
+//   height: "175px",
+//   borderRadius: "12px",
+//   overflow: "hidden",
+//   background: "#000",
+//   border: "2px solid var(--cv-primary)",
+//   boxShadow: "0 12px 30px rgba(30, 58, 138, 0.35)",
+//   boxSizing: "border-box",
+// };
+
+// const videoClickAreaStyle = {
+//   position: "absolute",
+//   inset: "0",
+//   cursor: "pointer",
+// };
+
+// const previewVideoStyle = {
+//   width: "100%",
+//   height: "100%",
+//   objectFit: "cover",
+//   display: "block",
+//   background: "#000",
+// };
+
+// const hideBtnStyle = {
+//   position: "absolute",
+//   top: "7px",
+//   right: "7px",
+//   zIndex: 30,
+//   width: "27px",
+//   height: "27px",
+//   padding: "0",
+//   borderRadius: "50%",
+//   background: "rgba(0,0,0,0.68)",
+//   border: "1px solid rgba(255,255,255,0.95)",
+//   color: "#fff",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   cursor: "pointer",
+//   boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+//   backdropFilter: "blur(4px)",
+// };
+
+// const previewOverlay = {
+//   position: "absolute",
+//   inset: "0",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   pointerEvents: "none",
+//   background:
+//     "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.35))",
+// };
+
+// const playCircle = {
+//   width: "46px",
+//   height: "46px",
+//   borderRadius: "50%",
+//   background: "rgba(0,0,0,0.55)",
+//   border: "2px solid rgba(255,255,255,0.95)",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+// };
+
+// const playTriangle = {
+//   width: "0",
+//   height: "0",
+//   borderTop: "8px solid transparent",
+//   borderBottom: "8px solid transparent",
+//   borderLeft: "12px solid #fff",
+//   marginLeft: "3px",
+// };
+
+// /* ═══════════════════════════════════════════════
+//    VIDEO MODAL STYLES
+// ═══════════════════════════════════════════════ */
+
+// const modalOverlay = {
+//   position: "fixed",
+//   inset: "0",
+//   zIndex: 10000,
+//   display: "flex",
+//   alignItems: "flex-start",
+//   justifyContent: "center",
+//   paddingTop: "7vh",
+//   paddingBottom: "30px",
+//   paddingLeft: "20px",
+//   paddingRight: "20px",
+//   background: "rgba(15, 23, 42, 0.7)",
+//   backdropFilter: "blur(6px)",
+//   WebkitBackdropFilter: "blur(6px)",
+//   overflowY: "auto",
+//   boxSizing: "border-box",
+// };
+
+// const glassCardStyle = {
+//   position: "relative",
+//   width: "440px",
+//   maxWidth: "95vw",
+//   background: "#fff",
+//   borderRadius: "20px",
+//   overflow: "hidden",
+//   border: "3px solid var(--cv-primary)",
+//   boxShadow:
+//     "0 25px 70px rgba(30, 58, 138, 0.35), 0 0 25px rgba(30, 58, 138, 0.15)",
+// };
+
+// const videoSectionStyle = {
+//   width: "100%",
+//   height: "500px",
+//   background: "#000",
+//   borderBottom: "3px solid var(--cv-primary)",
+//   overflow: "hidden",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+// };
+
+// const videoStyle = {
+//   width: "100%",
+//   height: "100%",
+//   objectFit: "contain",
+//   display: "block",
+//   background: "#000",
+// };
+
+// const closeBtnStyle = {
+//   position: "absolute",
+//   top: "12px",
+//   right: "12px",
+//   zIndex: 20,
+//   width: "34px",
+//   height: "34px",
+//   borderRadius: "50%",
+//   background: "rgba(255,255,255,0.95)",
+//   border: "2px solid var(--cv-primary)",
+//   color: "var(--cv-neutral-dark)",
+//   cursor: "pointer",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   boxShadow: "0 3px 12px rgba(0,0,0,0.2)",
+// };
+
+// const contentAreaStyle = {
+//   padding: "20px 22px 23px",
+//   textAlign: "center",
+//   display: "flex",
+//   flexDirection: "column",
+//   alignItems: "center",
+//   background: "#fff",
+// };
+
+// const titleStyle = {
+//   margin: "0",
+//   fontSize: "20px",
+//   lineHeight: "1.3",
+//   fontWeight: "700",
+//   color: "var(--cv-neutral-dark)",
+// };
+
+// const dividerStyle = {
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   gap: "8px",
+//   margin: "9px 0 10px",
+// };
+
+// const dividerLine = {
+//   width: "45px",
+//   height: "2px",
+//   background: "var(--cv-primary)",
+//   borderRadius: "10px",
+// };
+
+// const dividerDot = {
+//   width: "8px",
+//   height: "8px",
+//   borderRadius: "50%",
+//   background: "var(--cv-primary)",
+// };
+
+// const descStyle = {
+//   margin: "0 0 16px",
+//   fontSize: "13px",
+//   lineHeight: "1.5",
+//   color: "var(--cv-neutral-mid)",
+//   maxWidth: "390px",
+// };
+
+// /* CTA — Gradient orange */
+// const premiumCtaBtn = {
+//   width: "100%",
+//   maxWidth: "250px",
+//   padding: "11px 18px",
+//   background: "var(--cv-grad-cta)",
+//   color: "#fff",
+//   border: "none",
+//   borderRadius: "30px",
+//   fontWeight: "600",
+//   cursor: "pointer",
+//   fontSize: "13px",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   gap: "8px",
+//   boxShadow: "0 6px 18px rgba(193, 83, 4, 0.35)",
+// };
+
+// /* ═══════════════════════════════════════════════
+//    FORM STYLES
+// ═══════════════════════════════════════════════ */
+
+// const formOverlay = {
+//   position: "fixed",
+//   inset: "0",
+//   zIndex: 11000,
+//   background: "rgba(15, 23, 42, 0.75)",
+//   backdropFilter: "blur(5px)",
+//   WebkitBackdropFilter: "blur(5px)",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   padding: "15px",
+//   overflowY: "auto",
+//   boxSizing: "border-box",
+// };
+
+// const formModal = {
+//   position: "relative",
+//   width: "100%",
+//   maxWidth: "750px",
+//   background: "#fff",
+//   borderRadius: "9px",
+//   display: "flex",
+//   flexDirection: "row",
+//   overflow: "hidden",
+//   boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
+//   border: "2px solid var(--cv-primary)",
+//   boxSizing: "border-box",
+// };
+
+// const formCloseBtn = {
+//   position: "absolute",
+//   top: "10px",
+//   right: "10px",
+//   width: "32px",
+//   height: "32px",
+//   borderRadius: "50%",
+//   border: "none",
+//   background: "rgba(255,255,255,0.95)",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   cursor: "pointer",
+//   zIndex: 30,
+//   boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+// };
+
+// const formImageSection = {
+//   width: "40%",
+//   padding: "15px",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   background: "#fff",
+//   boxSizing: "border-box",
+// };
+
+// const formImageWrapper = {
+//   position: "relative",
+//   width: "100%",
+//   height: "400px",
+//   borderRadius: "10px",
+//   overflow: "hidden",
+// };
+
+// const formImage = {
+//   position: "absolute",
+//   inset: "0",
+//   width: "100%",
+//   height: "100%",
+//   objectFit: "cover",
+// };
+
+// const formSection = {
+//   width: "60%",
+//   padding: "25px 40px 30px",
+//   textAlign: "center",
+//   background: "#fff",
+//   boxSizing: "border-box",
+// };
+
+// const formHeaderStyle = {
+//   textAlign: "center",
+//   marginBottom: "8px",
+// };
+
+// const brandRowStyle = {
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   gap: "12px",
+//   marginBottom: "8px",
+// };
+
+// const logoImage = {
+//   width: "85px",
+//   height: "85px",
+//   display: "block",
+// };
+
+// const brandDivider = {
+//   width: "1px",
+//   height: "34px",
+//   background: "var(--cv-neutral-border)",
+//   flexShrink: 0,
+// };
+
+// const brandText = {
+//   display: "flex",
+//   flexDirection: "column",
+//   alignItems: "flex-start",
+//   textAlign: "left",
+//   lineHeight: "1.25",
+// };
+
+// const brandTextTop = {
+//   fontSize: "11px",
+//   fontWeight: "700",
+//   color: "var(--cv-primary)",
+//   textTransform: "uppercase",
+//   letterSpacing: "0.4px",
+// };
+
+// const brandTextBottom = {
+//   fontSize: "11px",
+//   fontWeight: "600",
+//   color: "var(--cv-neutral-mid)",
+// };
+
+// const formTitle = {
+//   margin: "0 0 4px",
+//   fontSize: "21px",
+//   lineHeight: "1.3",
+//   fontWeight: "700",
+//   color: "var(--cv-neutral-dark)",
+// };
+
+// const formSubtitle = {
+//   margin: "0 auto 9px",
+//   fontSize: "11.5px",
+//   lineHeight: "1.45",
+//   color: "var(--cv-neutral-mid)",
+//   maxWidth: "350px",
+// };
+
+// const badgesWrapper = {
+//   display: "flex",
+//   flexWrap: "wrap",
+//   justifyContent: "center",
+//   alignItems: "center",
+//   gap: "5px",
+//   marginBottom: "8px",
+//   fontSize: "9px",
+//   fontWeight: "700",
+//   color: "var(--cv-primary)",
+// };
+
+// const badge = {
+//   whiteSpace: "nowrap",
+// };
+
+// const badgeDivider = {
+//   color: "var(--cv-neutral-border)",
+// };
+
+// const formStyle = {
+//   width: "100%",
+//   textAlign: "left",
+// };
+
+// const labelStyle = {
+//   display: "block",
+//   fontSize: "11px",
+//   fontWeight: "600",
+//   marginBottom: "4px",
+//   marginTop: "9px",
+//   color: "var(--cv-neutral-dark)",
+// };
+
+// const inputStyle = {
+//   width: "100%",
+//   padding: "10px 11px",
+//   borderRadius: "6px",
+//   border: "1px solid var(--cv-neutral-border)",
+//   background: "#fff",
+//   fontSize: "13px",
+//   outline: "none",
+//   boxSizing: "border-box",
+//   color: "var(--cv-neutral-dark)",
+// };
+
+// const selectWrapper = {
+//   position: "relative",
+//   width: "100%",
+// };
+
+// const selectStyle = {
+//   width: "100%",
+//   padding: "10px 35px 10px 11px",
+//   borderRadius: "6px",
+//   border: "1px solid var(--cv-neutral-border)",
+//   background: "#fff",
+//   fontSize: "13px",
+//   outline: "none",
+//   appearance: "none",
+//   WebkitAppearance: "none",
+//   boxSizing: "border-box",
+//   color: "var(--cv-neutral-dark)",
+//   cursor: "pointer",
+// };
+
+// const selectArrow = {
+//   position: "absolute",
+//   right: "11px",
+//   top: "50%",
+//   transform: "translateY(-50%)",
+//   color: "var(--cv-neutral-mid)",
+//   pointerEvents: "none",
+// };
+
+// /* Submit — Gradient orange */
+// const submitButtonStyle = {
+//   marginTop: "18px",
+//   width: "50%",
+//   minHeight: "42px",
+//   padding: "10px 14px",
+//   background: "var(--cv-grad-cta)",
+//   color: "#fff",
+//   border: "none",
+//   borderRadius: "5px",
+//   fontWeight: "700",
+//   cursor: "pointer",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   gap: "8px",
+//   fontSize: "12px",
+//   boxShadow: "0 4px 12px rgba(193, 83, 4, 0.3)",
+// };
+
+// const loaderStyle = {
+//   width: "14px",
+//   height: "14px",
+//   border: "2px solid rgba(255,255,255,0.4)",
+//   borderTop: "2px solid #fff",
+//   borderRadius: "50%",
+//   display: "inline-block",
+//   animation: "spin 0.7s linear infinite",
+// };
+
+// const successContainer = {
+//   minHeight: "300px",
+//   display: "flex",
+//   flexDirection: "column",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   textAlign: "center",
+// };
+
+// const successTitle = {
+//   margin: "12px 0 5px",
+//   fontSize: "22px",
+//   color: "var(--cv-primary)",
+// };
+
+// const successText = {
+//   margin: "0",
+//   fontSize: "13px",
+//   color: "var(--cv-neutral-mid)",
+//   lineHeight: "1.5",
+//   maxWidth: "300px",
+// };
 
 
 
@@ -2393,2852 +2393,2851 @@ const successText = {
 
 
 
-// "use client";
+"use client";
 
 
 
-// import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
-// import {
+import {
 
-//   X,
+  X,
 
-//   Send,
+  Send,
 
-//   PhoneCall,
+  PhoneCall,
 
-//   ArrowLeft,
+  ArrowLeft,
 
-//   ExternalLink,
+  ExternalLink,
 
-//   BriefcaseBusiness,
+  BriefcaseBusiness,
 
-//   ChevronRight,
+  ChevronRight,
 
-// } from "lucide-react";
+} from "lucide-react";
 
-// import api from "@/utlis/api";
+import api from "@/utlis/api";
 
 
 
-// const BOTTOM_OFFSET = 90;
+const BOTTOM_OFFSET = 90;
 
-// const AUTO_OPEN_MS = 0; // 0 = only show the welcome bubble. Set e.g. 6000 to open the chat by itself.
+const AUTO_OPEN_MS = 0; // 0 = only show the welcome bubble. Set e.g. 6000 to open the chat by itself.
 
 
 
-// const SITE_URL = "https://careervidya.in/";
+const SITE_URL = "https://careervidya.in/";
 
-// const ABOUT_URL = "https://careervidya.in/Aboutus";
+const ABOUT_URL = "https://careervidya.in/Aboutus";
 
-// const APPLY_URL = "https://careervidya.in/counselling";
+const APPLY_URL = "https://careervidya.in/counselling";
 
-// const TEAM_URL = "https://careervidya.in/our-Team";
+const TEAM_URL = "https://careervidya.in/our-Team";
 
-// const JOB_URL = "https://jobportal.careervidya.in/";
+const JOB_URL = "https://jobportal.careervidya.in/";
 
-// const SUPPORT_PHONE = "9289716667";
+const SUPPORT_PHONE = "9289716667";
 
 
 
-// const BRAND = "#1E40AF"; // single accent colour (change here to match your site)
+const BRAND = "#1E40AF"; // single accent colour (change here to match your site)
 
-// const BRAND_SOFT = "#EFF4FF";
+const BRAND_SOFT = "#EFF4FF";
 
 
 
-// const STATES = [
+const STATES = [
 
-//   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
 
-//   "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh",
+  "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh",
 
-//   "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
+  "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
 
-//   "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland",
+  "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland",
 
-//   "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
 
-//   "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
 
-//   "West Bengal", "Delhi", "Jammu & Kashmir", "Ladakh",
+  "West Bengal", "Delhi", "Jammu & Kashmir", "Ladakh",
 
-//   "Chandigarh", "Puducherry",
+  "Chandigarh", "Puducherry",
 
-// ];
+];
 
 
 
-// const EXPERIENCE_VALUES = [
+const EXPERIENCE_VALUES = [
 
-//   "Fresher",
+  "Fresher",
 
-//   "Less than 1 year",
+  "Less than 1 year",
 
-//   "1-3 years",
+  "1-3 years",
 
-//   "3-5 years",
+  "3-5 years",
 
-//   "5+ years",
+  "5+ years",
 
-// ];
+];
 
 
 
-// /* ---------------- MENUS (pill buttons) ---------------- */
+/* ---------------- MENUS (pill buttons) ---------------- */
 
 
 
-// // 1. Main menu. Every option opens a compulsory form.
+// 1. Main menu. Every option opens a compulsory form.
 
-// const MAIN_MENU = [
+const MAIN_MENU = [
 
-//   { key: "admission", title: " Looking For Admission" },
+  { key: "admission", title: " Looking For Admission" },
 
-//   { key: "counselling", title: " Looking For Counselling" },
+  { key: "counselling", title: " Looking For Counselling" },
 
-//   { key: "job", title: " looking from Job Portal" },
+  { key: "job", title: " looking from Job Portal" },
 
-//   { key: "existing", title: "Existing Student Support" },
+  { key: "existing", title: "Existing Student Support" },
 
-// ];
+];
 
 
 
-// // 2. Shown only AFTER the admission form is submitted
+// 2. Shown only AFTER the admission form is submitted
 
-// const ADMISSION_INFO_MENU = [
+const ADMISSION_INFO_MENU = [
 
-//   { key: "about", title: "About Career Vidya" },
+  { key: "about", title: "About Career Vidya" },
 
-//   { key: "process", title: "Admission Process" },
+  { key: "process", title: "Admission Process" },
 
-//   { key: "back", title: "Back to Main Menu" },
+  { key: "back", title: "Back to Main Menu" },
 
-// ];
+];
 
 
 
-// // 3. Inside "Admission Process"
+// 3. Inside "Admission Process"
 
-// const ADMISSION_MENU = [
+const ADMISSION_MENU = [
 
-//   { key: "eligibility", title: "Eligibility Criteria" },
+  { key: "eligibility", title: "Eligibility Criteria" },
 
-//   { key: "how", title: "How to Apply" },
+  { key: "how", title: "How to Apply" },
 
-//   { key: "apply", title: "Apply Now" },
+  { key: "apply", title: "Apply Now" },
 
-//   { key: "back", title: "Back to Main Menu" },
+  { key: "back", title: "Back to Main Menu" },
 
-// ];
+];
 
 
 
-// // Existing Student Support types (pick one, then fill the form)
+// Existing Student Support types (pick one, then fill the form)
 
-// const SUPPORT_MENU = [
-//   {
-//     key: "University Examination Queries",
-//     title: "University Examination Queries",
-//     number: "01",
-//     description: "Exam dates, results, admit cards & exam-related help.",
-//   },
-//   {
-//     key: "Document Cell",
-//     title: "Document Cell",
-//     number: "02",
-//     description: "Marksheets, certificates & document requests.",
-//   },
-//   {
-//     key: "Scholarship",
-//     title: "Scholarship",
-//     number: "03",
-//     description: "Scholarship eligibility, status & related queries.",
-//   },
-//   {
-//     key: "Fee & Payment Related",
-//     title: "Fee & Payment Related",
-//     number: "04",
-//     description: "Fee payment, receipts, refunds & payment issues.",
-//   },
-//   {
-//     key: "Other Query",
-//     title: "Other Query",
-//     number: "05",
-//     description: "Any other student support or university query.",
-//   },
-//  ];
+const SUPPORT_MENU = [
+  {
+    key: "University Examination Queries",
+    title: "University Examination Queries",
+    number: "01",
+    description: "Exam dates, results, admit cards & exam-related help.",
+  },
+  {
+    key: "Document Cell",
+    title: "Document Cell",
+    number: "02",
+    description: "Marksheets, certificates & document requests.",
+  },
+  {
+    key: "Scholarship",
+    title: "Scholarship",
+    number: "03",
+    description: "Scholarship eligibility, status & related queries.",
+  },
+  {
+    key: "Fee & Payment Related",
+    title: "Fee & Payment Related",
+    number: "04",
+    description: "Fee payment, receipts, refunds & payment issues.",
+  },
+  {
+    key: "Other Query",
+    title: "Other Query",
+    number: "05",
+    description: "Any other student support or university query.",
+  },
+ ];
 
-// const SUPPORT_ANSWER_MENU = [
-//   { key: "supportBack", title: "Back" },
-//   { key: "mainMenu", title: "Main Menu" },
-// ];
+const SUPPORT_ANSWER_MENU = [
+  { key: "supportBack", title: "Back" },
+  { key: "mainMenu", title: "Main Menu" },
+];
 
 
 
-// /* ---------------- TEXT ---------------- */
+/* ---------------- TEXT ---------------- */
 
 
 
 
-// const SUPPORT_ANSWERS = {
-//   "University Examination Queries": {
-//     message:
-//       "For examination-related assistance, please call or WhatsApp our support team. Thank you for contacting Career Vidya.",
-//     phone: "+91-9289716667",
-//     whatsapp: "https://wa.me/919289716667",
-//   },
-//   "Document Cell": {
-//     message:
-//       "For document-related requests such as transcripts, migration certificates and degrees, please call or WhatsApp our Document Cell. Thank you for contacting Career Vidya.",
-//     phone: "+91-919289716667",
-//     whatsapp: "https://wa.me/919289716667",
-//   },
-//   Scholarship: {
-//     message:
-//       "For scholarship eligibility, application status or related assistance, please contact our student support team. They will guide you further.",
-//     phone: "+91-9289716667",
-//     whatsapp: "https://wa.me/919289716667",
-//   },
-//   "Fee & Payment Related": {
-//     message:
-//       "For fee payments, payment confirmation, receipts or refund-related assistance, please contact our student support team with your enrollment details and payment reference, if available.",
-//     phone: "+91-9289716667",
-//     whatsapp: "https://wa.me/919289716667",
-//   },
-//   "Other Query": {
-//     message:
-//       "For any other student query, please contact our student support team and briefly explain your issue. Our team will guide you to the right department.",
-//     phone: "+91-9289716667",
-//     whatsapp: "https://wa.me/919289716667",
-//   },
-// };
+const SUPPORT_ANSWERS = {
+  "University Examination Queries": {
+    message:
+      "For examination-related assistance, please call or WhatsApp our support team. Thank you for contacting Career Vidya.",
+    phone: "+91-9289716667",
+    whatsapp: "https://wa.me/919289716667",
+  },
+  "Document Cell": {
+    message:
+      "For document-related requests such as transcripts, migration certificates and degrees, please call or WhatsApp our Document Cell. Thank you for contacting Career Vidya.",
+    phone: "+91-919289716667",
+    whatsapp: "https://wa.me/919289716667",
+  },
+  Scholarship: {
+    message:
+      "For scholarship eligibility, application status or related assistance, please contact our student support team. They will guide you further.",
+    phone: "+91-9289716667",
+    whatsapp: "https://wa.me/919289716667",
+  },
+  "Fee & Payment Related": {
+    message:
+      "For fee payments, payment confirmation, receipts or refund-related assistance, please contact our student support team with your enrollment details and payment reference, if available.",
+    phone: "+91-9289716667",
+    whatsapp: "https://wa.me/919289716667",
+  },
+  "Other Query": {
+    message:
+      "For any other student query, please contact our student support team and briefly explain your issue. Our team will guide you to the right department.",
+    phone: "+91-9289716667",
+    whatsapp: "https://wa.me/919289716667",
+  },
+};
 
-// const PHONE_LINK = {
+const PHONE_LINK = {
 
-//   label: `Call +91 ${SUPPORT_PHONE}`,
+  label: `Call +91 ${SUPPORT_PHONE}`,
 
-//   url: `tel:+91${SUPPORT_PHONE}`,
+  url: `tel:+91${SUPPORT_PHONE}`,
 
-//   phone: true,
+  phone: true,
 
-// };
+};
 
 
 
-// const L = {
+const L = {
 
-//   greeting1: "Hi! I'm Career Vidya's AI assistant. 👋",
+  greeting1: "Hi! I'm Career Vidya's AI assistant. 👋",
 
-//   greeting2: "What would you like help with?",
+  greeting2: "What would you like help with?",
 
-//   anythingElse: "Is there anything else I can help you with?",
+  anythingElse: "Is there anything else I can help you with?",
 
-//   backMenu: "Sure! Here is the main menu.",
+  backMenu: "Sure! Here is the main menu.",
 
 
 
-//   admIntro:
+  admIntro:
 
-//     "Sure! Please fill in your details first (2 quick steps). After that, I'll show you more information.",
+    "Sure! Please fill in your details first (2 quick steps). After that, I'll show you more information.",
 
-//   thanks: (n) => `Thanks, ${n}! Now choose your course.`,
+  thanks: (n) => `Thanks, ${n}! Now choose your course.`,
 
-//   admDone: "Thank you! Your admission enquiry is submitted. ✅ Our counsellor will contact you shortly.",
+  admDone: "Thank you! Your admission enquiry is submitted. ✅ Our counsellor will contact you shortly.",
 
-//   admNext: "What would you like to know next?",
+  admNext: "What would you like to know next?",
 
 
 
-//   about:
+  about:
 
-//     "Career Vidya helps students choose the right course and university, with guidance from admission to career.",
+    "Career Vidya helps students choose the right course and university, with guidance from admission to career.",
 
-//   admissionAsk: "What would you like to know about admission?",
+  admissionAsk: "What would you like to know about admission?",
 
-//   eligibility:
+  eligibility:
 
-//     "Eligibility varies for each program. Please visit the Program page on our website to check the detailed eligibility criteria for your desired course.",
+    "Eligibility varies for each program. Please visit the Program page on our website to check the detailed eligibility criteria for your desired course.",
 
-//   howToApply:
+  howToApply:
 
-//     "Applying is simple:\n1. Check the eligibility for your course\n2. Tap Apply Now and book a counselling session\n3. Our counsellor will guide you through the rest",
+    "Applying is simple:\n1. Check the eligibility for your course\n2. Tap Apply Now and book a counselling session\n3. Our counsellor will guide you through the rest",
 
-//   applyText: "You can apply by booking a counselling session with our team.",
+  applyText: "You can apply by booking a counselling session with our team.",
 
 
 
-//   counIntro: "Sure! Please share your details and a counsellor will call you.",
+  counIntro: "Sure! Please share your details and a counsellor will call you.",
 
-//   jobIntro: "Sure! Please fill in this short form and our team will get in touch.",
+  jobIntro: "Sure! Please fill in this short form and our team will get in touch.",
 
-//   supportAsk: "Please choose your query type.",
+  supportAsk: "Please choose your query type.",
 
-//   supportIntro: "Please share your details and your query.",
+  supportIntro: "Please share your details and your query.",
 
 
 
-//   counDone: "Thank you! Your callback request is submitted. ✅",
+  counDone: "Thank you! Your callback request is submitted. ✅",
 
-//   jobDone: "Thank you! Your job enquiry is submitted. ✅ Our team will contact you soon.",
+  jobDone: "Thank you! Your job enquiry is submitted. ✅ Our team will contact you soon.",
 
-//   existDone: "Thank you! Your query is submitted. ✅ Our support team will reply soon.",
+  existDone: "Thank you! Your query is submitted. ✅ Our support team will reply soon.",
 
-//   err: "Sorry, something went wrong. Please try again.",
+  err: "Sorry, something went wrong. Please try again.",
 
-//   errDefault: "Unable to submit your details. Please try again.",
+  errDefault: "Unable to submit your details. Please try again.",
 
 
 
-//   fullName: "Full name",
+  fullName: "Full name",
 
-//   email: "Email address",
+  email: "Email address",
 
-//   emailOpt: "Email (optional)",
+  emailOpt: "Email (optional)",
 
-//   mobile: "Mobile number (10 digits)",
+  mobile: "Mobile number (10 digits)",
 
-//   mobileTitle: "Enter a valid 10-digit mobile number",
+  mobileTitle: "Enter a valid 10-digit mobile number",
 
-//   course: "Course",
+  course: "Course",
 
-//   specialization: "Specialization",
+  specialization: "Specialization",
 
-//   state: "State",
+  state: "State",
 
-//   city: "City",
+  city: "City",
 
-//   cityOpt: "City (optional)",
+  cityOpt: "City (optional)",
 
-//   interestedCourse: "Interested course (optional)",
+  interestedCourse: "Interested course (optional)",
 
-//   queryOpt: "Your query (optional)",
+  queryOpt: "Your query (optional)",
 
-//   query: "Your query",
+  query: "Your query",
 
-//   jobRole: "Job role (e.g. Sales, IT, HR)",
+  jobRole: "Job role (e.g. Sales, IT, HR)",
 
-//   experience: "Experience",
+  experience: "Experience",
 
-//   selectCourse: "Select course",
+  selectCourse: "Select course",
 
-//   selectSpec: "Select specialization",
+  selectSpec: "Select specialization",
 
-//   noSpec: "Select a course first",
+  noSpec: "Select a course first",
 
-//   selectState: "Select state",
+  selectState: "Select state",
 
-//   selectExp: "Select experience",
+  selectExp: "Select experience",
 
 
 
-//   notSpecified: "Course not specified",
+  notSpecified: "Course not specified",
 
-//   callbackReq: "Callback requested",
+  callbackReq: "Callback requested",
 
-// };
+};
 
 
 
-// const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
 
-// const timeNow = () =>
+const timeNow = () =>
 
-//   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 
 
-// /* ---------- Girl avatar (inline SVG, no image file needed) ---------- */
+/* ---------- Girl avatar (inline SVG, no image file needed) ---------- */
 
-// function Avatar({ size = 34, wave = false }) {
+function Avatar({ size = 34, wave = false }) {
 
-//   const skin = "#F8D5B8";
+  const skin = "#F8D5B8";
 
-//   return (
+  return (
 
-//     <svg
+    <svg
 
-//       width={size}
+      width={size}
 
-//       height={size}
+      height={size}
 
-//       viewBox="0 0 100 100"
+      viewBox="0 0 100 100"
 
-//       role="img"
+      role="img"
 
-//       aria-label="Career Vidya assistant"
+      aria-label="Career Vidya assistant"
 
-//       style={{ flexShrink: 0, borderRadius: "50%", display: "block" }}
+      style={{ flexShrink: 0, borderRadius: "50%", display: "block" }}
 
-//     >
+    >
 
-//       <defs>
+      <defs>
 
-//         <clipPath id="cvClip">
+        <clipPath id="cvClip">
 
-//           <circle cx="50" cy="50" r="50" />
+          <circle cx="50" cy="50" r="50" />
 
-//         </clipPath>
+        </clipPath>
 
-//       </defs>
+      </defs>
 
-//       <g clipPath="url(#cvClip)">
+      <g clipPath="url(#cvClip)">
 
-//         <rect width="100" height="100" fill="#F9A94B" />
+        <rect width="100" height="100" fill="#F9A94B" />
 
-//         <path d="M22 52c0-22 12-34 28-34s28 12 28 34v26H22z" fill="#2B1B17" />
+        <path d="M22 52c0-22 12-34 28-34s28 12 28 34v26H22z" fill="#2B1B17" />
 
-//         <path d="M14 100c2-20 16-30 36-30s34 10 36 30z" fill="#1E40AF" />
+        <path d="M14 100c2-20 16-30 36-30s34 10 36 30z" fill="#1E40AF" />
 
-//         <path d="M42 70l8 10 8-10z" fill="#F3C9A8" />
+        <path d="M42 70l8 10 8-10z" fill="#F3C9A8" />
 
-//         <rect x="43" y="58" width="14" height="16" rx="6" fill="#F3C9A8" />
+        <rect x="43" y="58" width="14" height="16" rx="6" fill="#F3C9A8" />
 
-//         <ellipse cx="50" cy="45" rx="19" ry="21" fill={skin} />
+        <ellipse cx="50" cy="45" rx="19" ry="21" fill={skin} />
 
-//         <path d="M30 44c0-14 9-22 21-22 11 0 19 7 19 20-8-2-15-8-18-14-3 7-12 13-22 16z" fill="#2B1B17" />
+        <path d="M30 44c0-14 9-22 21-22 11 0 19 7 19 20-8-2-15-8-18-14-3 7-12 13-22 16z" fill="#2B1B17" />
 
-//         <ellipse cx="42" cy="47" rx="2.2" ry="2.8" fill="#2B1B17" />
+        <ellipse cx="42" cy="47" rx="2.2" ry="2.8" fill="#2B1B17" />
 
-//         <ellipse cx="58" cy="47" rx="2.2" ry="2.8" fill="#2B1B17" />
+        <ellipse cx="58" cy="47" rx="2.2" ry="2.8" fill="#2B1B17" />
 
-//         <circle cx="42.7" cy="46" r=".7" fill="#fff" />
+        <circle cx="42.7" cy="46" r=".7" fill="#fff" />
 
-//         <circle cx="58.7" cy="46" r=".7" fill="#fff" />
+        <circle cx="58.7" cy="46" r=".7" fill="#fff" />
 
-//         <circle cx="38" cy="54" r="3.2" fill="#F9A8A8" opacity=".5" />
+        <circle cx="38" cy="54" r="3.2" fill="#F9A8A8" opacity=".5" />
 
-//         <circle cx="62" cy="54" r="3.2" fill="#F9A8A8" opacity=".5" />
+        <circle cx="62" cy="54" r="3.2" fill="#F9A8A8" opacity=".5" />
 
-//         <path d="M44 56c3 3.5 9 3.5 12 0" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M44 56c3 3.5 9 3.5 12 0" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round" />
 
-//         <circle cx="50" cy="36" r="1.4" fill="#DC2626" />
+        <circle cx="50" cy="36" r="1.4" fill="#DC2626" />
 
-//         {/* headset */}
+        {/* headset */}
 
-//         <path d="M29 48c-2-20 8-30 21-30s23 10 21 30" stroke="#1E3A8A" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+        <path d="M29 48c-2-20 8-30 21-30s23 10 21 30" stroke="#1E3A8A" strokeWidth="3.2" fill="none" strokeLinecap="round" />
 
-//         <rect x="25" y="46" width="7" height="13" rx="3.5" fill="#1E3A8A" />
+        <rect x="25" y="46" width="7" height="13" rx="3.5" fill="#1E3A8A" />
 
-//         <rect x="68" y="46" width="7" height="13" rx="3.5" fill="#1E3A8A" />
+        <rect x="68" y="46" width="7" height="13" rx="3.5" fill="#1E3A8A" />
 
-//         <path d="M71 59c0 8-8 10-15 10" stroke="#1E3A8A" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+        <path d="M71 59c0 8-8 10-15 10" stroke="#1E3A8A" strokeWidth="2.4" fill="none" strokeLinecap="round" />
 
-//         <circle cx="55" cy="69" r="3" fill="#1E3A8A" />
+        <circle cx="55" cy="69" r="3" fill="#1E3A8A" />
 
-//         {/* waving hand (launcher only) */}
+        {/* waving hand (launcher only) */}
 
-//         {wave && (
+        {wave && (
 
-//           <g
+          <g
 
-//             style={{
+            style={{
 
-//               transformOrigin: "84px 80px",
+              transformOrigin: "84px 80px",
 
-//               animation: "cvWave 1.6s ease-in-out infinite",
+              animation: "cvWave 1.6s ease-in-out infinite",
 
-//             }}
+            }}
 
-//             fill={skin}
+            fill={skin}
 
-//             stroke="#E3AE88"
+            stroke="#E3AE88"
 
-//             strokeWidth=".8"
+            strokeWidth=".8"
 
-//           >
+          >
 
-//             <rect x="77.5" y="53" width="3.4" height="11" rx="1.7" />
+            <rect x="77.5" y="53" width="3.4" height="11" rx="1.7" />
 
-//             <rect x="82.3" y="51" width="3.4" height="12" rx="1.7" />
+            <rect x="82.3" y="51" width="3.4" height="12" rx="1.7" />
 
-//             <rect x="87" y="53" width="3.4" height="11" rx="1.7" />
+            <rect x="87" y="53" width="3.4" height="11" rx="1.7" />
 
-//             <ellipse cx="84" cy="67" rx="6.8" ry="7.5" />
+            <ellipse cx="84" cy="67" rx="6.8" ry="7.5" />
 
-//           </g>
+          </g>
 
-//         )}
+        )}
 
-//       </g>
+      </g>
 
-//     </svg>
+    </svg>
 
-//   );
+  );
 
-// }
+}
 
 
 
-// // Used inside the chat (header, message icons)
+// Used inside the chat (header, message icons)
 
-// function BotIcon({ size = 30 }) {
+function BotIcon({ size = 30 }) {
 
-//   return <Avatar size={size} />;
+  return <Avatar size={size} />;
 
-// }
+}
 
 
 
-// /* ---------- Fields (defined OUTSIDE the main component so inputs keep focus) ---------- */
+/* ---------- Fields (defined OUTSIDE the main component so inputs keep focus) ---------- */
 
-// function Field({ label, children }) {
+function Field({ label, children }) {
 
-//   return (
+  return (
 
-//     <label style={fieldLabel}>
+    <label style={fieldLabel}>
 
-//       <span style={fieldCaption}>{label}</span>
+      <span style={fieldCaption}>{label}</span>
 
-//       {children}
+      {children}
 
-//     </label>
+    </label>
 
-//   );
+  );
 
-// }
+}
 
 
 
-// function TextInput({ label, name, value, onChange, type = "text", required = true, ...rest }) {
+function TextInput({ label, name, value, onChange, type = "text", required = true, ...rest }) {
 
-//   return (
+  return (
 
-//     <Field label={label}>
+    <Field label={label}>
 
-//       <input
+      <input
 
-//         name={name}
+        name={name}
 
-//         type={type}
+        type={type}
 
-//         value={value}
+        value={value}
 
-//         onChange={onChange}
+        onChange={onChange}
 
-//         required={required}
+        required={required}
 
-//         style={inputStyle}
+        style={inputStyle}
 
-//         {...rest}
+        {...rest}
 
-//       />
+      />
 
-//     </Field>
+    </Field>
 
-//   );
+  );
 
-// }
+}
 
 
 
-// const mobileProps = {
+const mobileProps = {
 
-//   type: "tel",
+  type: "tel",
 
-//   inputMode: "numeric",
+  inputMode: "numeric",
 
-//   autoComplete: "tel",
+  autoComplete: "tel",
 
-//   pattern: "[6-9][0-9]{9}",
+  pattern: "[6-9][0-9]{9}",
 
-//   title: L.mobileTitle,
+  title: L.mobileTitle,
 
-//   minLength: 10,
+  minLength: 10,
 
-//   maxLength: 10,
+  maxLength: 10,
 
-// };
+};
 
 
 
-// function Progress({ current, total, label }) {
+function Progress({ current, total, label }) {
 
-//   return (
+  return (
 
-//     <div>
+    <div>
 
-//       <div style={progressText}>
+      <div style={progressText}>
 
-//         Step {current} of {total} · {label}
+        Step {current} of {total} · {label}
 
-//       </div>
+      </div>
 
-//       <div style={progressTrack}>
+      <div style={progressTrack}>
 
-//         <div style={{ ...progressFill, width: `${(current / total) * 100}%` }} />
+        <div style={{ ...progressFill, width: `${(current / total) * 100}%` }} />
 
-//       </div>
+      </div>
 
-//     </div>
+    </div>
 
-//   );
+  );
 
-// }
+}
 
 
 
-// function Chips({ items, onPick }) {
-//   return (
-//     <div style={chipRow} role="group" aria-label="Options">
-//       {items.map((item, index) => (
-//         <div
-//           key={item.key}
-//           style={{
-//             display: "flex",
-//             flexDirection: "column",
-//             alignItems: "flex-start",
-//             gap: item.description ? 4 : 0,
-//             animation: `cvPop .3s ${index * 0.05}s ease backwards`,
-//           }}
-//         >
-//           <button
-//             type="button"
-//             className="cv-chip"
-//             onClick={() => onPick(item)}
-//             style={chipStyle}
-//           >
-//             {item.number ? `${item.number} ` : ""}
-//             {item.title}
-//           </button>
-//           {item.description && (
-//             <span
-//               style={{
-//                 display: "block",
-//                 maxWidth: 360,
-//                 paddingLeft: 10,
-//                 color: "#64748B",
-//                 fontSize: 12,
-//                 lineHeight: 1.4,
-//               }}
-//             >
-//               {item.description}
-//             </span>
-//           )}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
+function Chips({ items, onPick }) {
+  return (
+    <div style={chipRow} role="group" aria-label="Options">
+      {items.map((item, index) => (
+        <div
+          key={item.key}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: item.description ? 4 : 0,
+            animation: `cvPop .3s ${index * 0.05}s ease backwards`,
+          }}
+        >
+          <button
+            type="button"
+            className="cv-chip"
+            onClick={() => onPick(item)}
+            style={chipStyle}
+          >
+            {item.number ? `${item.number} ` : ""}
+            {item.title}
+          </button>
+          {item.description && (
+            <span
+              style={{
+                display: "block",
+                maxWidth: 360,
+                paddingLeft: 10,
+                color: "#64748B",
+                fontSize: 12,
+                lineHeight: 1.4,
+              }}
+            >
+              {item.description}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-// function TypingDots() {
+function TypingDots() {
 
-//   return (
+  return (
 
-//     <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginBottom: 12 }}>
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginBottom: 12 }}>
 
-//       <BotIcon size={30} />
+      <BotIcon size={30} />
 
-//       <div style={{ ...botBubble, display: "flex", alignItems: "center", gap: 5, padding: "14px 14px" }}>
+      <div style={{ ...botBubble, display: "flex", alignItems: "center", gap: 5, padding: "14px 14px" }}>
 
-//         {[0, 1, 2].map((dot) => (
+        {[0, 1, 2].map((dot) => (
 
-//           <span
+          <span
 
-//             key={dot}
+            key={dot}
 
-//             style={{
+            style={{
 
-//               width: 7,
+              width: 7,
 
-//               height: 7,
+              height: 7,
 
-//               borderRadius: "50%",
+              borderRadius: "50%",
 
-//               background: "#94A3B8",
+              background: "#94A3B8",
 
-//               animation: `cvDot 1.2s ${dot * 0.16}s infinite`,
+              animation: `cvDot 1.2s ${dot * 0.16}s infinite`,
 
-//             }}
+            }}
 
-//           />
+          />
 
-//         ))}
+        ))}
 
-//       </div>
+      </div>
 
-//     </div>
+    </div>
 
-//   );
+  );
 
-// }
+}
 
 
 
-// const emptyData = {
+const emptyData = {
 
-//   name: "",
+  name: "",
 
-//   email: "",
+  email: "",
 
-//   mobile: "",
+  mobile: "",
 
-//   course: "",
+  course: "",
 
-//   branch: "",
+  branch: "",
 
-//   state: "",
+  state: "",
 
-//   city: "",
+  city: "",
 
-//   message: "",
+  message: "",
 
-//   role: "",
+  role: "",
 
-//   experience: "",
+  experience: "",
 
-// };
+};
 
 
 
-// export default function CareervidyaChatBot() {
+export default function CareervidyaChatBot() {
 
-//   const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-//   const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
 
-//   const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState([]);
 
-//   const [specializations, setSpecializations] = useState([]);
+  const [specializations, setSpecializations] = useState([]);
 
-//   const [step, setStep] = useState("init");
+  const [step, setStep] = useState("init");
 
-//   const [flow, setFlow] = useState("");
+  const [flow, setFlow] = useState("");
 
-//   const [supportType, setSupportType] = useState("");
+  const [supportType, setSupportType] = useState("");
 
-//   const [botTyping, setBotTyping] = useState(false);
+  const [botTyping, setBotTyping] = useState(false);
 
-//   const [sending, setSending] = useState(false);
+  const [sending, setSending] = useState(false);
 
-//   const [error, setError] = useState("");
+  const [error, setError] = useState("");
 
-//   const [data, setData] = useState(emptyData);
+  const [data, setData] = useState(emptyData);
 
-//   const [showTeaser, setShowTeaser] = useState(false);
+  const [showTeaser, setShowTeaser] = useState(false);
 
 
 
-//   const bodyRef = useRef(null);
+  const bodyRef = useRef(null);
 
-//   const started = useRef(false);
+  const started = useRef(false);
 
-//   const busyRef = useRef(false);
+  const busyRef = useRef(false);
 
-//   const mountedRef = useRef(false);
+  const mountedRef = useRef(false);
 
 
 
-//   useEffect(() => {
+  useEffect(() => {
 
-//     mountedRef.current = true;
+    mountedRef.current = true;
 
 
 
-//     const fetchCourses = async () => {
+    const fetchCourses = async () => {
 
-//       try {
+      try {
 
-//         const res = await api.get("/api/v1/course");
+        const res = await api.get("/api/v1/course");
 
-//         const result = Array.isArray(res.data)
+        const result = Array.isArray(res.data)
 
-//           ? res.data
+          ? res.data
 
-//           : res.data?.data || res.data?.courses || [];
+          : res.data?.data || res.data?.courses || [];
 
-//         if (mountedRef.current) setCourses(result);
+        if (mountedRef.current) setCourses(result);
 
-//       } catch (err) {
+      } catch (err) {
 
-//         console.error("Course fetch error:", err);
+        console.error("Course fetch error:", err);
 
-//       }
+      }
 
-//     };
+    };
 
 
 
-//     fetchCourses();
+    fetchCourses();
 
-//     return () => {
+    return () => {
 
-//       mountedRef.current = false;
+      mountedRef.current = false;
 
-//     };
+    };
 
-//   }, []);
+  }, []);
 
 
 
-//   useEffect(() => {
+  useEffect(() => {
 
-//     if (bodyRef.current) {
+    if (bodyRef.current) {
 
-//       bodyRef.current.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
+      bodyRef.current.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
 
-//     }
+    }
 
-//   }, [messages, step, botTyping, open]);
+  }, [messages, step, botTyping, open]);
 
 
 
-//   const addMsg = (from, text, link) => {
+  const addMsg = (from, text, link) => {
 
-//     setMessages((previous) => [...previous, { from, text, link, time: timeNow() }]);
+    setMessages((previous) => [...previous, { from, text, link, time: timeNow() }]);
 
-//   };
+  };
 
 
 
-//   // Each item is a string, or { text, link: { label, url, phone? } }
+  // Each item is a string, or { text, link: { label, url, phone? } }
 
-//   const botSay = async (items) => {
+  const botSay = async (items) => {
 
-//     for (const item of items) {
+    for (const item of items) {
 
-//       const { text, link } = typeof item === "string" ? { text: item } : item;
+      const { text, link } = typeof item === "string" ? { text: item } : item;
 
-//       setBotTyping(true);
+      setBotTyping(true);
 
-//       await sleep(Math.min(500 + text.length * 12, 1200));
+      await sleep(Math.min(500 + text.length * 12, 1200));
 
-//       if (!mountedRef.current) return;
+      if (!mountedRef.current) return;
 
-//       setBotTyping(false);
+      setBotTyping(false);
 
-//       addMsg("bot", text, link);
+      addMsg("bot", text, link);
 
-//       await sleep(200);
+      await sleep(200);
 
-//     }
+    }
 
-//   };
+  };
 
 
 
-//   const startChat = async () => {
+  const startChat = async () => {
 
-//     if (busyRef.current) return;
+    if (busyRef.current) return;
 
-//     busyRef.current = true;
+    busyRef.current = true;
 
-//     setStep("busy");
+    setStep("busy");
 
-//     try {
+    try {
 
-//       await botSay([L.greeting1, L.greeting2]);
+      await botSay([L.greeting1, L.greeting2]);
 
-//       setStep("menu");
+      setStep("menu");
 
-//     } finally {
+    } finally {
 
-//       busyRef.current = false;
+      busyRef.current = false;
 
-//     }
+    }
 
-//   };
+  };
 
 
 
-//   const openChat = () => {
+  const openChat = () => {
 
-//     setOpen(true);
+    setOpen(true);
 
-//     setShowTeaser(false);
+    setShowTeaser(false);
 
-//     if (!started.current) {
+    if (!started.current) {
 
-//       started.current = true;
+      started.current = true;
 
-//       startChat();
+      startChat();
 
-//     }
+    }
 
-//   };
+  };
 
 
 
-//   // Welcome bubble pops up next to the avatar after 0.8s.
+  // Welcome bubble pops up next to the avatar after 0.8s.
 
-//   // The chat itself opens by itself only if AUTO_OPEN_MS is set (once per session).
+  // The chat itself opens by itself only if AUTO_OPEN_MS is set (once per session).
 
-//   useEffect(() => {
+  useEffect(() => {
 
-//     const t1 = setTimeout(() => setShowTeaser(true), 800);
+    const t1 = setTimeout(() => setShowTeaser(true), 800);
 
 
 
-//     let t2;
+    let t2;
 
-//     if (AUTO_OPEN_MS > 0) {
+    if (AUTO_OPEN_MS > 0) {
 
-//       let alreadyOpened = false;
+      let alreadyOpened = false;
 
-//       try {
+      try {
 
-//         alreadyOpened = !!sessionStorage.getItem("cvAutoOpened");
+        alreadyOpened = !!sessionStorage.getItem("cvAutoOpened");
 
-//       } catch (e) {}
+      } catch (e) {}
 
 
 
-//       if (!alreadyOpened) {
+      if (!alreadyOpened) {
 
-//         t2 = setTimeout(() => {
+        t2 = setTimeout(() => {
 
-//           try {
+          try {
 
-//             sessionStorage.setItem("cvAutoOpened", "1");
+            sessionStorage.setItem("cvAutoOpened", "1");
 
-//           } catch (e) {}
+          } catch (e) {}
 
-//           if (!started.current) openChat();
+          if (!started.current) openChat();
 
-//         }, AUTO_OPEN_MS);
+        }, AUTO_OPEN_MS);
 
-//       }
+      }
 
-//     }
+    }
 
 
 
-//     return () => {
+    return () => {
 
-//       clearTimeout(t1);
+      clearTimeout(t1);
 
-//       clearTimeout(t2);
+      clearTimeout(t2);
 
-//     };
+    };
 
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
-//   }, []);
+  }, []);
 
 
 
-//   // One helper for every button tap: show the choice, let the bot reply, then show the next step
+  // One helper for every button tap: show the choice, let the bot reply, then show the next step
 
-//   const choose = async ({ title, replies, next, before }) => {
+  const choose = async ({ title, replies, next, before }) => {
 
-//     if (busyRef.current || sending) return;
+    if (busyRef.current || sending) return;
 
 
 
-//     busyRef.current = true;
+    busyRef.current = true;
 
-//     addMsg("user", title);
+    addMsg("user", title);
 
-//     before?.();
+    before?.();
 
-//     setError("");
+    setError("");
 
-//     setStep("busy");
+    setStep("busy");
 
 
 
-//     try {
+    try {
 
-//       await botSay(replies);
+      await botSay(replies);
 
-//       setStep(next);
+      setStep(next);
 
-//     } finally {
+    } finally {
 
-//       busyRef.current = false;
+      busyRef.current = false;
 
-//     }
+    }
 
-//   };
+  };
 
 
 
-//   /* ----- Main menu ----- */
+  /* ----- Main menu ----- */
 
-//   const handleMain = (item) => {
+  const handleMain = (item) => {
 
-//     if (item.key === "admission") {
+    if (item.key === "admission") {
 
-//       return choose({ title: item.title, replies: [L.admIntro], next: "admission1", before: () => setFlow("admission") });
+      return choose({ title: item.title, replies: [L.admIntro], next: "admission1", before: () => setFlow("admission") });
 
-//     }
+    }
 
-//     if (item.key === "counselling") {
+    if (item.key === "counselling") {
 
-//       return choose({ title: item.title, replies: [L.counIntro], next: "counselling", before: () => setFlow("counselling") });
+      return choose({ title: item.title, replies: [L.counIntro], next: "counselling", before: () => setFlow("counselling") });
 
-//     }
+    }
 
-//     if (item.key === "job") {
+    if (item.key === "job") {
 
-//       return choose({ title: item.title, replies: [L.jobIntro], next: "job", before: () => setFlow("job") });
+      return choose({ title: item.title, replies: [L.jobIntro], next: "job", before: () => setFlow("job") });
 
-//     }
+    }
 
-//     return choose({ title: item.title, replies: [L.supportAsk], next: "supportMenu", before: () => setFlow("existing") });
+    return choose({ title: item.title, replies: [L.supportAsk], next: "supportMenu", before: () => setFlow("existing") });
 
-//   };
+  };
 
 
 
-//   /* ----- After admission form: About Career Vidya / Admission Process ----- */
+  /* ----- After admission form: About Career Vidya / Admission Process ----- */
 
-//   const handleAdmissionInfo = (item) => {
+  const handleAdmissionInfo = (item) => {
 
-//     if (item.key === "about") {
+    if (item.key === "about") {
 
-//       return choose({
+      return choose({
 
-//         title: item.title,
+        title: item.title,
 
-//         replies: [{ text: L.about, link: { label: "About Career Vidya", url: ABOUT_URL } }],
+        replies: [{ text: L.about, link: { label: "About Career Vidya", url: ABOUT_URL } }],
 
-//         next: "admissionInfo",
+        next: "admissionInfo",
 
-//       });
+      });
 
-//     }
+    }
 
-//     if (item.key === "process") {
+    if (item.key === "process") {
 
-//       return choose({ title: item.title, replies: [L.admissionAsk], next: "admissionMenu" });
+      return choose({ title: item.title, replies: [L.admissionAsk], next: "admissionMenu" });
 
-//     }
+    }
 
-//     return choose({ title: item.title, replies: [L.backMenu], next: "menu", before: () => setFlow("") });
+    return choose({ title: item.title, replies: [L.backMenu], next: "menu", before: () => setFlow("") });
 
-//   };
+  };
 
 
 
-//   /* ----- Admission Process sub-menu ----- */
+  /* ----- Admission Process sub-menu ----- */
 
-//   const handleAdmissionMenu = (item) => {
+  const handleAdmissionMenu = (item) => {
 
-//     if (item.key === "eligibility") {
+    if (item.key === "eligibility") {
 
-//       return choose({
+      return choose({
 
-//         title: item.title,
+        title: item.title,
 
-//         replies: [
+        replies: [
 
-//           { text: L.eligibility, link: { label: "Visit Career Vidya", url: SITE_URL } },
+          { text: L.eligibility, link: { label: "Visit Career Vidya", url: SITE_URL } },
 
-//           { text: `📞 You can also speak with our Admission Counselor at: +91 ${SUPPORT_PHONE}`, link: PHONE_LINK },
+          { text: `📞 You can also speak with our Admission Counselor at: +91 ${SUPPORT_PHONE}`, link: PHONE_LINK },
 
-//         ],
+        ],
 
-//         next: "admissionMenu",
+        next: "admissionMenu",
 
-//       });
+      });
 
-//     }
+    }
 
-//     if (item.key === "how") {
+    if (item.key === "how") {
 
-//       return choose({ title: item.title, replies: [L.howToApply], next: "admissionMenu" });
+      return choose({ title: item.title, replies: [L.howToApply], next: "admissionMenu" });
 
-//     }
+    }
 
-//     if (item.key === "apply") {
+    if (item.key === "apply") {
 
-//       return choose({
+      return choose({
 
-//         title: item.title,
+        title: item.title,
 
-//         replies: [{ text: L.applyText, link: { label: "Apply Now", url: APPLY_URL } }],
+        replies: [{ text: L.applyText, link: { label: "Apply Now", url: APPLY_URL } }],
 
-//         next: "admissionMenu",
+        next: "admissionMenu",
 
-//       });
+      });
 
-//     }
+    }
 
-//     return choose({ title: item.title, replies: [L.backMenu], next: "menu", before: () => setFlow("") });
+    return choose({ title: item.title, replies: [L.backMenu], next: "menu", before: () => setFlow("") });
 
-//   };
+  };
 
 
 
-//   // Existing Student Support: show a direct answer, not a form.
-//   const handleSupportType = (item) => {
-//     const answer = SUPPORT_ANSWERS[item.key];
-//     if (!answer) return;
+  // Existing Student Support: show a direct answer, not a form.
+  const handleSupportType = (item) => {
+    const answer = SUPPORT_ANSWERS[item.key];
+    if (!answer) return;
 
-//     return choose({
-//       title: item.title,
-//       replies: [
-//         {
-//           text: `${answer.message} Contact: ${answer.phone}`,
-//           link: {
-//             label: `Call / WhatsApp ${answer.phone}`,
-//             url: answer.whatsapp,
-//           },
-//         },
-//       ],
-//       next: "supportAnswer",
-//       before: () => setSupportType(item.key),
-//     });
-//   };
+    return choose({
+      title: item.title,
+      replies: [
+        {
+          text: `${answer.message} Contact: ${answer.phone}`,
+          link: {
+            label: `Call / WhatsApp ${answer.phone}`,
+            url: answer.whatsapp,
+          },
+        },
+      ],
+      next: "supportAnswer",
+      before: () => setSupportType(item.key),
+    });
+  };
 
-//   const handleSupportAnswerNavigation = (item) => {
-//     if (item.key === "supportBack") {
-//       return choose({
-//         title: item.title,
-//         replies: [L.supportAsk],
-//         next: "supportMenu",
-//       });
-//     }
+  const handleSupportAnswerNavigation = (item) => {
+    if (item.key === "supportBack") {
+      return choose({
+        title: item.title,
+        replies: [L.supportAsk],
+        next: "supportMenu",
+      });
+    }
 
-//     return choose({
-//       title: item.title,
-//       replies: [L.backMenu],
-//       next: "menu",
-//       before: () => {
-//         setFlow("");
-//         setSupportType("");
-//       },
-//     });
-//   };
+    return choose({
+      title: item.title,
+      replies: [L.backMenu],
+      next: "menu",
+      before: () => {
+        setFlow("");
+        setSupportType("");
+      },
+    });
+  };
 
 
 
-//   const onChange = (event) => {
+  const onChange = (event) => {
 
-//     const { name, value } = event.target;
+    const { name, value } = event.target;
 
 
 
-//     if (name === "mobile") {
+    if (name === "mobile") {
 
-//       setData((p) => ({ ...p, mobile: value.replace(/\D/g, "").slice(0, 10) }));
+      setData((p) => ({ ...p, mobile: value.replace(/\D/g, "").slice(0, 10) }));
 
-//       return;
+      return;
 
-//     }
+    }
 
 
 
-//     if (name === "course" && flow === "admission") {
+    if (name === "course" && flow === "admission") {
 
-//       const selected = courses.find((c) => c.name === value);
+      const selected = courses.find((c) => c.name === value);
 
-//       setSpecializations(
+      setSpecializations(
 
-//         Array.isArray(selected?.specializations) ? selected.specializations : []
+        Array.isArray(selected?.specializations) ? selected.specializations : []
 
-//       );
+      );
 
-//       setData((p) => ({ ...p, course: value, branch: "" }));
+      setData((p) => ({ ...p, course: value, branch: "" }));
 
-//       return;
+      return;
 
-//     }
+    }
 
 
 
-//     setData((p) => ({ ...p, [name]: value }));
+    setData((p) => ({ ...p, [name]: value }));
 
-//   };
+  };
 
 
 
-//   const handleNext = async (event) => {
+  const handleNext = async (event) => {
 
-//     event.preventDefault();
+    event.preventDefault();
 
-//     if (busyRef.current) return;
+    if (busyRef.current) return;
 
 
 
-//     addMsg("user", `${data.name}\n${data.email}\n${data.mobile}`);
+    addMsg("user", `${data.name}\n${data.email}\n${data.mobile}`);
 
 
 
-//     busyRef.current = true;
+    busyRef.current = true;
 
-//     setStep("busy");
+    setStep("busy");
 
 
 
-//     try {
+    try {
 
-//       await botSay([L.thanks(data.name.trim().split(" ")[0])]);
+      await botSay([L.thanks(data.name.trim().split(" ")[0])]);
 
-//       setStep("admission2");
+      setStep("admission2");
 
-//     } finally {
+    } finally {
 
-//       busyRef.current = false;
+      busyRef.current = false;
 
-//     }
+    }
 
-//   };
+  };
 
 
 
-//   const submitLead = async ({ payload, successMessages, returnStep, nextStep = "menu", followUp = L.anythingElse }) => {
+  const submitLead = async ({ payload, successMessages, returnStep, nextStep = "menu", followUp = L.anythingElse }) => {
 
-//     if (busyRef.current || sending) return;
+    if (busyRef.current || sending) return;
 
 
 
-//     busyRef.current = true;
+    busyRef.current = true;
 
-//     setSending(true);
+    setSending(true);
 
-//     setError("");
+    setError("");
 
-//     setStep("busy");
+    setStep("busy");
 
 
 
-//     try {
+    try {
 
-//       await api.post("/api/v1/getintouch", payload);
+      await api.post("/api/v1/getintouch", payload);
 
-//       setData(emptyData);
+      setData(emptyData);
 
-//       setSpecializations([]);
+      setSpecializations([]);
 
-//       await botSay([...successMessages, followUp]);
+      await botSay([...successMessages, followUp]);
 
-//       if (nextStep === "menu") setFlow("");
+      if (nextStep === "menu") setFlow("");
 
-//       setStep(nextStep);
+      setStep(nextStep);
 
-//     } catch (err) {
+    } catch (err) {
 
-//       console.error("Chatbot lead submission failed:", err);
+      console.error("Chatbot lead submission failed:", err);
 
-//       setError(err?.response?.data?.message || L.errDefault);
+      setError(err?.response?.data?.message || L.errDefault);
 
-//       await botSay([L.err]);
+      await botSay([L.err]);
 
-//       setStep(returnStep);
+      setStep(returnStep);
 
-//     } finally {
+    } finally {
 
-//       busyRef.current = false;
+      busyRef.current = false;
 
-//       setSending(false);
+      setSending(false);
 
-//     }
+    }
 
-//   };
+  };
 
 
 
-//   const handleAdmissionSubmit = (event) => {
+  const handleAdmissionSubmit = (event) => {
 
-//     event.preventDefault();
+    event.preventDefault();
 
-//     addMsg(
+    addMsg(
 
-//       "user",
+      "user",
 
-//       `${data.course}${data.branch ? ` - ${data.branch}` : ""}\n${data.city}, ${data.state}`
+      `${data.course}${data.branch ? ` - ${data.branch}` : ""}\n${data.city}, ${data.state}`
 
-//     );
+    );
 
-//     return submitLead({
+    return submitLead({
 
-//       payload: {
+      payload: {
 
-//         name: data.name,
+        name: data.name,
 
-//         email: data.email,
+        email: data.email,
 
-//         mobile: data.mobile,
+        mobile: data.mobile,
 
-//         course: data.course,
+        course: data.course,
 
-//         branch: data.branch || "NA",
+        branch: data.branch || "NA",
 
-//         state: data.state,
+        state: data.state,
 
-//         city: data.city,
+        city: data.city,
 
-//         message: `Chatbot Admission Enquiry | State: ${data.state}`,
+        message: `Chatbot Admission Enquiry | State: ${data.state}`,
 
-//       },
+      },
 
-//       successMessages: [L.admDone],
+      successMessages: [L.admDone],
 
-//       returnStep: "admission2",
+      returnStep: "admission2",
 
-//       nextStep: "admissionInfo", // the sub-menu appears only after the form is submitted
+      nextStep: "admissionInfo", // the sub-menu appears only after the form is submitted
 
-//       followUp: L.admNext,
+      followUp: L.admNext,
 
-//     });
+    });
 
-//   };
+  };
 
 
 
-//   const handleCounsellingSubmit = (event) => {
+  const handleCounsellingSubmit = (event) => {
 
-//     event.preventDefault();
+    event.preventDefault();
 
-//     addMsg(
+    addMsg(
 
-//       "user",
+      "user",
 
-//       `${data.name} | ${data.mobile}\n${data.course || L.notSpecified}\n${data.message || L.callbackReq}`
+      `${data.name} | ${data.mobile}\n${data.course || L.notSpecified}\n${data.message || L.callbackReq}`
 
-//     );
+    );
 
-//     return submitLead({
+    return submitLead({
 
-//       payload: {
+      payload: {
 
-//         name: data.name,
+        name: data.name,
 
-//         email: data.email || "Not provided",
+        email: data.email || "Not provided",
 
-//         mobile: data.mobile,
+        mobile: data.mobile,
 
-//         course: data.course || "Counselling",
+        course: data.course || "Counselling",
 
-//         branch: "NA",
+        branch: "NA",
 
-//         city: data.city || "NA",
+        city: data.city || "NA",
 
-//         message: `Chatbot Counselling Enquiry: ${data.message || "Callback requested"}`,
+        message: `Chatbot Counselling Enquiry: ${data.message || "Callback requested"}`,
 
-//       },
+      },
 
-//       successMessages: [
+      successMessages: [
 
-//         L.counDone,
+        L.counDone,
 
-//         { text: "You can also meet our counsellors here.", link: { label: "Meet our counsellors", url: TEAM_URL } },
+        { text: "You can also meet our counsellors here.", link: { label: "Meet our counsellors", url: TEAM_URL } },
 
-//       ],
+      ],
 
-//       returnStep: "counselling",
+      returnStep: "counselling",
 
-//     });
+    });
 
-//   };
+  };
 
 
 
-//   const handleJobSubmit = (event) => {
+  const handleJobSubmit = (event) => {
 
-//     event.preventDefault();
+    event.preventDefault();
 
-//     addMsg(
+    addMsg(
 
-//       "user",
+      "user",
 
-//       `${data.name} | ${data.mobile}\n${data.role}\n${data.experience}${data.city ? `, ${data.city}` : ""}`
+      `${data.name} | ${data.mobile}\n${data.role}\n${data.experience}${data.city ? `, ${data.city}` : ""}`
 
-//     );
+    );
 
-//     return submitLead({
+    return submitLead({
 
-//       payload: {
+      payload: {
 
-//         name: data.name,
+        name: data.name,
 
-//         email: data.email || "Not provided",
+        email: data.email || "Not provided",
 
-//         mobile: data.mobile,
+        mobile: data.mobile,
 
-//         course: "Job Enquiry",
+        course: "Job Enquiry",
 
-//         branch: data.role || "NA",
+        branch: data.role || "NA",
 
-//         city: data.city || "NA",
+        city: data.city || "NA",
 
-//         message: `Chatbot Job Enquiry | Role: ${data.role} | Experience: ${data.experience}`,
+        message: `Chatbot Job Enquiry | Role: ${data.role} | Experience: ${data.experience}`,
 
-//       },
+      },
 
-//       successMessages: [
+      successMessages: [
 
-//         L.jobDone,
+        L.jobDone,
 
-//         { text: "You can now browse open jobs on our Job Portal.", link: { label: "Open Job Portal", url: JOB_URL } },
+        { text: "You can now browse open jobs on our Job Portal.", link: { label: "Open Job Portal", url: JOB_URL } },
 
-//       ],
+      ],
 
-//       returnStep: "job",
+      returnStep: "job",
 
-//     });
+    });
 
-//   };
+  };
 
 
 
-//   const handleExistingSubmit = (event) => {
+  const handleExistingSubmit = (event) => {
 
-//     event.preventDefault();
+    event.preventDefault();
 
-//     addMsg("user", `${data.name} | ${data.mobile}\n${data.message}`);
+    addMsg("user", `${data.name} | ${data.mobile}\n${data.message}`);
 
-//     return submitLead({
+    return submitLead({
 
-//       payload: {
+      payload: {
 
-//         name: data.name,
+        name: data.name,
 
-//         email: data.email || "Not provided",
+        email: data.email || "Not provided",
 
-//         mobile: data.mobile,
+        mobile: data.mobile,
 
-//         course: "Existing Student Support",
+        course: "Existing Student Support",
 
-//         branch: supportType || "NA",
+        branch: supportType || "NA",
 
-//         city: data.city || "NA",
+        city: data.city || "NA",
 
-//         message: `Chatbot Existing Student Support | Type: ${supportType || "NA"} | ${data.message}`,
+        message: `Chatbot Existing Student Support | Type: ${supportType || "NA"} | ${data.message}`,
 
-//       },
+      },
 
-//       successMessages: [L.existDone],
+      successMessages: [L.existDone],
 
-//       returnStep: "existing",
+      returnStep: "existing",
 
-//     });
+    });
 
-//   };
+  };
 
 
 
-//   const goBack = () => {
+  const goBack = () => {
 
-//     if (sending) return;
+    if (sending) return;
 
-//     setError("");
+    setError("");
 
-//     if (step === "admission2") {
+    if (step === "admission2") {
 
-//       setStep("admission1");
+      setStep("admission1");
 
-//       return;
+      return;
 
-//     }
+    }
 
-//     if (step === "existing") {
+    if (step === "existing") {
 
-//       setStep("supportMenu");
+      setStep("supportMenu");
 
-//       return;
+      return;
 
-//     }
+    }
 
-//     setFlow("");
+    setFlow("");
 
-//     setStep("menu");
+    setStep("menu");
 
-//   };
+  };
 
 
 
-//   const renderForm = ({ progress, fields, submitLabel, icon, onSubmit }) => (
+  const renderForm = ({ progress, fields, submitLabel, icon, onSubmit }) => (
 
-//     <form key={step} onSubmit={onSubmit} style={formBox}>
+    <form key={step} onSubmit={onSubmit} style={formBox}>
 
-//       {progress}
+      {progress}
 
 
 
-//       {fields}
+      {fields}
 
 
 
-//       {error && (
+      {error && (
 
-//         <div role="alert" style={errorStyle}>
+        <div role="alert" style={errorStyle}>
 
-//           {error}
+          {error}
 
-//         </div>
+        </div>
 
-//       )}
+      )}
 
 
 
-//       <button
+      <button
 
-//         type="submit"
+        type="submit"
 
-//         disabled={sending}
+        disabled={sending}
 
-//         className="cv-btn"
+        className="cv-btn"
 
-//         style={{ ...primaryBtn, opacity: sending ? 0.65 : 1 }}
+        style={{ ...primaryBtn, opacity: sending ? 0.65 : 1 }}
 
-//       >
+      >
 
-//         {sending ? "Submitting..." : submitLabel}
+        {sending ? "Submitting..." : submitLabel}
 
-//         {!sending && (icon || <Send size={17} />)}
+        {!sending && (icon || <Send size={17} />)}
 
-//       </button>
+      </button>
 
 
 
-//       <button type="button" onClick={goBack} disabled={sending} style={backBtn}>
+      <button type="button" onClick={goBack} disabled={sending} style={backBtn}>
 
-//         <ArrowLeft size={15} /> Back
+        <ArrowLeft size={15} /> Back
 
-//       </button>
+      </button>
 
-//     </form>
+    </form>
 
-//   );
+  );
 
 
 
-//   const showForms = !botTyping;
+  const showForms = !botTyping;
 
 
 
-//   return (
+  return (
 
-//     <>
+    <>
 
-//       <style>{`
+      <style>{`
 
-//         @keyframes cvPop {
+        @keyframes cvPop {
 
-//           from { opacity: 0; transform: translateY(6px); }
+          from { opacity: 0; transform: translateY(6px); }
 
-//           to { opacity: 1; transform: translateY(0); }
+          to { opacity: 1; transform: translateY(0); }
 
-//         }
+        }
 
-//         @keyframes cvExpand {
+        @keyframes cvExpand {
 
-//           from { opacity: 0; transform: scale(.85) translateY(16px); }
+          from { opacity: 0; transform: scale(.85) translateY(16px); }
 
-//           to { opacity: 1; transform: scale(1) translateY(0); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
 
-//         }
+        }
 
-//         @keyframes cvDot {
+        @keyframes cvDot {
 
-//           0%,60%,100% { transform: translateY(0); opacity: .4; }
+          0%,60%,100% { transform: translateY(0); opacity: .4; }
 
-//           30% { transform: translateY(-4px); opacity: 1; }
+          30% { transform: translateY(-4px); opacity: 1; }
 
-//         }
+        }
 
-//         @keyframes cvBob {
+        @keyframes cvBob {
 
-//           0%,100% { transform: translateY(0); }
+          0%,100% { transform: translateY(0); }
 
-//           50% { transform: translateY(-4px); }
+          50% { transform: translateY(-4px); }
 
-//         }
+        }
 
-//         @keyframes cvWave {
+        @keyframes cvWave {
 
-//           0%,100% { transform: rotate(0deg); }
+          0%,100% { transform: rotate(0deg); }
 
-//           25% { transform: rotate(-14deg); }
+          25% { transform: rotate(-14deg); }
 
-//           75% { transform: rotate(14deg); }
+          75% { transform: rotate(14deg); }
 
-//         }
+        }
 
-//         @keyframes cvTeaser {
+        @keyframes cvTeaser {
 
-//           from { opacity: 0; transform: translateX(14px) scale(.9); }
+          from { opacity: 0; transform: translateX(14px) scale(.9); }
 
-//           to { opacity: 1; transform: translateX(0) scale(1); }
+          to { opacity: 1; transform: translateX(0) scale(1); }
 
-//         }
+        }
 
-//         .cv-chat-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .cv-chat-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
 
-//         .cv-chat-scroll input:focus,
+        .cv-chat-scroll input:focus,
 
-//         .cv-chat-scroll select:focus,
+        .cv-chat-scroll select:focus,
 
-//         .cv-chat-scroll textarea:focus {
+        .cv-chat-scroll textarea:focus {
 
-//           border-color: ${BRAND} !important;
+          border-color: ${BRAND} !important;
 
-//           box-shadow: 0 0 0 3px rgba(30,64,175,.12);
+          box-shadow: 0 0 0 3px rgba(30,64,175,.12);
 
-//         }
+        }
 
-//         .cv-chip { transition: background .15s, color .15s, transform .15s; }
+        .cv-chip { transition: background .15s, color .15s, transform .15s; }
 
-//         .cv-chip:hover { background: ${BRAND} !important; color: #fff !important; }
+        .cv-chip:hover { background: ${BRAND} !important; color: #fff !important; }
 
-//         .cv-chip:active { transform: scale(.97); }
+        .cv-chip:active { transform: scale(.97); }
 
-//         .cv-btn { transition: filter .15s, transform .15s; }
+        .cv-btn { transition: filter .15s, transform .15s; }
 
-//         .cv-btn:hover:not(:disabled) { filter: brightness(1.1); }
+        .cv-btn:hover:not(:disabled) { filter: brightness(1.1); }
 
-//         .cv-btn:active:not(:disabled) { transform: scale(.98); }
+        .cv-btn:active:not(:disabled) { transform: scale(.98); }
 
-//         .cv-chat-window button:focus-visible,
+        .cv-chat-window button:focus-visible,
 
-//         .cv-chat-window a:focus-visible { outline: 2px solid ${BRAND}; outline-offset: 2px; }
+        .cv-chat-window a:focus-visible { outline: 2px solid ${BRAND}; outline-offset: 2px; }
 
-//         @media (max-width: 480px) {
+        @media (max-width: 480px) {
 
-//           .cv-chat-window {
+          .cv-chat-window {
 
-//             right: 8px !important;
+            right: 8px !important;
 
-//             bottom: 8px !important;
+            bottom: 8px !important;
 
-//             width: calc(100vw - 16px) !important;
+            width: calc(100vw - 16px) !important;
 
-//             height: min(640px, calc(100dvh - 16px)) !important;
+            height: min(640px, calc(100dvh - 16px)) !important;
 
-//             border-radius: 16px !important;
+            border-radius: 16px !important;
 
-//           }
+          }
 
-//           .cv-chat-fab { right: 14px !important; bottom: 22px !important; }
+          .cv-chat-fab { right: 14px !important; bottom: 22px !important; }
 
-//           .cv-chat-teaser { right: 104px !important; bottom: 30px !important; }
+          .cv-chat-teaser { right: 104px !important; bottom: 30px !important; }
 
-//         }
+        }
 
-//         @media (prefers-reduced-motion: reduce) {
+        @media (prefers-reduced-motion: reduce) {
 
-//           .cv-chat-fab, .cv-chat-window, .cv-chat-window * { animation: none !important; transition: none !important; }
+          .cv-chat-fab, .cv-chat-window, .cv-chat-window * { animation: none !important; transition: none !important; }
 
-//         }
+        }
 
-//       `}</style>
+      `}</style>
 
 
 
-//       {!open && (
+      {!open && (
 
-//         <>
+        <>
 
-//           {showTeaser && (
+          {showTeaser && (
 
-//             <div className="cv-chat-teaser" style={teaserStyle}>
+            <div className="cv-chat-teaser" style={teaserStyle}>
 
-//               <button
+              <button
 
-//                 type="button"
+                type="button"
 
-//                 onClick={openChat}
+                onClick={openChat}
 
-//                 style={teaserTextBtn}
+                style={teaserTextBtn}
 
-//                 aria-label="Open Career Vidya AI assistant"
+                aria-label="Open Career Vidya AI assistant"
 
-//               >
+              >
+                Welcome to Career Vidya!!
 
-//                 Welcome to Career Vidya!!
+              </button>
 
-//               </button>
 
+              <span style={teaserTail} />
 
-//               <span style={teaserTail} />
+            </div>
 
-//             </div>
+          )}
 
-//           )}
 
 
+          <button
 
-//           <button
+            type="button"
 
-//             type="button"
+            className="cv-chat-fab"
 
-//             className="cv-chat-fab"
+            onClick={openChat}
 
-//             onClick={openChat}
+            style={fabStyle}
 
-//             style={fabStyle}
+            aria-label="Open Career Vidya AI assistant"
 
-//             aria-label="Open Career Vidya AI assistant"
+          >
 
-//           >
+            <Avatar size={70} wave />
 
-//             <Avatar size={70} wave />
+          </button>
 
-//           </button>
+        </>
 
-//         </>
+      )}
 
-//       )}
 
 
+      {open && (
 
-//       {open && (
+        <section
 
-//         <section
+          className="cv-chat-window"
 
-//           className="cv-chat-window"
+          style={windowStyle}
 
-//           style={windowStyle}
+          aria-label="Career Vidya AI Assistant"
 
-//           aria-label="Career Vidya AI Assistant"
+        >
 
-//         >
+          <header style={headerStyle}>
 
-//           <header style={headerStyle}>
+            <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
 
-//             <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
+              <div style={{ position: "relative", display: "flex" }}>
 
-//               <div style={{ position: "relative", display: "flex" }}>
+                <BotIcon size={44} />
 
-//                 <BotIcon size={44} />
+                <span style={headerDot} />
 
-//                 <span style={headerDot} />
+              </div>
 
-//               </div>
+              <div style={{ minWidth: 0 }}>
 
-//               <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#0F172A" }}>
 
-//                 <div style={{ fontSize: 15, fontWeight: 700, color: "#0F172A" }}>
+                  Career Vidya <span style={aiTag}>AI</span>
 
-//                   Career Vidya <span style={aiTag}>AI</span>
+                </div>
 
-//                 </div>
+                <div style={{ fontSize: 12, color: "#64748B", display: "flex", alignItems: "center", gap: 5 }}>
 
-//                 <div style={{ fontSize: 12, color: "#64748B", display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={statusDot} />
 
-//                   <span style={statusDot} />
+                  {botTyping ? "Typing..." : "Online"}
 
-//                   {botTyping ? "Typing..." : "Online"}
+                </div>
 
-//                 </div>
+              </div>
 
-//               </div>
+            </div>
 
-//             </div>
 
 
+            <button
 
-//             <button
+              type="button"
 
-//               type="button"
+              onClick={() => setOpen(false)}
 
-//               onClick={() => setOpen(false)}
+              style={closeStyle}
 
-//               style={closeStyle}
+              aria-label="Close chat"
 
-//               aria-label="Close chat"
+            >
 
-//             >
+              <X size={22} />
 
-//               <X size={22} />
+            </button>
 
-//             </button>
+          </header>
 
-//           </header>
 
 
+          <div ref={bodyRef} className="cv-chat-scroll" style={bodyStyle} aria-live="polite">
 
-//           <div ref={bodyRef} className="cv-chat-scroll" style={bodyStyle} aria-live="polite">
+            {messages.map((message, index) => (
 
-//             {messages.map((message, index) => (
+              <div
 
-//               <div
+                key={`${index}-${message.time}`}
 
-//                 key={`${index}-${message.time}`}
+                style={{
 
-//                 style={{
+                  display: "flex",
 
-//                   display: "flex",
+                  justifyContent: message.from === "user" ? "flex-end" : "flex-start",
 
-//                   justifyContent: message.from === "user" ? "flex-end" : "flex-start",
+                  alignItems: "flex-end",
 
-//                   alignItems: "flex-end",
+                  gap: 8,
 
-//                   gap: 8,
+                  marginBottom: 12,
 
-//                   marginBottom: 12,
+                  animation: "cvPop .25s ease",
 
-//                   animation: "cvPop .25s ease",
+                }}
 
-//                 }}
+              >
 
-//               >
+                {message.from === "bot" && <BotIcon size={30} />}
 
-//                 {message.from === "bot" && <BotIcon size={30} />}
 
 
+                <div style={{ maxWidth: "80%", minWidth: 0 }}>
 
-//                 <div style={{ maxWidth: "80%", minWidth: 0 }}>
+                  <div style={message.from === "user" ? userBubble : botBubble}>
 
-//                   <div style={message.from === "user" ? userBubble : botBubble}>
+                    {message.text}
 
-//                     {message.text}
+                  </div>
 
-//                   </div>
 
 
+                  {message.link && (
 
-//                   {message.link && (
+                    <a
 
-//                     <a
+                      href={message.link.url}
 
-//                       href={message.link.url}
+                      {...(message.link.phone ? {} : { target: "_blank", rel: "noopener noreferrer" })}
 
-//                       {...(message.link.phone ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                      className="cv-btn"
 
-//                       className="cv-btn"
+                      style={linkBtn}
 
-//                       style={linkBtn}
+                    >
 
-//                     >
+                      {message.link.phone ? <PhoneCall size={15} /> : null}
 
-//                       {message.link.phone ? <PhoneCall size={15} /> : null}
+                      {message.link.label}
 
-//                       {message.link.label}
+                      {message.link.phone ? null : <ExternalLink size={15} />}
 
-//                       {message.link.phone ? null : <ExternalLink size={15} />}
+                    </a>
 
-//                     </a>
+                  )}
 
-//                   )}
 
 
+                  <div
 
-//                   <div
+                    style={{
 
-//                     style={{
+                      ...timeStyle,
 
-//                       ...timeStyle,
+                      textAlign: message.from === "user" ? "right" : "left",
 
-//                       textAlign: message.from === "user" ? "right" : "left",
+                    }}
 
-//                     }}
+                  >
 
-//                   >
+                    {message.time}
 
-//                     {message.time}
+                  </div>
 
-//                   </div>
+                </div>
 
-//                 </div>
+              </div>
 
-//               </div>
+            ))}
 
-//             ))}
 
 
+            {botTyping && <TypingDots />}
 
-//             {botTyping && <TypingDots />}
 
 
+            {step === "menu" && showForms && <Chips items={MAIN_MENU} onPick={handleMain} />}
 
-//             {step === "menu" && showForms && <Chips items={MAIN_MENU} onPick={handleMain} />}
+            {step === "admissionInfo" && showForms && <Chips items={ADMISSION_INFO_MENU} onPick={handleAdmissionInfo} />}
 
-//             {step === "admissionInfo" && showForms && <Chips items={ADMISSION_INFO_MENU} onPick={handleAdmissionInfo} />}
+            {step === "admissionMenu" && showForms && <Chips items={ADMISSION_MENU} onPick={handleAdmissionMenu} />}
 
-//             {step === "admissionMenu" && showForms && <Chips items={ADMISSION_MENU} onPick={handleAdmissionMenu} />}
+            {step === "supportMenu" && showForms && <Chips items={SUPPORT_MENU} onPick={handleSupportType} />}
+            {step === "supportAnswer" && showForms && (
+              <Chips items={SUPPORT_ANSWER_MENU} onPick={handleSupportAnswerNavigation} />
+            )}
 
-//             {step === "supportMenu" && showForms && <Chips items={SUPPORT_MENU} onPick={handleSupportType} />}
-//             {step === "supportAnswer" && showForms && (
-//               <Chips items={SUPPORT_ANSWER_MENU} onPick={handleSupportAnswerNavigation} />
-//             )}
 
 
+            {step === "admission1" &&
 
-//             {step === "admission1" &&
+              showForms &&
 
-//               showForms &&
+              renderForm({
 
-//               renderForm({
+                progress: <Progress current={1} total={2} label="Your details" />,
 
-//                 progress: <Progress current={1} total={2} label="Your details" />,
+                submitLabel: "Continue",
 
-//                 submitLabel: "Continue",
+                icon: <ChevronRight size={18} />,
 
-//                 icon: <ChevronRight size={18} />,
+                onSubmit: handleNext,
 
-//                 onSubmit: handleNext,
+                fields: (
 
-//                 fields: (
+                  <>
 
-//                   <>
+                    <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
 
-//                     <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
+                    <TextInput label={L.email} name="email" type="email" autoComplete="email" value={data.email} onChange={onChange} />
 
-//                     <TextInput label={L.email} name="email" type="email" autoComplete="email" value={data.email} onChange={onChange} />
+                    <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
 
-//                     <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
+                  </>
 
-//                   </>
+                ),
 
-//                 ),
+              })}
 
-//               })}
 
 
+            {step === "admission2" &&
 
-//             {step === "admission2" &&
+              showForms &&
 
-//               showForms &&
+              renderForm({
 
-//               renderForm({
+                progress: <Progress current={2} total={2} label="Course and city" />,
 
-//                 progress: <Progress current={2} total={2} label="Course and city" />,
+                submitLabel: "Submit",
 
-//                 submitLabel: "Submit",
+                onSubmit: handleAdmissionSubmit,
 
-//                 onSubmit: handleAdmissionSubmit,
+                fields: (
 
-//                 fields: (
+                  <>
 
-//                   <>
+                    <Field label={L.course}>
 
-//                     <Field label={L.course}>
+                      <select name="course" value={data.course} onChange={onChange} required style={inputStyle}>
 
-//                       <select name="course" value={data.course} onChange={onChange} required style={inputStyle}>
+                        <option value="">{L.selectCourse}</option>
 
-//                         <option value="">{L.selectCourse}</option>
+                        {courses.map((course) => (
 
-//                         {courses.map((course) => (
+                          <option key={course._id || course.name} value={course.name}>
 
-//                           <option key={course._id || course.name} value={course.name}>
+                            {course.name}
 
-//                             {course.name}
+                          </option>
 
-//                           </option>
+                        ))}
 
-//                         ))}
+                      </select>
 
-//                       </select>
+                    </Field>
 
-//                     </Field>
 
 
+                    <Field label={L.specialization}>
 
-//                     <Field label={L.specialization}>
+                      <select
 
-//                       <select
+                        name="branch"
 
-//                         name="branch"
+                        value={data.branch}
 
-//                         value={data.branch}
+                        onChange={onChange}
 
-//                         onChange={onChange}
+                        disabled={!specializations.length}
 
-//                         disabled={!specializations.length}
+                        required={specializations.length > 0}
 
-//                         required={specializations.length > 0}
+                        style={{ ...inputStyle, opacity: specializations.length ? 1 : 0.6 }}
 
-//                         style={{ ...inputStyle, opacity: specializations.length ? 1 : 0.6 }}
+                      >
 
-//                       >
+                        <option value="">
 
-//                         <option value="">
+                          {specializations.length ? L.selectSpec : L.noSpec}
 
-//                           {specializations.length ? L.selectSpec : L.noSpec}
+                        </option>
 
-//                         </option>
+                        {specializations.map((s, i) => (
 
-//                         {specializations.map((s, i) => (
+                          <option key={i} value={s}>{s}</option>
 
-//                           <option key={i} value={s}>{s}</option>
+                        ))}
 
-//                         ))}
+                      </select>
 
-//                       </select>
+                    </Field>
 
-//                     </Field>
 
 
+                    <Field label={L.state}>
 
-//                     <Field label={L.state}>
+                      <select name="state" value={data.state} onChange={onChange} required style={inputStyle}>
 
-//                       <select name="state" value={data.state} onChange={onChange} required style={inputStyle}>
+                        <option value="">{L.selectState}</option>
 
-//                         <option value="">{L.selectState}</option>
+                        {STATES.map((s) => (
 
-//                         {STATES.map((s) => (
+                          <option key={s} value={s}>{s}</option>
 
-//                           <option key={s} value={s}>{s}</option>
+                        ))}
 
-//                         ))}
+                      </select>
 
-//                       </select>
+                    </Field>
 
-//                     </Field>
 
 
+                    <TextInput label={L.city} name="city" value={data.city} onChange={onChange} />
 
-//                     <TextInput label={L.city} name="city" value={data.city} onChange={onChange} />
+                  </>
 
-//                   </>
+                ),
 
-//                 ),
+              })}
 
-//               })}
 
 
+            {step === "counselling" &&
 
-//             {step === "counselling" &&
+              showForms &&
 
-//               showForms &&
+              renderForm({
 
-//               renderForm({
+                submitLabel: "Request a callback",
 
-//                 submitLabel: "Request a callback",
+                icon: <PhoneCall size={17} />,
 
-//                 icon: <PhoneCall size={17} />,
+                onSubmit: handleCounsellingSubmit,
 
-//                 onSubmit: handleCounsellingSubmit,
+                fields: (
 
-//                 fields: (
+                  <>
 
-//                   <>
+                    <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
 
-//                     <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
+                    <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
 
-//                     <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
+                    <TextInput label={L.interestedCourse} name="course" value={data.course} onChange={onChange} required={false} />
 
-//                     <TextInput label={L.interestedCourse} name="course" value={data.course} onChange={onChange} required={false} />
+                    <Field label={L.queryOpt}>
 
-//                     <Field label={L.queryOpt}>
+                      <textarea
 
-//                       <textarea
+                        name="message"
 
-//                         name="message"
+                        value={data.message}
 
-//                         value={data.message}
+                        onChange={onChange}
 
-//                         onChange={onChange}
+                        rows={2}
 
-//                         rows={2}
+                        style={{ ...inputStyle, height: 66, padding: 10, resize: "none" }}
 
-//                         style={{ ...inputStyle, height: 66, padding: 10, resize: "none" }}
+                      />
 
-//                       />
+                    </Field>
 
-//                     </Field>
+                  </>
 
-//                   </>
+                ),
 
-//                 ),
+              })}
 
-//               })}
 
 
+            {step === "job" &&
 
-//             {step === "job" &&
+              showForms &&
 
-//               showForms &&
+              renderForm({
 
-//               renderForm({
+                submitLabel: "Submit",
 
-//                 submitLabel: "Submit",
+                icon: <BriefcaseBusiness size={17} />,
 
-//                 icon: <BriefcaseBusiness size={17} />,
+                onSubmit: handleJobSubmit,
 
-//                 onSubmit: handleJobSubmit,
+                fields: (
 
-//                 fields: (
+                  <>
 
-//                   <>
+                    <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
 
-//                     <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
+                    <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
 
-//                     <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
+                    <TextInput label={L.emailOpt} name="email" type="email" autoComplete="email" value={data.email} onChange={onChange} required={false} />
 
-//                     <TextInput label={L.emailOpt} name="email" type="email" autoComplete="email" value={data.email} onChange={onChange} required={false} />
+                    <TextInput label={L.jobRole} name="role" value={data.role} onChange={onChange} />
 
-//                     <TextInput label={L.jobRole} name="role" value={data.role} onChange={onChange} />
+                    <Field label={L.experience}>
 
-//                     <Field label={L.experience}>
+                      <select name="experience" value={data.experience} onChange={onChange} required style={inputStyle}>
 
-//                       <select name="experience" value={data.experience} onChange={onChange} required style={inputStyle}>
+                        <option value="">{L.selectExp}</option>
 
-//                         <option value="">{L.selectExp}</option>
+                        {EXPERIENCE_VALUES.map((value) => (
 
-//                         {EXPERIENCE_VALUES.map((value) => (
+                          <option key={value} value={value}>{value}</option>
 
-//                           <option key={value} value={value}>{value}</option>
+                        ))}
 
-//                         ))}
+                      </select>
 
-//                       </select>
+                    </Field>
 
-//                     </Field>
+                    <TextInput label={L.cityOpt} name="city" value={data.city} onChange={onChange} required={false} />
 
-//                     <TextInput label={L.cityOpt} name="city" value={data.city} onChange={onChange} required={false} />
+                  </>
 
-//                   </>
+                ),
 
-//                 ),
+              })}
 
-//               })}
 
 
+            {step === "existing" &&
 
-//             {step === "existing" &&
+              showForms &&
 
-//               showForms &&
+              renderForm({
 
-//               renderForm({
+                submitLabel: "Submit query",
 
-//                 submitLabel: "Submit query",
+                onSubmit: handleExistingSubmit,
 
-//                 onSubmit: handleExistingSubmit,
+                fields: (
 
-//                 fields: (
+                  <>
 
-//                   <>
+                    <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
 
-//                     <TextInput label={L.fullName} name="name" autoComplete="name" value={data.name} onChange={onChange} />
+                    <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
 
-//                     <TextInput label={L.mobile} name="mobile" value={data.mobile} onChange={onChange} {...mobileProps} />
+                    <TextInput label={L.emailOpt} name="email" type="email" autoComplete="email" value={data.email} onChange={onChange} required={false} />
 
-//                     <TextInput label={L.emailOpt} name="email" type="email" autoComplete="email" value={data.email} onChange={onChange} required={false} />
+                    <Field label={L.query}>
 
-//                     <Field label={L.query}>
+                      <textarea
 
-//                       <textarea
+                        name="message"
 
-//                         name="message"
+                        value={data.message}
 
-//                         value={data.message}
+                        onChange={onChange}
 
-//                         onChange={onChange}
+                        rows={3}
 
-//                         rows={3}
+                        required
 
-//                         required
+                        style={{ ...inputStyle, height: 78, padding: 10, resize: "none" }}
 
-//                         style={{ ...inputStyle, height: 78, padding: 10, resize: "none" }}
+                      />
 
-//                       />
+                    </Field>
 
-//                     </Field>
+                  </>
 
-//                   </>
+                ),
 
-//                 ),
+              })}
 
-//               })}
+          </div>
 
-//           </div>
 
 
+          <footer style={footerStyle}>
 
-//           <footer style={footerStyle}>
+            <span>AI assistant · Powered by Career Vidya</span>
 
-//             <span>AI assistant · Powered by Career Vidya</span>
+            <a href={`tel:+91${SUPPORT_PHONE}`} style={{ marginLeft: "auto", color: BRAND, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
 
-//             <a href={`tel:+91${SUPPORT_PHONE}`} style={{ marginLeft: "auto", color: BRAND, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <PhoneCall size={13} /> {SUPPORT_PHONE}
 
-//               <PhoneCall size={13} /> {SUPPORT_PHONE}
+            </a>
 
-//             </a>
+          </footer>
 
-//           </footer>
+        </section>
 
-//         </section>
+      )}
 
-//       )}
+    </>
 
-//     </>
+  );
 
-//   );
+}
 
-// }
 
 
+/* ---------------- STYLES ---------------- */
 
-// /* ---------------- STYLES ---------------- */
 
 
+const fabStyle = {
 
-// const fabStyle = {
+  position: "fixed",
 
-//   position: "fixed",
+  right: 20,
 
-//   right: 20,
+  bottom: BOTTOM_OFFSET,
 
-//   bottom: BOTTOM_OFFSET,
+  width: 76,
 
-//   width: 76,
+  height: 76,
 
-//   height: 76,
+  padding: 0,
 
-//   padding: 0,
+  display: "grid",
 
-//   display: "grid",
+  placeItems: "center",
 
-//   placeItems: "center",
+  borderRadius: "50%",
 
-//   borderRadius: "50%",
+  border: "3px solid #fff",
 
-//   border: "3px solid #fff",
+  background: "#F9A94B",
 
-//   background: "#F9A94B",
+  cursor: "pointer",
 
-//   cursor: "pointer",
+  zIndex: 9998,
 
-//   zIndex: 9998,
+  boxShadow: "0 8px 22px rgba(15,23,42,.28)",
 
-//   boxShadow: "0 8px 22px rgba(15,23,42,.28)",
+  animation: "cvBob 3s ease-in-out infinite",
 
-//   animation: "cvBob 3s ease-in-out infinite",
+};
 
-// };
 
 
+// White speech bubble next to the avatar, with a tail pointing at it and a small x on top-left
 
-// // White speech bubble next to the avatar, with a tail pointing at it and a small x on top-left
+const teaserStyle = {
 
-// const teaserStyle = {
+  position: "fixed",
 
-//   position: "fixed",
+  right: 112,
 
-//   right: 112,
+  bottom: BOTTOM_OFFSET + 8,
 
-//   bottom: BOTTOM_OFFSET + 8,
+  width: "min(210px, calc(100vw - 150px))",
 
-//   width: "min(210px, calc(100vw - 150px))",
+  background: "#fff",
 
-//   background: "#fff",
+  borderRadius: 18,
 
-//   borderRadius: 18,
+  boxShadow: "0 8px 24px rgba(15,23,42,.18)",
 
-//   boxShadow: "0 8px 24px rgba(15,23,42,.18)",
+  zIndex: 9998,
 
-//   zIndex: 9998,
+  animation: "cvTeaser .45s cubic-bezier(.2,.8,.2,1)",
 
-//   animation: "cvTeaser .45s cubic-bezier(.2,.8,.2,1)",
+};
 
-// };
 
 
+const teaserTextBtn = {
 
-// const teaserTextBtn = {
+  display: "block",
 
-//   display: "block",
+  width: "100%",
 
-//   width: "100%",
+  padding: "14px 18px",
 
-//   padding: "14px 18px",
+  border: "none",
 
-//   border: "none",
+  background: "transparent",
 
-//   background: "transparent",
+  color: "#1F2937",
 
-//   color: "#1F2937",
+  fontSize: 16,
 
-//   fontSize: 16,
+  fontWeight: 500,
 
-//   fontWeight: 500,
+  lineHeight: 1.4,
 
-//   lineHeight: 1.4,
+  textAlign: "left",
 
-//   textAlign: "left",
+  cursor: "pointer",
 
-//   cursor: "pointer",
+  fontFamily: "inherit",
 
-//   fontFamily: "inherit",
+  borderRadius: 18,
 
-//   borderRadius: 18,
+};
 
-// };
 
 
+const teaserClose = {
 
-// const teaserClose = {
+  position: "absolute",
 
-//   position: "absolute",
+  top: -9,
 
-//   top: -9,
+  left: -9,
 
-//   left: -9,
+  width: 22,
 
-//   width: 22,
+  height: 22,
 
-//   height: 22,
+  padding: 0,
 
-//   padding: 0,
+  borderRadius: "50%",
 
-//   borderRadius: "50%",
+  border: "none",
 
-//   border: "none",
+  background: "#374151",
 
-//   background: "#374151",
+  color: "#fff",
 
-//   color: "#fff",
+  display: "grid",
 
-//   display: "grid",
+  placeItems: "center",
 
-//   placeItems: "center",
+  cursor: "pointer",
 
-//   cursor: "pointer",
+};
 
-// };
 
 
+const teaserTail = {
 
-// const teaserTail = {
+  position: "absolute",
 
-//   position: "absolute",
+  right: -6,
 
-//   right: -6,
+  top: "50%",
 
-//   top: "50%",
+  marginTop: -7,
 
-//   marginTop: -7,
+  width: 14,
 
-//   width: 14,
+  height: 14,
 
-//   height: 14,
+  background: "#fff",
 
-//   background: "#fff",
+  transform: "rotate(45deg)",
 
-//   transform: "rotate(45deg)",
+  borderRadius: 3,
 
-//   borderRadius: 3,
+  pointerEvents: "none",
 
-//   pointerEvents: "none",
+};
 
-// };
 
 
+const headerDot = {
 
-// const headerDot = {
+  position: "absolute",
 
-//   position: "absolute",
+  right: 0,
 
-//   right: 0,
+  bottom: 0,
 
-//   bottom: 0,
+  width: 12,
 
-//   width: 12,
+  height: 12,
 
-//   height: 12,
+  borderRadius: "50%",
 
-//   borderRadius: "50%",
+  background: "#22C55E",
 
-//   background: "#22C55E",
+  border: "2px solid #fff",
 
-//   border: "2px solid #fff",
+  boxSizing: "border-box",
 
-//   boxSizing: "border-box",
+};
 
-// };
 
 
+const windowStyle = {
 
-// const windowStyle = {
+  position: "fixed",
 
-//   position: "fixed",
+  right: 20,
 
-//   right: 20,
+  bottom: BOTTOM_OFFSET,
 
-//   bottom: BOTTOM_OFFSET,
+  width: "min(400px, calc(100vw - 24px))",
 
-//   width: "min(400px, calc(100vw - 24px))",
+  height: `min(640px, calc(100dvh - ${BOTTOM_OFFSET + 15}px))`,
 
-//   height: `min(640px, calc(100dvh - ${BOTTOM_OFFSET + 15}px))`,
+  background: "#fff",
 
-//   background: "#fff",
+  borderRadius: 18,
 
-//   borderRadius: 18,
+  border: "1px solid #E2E8F0",
 
-//   border: "1px solid #E2E8F0",
+  boxShadow: "0 20px 60px rgba(15,23,42,.22)",
 
-//   boxShadow: "0 20px 60px rgba(15,23,42,.22)",
+  display: "flex",
 
-//   display: "flex",
+  flexDirection: "column",
 
-//   flexDirection: "column",
+  overflow: "hidden",
 
-//   overflow: "hidden",
+  zIndex: 10001,
 
-//   zIndex: 10001,
+  fontFamily: "inherit",
 
-//   fontFamily: "inherit",
+  boxSizing: "border-box",
 
-//   boxSizing: "border-box",
+  transformOrigin: "bottom right",
 
-//   transformOrigin: "bottom right",
+  animation: "cvExpand .3s ease",
 
-//   animation: "cvExpand .3s ease",
+};
 
-// };
 
 
+const headerStyle = {
 
-// const headerStyle = {
+  background: "#fff",
 
-//   background: "#fff",
+  borderBottom: "1px solid #E2E8F0",
 
-//   borderBottom: "1px solid #E2E8F0",
+  padding: "12px 12px 12px 14px",
 
-//   padding: "12px 12px 12px 14px",
+  display: "flex",
 
-//   display: "flex",
+  alignItems: "center",
 
-//   alignItems: "center",
+  justifyContent: "space-between",
 
-//   justifyContent: "space-between",
+  gap: 8,
 
-//   gap: 8,
+  flexShrink: 0,
 
-//   flexShrink: 0,
+};
 
-// };
 
 
+const aiTag = {
 
-// const aiTag = {
+  marginLeft: 4,
 
-//   marginLeft: 4,
+  padding: "1px 7px",
 
-//   padding: "1px 7px",
+  borderRadius: 6,
 
-//   borderRadius: 6,
+  background: BRAND_SOFT,
 
-//   background: BRAND_SOFT,
+  color: BRAND,
 
-//   color: BRAND,
+  fontSize: 11,
 
-//   fontSize: 11,
+  fontWeight: 700,
 
-//   fontWeight: 700,
+};
 
-// };
 
 
+const statusDot = {
 
-// const statusDot = {
+  width: 8,
 
-//   width: 8,
+  height: 8,
 
-//   height: 8,
+  borderRadius: "50%",
 
-//   borderRadius: "50%",
+  background: "#22C55E",
 
-//   background: "#22C55E",
+};
 
-// };
 
 
+const closeStyle = {
 
-// const closeStyle = {
+  background: "#F1F5F9",
 
-//   background: "#F1F5F9",
+  border: "none",
 
-//   border: "none",
+  color: "#334155",
 
-//   color: "#334155",
+  width: 38,
 
-//   width: 38,
+  height: 38,
 
-//   height: 38,
+  borderRadius: "50%",
 
-//   borderRadius: "50%",
+  display: "grid",
 
-//   display: "grid",
+  placeItems: "center",
 
-//   placeItems: "center",
+  cursor: "pointer",
 
-//   cursor: "pointer",
+  flexShrink: 0,
 
-//   flexShrink: 0,
+};
 
-// };
 
 
+const bodyStyle = {
 
-// const bodyStyle = {
+  flex: 1,
 
-//   flex: 1,
+  minHeight: 0,
 
-//   minHeight: 0,
+  overflowY: "auto",
 
-//   overflowY: "auto",
+  padding: 14,
 
-//   padding: 14,
+  background: "#F8FAFC",
 
-//   background: "#F8FAFC",
+};
 
-// };
 
 
+const botBubble = {
 
-// const botBubble = {
+  background: "#fff",
 
-//   background: "#fff",
+  color: "#0F172A",
 
-//   color: "#0F172A",
+  padding: "10px 13px",
 
-//   padding: "10px 13px",
+  borderRadius: "14px 14px 14px 4px",
 
-//   borderRadius: "14px 14px 14px 4px",
+  fontSize: 14,
 
-//   fontSize: 14,
+  border: "1px solid #E2E8F0",
 
-//   border: "1px solid #E2E8F0",
+  lineHeight: 1.5,
 
-//   lineHeight: 1.5,
+  whiteSpace: "pre-line",
 
-//   whiteSpace: "pre-line",
+  overflowWrap: "anywhere",
 
-//   overflowWrap: "anywhere",
+};
 
-// };
 
 
+const userBubble = {
 
-// const userBubble = {
+  background: BRAND,
 
-//   background: BRAND,
+  color: "#fff",
 
-//   color: "#fff",
+  padding: "10px 13px",
 
-//   padding: "10px 13px",
+  borderRadius: "14px 14px 4px 14px",
 
-//   borderRadius: "14px 14px 4px 14px",
+  fontSize: 14,
 
-//   fontSize: 14,
+  lineHeight: 1.5,
 
-//   lineHeight: 1.5,
+  whiteSpace: "pre-line",
 
-//   whiteSpace: "pre-line",
+  overflowWrap: "anywhere",
 
-//   overflowWrap: "anywhere",
+};
 
-// };
 
 
+const linkBtn = {
 
-// const linkBtn = {
+  display: "inline-flex",
 
-//   display: "inline-flex",
+  alignItems: "center",
 
-//   alignItems: "center",
+  gap: 7,
 
-//   gap: 7,
+  marginTop: 6,
 
-//   marginTop: 6,
+  padding: "8px 14px",
 
-//   padding: "8px 14px",
+  borderRadius: 999,
 
-//   borderRadius: 999,
+  background: BRAND,
 
-//   background: BRAND,
+  color: "#fff",
 
-//   color: "#fff",
+  fontSize: 13,
 
-//   fontSize: 13,
+  fontWeight: 600,
 
-//   fontWeight: 600,
+  textDecoration: "none",
 
-//   textDecoration: "none",
+};
 
-// };
 
 
+const timeStyle = {
 
-// const timeStyle = {
+  fontSize: 10.5,
 
-//   fontSize: 10.5,
+  color: "#94A3B8",
 
-//   color: "#94A3B8",
+  marginTop: 3,
 
-//   marginTop: 3,
+};
 
-// };
 
 
+const chipRow = {
 
-// const chipRow = {
+  display: "flex",
 
-//   display: "flex",
+  flexWrap: "wrap",
 
-//   flexWrap: "wrap",
+  gap: 8,
 
-//   gap: 8,
+  marginLeft: 38,
 
-//   marginLeft: 38,
+  marginBottom: 8,
 
-//   marginBottom: 8,
+};
 
-// };
 
 
+const chipStyle = {
 
-// const chipStyle = {
+  padding: "9px 16px",
 
-//   padding: "9px 16px",
+  background: "#fff",
 
-//   background: "#fff",
+  color: BRAND,
 
-//   color: BRAND,
+  border: `1.5px solid ${BRAND}`,
 
-//   border: `1.5px solid ${BRAND}`,
+  borderRadius: 999,
 
-//   borderRadius: 999,
+  fontSize: 14,
 
-//   fontSize: 14,
+  fontWeight: 500,
 
-//   fontWeight: 500,
+  cursor: "pointer",
 
-//   cursor: "pointer",
+  fontFamily: "inherit",
 
-//   fontFamily: "inherit",
+  lineHeight: 1.3,
 
-//   lineHeight: 1.3,
+};
 
-// };
 
 
+const formBox = {
 
-// const formBox = {
+  display: "flex",
 
-//   display: "flex",
+  flexDirection: "column",
 
-//   flexDirection: "column",
+  gap: 12,
 
-//   gap: 12,
+  marginLeft: 38,
 
-//   marginLeft: 38,
+  marginBottom: 8,
 
-//   marginBottom: 8,
+  background: "#fff",
 
-//   background: "#fff",
+  border: "1px solid #E2E8F0",
 
-//   border: "1px solid #E2E8F0",
+  borderRadius: 14,
 
-//   borderRadius: 14,
+  padding: 14,
 
-//   padding: 14,
+  minWidth: 0,
 
-//   minWidth: 0,
+  animation: "cvPop .25s ease",
 
-//   animation: "cvPop .25s ease",
+};
 
-// };
 
 
+const progressText = {
 
-// const progressText = {
+  fontSize: 12,
 
-//   fontSize: 12,
+  fontWeight: 600,
 
-//   fontWeight: 600,
+  color: "#475569",
 
-//   color: "#475569",
+  marginBottom: 6,
 
-//   marginBottom: 6,
+};
 
-// };
 
 
+const progressTrack = {
 
-// const progressTrack = {
+  height: 5,
 
-//   height: 5,
+  borderRadius: 3,
 
-//   borderRadius: 3,
+  background: "#E2E8F0",
 
-//   background: "#E2E8F0",
+  overflow: "hidden",
 
-//   overflow: "hidden",
+};
 
-// };
 
 
+const progressFill = {
 
-// const progressFill = {
+  height: "100%",
 
-//   height: "100%",
+  borderRadius: 3,
 
-//   borderRadius: 3,
+  background: BRAND,
 
-//   background: BRAND,
+  transition: "width .4s ease",
 
-//   transition: "width .4s ease",
+};
 
-// };
 
 
+const fieldLabel = {
 
-// const fieldLabel = {
+  display: "flex",
 
-//   display: "flex",
+  flexDirection: "column",
 
-//   flexDirection: "column",
+  gap: 5,
 
-//   gap: 5,
+  width: "100%",
 
-//   width: "100%",
+  minWidth: 0,
 
-//   minWidth: 0,
+};
 
-// };
 
 
+const fieldCaption = {
 
-// const fieldCaption = {
+  fontSize: 12.5,
 
-//   fontSize: 12.5,
+  fontWeight: 600,
 
-//   fontWeight: 600,
+  color: "#334155",
 
-//   color: "#334155",
+};
 
-// };
 
 
+const inputStyle = {
 
-// const inputStyle = {
+  width: "100%",
 
-//   width: "100%",
+  minWidth: 0,
 
-//   minWidth: 0,
+  height: 42,
 
-//   height: 42,
+  padding: "0 11px",
 
-//   padding: "0 11px",
+  borderRadius: 10,
 
-//   borderRadius: 10,
+  border: "1px solid #CBD5E1",
 
-//   border: "1px solid #CBD5E1",
+  background: "#fff",
 
-//   background: "#fff",
+  color: "#0F172A",
 
-//   color: "#0F172A",
+  fontSize: 14,
 
-//   fontSize: 14,
+  outline: "none",
 
-//   outline: "none",
+  boxSizing: "border-box",
 
-//   boxSizing: "border-box",
+  fontFamily: "inherit",
 
-//   fontFamily: "inherit",
+  transition: "border-color .15s, box-shadow .15s",
 
-//   transition: "border-color .15s, box-shadow .15s",
+};
 
-// };
 
 
+const primaryBtn = {
 
-// const primaryBtn = {
+  width: "100%",
 
-//   width: "100%",
+  minHeight: 46,
 
-//   minHeight: 46,
+  padding: "9px 12px",
 
-//   padding: "9px 12px",
+  background: BRAND,
 
-//   background: BRAND,
+  color: "#fff",
 
-//   color: "#fff",
+  border: "none",
 
-//   border: "none",
+  borderRadius: 10,
 
-//   borderRadius: 10,
+  fontWeight: 600,
 
-//   fontWeight: 600,
+  fontSize: 14,
 
-//   fontSize: 14,
+  cursor: "pointer",
 
-//   cursor: "pointer",
+  display: "flex",
 
-//   display: "flex",
+  alignItems: "center",
 
-//   alignItems: "center",
+  justifyContent: "center",
 
-//   justifyContent: "center",
+  gap: 8,
 
-//   gap: 8,
+  textDecoration: "none",
 
-//   textDecoration: "none",
+  boxSizing: "border-box",
 
-//   boxSizing: "border-box",
+  fontFamily: "inherit",
 
-//   fontFamily: "inherit",
+};
 
-// };
 
 
+const backBtn = {
 
-// const backBtn = {
+  display: "flex",
 
-//   display: "flex",
+  justifyContent: "center",
 
-//   justifyContent: "center",
+  alignItems: "center",
 
-//   alignItems: "center",
+  gap: 6,
 
-//   gap: 6,
+  padding: 6,
 
-//   padding: 6,
+  border: "none",
 
-//   border: "none",
+  background: "transparent",
 
-//   background: "transparent",
+  color: "#64748B",
 
-//   color: "#64748B",
+  fontSize: 13,
 
-//   fontSize: 13,
+  cursor: "pointer",
 
-//   cursor: "pointer",
+  fontFamily: "inherit",
 
-//   fontFamily: "inherit",
+};
 
-// };
 
 
+const errorStyle = {
 
-// const errorStyle = {
+  background: "#FEF2F2",
 
-//   background: "#FEF2F2",
+  color: "#B91C1C",
 
-//   color: "#B91C1C",
+  padding: 9,
 
-//   padding: 9,
+  borderRadius: 8,
 
-//   borderRadius: 8,
+  fontSize: 12.5,
 
-//   fontSize: 12.5,
+  lineHeight: 1.5,
 
-//   lineHeight: 1.5,
+};
 
-// };
 
 
+const footerStyle = {
 
-// const footerStyle = {
+  minHeight: 34,
 
-//   minHeight: 34,
+  padding: "5px 14px",
 
-//   padding: "5px 14px",
+  borderTop: "1px solid #E2E8F0",
 
-//   borderTop: "1px solid #E2E8F0",
+  background: "#fff",
 
-//   background: "#fff",
+  color: "#94A3B8",
 
-//   color: "#94A3B8",
+  fontSize: 11.5,
 
-//   fontSize: 11.5,
+  display: "flex",
 
-//   display: "flex",
+  alignItems: "center",
 
-//   alignItems: "center",
+  gap: 4,
 
-//   gap: 4,
+  flexShrink: 0,
 
-//   flexShrink: 0,
-
-// };
+};

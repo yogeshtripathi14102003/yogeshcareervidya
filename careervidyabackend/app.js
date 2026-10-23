@@ -171,6 +171,7 @@ import securityConfigRoutes from "./router/securityConfigRoutes.js";
 import { globalBackstopLimiter } from "./middelware/rateLimiter.js";
 import sanitizeInputs from "./middelware/sanitize.js";
 import callbackRoutes from "./router/callbackRoutes.js";
+import couponRoutes from "./router/couponRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -267,6 +268,7 @@ app.use("/api/v1/admissionfess", admissionfessRoutes);
 app.use("/api/v1/tickat", ticketRouter);
 app.use("/api/v1/videos", videoRoutes);
 app.use("/api/v1/employees", employeeRouter);
+app.use("/api/v1/coupons", couponRoutes);
 
 app.use("/api/v1/manage", manageTeamroutes);
 app.use("/api/v1/reports", reportsRoutes);
