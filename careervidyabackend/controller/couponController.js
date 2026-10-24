@@ -256,9 +256,63 @@ export const getCouponsByCourse = asyncHandler(async (req, res) => {
    usedBy, createdBy jaisi private cheezein bahar nahi jaati.
 ========================================================= */
 
+// export const getPublicCoupons = asyncHandler(async (req, res) => {
+//   const { course, university } = req.query;
+//   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+//   const now = new Date();
+
+//   const filter = {
+//     isActive: true,
+//     validFrom: { $lte: now },
+//     validUntil: { $gte: now },
+//     $expr: {
+//       $or: [
+//         { $eq: [{ $ifNull: ["$usageLimit", null] }, null] },
+//         { $lt: ["$usedCount", "$usageLimit"] },
+//       ],
+//     },
+//   };
+//   if (course) {
+//     assertObjectId(course, "course");
+//     filter.course = course;
+//   }
+//   if (university) {
+//     assertObjectId(university, "university");
+//     filter.university = university;
+//   }
+
+//   const coupons = await Coupon.find(filter)
+//     .populate("course", "title name slug")
+//     .populate("university", "name slug")
+//     .select("code discountType discountValue maxDiscountAmount validUntil usageLimit usedCount course university")
+//     .sort({ validUntil: 1 }) // jo jaldi expire ho raha hai wo pehle
+//     .limit(limit)
+//     .lean();
+
+//   const data = coupons.map(({ usedCount, ...c }) => ({
+//     ...c,
+//     daysLeft: Math.max(0, Math.ceil((c.validUntil - now) / DAY_MS)),
+//     remainingUses: c.usageLimit ? Math.max(0, c.usageLimit - usedCount) : null, // null = unlimited
+//   }));
+
+//   res.set("Cache-Control", "public, max-age=60");
+//   res.json({ success: true, count: data.length, data });
+// });
+
+
+/* =========================================================
+   3b. PUBLIC LIST (website ke Coupons page ke liye, login nahi chahiye)
+   GET /api/v1/coupons/public?course=&university=&limit=
+========================================================= */
+
 export const getPublicCoupons = asyncHandler(async (req, res) => {
   const { course, university } = req.query;
-  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+
+  const limit = Math.min(
+    50,
+    Math.max(1, parseInt(req.query.limit, 10) || 20)
+  );
+
   const now = new Date();
 
   const filter = {
@@ -272,31 +326,57 @@ export const getPublicCoupons = asyncHandler(async (req, res) => {
       ],
     },
   };
+
+  // Course filter
   if (course) {
     assertObjectId(course, "course");
     filter.course = course;
   }
+
+  // University filter
   if (university) {
     assertObjectId(university, "university");
     filter.university = university;
   }
 
+  // Fetch coupons with populated course and university data
   const coupons = await Coupon.find(filter)
-    .populate("course", "title name slug")
-    .populate("university", "name slug")
-    .select("code discountType discountValue maxDiscountAmount validUntil usageLimit usedCount course university")
-    .sort({ validUntil: 1 }) // jo jaldi expire ho raha hai wo pehle
+    .populate({
+      path: "course",
+      select: "title name slug",
+    })
+    .populate({
+      path: "university",
+      select: "name universityName universityImage logo logoUrl image slug",
+    })
+    .select(
+      "code discountType discountValue maxDiscountAmount validUntil usageLimit usedCount course university"
+    )
+    .sort({ validUntil: 1 })
     .limit(limit)
     .lean();
 
-  const data = coupons.map(({ usedCount, ...c }) => ({
-    ...c,
-    daysLeft: Math.max(0, Math.ceil((c.validUntil - now) / DAY_MS)),
-    remainingUses: c.usageLimit ? Math.max(0, c.usageLimit - usedCount) : null, // null = unlimited
+  // Response data
+  const data = coupons.map(({ usedCount, ...coupon }) => ({
+    ...coupon,
+    daysLeft: Math.max(
+      0,
+      Math.ceil((new Date(coupon.validUntil) - now) / DAY_MS)
+    ),
+    remainingUses:
+      coupon.usageLimit != null
+        ? Math.max(0, coupon.usageLimit - usedCount)
+        : null,
   }));
 
+  // Cache response for 60 seconds
   res.set("Cache-Control", "public, max-age=60");
-  res.json({ success: true, count: data.length, data });
+
+  return res.status(200).json({
+    success: true,
+    count: data.length,
+    data,
+  });
 });
 
 /* =========================================================
