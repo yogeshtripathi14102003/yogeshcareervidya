@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -18,12 +17,10 @@ import {
 import api from "@/utlis/api";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
+import Register from "../coupons/Register";
 
-const COLORS = [
-  "linear-gradient(180deg, #1E40AF, #1E3A8A)",
-  "linear-gradient(180deg, #EA580C, #C2410C)",
-  "linear-gradient(180deg, #0F766E, #115E59)",
-];
+// Single uniform color for all coupon ticket strips
+const UNIFORM_STRIP_BG = "linear-gradient(180deg, #1E40AF, #1E3A8A)";
 
 const inr = (value) =>
   `₹${Number(value || 0).toLocaleString("en-IN")}`;
@@ -39,13 +36,45 @@ const courseName = (coupon) =>
   "Eligible Course";
 
 const getUniversityName = (coupon) =>
-  coupon.university?.name || "Career Vidya";
+  coupon.university?.name ||
+  coupon.university?.universityName ||
+  "Career Vidya";
 
-const getLogo = (coupon) =>
-  coupon.university?.logo ||
-  coupon.university?.logoUrl ||
-  coupon.university?.image ||
-  "";
+/**
+ * University model mein logo field ka actual naam universityImage hai.
+ * Relative image paths ko API base URL ke saath resolve karte hain.
+ */
+const getLogo = (coupon) => {
+  const university = coupon?.university;
+
+  const image =
+    university?.universityImage ||
+    university?.universityLogo ||
+    university?.logo ||
+    university?.logoUrl ||
+    university?.image ||
+    university?.imageUrl ||
+    "";
+
+  if (typeof image !== "string" || !image.trim()) {
+    return "";
+  }
+
+  const imageUrl = image.trim();
+
+  // Already absolute URL or data URL
+  if (/^(https?:\/\/|data:)/i.test(imageUrl)) {
+    return imageUrl;
+  }
+
+  // Public API base URL, e.g. https://api.careervidya.in
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+  const imagePath = imageUrl.replace(/^\/+/, "");
+
+  return baseUrl
+    ? `${baseUrl}/${imagePath}`
+    : `/${imagePath}`;
+};
 
 export default function CouponsPage() {
   const [coupons, setCoupons] = useState([]);
@@ -53,6 +82,7 @@ export default function CouponsPage() {
   const [copiedCode, setCopiedCode] = useState("");
   const [search, setSearch] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("All Courses");
+  const [failedLogos, setFailedLogos] = useState({});
 
   const loadCoupons = useCallback(async () => {
     setStatus("loading");
@@ -122,25 +152,26 @@ export default function CouponsPage() {
 
   return (
     <main className="cv-coupons min-h-screen">
-      {/* Header */}
       <Header />
+      <Register />
+      {/* Hero Section */}
       <section className="cv-coupon-hero">
-        <div className="mx-auto max-w-7xl px-4 py-9 text-center sm:px-6 sm:py-12">
-          <div className="cv-hero-icon mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl">
-            <TicketPercent size={30} />
+        <div className="mx-auto max-w-7xl px-4 py-7 text-center sm:px-6 sm:py-9">
+          <div className="cv-hero-icon cv-icon-gradient mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl">
+            <TicketPercent size={24} />
           </div>
 
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-orange-600 sm:text-sm">
+          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-orange-600 sm:text-sm">
             Special Student Offers
           </p>
 
-          <h1 className="text-2xl font-extrabold sm:text-3xl md:text-4xl">
+          <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl md:text-3xl">
             {selectedCourse === "All Courses"
               ? "Coupons & Exclusive Offers"
               : selectedCourse}
           </h1>
 
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+          <p className="mx-auto mt-2 max-w-xl text-xs leading-5 text-slate-600 sm:text-sm">
             Discover exclusive coupons to make your education and
             career journey more affordable.
           </p>
@@ -158,17 +189,17 @@ export default function CouponsPage() {
               window.location.href = "/";
             }
           }}
-          className="cv-back-button mb-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+          className="cv-back-button mb-5 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold"
         >
-          <ArrowLeft size={17} />
+          <ArrowLeft size={15} />
           Go Back
         </button>
 
-        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
           {/* Sidebar */}
-          <aside className="cv-filter-panel rounded-2xl bg-white p-5 sm:p-6">
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">
+          <aside className="cv-filter-panel rounded-xl bg-white p-4 sm:p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900">
                 Filters
               </h2>
 
@@ -185,10 +216,10 @@ export default function CouponsPage() {
             </div>
 
             {/* Search */}
-            <label className="cv-search-box mb-6 flex items-center gap-2.5 rounded-full px-4 py-3">
+            <label className="cv-search-box mb-5 flex items-center gap-2 rounded-full px-3.5 py-2.5">
               <Search
-                size={19}
-                className="shrink-0 text-slate-600"
+                size={17}
+                className="shrink-0 text-slate-500"
               />
 
               <input
@@ -197,21 +228,21 @@ export default function CouponsPage() {
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search coupons..."
                 aria-label="Search coupons"
-                className="w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 outline-none"
+                className="w-full min-w-0 border-0 bg-transparent text-xs text-slate-800 outline-none"
               />
             </label>
 
             {/* Course filters */}
             <div>
-              <h3 className="mb-4 text-base font-bold text-slate-900">
+              <h3 className="mb-3 text-sm font-bold text-slate-900">
                 Courses
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {courseOptions.map((course) => (
                   <label
                     key={course}
-                    className="cv-filter-option flex cursor-pointer items-start gap-3 text-sm text-slate-700"
+                    className="cv-filter-option flex cursor-pointer items-start gap-2.5 text-xs text-slate-700"
                   >
                     <input
                       type="radio"
@@ -221,20 +252,20 @@ export default function CouponsPage() {
                       className="cv-radio mt-0.5 shrink-0"
                     />
 
-                    <span className="leading-5">{course}</span>
+                    <span className="leading-4">{course}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Sidebar note */}
-            <div className="cv-sidebar-note mt-7 rounded-xl p-4">
-              <div className="mb-2 flex items-center gap-2 font-bold text-blue-900">
-                <Gift size={19} />
+            <div className="cv-sidebar-note mt-6 rounded-lg p-3.5">
+              <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-blue-900">
+                <Gift size={16} />
                 Save on your future
               </div>
 
-              <p className="text-xs leading-5 text-slate-600">
+              <p className="text-[11px] leading-4 text-slate-600">
                 Select a course to find coupons available for that
                 program.
               </p>
@@ -245,17 +276,17 @@ export default function CouponsPage() {
           <section className="min-w-0">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
+                <h2 className="text-base font-bold text-slate-900 sm:text-lg">
                   Available Coupons
                 </h2>
 
-                <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                <p className="mt-0.5 text-xs text-slate-500">
                   Find an offer that works for you.
                 </p>
               </div>
 
               {status === "ready" && (
-                <span className="cv-count-badge rounded-full px-3 py-1.5 text-xs font-bold sm:text-sm">
+                <span className="cv-count-badge rounded-full px-2.5 py-1 text-xs font-bold">
                   {filteredCoupons.length}{" "}
                   {filteredCoupons.length === 1 ? "Offer" : "Offers"}
                 </span>
@@ -265,14 +296,14 @@ export default function CouponsPage() {
             {/* Loading */}
             {status === "loading" && (
               <div
-                className="space-y-5"
+                className="space-y-4"
                 aria-busy="true"
                 aria-label="Loading coupons"
               >
                 {[1, 2, 3].map((item) => (
                   <div
                     key={item}
-                    className="h-44 animate-pulse rounded-2xl border border-slate-200 bg-white"
+                    className="h-32 animate-pulse rounded-xl border border-slate-200 bg-white"
                   />
                 ))}
               </div>
@@ -280,24 +311,24 @@ export default function CouponsPage() {
 
             {/* Error */}
             {status === "error" && (
-              <div className="rounded-2xl border border-red-200 bg-white p-8 text-center">
+              <div className="rounded-xl border border-red-200 bg-white p-6 text-center">
                 <AlertCircle
-                  className="mx-auto mb-3 text-red-500"
-                  size={34}
+                  className="mx-auto mb-2 text-red-500"
+                  size={30}
                 />
 
-                <h3 className="font-bold text-slate-900">
+                <h3 className="text-sm font-bold text-slate-900">
                   Coupons could not be loaded
                 </h3>
 
-                <p className="mt-2 text-sm text-slate-600">
+                <p className="mt-1 text-xs text-slate-600">
                   Please check your connection and try again.
                 </p>
 
                 <button
                   type="button"
                   onClick={loadCoupons}
-                  className="cv-apply-button mt-5 rounded-lg px-5 py-2.5 text-sm font-semibold"
+                  className="cv-apply-button mt-4 rounded-md px-4 py-2 text-xs font-semibold"
                 >
                   Try Again
                 </button>
@@ -306,17 +337,17 @@ export default function CouponsPage() {
 
             {/* Empty */}
             {status === "ready" && filteredCoupons.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-14 text-center">
+              <div className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-10 text-center">
                 <TicketPercent
-                  className="mx-auto mb-4 text-slate-400"
-                  size={42}
+                  className="mx-auto mb-3 text-slate-400"
+                  size={36}
                 />
 
-                <h3 className="text-lg font-bold text-slate-800">
+                <h3 className="text-base font-bold text-slate-800">
                   No coupons found
                 </h3>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-1 text-xs text-slate-500">
                   Try another course or search for a different coupon.
                 </p>
 
@@ -326,109 +357,117 @@ export default function CouponsPage() {
                     setSearch("");
                     setSelectedCourse("All Courses");
                   }}
-                  className="cv-text-link mt-4 text-sm font-bold"
+                  className="cv-text-link mt-3 text-xs font-bold"
                 >
                   View all coupons
                 </button>
               </div>
             )}
 
-            {/* Horizontal ticket cards */}
+            {/* Coupon cards (Smaller and Uniform color) */}
             {status === "ready" && filteredCoupons.length > 0 && (
-              <div className="space-y-5">
-                {filteredCoupons.map((coupon, index) => {
+              <div className="space-y-4">
+                {filteredCoupons.map((coupon) => {
                   const logo = getLogo(coupon);
                   const university = getUniversityName(coupon);
                   const isCopied = copiedCode === coupon.code;
+                  const logoKey = coupon._id || coupon.code;
+                  const logoFailed = failedLogos[logoKey];
 
                   return (
                     <article
-                      key={coupon._id || coupon.code}
-                      className="cv-coupon-card relative flex min-w-0 flex-col overflow-hidden rounded-2xl bg-white sm:flex-row"
+                      key={logoKey}
+                      className="cv-coupon-card relative flex min-w-0 flex-col overflow-hidden rounded-xl bg-white sm:flex-row"
                     >
-                      {/* Ticket strip */}
+                      {/* Ticket strip - Uniform Color */}
                       <div
-                        className="cv-ticket-strip relative flex shrink-0 items-center justify-center px-4 py-3 sm:w-[76px] sm:px-0 sm:py-5"
+                        className="cv-ticket-strip relative flex shrink-0 items-center justify-center px-3 py-2 sm:w-[56px] sm:px-0 sm:py-4"
                         style={{
-                          background: COLORS[index % COLORS.length],
+                          background: UNIFORM_STRIP_BG,
                         }}
                       >
-                        <span className="font-extrabold tracking-widest text-white sm:[writing-mode:vertical-rl] sm:rotate-180">
+                        <span className="text-xs font-extrabold tracking-widest text-white sm:[writing-mode:vertical-rl] sm:rotate-180">
                           {coupon.code}
                         </span>
                       </div>
 
-                      {/* University / brand */}
-                      <div className="cv-coupon-brand flex items-center gap-3 px-4 py-4 sm:w-[205px] sm:shrink-0 sm:flex-col sm:justify-center sm:px-3 sm:py-6">
-                        <div className="cv-logo-frame flex h-[58px] w-[145px] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white p-2">
-                          {logo ? (
+                      {/* University logo and name - Compact */}
+                      <div className="cv-coupon-brand flex min-w-0 items-center gap-3 px-3 py-3 sm:w-[160px] sm:shrink-0 sm:flex-col sm:justify-center sm:px-2 sm:py-4">
+                        <div className="cv-logo-frame flex h-[50px] w-[90px] shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-white p-1.5 sm:h-[65px] sm:w-full sm:max-w-[120px]">
+                          {logo && !logoFailed ? (
                             <img
                               src={logo}
                               alt={`${university} logo`}
                               className="h-full w-full object-contain"
                               loading="lazy"
+                              onError={() => {
+                                console.error(
+                                  "University logo failed to load:",
+                                  logo
+                                );
+
+                                setFailedLogos((previous) => ({
+                                  ...previous,
+                                  [logoKey]: true,
+                                }));
+                              }}
                             />
                           ) : (
-                            <div className="flex items-center gap-1.5 text-blue-900">
+                            <div className="flex flex-col items-center justify-center gap-0.5 text-blue-900">
                               <GraduationCap
-                                size={27}
-                                className="shrink-0 text-orange-600"
+                                size={24}
+                                className="text-orange-600"
                               />
-
-                              <span className="text-sm font-extrabold leading-tight">
-                                Career
-                                <br />
-                                Vidya
+                              <span className="text-center text-[10px] font-bold">
+                                {university || "Career Vidya"}
                               </span>
                             </div>
                           )}
                         </div>
 
-                        <p className="text-sm font-medium text-slate-500 sm:text-center">
+                        <p className="min-w-0 break-words text-xs font-semibold text-slate-700 sm:text-center">
                           {university}
                         </p>
                       </div>
 
                       {/* Coupon information */}
-                      <div className="flex min-w-0 flex-1 flex-col justify-center px-4 pb-5 sm:px-5 sm:py-6 lg:px-6">
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-bold leading-snug text-slate-900 sm:text-lg">
+                      <div className="flex min-w-0 flex-1 flex-col justify-center px-3 pb-3 sm:px-4 sm:py-4">
+                        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                          <h3 className="text-sm font-bold leading-snug text-slate-900 sm:text-base">
                             {coupon.title ||
-                              `${courseName(coupon)} Coupon`}
-                            {" "}worth{" "}
-                            {discountLabel(coupon)}
+                              `${courseName(coupon)} Coupon`}{" "}
+                            worth {discountLabel(coupon)}
                           </h3>
 
                           <Sparkles
-                            size={17}
+                            size={14}
                             className="shrink-0 text-blue-700"
                           />
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
-                          <span className="cv-benefit-pill">
-                            <GraduationCap size={15} />
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className="cv-benefit-pill text-[11px] px-2.5 py-1">
+                            <GraduationCap size={13} />
                             {courseName(coupon)}
                           </span>
 
-                          <span className="cv-benefit-pill">
-                            <Tag size={14} />
+                          <span className="cv-benefit-pill text-[11px] px-2.5 py-1">
+                            <Tag size={12} />
                             {coupon.discountType === "percentage"
                               ? `${coupon.discountValue}% discount`
                               : `${inr(coupon.discountValue)} discount`}
                           </span>
 
                           {coupon.maxDiscountAmount ? (
-                            <span className="cv-benefit-pill">
-                              Max savings{" "}
-                              {inr(coupon.maxDiscountAmount)}
+                            <span className="cv-benefit-pill text-[11px] px-2.5 py-1">
+                              Max savings {inr(coupon.maxDiscountAmount)}
                             </span>
                           ) : null}
                         </div>
 
-                        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
-                          <span className="flex items-center gap-1.5">
-                            <Clock size={14} />
+                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
                             Active offer
                           </span>
 
@@ -440,25 +479,25 @@ export default function CouponsPage() {
                           ) : null}
                         </div>
 
-                        {/* Code */}
-                        <div className="mt-4 flex flex-wrap items-center gap-2">
-                          <span className="rounded-lg border border-dashed border-blue-300 bg-blue-50 px-3 py-2 font-bold tracking-wider text-blue-900">
+                        {/* Coupon code */}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <span className="rounded-md border border-dashed border-blue-300 bg-blue-50 px-2.5 py-1.5 text-xs font-bold tracking-wider text-blue-900">
                             {coupon.code}
                           </span>
 
                           <button
                             type="button"
                             onClick={() => copyCoupon(coupon.code)}
-                            className="cv-copy-button inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold"
+                            className="cv-copy-button inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-bold"
                           >
                             {isCopied ? (
                               <>
-                                <Check size={15} />
+                                <Check size={13} />
                                 Copied
                               </>
                             ) : (
                               <>
-                                <Copy size={15} />
+                                <Copy size={13} />
                                 Copy Code
                               </>
                             )}
@@ -466,26 +505,40 @@ export default function CouponsPage() {
                         </div>
                       </div>
 
-                      {/* Apply button */}
-                      <div className="flex shrink-0 items-center justify-end border-t border-slate-100 px-4 py-4 sm:w-[150px] sm:justify-center sm:border-l sm:border-t-0 sm:px-3">
+                      {/* Apply button with Login Check */}
+                      <div className="flex shrink-0 items-center justify-end border-t border-slate-100 px-3 py-3 sm:w-[150px] sm:justify-center sm:border-l sm:border-t-0 sm:px-3">
                         <button
                           type="button"
-                          onClick={() => copyCoupon(coupon.code)}
-                          className="cv-apply-button inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold sm:w-auto"
+                          className="cv-apply-button inline-flex w-full items-center justify-center rounded-lg px-3.5 py-2 text-xs font-semibold sm:w-auto"
+                          onClick={() => {
+                            try {
+                              sessionStorage.setItem("selectedSubsidyCoupon", coupon.code);
+                            } catch (error) {
+                              console.error("Unable to save coupon:", error);
+                            }
+
+                            // Check if user is logged in
+                            const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+                            const isLoggedIn = Boolean(token);
+
+                            if (isLoggedIn) {
+                              copyCoupon(coupon.code);
+                              alert(`Coupon Code "${coupon.code}" applied successfully!`);
+                            } else {
+                              window.dispatchEvent(
+                                new CustomEvent("open-coupon-register", {
+                                  detail: { couponCode: coupon.code },
+                                })
+                              );
+                            }
+                          }}
                         >
-                          {isCopied ? (
-                            <>
-                              <Check size={16} />
-                              Copied
-                            </>
-                          ) : (
-                            "Apply Code"
-                          )}
+                          Apply Coupon
                         </button>
                       </div>
 
-                      {/* Top-right brand badge */}
-                      <span className="cv-powered-badge absolute right-0 top-0 hidden rounded-bl-xl px-3 py-1 text-xs sm:block">
+                      {/* Brand badge */}
+                      <span className="cv-powered-badge absolute right-0 top-0 hidden rounded-bl-lg px-2 py-0.5 text-[10px] sm:block">
                         Powered by Career Vidya
                       </span>
                     </article>
@@ -494,7 +547,7 @@ export default function CouponsPage() {
               </div>
             )}
 
-            <p className="mt-6 text-center text-xs leading-5 text-slate-500">
+            <p className="mt-5 text-center text-[11px] leading-4 text-slate-500">
               Coupon availability and discount eligibility are subject
               to the applicable offer terms.
             </p>
@@ -502,272 +555,159 @@ export default function CouponsPage() {
         </div>
       </div>
 
-      {/* Page-specific styling using global brand variables */}
-    
-<style jsx global>{`
-  .cv-coupons {
-    background: var(--cv-neutral-light);
-    color: var(--cv-neutral-dark);
-    font-family: var(--font-poppins), ui-sans-serif, system-ui,
-      sans-serif;
-  }
+      {/* Page styling */}
+      <style jsx global>{`
+        .cv-coupons {
+          background: var(--cv-neutral-light);
+          color: var(--cv-neutral-dark);
+          font-family: var(--font-poppins), ui-sans-serif, system-ui,
+            sans-serif;
+        }
 
-  /* ===== Premium CareerVidya Hero ===== */
-  .cv-coupon-hero {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    background:
-      radial-gradient(
-        ellipse at 90% 15%,
-        rgba(249, 115, 22, 0.23) 0%,
-        transparent 34%
-      ),
-      radial-gradient(
-        ellipse at 5% 100%,
-        rgba(96, 165, 250, 0.22) 0%,
-        transparent 38%
-      ),
-      linear-gradient(
-        125deg,
-        var(--cv-primary) 0%,
-        #172554 48%,
-        var(--cv-primary-dark) 100%
-      );
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-bottom: 3px solid var(--cv-accent);
-  }
+        .cv-coupon-hero {
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          background: var(--cv-grad-hero);
+          border-top: 1px solid var(--cv-neutral-border);
+          border-bottom: 2px solid var(--cv-accent);
+        }
 
-  /* Subtle dotted texture */
-  .cv-coupon-hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image: radial-gradient(
-      rgba(255, 255, 255, 0.2) 1px,
-      transparent 1px
-    );
-    background-size: 25px 25px;
-    opacity: 0.3;
-  }
+        .cv-filter-panel {
+          border: 1px solid var(--cv-neutral-border);
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        }
 
-  /* Decorative orange ring */
-  .cv-coupon-hero::after {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    width: 250px;
-    height: 250px;
-    top: -145px;
-    right: -65px;
-    border: 32px solid rgba(249, 115, 22, 0.16);
-    border-radius: 50%;
-    pointer-events: none;
-  }
+        .cv-search-box {
+          border: 1px solid #e5e7eb;
+          background: #f3f4f6;
+        }
 
-  .cv-coupon-hero h1 {
-    color: #ffffff;
-    letter-spacing: -0.035em;
-    line-height: 1.2;
-    text-shadow: 0 3px 16px rgba(15, 23, 42, 0.16);
-  }
+        .cv-search-box:focus-within {
+          border-color: var(--cv-primary-dark);
+          box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.08);
+        }
 
-  .cv-coupon-hero p {
-    color: rgba(255, 255, 255, 0.86);
-  }
+        .cv-search-box input {
+          background: transparent !important;
+          color: var(--cv-neutral-dark) !important;
+        }
 
-  .cv-coupon-hero p:first-of-type {
-    color: #fed7aa;
-    letter-spacing: 0.16em;
-  }
+        .cv-filter-option:hover {
+          color: var(--cv-primary-dark);
+        }
 
-  .cv-hero-icon {
-    background: var(--cv-grad-cta);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.25);
-  }
+        .cv-radio {
+          accent-color: var(--cv-primary-dark);
+          width: 14px;
+          height: 14px;
+        }
 
-  /* ===== Filters ===== */
-  .cv-filter-panel {
-    border: 1px solid var(--cv-neutral-border);
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-  }
+        .cv-sidebar-note {
+          background: var(--cv-primary-light);
+          border: 1px solid #dbeafe;
+        }
 
-  .cv-search-box {
-    border: 1px solid #e5e7eb;
-    background: #f3f4f6;
-    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.025);
-  }
+        .cv-back-button {
+          background: #ffffff;
+          color: var(--cv-primary-dark);
+          border: 1px solid var(--cv-primary-dark);
+          transition: background 0.2s ease;
+        }
 
-  .cv-search-box:focus-within {
-    border-color: var(--cv-primary-dark);
-    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.09);
-  }
+        .cv-back-button:hover {
+          background: var(--cv-primary-light);
+        }
 
-  .cv-search-box input {
-    background: transparent !important;
-    color: var(--cv-neutral-dark) !important;
-  }
+        .cv-count-badge {
+          color: var(--cv-primary-dark);
+          background: var(--cv-primary-light);
+        }
 
-  .cv-search-box input::placeholder {
-    color: var(--cv-neutral-mid);
-  }
+        .cv-coupon-card {
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+          transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
 
-  .cv-filter-option:hover {
-    color: var(--cv-primary-dark);
-  }
+        .cv-coupon-card:hover {
+          border-color: #cbd5e1;
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+        }
 
-  .cv-radio {
-    accent-color: var(--cv-primary-dark);
-    width: 15px;
-    height: 15px;
-  }
+        .cv-ticket-strip {
+          min-height: 50px;
+        }
 
-  .cv-sidebar-note {
-    background: var(--cv-primary-light);
-    border: 1px solid #dbeafe;
-  }
+        .cv-benefit-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          border-radius: 999px;
+          background: var(--cv-primary-light);
+          color: var(--cv-neutral-dark);
+          line-height: 1.3;
+        }
 
-  /* ===== Back Button ===== */
-  .cv-back-button {
-    background: #ffffff;
-    color: var(--cv-primary-dark);
-    border: 1px solid var(--cv-primary-dark);
-    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
-    transition: background 0.2s ease, color 0.2s ease;
-  }
+        .cv-copy-button {
+          background: var(--cv-accent-light);
+          color: var(--cv-accent-dark);
+          border: 1px solid #fed7aa;
+          transition: background 0.2s ease;
+        }
 
-  .cv-back-button:hover {
-    background: var(--cv-primary-light);
-  }
+        .cv-copy-button:hover {
+          background: #ffedd5;
+        }
 
-  .cv-count-badge {
-    color: var(--cv-primary-dark);
-    background: var(--cv-primary-light);
-  }
+        .cv-apply-button {
+          background: var(--cv-primary-dark);
+          color: #ffffff;
+          transition: background 0.2s ease, transform 0.1s ease;
+          box-shadow: 0 2px 4px rgba(30, 64, 175, 0.15);
+        }
 
-  /* ===== Coupon Cards ===== */
-  .cv-coupon-card {
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.055);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
-  }
+        .cv-apply-button:hover {
+          background: var(--cv-primary);
+        }
 
-  .cv-coupon-card:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 7px 22px rgba(15, 23, 42, 0.09);
-  }
+        .cv-powered-badge {
+          background: #d1fae5;
+          color: #0f9f83;
+        }
 
-  .cv-ticket-strip {
-    min-height: 60px;
-  }
+        .cv-text-link {
+          color: var(--cv-primary-dark);
+        }
 
-  .cv-benefit-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 999px;
-    background: var(--cv-primary-light);
-    padding: 7px 12px;
-    color: var(--cv-neutral-dark);
-    font-size: 12px;
-    line-height: 1.35;
-  }
+        @media (min-width: 640px) {
+          .cv-ticket-strip {
+            border-radius: 12px 0 0 12px;
+          }
 
-  /* ===== Copy Button ===== */
-  .cv-copy-button {
-    background: var(--cv-accent-light);
-    color: var(--cv-accent-dark);
-    border: 1px solid #fed7aa;
-    transition: background 0.2s ease;
-  }
+          .cv-ticket-strip::after {
+            content: "";
+            position: absolute;
+            right: -1px;
+            top: 0;
+            bottom: 0;
+            width: 7px;
+            background: radial-gradient(
+              circle at 0 7px,
+              var(--cv-neutral-white) 0 4px,
+              transparent 4.5px
+            );
+            background-size: 7px 14px;
+            background-repeat: repeat-y;
+          }
 
-  .cv-copy-button:hover {
-    background: #ffedd5;
-  }
+          .cv-coupon-brand {
+            border-right: 1px dashed #e2e8f0;
+          }
+        }
+      `}</style>
 
-  /* ===== Apply Button ===== */
-  .cv-apply-button {
-    background: var(--cv-primary-dark);
-    color: #ffffff;
-    box-shadow: 0 2px 5px rgba(30, 64, 175, 0.2);
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-
-  .cv-apply-button:hover {
-    background: var(--cv-primary);
-  }
-
-  .cv-powered-badge {
-    background: #d1fae5;
-    color: #0f9f83;
-  }
-
-  .cv-text-link {
-    color: var(--cv-primary-dark);
-  }
-
-  /* ===== Desktop Ticket Layout ===== */
-  @media (min-width: 640px) {
-    .cv-ticket-strip {
-      border-radius: 15px 0 0 15px;
-    }
-
-    .cv-ticket-strip::after {
-      content: "";
-      position: absolute;
-      right: -1px;
-      top: 0;
-      bottom: 0;
-      width: 9px;
-      background: radial-gradient(
-        circle at 0 8px,
-        var(--cv-neutral-white) 0 5px,
-        transparent 5.5px
-      );
-      background-size: 9px 18px;
-      background-repeat: repeat-y;
-    }
-
-    .cv-coupon-brand {
-      border-right: 1px dashed #e2e8f0;
-    }
-  }
-
-  /* ===== Mobile Responsive ===== */
-  @media (max-width: 639px) {
-    .cv-coupon-hero::after {
-      width: 160px;
-      height: 160px;
-      top: -90px;
-      right: -80px;
-      border-width: 22px;
-    }
-
-    .cv-coupon-hero h1 {
-      letter-spacing: -0.025em;
-      line-height: 1.3;
-    }
-
-    .cv-coupon-card {
-      border-radius: 14px;
-    }
-
-    .cv-ticket-strip {
-      min-height: 44px;
-    }
-
-    .cv-benefit-pill {
-      font-size: 11px;
-      padding: 6px 9px;
-    }
-  }
-`}</style>
-
-<Footer />
+      <Footer />
     </main>
   );
 }

@@ -488,6 +488,7 @@
 //   );
 // }
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -806,12 +807,12 @@ FREE EXPERT GUIDANCE
 
                     <a href="tel:+910000000000" className="mega-menu-item">
                       <span className="mega-icon-chip chip-primary"><Phone size={15} strokeWidth={2} /></span>
-                      New Student: +91 00000 00000
+                      New Student: +91 9289716667
                     </a>
 
                     <a href="tel:+910000000001" className="mega-menu-item">
                       <span className="mega-icon-chip chip-primary"><Phone size={15} strokeWidth={2} /></span>
-                      Existing Student: +91 00000 00001
+                      Existing Student: +91 9289712364
                     </a>
 
                     <div className="mega-menu-item">

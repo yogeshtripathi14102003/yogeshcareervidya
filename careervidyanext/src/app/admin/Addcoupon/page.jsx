@@ -1,450 +1,9 @@
-// "use client";
-
-// import { useEffect, useMemo, useState } from "react";
-// import api from "@/utlis/api";
-
-// const errMsg = (e) => e?.response?.data?.message || e?.message || "Something went wrong";
-
-// const toArray = (v) => (Array.isArray(v) ? v : []);
-
-// const initialForm = {
-//   course: "",
-//   university: "",
-//   discountType: "percentage",
-//   discountValue: "",
-//   maxDiscountAmount: "",
-//   usageLimit: "",
-//   perUserLimit: 1,
-// };
-
-// const fmt = (d) =>
-//   new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-
-// export default function AddCoupon() {
-//   const [courses, setCourses] = useState([]);
-//   const [universities, setUniversities] = useState([]);
-//   const [form, setForm] = useState(initialForm);
-//   const [coupons, setCoupons] = useState([]);
-//   const [listCourse, setListCourse] = useState("");
-//   const [saving, setSaving] = useState(false);
-//   const [toast, setToast] = useState(null);
-//   const [usage, setUsage] = useState(null);
-
-//   const showToast = (type, text) => {
-//     setToast({ type, text });
-//     setTimeout(() => setToast(null), 3500);
-//   };
-
-//   // Course + university dropdown data
-//   useEffect(() => {
-//     (async () => {
-//       try {
-//         // Explore page jaisi hi APIs: course -> { courses: [...] }, university -> { data: [...] }
-//         const [c, u] = await Promise.all([
-//           api.get("/api/v1/course", { params: { limit: 500 } }),
-//           api.get("/api/v1/university"),
-//         ]);
-//         setCourses(toArray(c.data?.courses ?? c.data?.data));
-//         setUniversities(toArray(u.data?.data ?? u.data?.universities));
-//       } catch (e) {
-//         showToast("error", `Courses/universities load nahi hue: ${errMsg(e)}`);
-//       }
-//     })();
-//   }, []);
-
-//   const loadCoupons = async (courseId) => {
-//     if (!courseId) return setCoupons([]);
-//     try {
-//       const res = await api.get(`/api/v1/coupons/course/${courseId}`);
-//       setCoupons(toArray(res.data?.data));
-//     } catch (e) {
-//       showToast("error", errMsg(e));
-//     }
-//   };
-
-//   useEffect(() => {
-//     loadCoupons(listCourse);
-//   }, [listCourse]);
-
-//   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
-
-//   // Validity preview (backend bhi 7 din auto set karta hai)
-//   const validity = useMemo(() => {
-//     const from = new Date();
-//     const until = new Date(from.getTime() + 27 * 24 * 60 * 60 * 1000);
-//     return { from, until };
-//   }, []);
-
-//   const errors = useMemo(() => {
-//     const e = {};
-//     if (form.discountValue !== "") {
-//       const v = Number(form.discountValue);
-//       if (v <= 0) e.discountValue = "Discount 0 se zyada hona chahiye";
-//       if (form.discountType === "percentage" && v > 100) e.discountValue = "Percentage 100 se zyada nahi ho sakta";
-//     }
-//     return e;
-//   }, [form]);
-
-//   const canSubmit =
-//     form.course &&
-//     form.university &&
-//     form.discountValue !== "" &&
-//     Object.keys(errors).length === 0 &&
-//     !saving;
-
-//   const submit = async (e) => {
-//     e.preventDefault();
-//     if (!canSubmit) return;
-//     setSaving(true);
-//     try {
-//       const body = {
-//         course: form.course,
-//         university: form.university,
-//         discountType: form.discountType,
-//         discountValue: Number(form.discountValue),
-//         perUserLimit: Number(form.perUserLimit) || 1,
-//       };
-//       if (form.maxDiscountAmount !== "") body.maxDiscountAmount = Number(form.maxDiscountAmount);
-//       if (form.usageLimit !== "") body.usageLimit = Number(form.usageLimit);
-
-//       const res = await api.post("/api/v1/coupons", body);
-//       showToast("success", `Coupon ${res.data?.data?.code || ""} ban gaya`);
-//       setListCourse(form.course);
-//       await loadCoupons(form.course);
-//       setForm({ ...initialForm, course: form.course });
-//     } catch (err) {
-//       showToast("error", errMsg(err));
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-
-//   const toggle = async (id) => {
-//     try {
-//       await api.patch(`/api/v1/coupons/${id}/toggle`);
-//       loadCoupons(listCourse);
-//     } catch (e) {
-//       showToast("error", errMsg(e));
-//     }
-//   };
-
-//   const openUsage = async (id) => {
-//     try {
-//       const res = await api.get(`/api/v1/coupons/${id}/usage`);
-//       setUsage(res.data?.data);
-//     } catch (e) {
-//       showToast("error", errMsg(e));
-//     }
-//   };
-
-//   const copyCode = async (code) => {
-//     try {
-//       await navigator.clipboard.writeText(code);
-//       showToast("success", `${code} copy ho gaya`);
-//     } catch {
-//       showToast("error", "Copy nahi hua, code ko select karke copy karo");
-//     }
-//   };
-
-//   const uniName = (id) => universities.find((u) => u._id === id)?.name;
-
-//   return (
-//     <div className="cp">
-//       <style>{css}</style>
-
-//       <header className="cp-head">
-//         <h1 className="cv-underline-gradient">Coupons</h1>
-//         <p>Course aur university ke hisaab se coupon banao. Har coupon 7 din valid rehta hai.</p>
-//       </header>
-
-//       <div className="cp-grid">
-//         {/* ---------- FORM ---------- */}
-//         <form className="cp-panel" onSubmit={submit} noValidate>
-//           <h2>Naya coupon</h2>
-
-//           <div className="row two">
-//             <label>
-//               Course
-//               <select value={form.course} onChange={set("course")}>
-//                 <option value="">Course chuno</option>
-//                 {courses.map((c) => (
-//                   <option key={c._id} value={c._id}>{c.title || c.name}</option>
-//                 ))}
-//               </select>
-//             </label>
-//             <label>
-//               University
-//               <select value={form.university} onChange={set("university")}>
-//                 <option value="">University chuno</option>
-//                 {universities.map((u) => (
-//                   <option key={u._id} value={u._id}>{u.name}</option>
-//                 ))}
-//               </select>
-//             </label>
-//           </div>
-
-//           <p className="hint">Coupon code apne aap ban jayega (jaise CV7K2M9Q). Save karne ke baad list me dikhega.</p>
-
-//           <div className="field">
-//             <span className="lbl">Discount kaise do</span>
-//             <div className="seg" role="group" aria-label="Discount type">
-//               <button
-//                 type="button"
-//                 className={form.discountType === "percentage" ? "on" : ""}
-//                 aria-pressed={form.discountType === "percentage"}
-//                 onClick={() => setForm((f) => ({ ...f, discountType: "percentage", discountValue: "" }))}
-//               >
-//                 Percentage (%)
-//               </button>
-//               <button
-//                 type="button"
-//                 className={form.discountType === "flat" ? "on" : ""}
-//                 aria-pressed={form.discountType === "flat"}
-//                 onClick={() => setForm((f) => ({ ...f, discountType: "flat", discountValue: "", maxDiscountAmount: "" }))}
-//               >
-//                 Flat amount (₹)
-//               </button>
-//             </div>
-//           </div>
-
-//           <label>
-//             {form.discountType === "percentage" ? "Discount (%)" : "Discount amount (₹)"}
-//             <input
-//               type="number"
-//               min="1"
-//               value={form.discountValue}
-//               onChange={set("discountValue")}
-//               placeholder={form.discountType === "percentage" ? "20" : "4000"}
-//             />
-//             {form.discountType === "flat" && !errors.discountValue && (
-//               <small className="hint-inline">Course fee me se itne rupay seedhe kam ho jayenge, jaise 4000</small>
-//             )}
-//             {errors.discountValue && <span className="err">{errors.discountValue}</span>}
-//           </label>
-
-//           {form.discountType === "percentage" && (
-//             <label>
-//               Max discount (₹) <small>optional</small>
-//               <input type="number" min="1" value={form.maxDiscountAmount} onChange={set("maxDiscountAmount")} placeholder="1000" />
-//             </label>
-//           )}
-
-//           <div className="row two">
-//             <label>
-//               Total usage limit <small>khali = unlimited</small>
-//               <input type="number" min="1" value={form.usageLimit} onChange={set("usageLimit")} placeholder="100" />
-//             </label>
-//             <label>
-//               Ek user kitni baar
-//               <input type="number" min="1" value={form.perUserLimit} onChange={set("perUserLimit")} />
-//             </label>
-//           </div>
-
-//           <div className="validity">
-//             <span>Valid</span>
-//             <strong>{fmt(validity.from)} se {fmt(validity.until)} tak</strong>
-//             <em>7 din, create hone ke time se</em>
-//           </div>
-
-//           <button className="primary cv-btn-cta" type="submit" disabled={!canSubmit}>
-//             {saving ? "Save ho raha hai..." : "Coupon add karo"}
-//           </button>
-//         </form>
-
-//         {/* ---------- LIST ---------- */}
-//         <section className="cp-panel">
-//           <div className="list-head">
-//             <h2>Course ke coupons</h2>
-//             <select value={listCourse} onChange={(e) => setListCourse(e.target.value)}>
-//               <option value="">Course chuno</option>
-//               {courses.map((c) => (
-//                 <option key={c._id} value={c._id}>{c.title || c.name}</option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {!listCourse && <p className="empty">Upar se course chuno, uske saare university coupons yahan dikhenge.</p>}
-//           {listCourse && coupons.length === 0 && (
-//             <p className="empty">Is course ka abhi koi coupon nahi hai. Left side se pehla coupon bana lo.</p>
-//           )}
-
-//           <ul className="coupons">
-//             {coupons.map((c) => {
-//               const pct = c.usageLimit ? Math.min(100, Math.round((c.usedCount / c.usageLimit) * 100)) : null;
-//               return (
-//                 <li key={c._id} className={`coupon ${c.status}`}>
-//                   <div className="coupon-top">
-//                     <div>
-//                       <span className="code mono">{c.code}</span>
-//                       <span className="uni">{c.university?.name || uniName(c.university)}</span>
-//                     </div>
-//                     <span className={`badge ${c.status}`}>
-//                       {c.status === "active" ? "Active" : c.status === "expired" ? "Expired" : "Band"}
-//                     </span>
-//                   </div>
-
-//                   <div className="meta">
-//                     <span>
-//                       {c.discountType === "percentage" ? `${c.discountValue}% off` : `₹${c.discountValue} off`}
-//                       {c.maxDiscountAmount ? ` (max ₹${c.maxDiscountAmount})` : ""}
-//                     </span>
-//                     <span>
-//                       {c.status === "expired" ? `Expire hua ${fmt(c.validUntil)}` : `${c.daysLeft} din bache, ${fmt(c.validUntil)} tak`}
-//                     </span>
-//                   </div>
-
-//                   <div className="usage">
-//                     <div className="usage-line">
-//                       <strong>{c.usedCount}</strong> logo ne use kiya
-//                       {c.usageLimit ? ` / ${c.usageLimit}` : " (unlimited)"}
-//                     </div>
-//                     {pct !== null && (
-//                       <div className="bar"><i style={{ width: `${pct}%` }} /></div>
-//                     )}
-//                   </div>
-
-//                   <div className="actions">
-//                     <button type="button" onClick={() => copyCode(c.code)}>Code copy karo</button>
-//                     <button type="button" onClick={() => openUsage(c._id)}>Kisne use kiya</button>
-//                     <button type="button" onClick={() => toggle(c._id)}>
-//                       {c.isActive ? "Band karo" : "Chalu karo"}
-//                     </button>
-//                   </div>
-//                 </li>
-//               );
-//             })}
-//           </ul>
-//         </section>
-//       </div>
-
-//       {/* ---------- USAGE MODAL ---------- */}
-//       {usage && (
-//         <div className="overlay" onClick={() => setUsage(null)}>
-//           <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-//             <h3 className="mono">{usage.code}</h3>
-//             <p className="sub">
-//               {usage.university?.name} · {usage.usedCount} baar use hua
-//             </p>
-//             {usage.usedBy?.length ? (
-//               <table>
-//                 <thead>
-//                   <tr><th>User</th><th>Email</th><th>Date</th></tr>
-//                 </thead>
-//                 <tbody>
-//                   {usage.usedBy.map((u, i) => (
-//                     <tr key={i}>
-//                       <td>{u.user?.name || "-"}</td>
-//                       <td>{u.user?.email || "-"}</td>
-//                       <td>{fmt(u.usedAt)}</td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             ) : (
-//               <p className="empty">Abhi tak kisi ne use nahi kiya.</p>
-//             )}
-//             <button className="primary cv-btn-cta" onClick={() => setUsage(null)}>Band karo</button>
-//           </div>
-//         </div>
-//       )}
-
-//       {toast && <div className={`toast ${toast.type}`} role="status">{toast.text}</div>}
-//     </div>
-//   );
-// }
-
-// const css = `
-// .cp { min-height: 100vh; background: var(--cv-neutral-light); color: var(--cv-neutral-dark); font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif; padding: 32px 20px 64px; }
-// .cp * { box-sizing: border-box; }
-// .cp-head { max-width: 1120px; margin: 0 auto 32px; }
-// .cp-head h1 { font-size: 1.9rem; margin: 0 0 14px; font-weight: 700; color: var(--cv-primary); }
-// .cp-head p { margin: 0; color: var(--cv-neutral-mid); max-width: 60ch; font-size: 0.95rem; }
-
-// .cp-grid { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
-// @media (max-width: 860px) { .cp-grid { grid-template-columns: 1fr; } }
-
-// .cp-panel { background: var(--cv-neutral-white); border: 1px solid var(--cv-neutral-border); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
-// .cp-panel h2 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--cv-primary); }
-
-// .cp label { display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; font-weight: 500; color: var(--cv-neutral-dark); }
-// .cp label small { color: var(--cv-neutral-mid); font-weight: 400; margin-left: 4px; }
-// .row.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-// @media (max-width: 520px) { .row.two { grid-template-columns: 1fr; } }
-
-// .cp input, .cp select {
-//   font: inherit; font-size: 0.9rem; border: 1px solid var(--cv-neutral-border);
-//   border-radius: 8px; padding: 9px 10px; width: 100%;
-// }
-// .cp input:focus-visible, .cp select:focus-visible, .cp button:focus-visible {
-//   outline: 2px solid var(--cv-primary); outline-offset: 2px;
-// }
-// .mono { font-family: var(--font-mono); letter-spacing: 0.04em; }
-// .cp .field { display: flex; flex-direction: column; gap: 5px; }
-// .cp .lbl { font-size: 0.85rem; font-weight: 500; }
-// .cp .hint { margin: 0; font-size: 0.84rem; color: var(--cv-neutral-mid); padding: 9px 12px; background: var(--cv-primary-light); border-radius: 8px; }
-// .cp .hint-inline { color: var(--cv-neutral-mid); font-weight: 400; margin: 0; font-size: 0.78rem; }
-// .cp .seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--cv-neutral-border); border-radius: 8px; overflow: hidden; }
-// .cp .seg button { border: none; border-radius: 0; padding: 10px; background: var(--cv-neutral-white); color: var(--cv-primary); }
-// .cp .seg button + button { border-left: 1px solid var(--cv-neutral-border); }
-// .cp .seg button.on { background: var(--cv-primary); color: #fff; font-weight: 600; }
-// .err { color: #b3261e; font-size: 0.78rem; font-weight: 400; }
-
-// .validity { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-left: 3px solid var(--cv-accent); background: var(--cv-accent-light); border-radius: 0 8px 8px 0; font-size: 0.88rem; }
-// .validity span { color: var(--cv-neutral-mid); font-size: 0.78rem; }
-// .validity em { color: var(--cv-neutral-mid); font-style: normal; font-size: 0.78rem; }
-
-// .cp button { font: inherit; font-size: 0.88rem; cursor: pointer; border-radius: 8px; border: 1px solid var(--cv-neutral-border); background: var(--cv-neutral-white); color: var(--cv-primary); padding: 7px 12px; font-weight: 500; }
-// .cp button:hover { background: var(--cv-primary-light); }
-// .cp button.primary { padding: 12px 14px; font-size: 0.95rem; }
-// .cp button.primary:hover { background: var(--cv-grad-cta-hover); }
-// .cp button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-// .list-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-// .list-head select { width: auto; min-width: 200px; }
-// .empty { color: var(--cv-neutral-mid); margin: 8px 0; font-size: 0.9rem; }
-
-// .coupons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-// .coupon { border: 1px solid var(--cv-neutral-border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-// .coupon.expired, .coupon.disabled { background: var(--cv-neutral-light); }
-// .coupon-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-// .code { font-weight: 700; font-size: 1.05rem; display: block; color: var(--cv-primary); }
-// .uni { color: var(--cv-neutral-mid); font-size: 0.85rem; }
-// .badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
-// .badge.active { background: var(--cv-primary-light); color: var(--cv-primary); }
-// .badge.expired { background: var(--cv-accent-light); color: var(--cv-accent-dark); }
-// .badge.disabled { background: var(--cv-neutral-light); color: var(--cv-neutral-mid); border: 1px solid var(--cv-neutral-border); }
-// .meta { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--cv-neutral-mid); font-size: 0.84rem; }
-// .usage-line { font-size: 0.88rem; }
-// .usage-line strong { font-size: 1.1rem; color: var(--cv-neutral-dark); }
-// .bar { height: 6px; background: var(--cv-neutral-border); border-radius: 999px; overflow: hidden; margin-top: 6px; }
-// .bar i { display: block; height: 100%; background: var(--cv-grad-horizontal); border-radius: 999px; }
-// .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-// .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); display: grid; place-items: center; padding: 20px; z-index: 50; }
-// .modal { background: var(--cv-neutral-white); color: var(--cv-neutral-dark); border-radius: 12px; padding: 22px; width: 100%; max-width: 560px; max-height: 80vh; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
-// .modal h3 { margin: 0; font-size: 1.25rem; color: var(--cv-primary); }
-// .modal .sub { margin: 0; color: var(--cv-neutral-mid); font-size: 0.9rem; }
-// .modal table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-// .modal th, .modal td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--cv-neutral-border); }
-// .modal th { color: var(--cv-neutral-mid); font-weight: 500; }
-
-// .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 11px 18px; border-radius: 8px; font-weight: 500; font-size: 0.9rem; z-index: 60; max-width: 90vw; color: #fff; }
-// .toast.success { background: var(--cv-primary); }
-// .toast.error { background: #b3261e; }
-
-// @media (prefers-reduced-motion: no-preference) {
-//   .bar i { transition: width 0.4s ease; }
-// }
-// `;
-
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import api from "@/utlis/api";
 
-const errMsg = (e) =>
-  e?.response?.data?.message || e?.message || "Something went wrong";
+const errMsg = (e) => e?.response?.data?.message || e?.message || "Something went wrong";
 
 const toArray = (v) => (Array.isArray(v) ? v : []);
 
@@ -458,34 +17,8 @@ const initialForm = {
   perUserLimit: 1,
 };
 
-const fmt = (d) => {
-  if (!d) return "-";
-
-  const date = new Date(d);
-
-  if (Number.isNaN(date.getTime())) return "-";
-
-  return date.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-};
-
-const getUniversityImage = (uni) => {
-  if (!uni?.universityImage) return "/fallback.png";
-
-  const image = uni.universityImage;
-
-  if (/^https?:\/\//i.test(image)) {
-    return image;
-  }
-
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
-  const imagePath = image.replace(/^\/+/, "");
-
-  return baseUrl ? `${baseUrl}/${imagePath}` : "/fallback.png";
-};
+const fmt = (d) =>
+  new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
 export default function AddCoupon() {
   const [courses, setCourses] = useState([]);
@@ -499,72 +32,30 @@ export default function AddCoupon() {
 
   const showToast = (type, text) => {
     setToast({ type, text });
-
-    setTimeout(() => {
-      setToast(null);
-    }, 3500);
+    setTimeout(() => setToast(null), 3500);
   };
 
-  // Load courses and universities
+  // Course + university dropdown data
   useEffect(() => {
-    let mounted = true;
-
-    const fetchData = async () => {
+    (async () => {
       try {
+        // Explore page jaisi hi APIs: course -> { courses: [...] }, university -> { data: [...] }
         const [c, u] = await Promise.all([
-          api.get("/api/v1/course", {
-            params: { limit: 500 },
-          }),
+          api.get("/api/v1/course", { params: { limit: 500 } }),
           api.get("/api/v1/university"),
         ]);
-
-        if (!mounted) return;
-
-        setCourses(
-          toArray(c.data?.courses ?? c.data?.data)
-        );
-
-        setUniversities(
-          toArray(u.data?.data ?? u.data?.universities)
-        );
+        setCourses(toArray(c.data?.courses ?? c.data?.data));
+        setUniversities(toArray(u.data?.data ?? u.data?.universities));
       } catch (e) {
-        if (mounted) {
-          showToast(
-            "error",
-            `Courses/universities load nahi hue: ${errMsg(e)}`
-          );
-        }
+        showToast("error", `Courses/universities load nahi hue: ${errMsg(e)}`);
       }
-    };
-
-    fetchData();
-
-    return () => {
-      mounted = false;
-    };
+    })();
   }, []);
 
-  // Selected university, including its logo
-  const selectedUniversity = useMemo(
-    () =>
-      universities.find(
-        (u) => String(u._id) === String(form.university)
-      ),
-    [universities, form.university]
-  );
-
-  // Load coupons for the selected course
   const loadCoupons = async (courseId) => {
-    if (!courseId) {
-      setCoupons([]);
-      return;
-    }
-
+    if (!courseId) return setCoupons([]);
     try {
-      const res = await api.get(
-        `/api/v1/coupons/course/${courseId}`
-      );
-
+      const res = await api.get(`/api/v1/coupons/course/${courseId}`);
       setCoupons(toArray(res.data?.data));
     } catch (e) {
       showToast("error", errMsg(e));
@@ -575,67 +66,22 @@ export default function AddCoupon() {
     loadCoupons(listCourse);
   }, [listCourse]);
 
-  const set = (key) => (e) => {
-    setForm((f) => ({
-      ...f,
-      [key]: e.target.value,
-    }));
-  };
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  // Validity preview
+  // Validity preview (backend bhi 7 din auto set karta hai)
   const validity = useMemo(() => {
     const from = new Date();
-
-    // Seven-day validity
-    const until = new Date(
-      from.getTime() + 7 * 24 * 60 * 60 * 1000
-    );
-
+    const until = new Date(from.getTime() + 27 * 24 * 60 * 60 * 1000);
     return { from, until };
   }, []);
 
-  // Form validation
   const errors = useMemo(() => {
     const e = {};
-
     if (form.discountValue !== "") {
       const v = Number(form.discountValue);
-
-      if (!Number.isFinite(v) || v <= 0) {
-        e.discountValue =
-          "Discount 0 se zyada hona chahiye";
-      }
-
-      if (
-        form.discountType === "percentage" &&
-        v > 100
-      ) {
-        e.discountValue =
-          "Percentage 100 se zyada nahi ho sakta";
-      }
+      if (v <= 0) e.discountValue = "Discount 0 se zyada hona chahiye";
+      if (form.discountType === "percentage" && v > 100) e.discountValue = "Percentage 100 se zyada nahi ho sakta";
     }
-
-    if (
-      form.maxDiscountAmount !== "" &&
-      Number(form.maxDiscountAmount) <= 0
-    ) {
-      e.maxDiscountAmount =
-        "Maximum discount 0 se zyada hona chahiye";
-    }
-
-    if (
-      form.usageLimit !== "" &&
-      Number(form.usageLimit) <= 0
-    ) {
-      e.usageLimit =
-        "Usage limit 0 se zyada honi chahiye";
-    }
-
-    if (Number(form.perUserLimit) < 1) {
-      e.perUserLimit =
-        "Per-user limit kam se kam 1 honi chahiye";
-    }
-
     return e;
   }, [form]);
 
@@ -646,14 +92,10 @@ export default function AddCoupon() {
     Object.keys(errors).length === 0 &&
     !saving;
 
-  // Create coupon
   const submit = async (e) => {
     e.preventDefault();
-
     if (!canSubmit) return;
-
     setSaving(true);
-
     try {
       const body = {
         course: form.course,
@@ -662,35 +104,14 @@ export default function AddCoupon() {
         discountValue: Number(form.discountValue),
         perUserLimit: Number(form.perUserLimit) || 1,
       };
+      if (form.maxDiscountAmount !== "") body.maxDiscountAmount = Number(form.maxDiscountAmount);
+      if (form.usageLimit !== "") body.usageLimit = Number(form.usageLimit);
 
-      if (form.maxDiscountAmount !== "") {
-        body.maxDiscountAmount = Number(
-          form.maxDiscountAmount
-        );
-      }
-
-      if (form.usageLimit !== "") {
-        body.usageLimit = Number(form.usageLimit);
-      }
-
-      const res = await api.post(
-        "/api/v1/coupons",
-        body
-      );
-
-      showToast(
-        "success",
-        `Coupon ${res.data?.data?.code || ""} ban gaya`
-      );
-
+      const res = await api.post("/api/v1/coupons", body);
+      showToast("success", `Coupon ${res.data?.data?.code || ""} ban gaya`);
       setListCourse(form.course);
-
       await loadCoupons(form.course);
-
-      setForm({
-        ...initialForm,
-        course: form.course,
-      });
+      setForm({ ...initialForm, course: form.course });
     } catch (err) {
       showToast("error", errMsg(err));
     } finally {
@@ -698,525 +119,195 @@ export default function AddCoupon() {
     }
   };
 
-  // Enable / disable coupon
   const toggle = async (id) => {
     try {
-      await api.patch(
-        `/api/v1/coupons/${id}/toggle`
-      );
-
-      await loadCoupons(listCourse);
+      await api.patch(`/api/v1/coupons/${id}/toggle`);
+      loadCoupons(listCourse);
     } catch (e) {
       showToast("error", errMsg(e));
     }
   };
 
-  // View coupon usage
   const openUsage = async (id) => {
     try {
-      const res = await api.get(
-        `/api/v1/coupons/${id}/usage`
-      );
-
+      const res = await api.get(`/api/v1/coupons/${id}/usage`);
       setUsage(res.data?.data);
     } catch (e) {
       showToast("error", errMsg(e));
     }
   };
 
-  // Copy coupon code
   const copyCode = async (code) => {
     try {
       await navigator.clipboard.writeText(code);
-
       showToast("success", `${code} copy ho gaya`);
     } catch {
-      showToast(
-        "error",
-        "Copy nahi hua, code ko select karke copy karo"
-      );
+      showToast("error", "Copy nahi hua, code ko select karke copy karo");
     }
   };
 
-  const uniName = (id) =>
-    universities.find(
-      (u) => String(u._id) === String(id)
-    )?.name;
+  const uniName = (id) => universities.find((u) => u._id === id)?.name;
 
   return (
     <div className="cp">
       <style>{css}</style>
 
-      {/* Header */}
       <header className="cp-head">
-        <h1 className="cv-underline-gradient">
-          Coupons
-        </h1>
-
-        <p>
-          Course aur university ke hisaab se coupon
-          banao. Coupon ki validity backend ke rules
-          ke according rahegi.
-        </p>
+        <h1 className="cv-underline-gradient">Coupons</h1>
+        <p>Course aur university ke hisaab se coupon banao. Har coupon 7 din valid rehta hai.</p>
       </header>
 
       <div className="cp-grid">
-        {/* CREATE COUPON FORM */}
-        <form
-          className="cp-panel"
-          onSubmit={submit}
-          noValidate
-        >
+        {/* ---------- FORM ---------- */}
+        <form className="cp-panel" onSubmit={submit} noValidate>
           <h2>Naya coupon</h2>
 
           <div className="row two">
             <label>
               Course
-
-              <select
-                value={form.course}
-                onChange={set("course")}
-              >
-                <option value="">
-                  Course chuno
-                </option>
-
+              <select value={form.course} onChange={set("course")}>
+                <option value="">Course chuno</option>
                 {courses.map((c) => (
-                  <option
-                    key={c._id}
-                    value={c._id}
-                  >
-                    {c.title || c.name}
-                  </option>
+                  <option key={c._id} value={c._id}>{c.title || c.name}</option>
                 ))}
               </select>
             </label>
-
             <label>
               University
-
-              <select
-                value={form.university}
-                onChange={set("university")}
-              >
-                <option value="">
-                  University chuno
-                </option>
-
+              <select value={form.university} onChange={set("university")}>
+                <option value="">University chuno</option>
                 {universities.map((u) => (
-                  <option
-                    key={u._id}
-                    value={u._id}
-                  >
-                    {u.name}
-                  </option>
+                  <option key={u._id} value={u._id}>{u.name}</option>
                 ))}
               </select>
             </label>
           </div>
 
-          {/* SELECTED UNIVERSITY LOGO */}
-          {selectedUniversity && (
-            <div className="selected-university">
-              <div className="selected-university-logo">
-                <img
-                  src={getUniversityImage(
-                    selectedUniversity
-                  )}
-                  alt={`${selectedUniversity.name} logo`}
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src =
-                      "/fallback.png";
-                  }}
-                />
-              </div>
+          <p className="hint">Coupon code apne aap ban jayega (jaise CV7K2M9Q). Save karne ke baad list me dikhega.</p>
 
-              <div className="selected-university-info">
-                <span className="selected-university-label">
-                  Selected University
-                </span>
-
-                <strong>
-                  {selectedUniversity.name}
-                </strong>
-
-                <span className="selected-university-status">
-                  ✓ University selected
-                </span>
-              </div>
-            </div>
-          )}
-
-          <p className="hint">
-            Coupon code apne aap generate hoga.
-            Save karne ke baad coupon list mein dikhega.
-          </p>
-
-          {/* DISCOUNT TYPE */}
           <div className="field">
-            <span className="lbl">
-              Discount kaise do
-            </span>
-
-            <div
-              className="seg"
-              role="group"
-              aria-label="Discount type"
-            >
+            <span className="lbl">Discount kaise do</span>
+            <div className="seg" role="group" aria-label="Discount type">
               <button
                 type="button"
-                className={
-                  form.discountType === "percentage"
-                    ? "on"
-                    : ""
-                }
-                aria-pressed={
-                  form.discountType === "percentage"
-                }
-                onClick={() =>
-                  setForm((f) => ({
-                    ...f,
-                    discountType: "percentage",
-                    discountValue: "",
-                  }))
-                }
+                className={form.discountType === "percentage" ? "on" : ""}
+                aria-pressed={form.discountType === "percentage"}
+                onClick={() => setForm((f) => ({ ...f, discountType: "percentage", discountValue: "" }))}
               >
                 Percentage (%)
               </button>
-
               <button
                 type="button"
-                className={
-                  form.discountType === "flat"
-                    ? "on"
-                    : ""
-                }
-                aria-pressed={
-                  form.discountType === "flat"
-                }
-                onClick={() =>
-                  setForm((f) => ({
-                    ...f,
-                    discountType: "flat",
-                    discountValue: "",
-                    maxDiscountAmount: "",
-                  }))
-                }
+                className={form.discountType === "flat" ? "on" : ""}
+                aria-pressed={form.discountType === "flat"}
+                onClick={() => setForm((f) => ({ ...f, discountType: "flat", discountValue: "", maxDiscountAmount: "" }))}
               >
                 Flat amount (₹)
               </button>
             </div>
           </div>
 
-          {/* DISCOUNT VALUE */}
           <label>
-            {form.discountType === "percentage"
-              ? "Discount (%)"
-              : "Discount amount (₹)"}
-
+            {form.discountType === "percentage" ? "Discount (%)" : "Discount amount (₹)"}
             <input
               type="number"
               min="1"
-              max={
-                form.discountType === "percentage"
-                  ? "100"
-                  : undefined
-              }
-              step="any"
               value={form.discountValue}
               onChange={set("discountValue")}
-              placeholder={
-                form.discountType === "percentage"
-                  ? "20"
-                  : "4000"
-              }
+              placeholder={form.discountType === "percentage" ? "20" : "4000"}
             />
-
-            {form.discountType === "flat" &&
-              !errors.discountValue && (
-                <small className="hint-inline">
-                  Course fee mein se itne rupaye kam
-                  ho jayenge.
-                </small>
-              )}
-
-            {errors.discountValue && (
-              <span className="err">
-                {errors.discountValue}
-              </span>
+            {form.discountType === "flat" && !errors.discountValue && (
+              <small className="hint-inline">Course fee me se itne rupay seedhe kam ho jayenge, jaise 4000</small>
             )}
+            {errors.discountValue && <span className="err">{errors.discountValue}</span>}
           </label>
 
-          {/* MAX DISCOUNT */}
           {form.discountType === "percentage" && (
             <label>
-              Max discount (₹)
-              <small>Optional</small>
-
-              <input
-                type="number"
-                min="1"
-                value={form.maxDiscountAmount}
-                onChange={set("maxDiscountAmount")}
-                placeholder="1000"
-              />
-
-              {errors.maxDiscountAmount && (
-                <span className="err">
-                  {errors.maxDiscountAmount}
-                </span>
-              )}
+              Max discount (₹) <small>optional</small>
+              <input type="number" min="1" value={form.maxDiscountAmount} onChange={set("maxDiscountAmount")} placeholder="1000" />
             </label>
           )}
 
-          {/* USAGE LIMITS */}
           <div className="row two">
             <label>
-              Total usage limit
-              <small>Khali = unlimited</small>
-
-              <input
-                type="number"
-                min="1"
-                value={form.usageLimit}
-                onChange={set("usageLimit")}
-                placeholder="100"
-              />
-
-              {errors.usageLimit && (
-                <span className="err">
-                  {errors.usageLimit}
-                </span>
-              )}
+              Total usage limit <small>khali = unlimited</small>
+              <input type="number" min="1" value={form.usageLimit} onChange={set("usageLimit")} placeholder="100" />
             </label>
-
             <label>
               Ek user kitni baar
-
-              <input
-                type="number"
-                min="1"
-                value={form.perUserLimit}
-                onChange={set("perUserLimit")}
-              />
-
-              {errors.perUserLimit && (
-                <span className="err">
-                  {errors.perUserLimit}
-                </span>
-              )}
+              <input type="number" min="1" value={form.perUserLimit} onChange={set("perUserLimit")} />
             </label>
           </div>
 
-          {/* VALIDITY PREVIEW */}
           <div className="validity">
-            <span>Validity preview</span>
-
-            <strong>
-              {fmt(validity.from)} se{" "}
-              {fmt(validity.until)} tak
-            </strong>
-
-            <em>
-              Final validity backend ke response par
-              depend karegi.
-            </em>
+            <span>Valid</span>
+            <strong>{fmt(validity.from)} se {fmt(validity.until)} tak</strong>
+            <em>7 din, create hone ke time se</em>
           </div>
 
-          <button
-            className="primary cv-btn-cta"
-            type="submit"
-            disabled={!canSubmit}
-          >
-            {saving
-              ? "Save ho raha hai..."
-              : "Coupon add karo"}
+          <button className="primary cv-btn-cta" type="submit" disabled={!canSubmit}>
+            {saving ? "Save ho raha hai..." : "Coupon add karo"}
           </button>
         </form>
 
-        {/* COUPON LIST */}
+        {/* ---------- LIST ---------- */}
         <section className="cp-panel">
           <div className="list-head">
             <h2>Course ke coupons</h2>
-
-            <select
-              value={listCourse}
-              onChange={(e) =>
-                setListCourse(e.target.value)
-              }
-            >
-              <option value="">
-                Course chuno
-              </option>
-
+            <select value={listCourse} onChange={(e) => setListCourse(e.target.value)}>
+              <option value="">Course chuno</option>
               {courses.map((c) => (
-                <option
-                  key={c._id}
-                  value={c._id}
-                >
-                  {c.title || c.name}
-                </option>
+                <option key={c._id} value={c._id}>{c.title || c.name}</option>
               ))}
             </select>
           </div>
 
-          {!listCourse && (
-            <p className="empty">
-              Course chuno, uske university coupons
-              yahan dikhenge.
-            </p>
-          )}
-
+          {!listCourse && <p className="empty">Upar se course chuno, uske saare university coupons yahan dikhenge.</p>}
           {listCourse && coupons.length === 0 && (
-            <p className="empty">
-              Is course ka abhi koi coupon nahi hai.
-            </p>
+            <p className="empty">Is course ka abhi koi coupon nahi hai. Left side se pehla coupon bana lo.</p>
           )}
 
           <ul className="coupons">
             {coupons.map((c) => {
-              const pct = c.usageLimit
-                ? Math.min(
-                    100,
-                    Math.round(
-                      (c.usedCount / c.usageLimit) *
-                        100
-                    )
-                  )
-                : null;
-
-              const universityName =
-                c.university?.name ||
-                uniName(c.university);
-
-              const universityImage =
-                c.university?.universityImage
-                  ? getUniversityImage(c.university)
-                  : getUniversityImage(
-                      universities.find(
-                        (u) =>
-                          String(u._id) ===
-                          String(
-                            c.university?._id ||
-                              c.university
-                          )
-                      )
-                    );
-
+              const pct = c.usageLimit ? Math.min(100, Math.round((c.usedCount / c.usageLimit) * 100)) : null;
               return (
-                <li
-                  key={c._id}
-                  className={`coupon ${c.status}`}
-                >
+                <li key={c._id} className={`coupon ${c.status}`}>
                   <div className="coupon-top">
-                    <div className="coupon-identity">
-                      {universityName && (
-                        <div className="coupon-uni-logo">
-                          <img
-                            src={universityImage}
-                            alt={`${universityName} logo`}
-                            onError={(e) => {
-                              e.currentTarget.onerror =
-                                null;
-                              e.currentTarget.src =
-                                "/fallback.png";
-                            }}
-                          />
-                        </div>
-                      )}
-
-                      <div className="coupon-identity-text">
-                        <span className="code mono">
-                          {c.code}
-                        </span>
-
-                        <span className="uni">
-                          {universityName ||
-                            "University"}
-                        </span>
-                      </div>
+                    <div>
+                      <span className="code mono">{c.code}</span>
+                      <span className="uni">{c.university?.name || uniName(c.university)}</span>
                     </div>
-
-                    <span
-                      className={`badge ${c.status}`}
-                    >
-                      {c.status === "active"
-                        ? "Active"
-                        : c.status === "expired"
-                          ? "Expired"
-                          : "Band"}
+                    <span className={`badge ${c.status}`}>
+                      {c.status === "active" ? "Active" : c.status === "expired" ? "Expired" : "Band"}
                     </span>
                   </div>
 
                   <div className="meta">
                     <span>
-                      {c.discountType === "percentage"
-                        ? `${c.discountValue}% off`
-                        : `₹${c.discountValue} off`}
-
-                      {c.maxDiscountAmount
-                        ? ` (max ₹${c.maxDiscountAmount})`
-                        : ""}
+                      {c.discountType === "percentage" ? `${c.discountValue}% off` : `₹${c.discountValue} off`}
+                      {c.maxDiscountAmount ? ` (max ₹${c.maxDiscountAmount})` : ""}
                     </span>
-
                     <span>
-                      {c.status === "expired"
-                        ? `Expire hua ${fmt(c.validUntil)}`
-                        : `${c.daysLeft ?? "-"} din bache, ${fmt(c.validUntil)} tak`}
+                      {c.status === "expired" ? `Expire hua ${fmt(c.validUntil)}` : `${c.daysLeft} din bache, ${fmt(c.validUntil)} tak`}
                     </span>
                   </div>
 
                   <div className="usage">
                     <div className="usage-line">
-                      <strong>
-                        {c.usedCount ?? 0}
-                      </strong>{" "}
-                      logo ne use kiya
-                      {c.usageLimit
-                        ? ` / ${c.usageLimit}`
-                        : " (unlimited)"}
+                      <strong>{c.usedCount}</strong> logo ne use kiya
+                      {c.usageLimit ? ` / ${c.usageLimit}` : " (unlimited)"}
                     </div>
-
                     {pct !== null && (
-                      <div className="bar">
-                        <i
-                          style={{
-                            width: `${pct}%`,
-                          }}
-                        />
-                      </div>
+                      <div className="bar"><i style={{ width: `${pct}%` }} /></div>
                     )}
                   </div>
 
                   <div className="actions">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        copyCode(c.code)
-                      }
-                    >
-                      Code copy karo
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        openUsage(c._id)
-                      }
-                    >
-                      Kisne use kiya
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toggle(c._id)
-                      }
-                    >
-                      {c.isActive
-                        ? "Band karo"
-                        : "Chalu karo"}
+                    <button type="button" onClick={() => copyCode(c.code)}>Code copy karo</button>
+                    <button type="button" onClick={() => openUsage(c._id)}>Kisne use kiya</button>
+                    <button type="button" onClick={() => toggle(c._id)}>
+                      {c.isActive ? "Band karo" : "Chalu karo"}
                     </button>
                   </div>
                 </li>
@@ -1226,675 +317,123 @@ export default function AddCoupon() {
         </section>
       </div>
 
-      {/* USAGE MODAL */}
+      {/* ---------- USAGE MODAL ---------- */}
       {usage && (
-        <div
-          className="overlay"
-          onClick={() => setUsage(null)}
-        >
-          <div
-            className="modal"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Coupon usage details"
-          >
-            <h3 className="mono">
-              {usage.code}
-            </h3>
-
+        <div className="overlay" onClick={() => setUsage(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <h3 className="mono">{usage.code}</h3>
             <p className="sub">
-              {usage.university?.name} ·{" "}
-              {usage.usedCount} baar use hua
+              {usage.university?.name} · {usage.usedCount} baar use hua
             </p>
-
             {usage.usedBy?.length ? (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Email</th>
-                      <th>Date</th>
+              <table>
+                <thead>
+                  <tr><th>User</th><th>Email</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                  {usage.usedBy.map((u, i) => (
+                    <tr key={i}>
+                      <td>{u.user?.name || "-"}</td>
+                      <td>{u.user?.email || "-"}</td>
+                      <td>{fmt(u.usedAt)}</td>
                     </tr>
-                  </thead>
-
-                  <tbody>
-                    {usage.usedBy.map((u, i) => (
-                      <tr key={u._id || i}>
-                        <td>
-                          {u.user?.name || "-"}
-                        </td>
-
-                        <td>
-                          {u.user?.email || "-"}
-                        </td>
-
-                        <td>
-                          {fmt(u.usedAt)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             ) : (
-              <p className="empty">
-                Abhi tak kisi ne use nahi kiya.
-              </p>
+              <p className="empty">Abhi tak kisi ne use nahi kiya.</p>
             )}
-
-            <button
-              className="primary cv-btn-cta"
-              onClick={() => setUsage(null)}
-            >
-              Band karo
-            </button>
+            <button className="primary cv-btn-cta" onClick={() => setUsage(null)}>Band karo</button>
           </div>
         </div>
       )}
 
-      {/* TOAST */}
-      {toast && (
-        <div
-          className={`toast ${toast.type}`}
-          role="status"
-        >
-          {toast.text}
-        </div>
-      )}
+      {toast && <div className={`toast ${toast.type}`} role="status">{toast.text}</div>}
     </div>
   );
 }
 
 const css = `
-.cp {
-  min-height: 100vh;
-  background: var(--cv-neutral-light);
-  color: var(--cv-neutral-dark);
-  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  padding: 32px 20px 64px;
-}
-
-.cp * {
-  box-sizing: border-box;
-}
-
-.cp-head {
-  max-width: 1120px;
-  margin: 0 auto 32px;
-}
-
-.cp-head h1 {
-  font-size: 1.9rem;
-  margin: 0 0 14px;
-  font-weight: 700;
-  color: var(--cv-primary);
-}
-
-.cp-head p {
-  margin: 0;
-  color: var(--cv-neutral-mid);
-  max-width: 60ch;
-  font-size: 0.95rem;
-}
-
-.cp-grid {
-  max-width: 1120px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.cp-panel {
-  min-width: 0;
-  background: var(--cv-neutral-white);
-  border: 1px solid var(--cv-neutral-border);
-  border-radius: 12px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.cp-panel h2 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--cv-primary);
-}
-
-.cp label {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--cv-neutral-dark);
-}
-
-.cp label small {
-  color: var(--cv-neutral-mid);
-  font-weight: 400;
-  margin-left: 4px;
-}
-
-.cp .row.two {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 12px;
-}
-
-.cp input,
-.cp select {
-  font: inherit;
-  font-size: 0.9rem;
-  border: 1px solid var(--cv-neutral-border);
-  border-radius: 8px;
-  padding: 9px 10px;
-  width: 100%;
-  min-width: 0;
-  background: var(--cv-neutral-white);
-  color: var(--cv-neutral-dark);
-}
-
-.cp input:focus-visible,
-.cp select:focus-visible,
-.cp button:focus-visible {
-  outline: 2px solid var(--cv-primary);
-  outline-offset: 2px;
-}
-
-.mono {
-  font-family: var(--font-mono), monospace;
-  letter-spacing: 0.04em;
-}
-
-.cp .field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.cp .lbl {
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.cp .hint {
-  margin: 0;
-  font-size: 0.84rem;
-  color: var(--cv-neutral-mid);
-  padding: 9px 12px;
-  background: var(--cv-primary-light);
-  border-radius: 8px;
-  line-height: 1.6;
-}
-
-.cp .hint-inline {
-  color: var(--cv-neutral-mid);
-  font-weight: 400;
-  margin: 0;
-  font-size: 0.78rem;
-}
-
-.cp .seg {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  border: 1px solid var(--cv-neutral-border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.cp .seg button {
-  border: none;
-  border-radius: 0;
-  padding: 10px 6px;
-  background: var(--cv-neutral-white);
-  color: var(--cv-primary);
-}
-
-.cp .seg button + button {
-  border-left: 1px solid var(--cv-neutral-border);
-}
-
-.cp .seg button.on {
-  background: var(--cv-primary);
-  color: #fff;
-  font-weight: 600;
-}
-
-.cp .err {
-  color: #b3261e;
-  font-size: 0.78rem;
-  font-weight: 400;
-}
-
-/* Selected university and logo */
-.cp .selected-university {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px;
-  margin-top: -4px;
-  min-width: 0;
-  border: 1px solid var(--cv-neutral-border);
-  border-radius: 10px;
-  background: var(--cv-neutral-white);
-}
-
-.cp .selected-university-logo {
-  width: 64px;
-  height: 64px;
-  flex: 0 0 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  background: #fff;
-  border: 1px solid var(--cv-neutral-border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.cp .selected-university-logo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.cp .selected-university-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.cp .selected-university-label {
-  font-size: 0.75rem;
-  color: var(--cv-neutral-mid);
-}
-
-.cp .selected-university-info strong {
-  font-size: 0.9rem;
-  color: var(--cv-primary);
-  overflow-wrap: anywhere;
-}
-
-.cp .selected-university-status {
-  color: #15803d;
-  font-size: 0.75rem;
-}
-
-/* Validity */
-.cp .validity {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 10px 12px;
-  border-left: 3px solid var(--cv-accent);
-  background: var(--cv-accent-light);
-  border-radius: 0 8px 8px 0;
-  font-size: 0.88rem;
-}
-
-.cp .validity span {
-  color: var(--cv-neutral-mid);
-  font-size: 0.78rem;
-}
-
-.cp .validity em {
-  color: var(--cv-neutral-mid);
-  font-style: normal;
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.cp button {
-  font: inherit;
-  font-size: 0.88rem;
-  cursor: pointer;
-  border-radius: 8px;
-  border: 1px solid var(--cv-neutral-border);
-  background: var(--cv-neutral-white);
-  color: var(--cv-primary);
-  padding: 7px 12px;
-  font-weight: 500;
-}
-
-.cp button:hover {
-  background: var(--cv-primary-light);
-}
-
-.cp button.primary {
-  padding: 12px 14px;
-  font-size: 0.95rem;
-}
-
-.cp button.primary:hover {
-  background: var(--cv-grad-cta-hover);
-}
-
-.cp button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Coupon list */
-.cp .list-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.cp .list-head select {
-  width: auto;
-  max-width: 100%;
-  min-width: 180px;
-}
-
-.cp .empty {
-  color: var(--cv-neutral-mid);
-  margin: 8px 0;
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-.cp .coupons {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-}
-
-.cp .coupon {
-  min-width: 0;
-  border: 1px solid var(--cv-neutral-border);
-  border-radius: 10px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.cp .coupon.expired,
-.cp .coupon.disabled {
-  background: var(--cv-neutral-light);
-}
-
-.cp .coupon-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.cp .coupon-identity {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.cp .coupon-uni-logo {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
-  padding: 4px;
-  border: 1px solid var(--cv-neutral-border);
-  border-radius: 8px;
-  background: #fff;
-  overflow: hidden;
-}
-
-.cp .coupon-uni-logo img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: contain;
-}
-
-.cp .coupon-identity-text {
-  min-width: 0;
-}
-
-.cp .code {
-  font-weight: 700;
-  font-size: 1.05rem;
-  display: block;
-  color: var(--cv-primary);
-  overflow-wrap: anywhere;
-}
-
-.cp .uni {
-  color: var(--cv-neutral-mid);
-  font-size: 0.85rem;
-  overflow-wrap: anywhere;
-}
-
-.cp .badge {
-  flex-shrink: 0;
-  font-size: 0.75rem;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.cp .badge.active {
-  background: var(--cv-primary-light);
-  color: var(--cv-primary);
-}
-
-.cp .badge.expired {
-  background: var(--cv-accent-light);
-  color: var(--cv-accent-dark);
-}
-
-.cp .badge.disabled {
-  background: var(--cv-neutral-light);
-  color: var(--cv-neutral-mid);
-  border: 1px solid var(--cv-neutral-border);
-}
-
-.cp .meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  color: var(--cv-neutral-mid);
-  font-size: 0.84rem;
-}
-
-.cp .usage-line {
-  font-size: 0.88rem;
-}
-
-.cp .usage-line strong {
-  font-size: 1.1rem;
-  color: var(--cv-neutral-dark);
-}
-
-.cp .bar {
-  height: 6px;
-  background: var(--cv-neutral-border);
-  border-radius: 999px;
-  overflow: hidden;
-  margin-top: 6px;
-}
-
-.cp .bar i {
-  display: block;
-  height: 100%;
-  background: var(--cv-grad-horizontal);
-  border-radius: 999px;
-}
-
-.cp .actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-/* Usage modal */
-.cp .overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  z-index: 50;
-}
-
-.cp .modal {
-  background: var(--cv-neutral-white);
-  color: var(--cv-neutral-dark);
-  border-radius: 12px;
-  padding: 22px;
-  width: 100%;
-  max-width: 560px;
-  max-height: 80vh;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.cp .modal h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--cv-primary);
-}
-
-.cp .modal .sub {
-  margin: 0;
-  color: var(--cv-neutral-mid);
-  font-size: 0.9rem;
-}
-
-.cp .table-wrap {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.cp .modal table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.86rem;
-}
-
-.cp .modal th,
-.cp .modal td {
-  text-align: left;
-  padding: 8px 6px;
-  border-bottom: 1px solid var(--cv-neutral-border);
-  overflow-wrap: anywhere;
-}
-
-.cp .modal th {
-  color: var(--cv-neutral-mid);
-  font-weight: 500;
-}
-
-/* Toast */
-.cp .toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 11px 18px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.9rem;
-  z-index: 60;
-  max-width: 90vw;
-  color: #fff;
-  overflow-wrap: anywhere;
-}
-
-.cp .toast.success {
-  background: var(--cv-primary);
-}
-
-.cp .toast.error {
-  background: #b3261e;
-}
-
-/* Responsive */
-@media (max-width: 860px) {
-  .cp {
-    padding: 24px 16px 48px;
-  }
-
-  .cp-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 520px) {
-  .cp {
-    padding: 18px 12px 36px;
-  }
-
-  .cp-head {
-    margin-bottom: 20px;
-  }
-
-  .cp-head h1 {
-    font-size: 1.6rem;
-  }
-
-  .cp-panel {
-    padding: 14px;
-  }
-
-  .cp .row.two {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cp .selected-university {
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .cp .selected-university-logo {
-    width: 54px;
-    height: 54px;
-    flex-basis: 54px;
-  }
-
-  .cp .list-head {
-    align-items: stretch;
-  }
-
-  .cp .list-head select {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .cp .coupon {
-    padding: 11px;
-  }
-
-  .cp .actions button {
-    flex: 1 1 auto;
-  }
-
-  .cp .overlay {
-    padding: 12px;
-  }
-
-  .cp .modal {
-    padding: 16px;
-    max-height: 88vh;
-  }
+.cp { min-height: 100vh; background: var(--cv-neutral-light); color: var(--cv-neutral-dark); font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif; padding: 32px 20px 64px; }
+.cp * { box-sizing: border-box; }
+.cp-head { max-width: 1120px; margin: 0 auto 32px; }
+.cp-head h1 { font-size: 1.9rem; margin: 0 0 14px; font-weight: 700; color: var(--cv-primary); }
+.cp-head p { margin: 0; color: var(--cv-neutral-mid); max-width: 60ch; font-size: 0.95rem; }
+
+.cp-grid { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .cp-grid { grid-template-columns: 1fr; } }
+
+.cp-panel { background: var(--cv-neutral-white); border: 1px solid var(--cv-neutral-border); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.cp-panel h2 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--cv-primary); }
+
+.cp label { display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; font-weight: 500; color: var(--cv-neutral-dark); }
+.cp label small { color: var(--cv-neutral-mid); font-weight: 400; margin-left: 4px; }
+.row.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 520px) { .row.two { grid-template-columns: 1fr; } }
+
+.cp input, .cp select {
+  font: inherit; font-size: 0.9rem; border: 1px solid var(--cv-neutral-border);
+  border-radius: 8px; padding: 9px 10px; width: 100%;
+}
+.cp input:focus-visible, .cp select:focus-visible, .cp button:focus-visible {
+  outline: 2px solid var(--cv-primary); outline-offset: 2px;
+}
+.mono { font-family: var(--font-mono); letter-spacing: 0.04em; }
+.cp .field { display: flex; flex-direction: column; gap: 5px; }
+.cp .lbl { font-size: 0.85rem; font-weight: 500; }
+.cp .hint { margin: 0; font-size: 0.84rem; color: var(--cv-neutral-mid); padding: 9px 12px; background: var(--cv-primary-light); border-radius: 8px; }
+.cp .hint-inline { color: var(--cv-neutral-mid); font-weight: 400; margin: 0; font-size: 0.78rem; }
+.cp .seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--cv-neutral-border); border-radius: 8px; overflow: hidden; }
+.cp .seg button { border: none; border-radius: 0; padding: 10px; background: var(--cv-neutral-white); color: var(--cv-primary); }
+.cp .seg button + button { border-left: 1px solid var(--cv-neutral-border); }
+.cp .seg button.on { background: var(--cv-primary); color: #fff; font-weight: 600; }
+.err { color: #b3261e; font-size: 0.78rem; font-weight: 400; }
+
+.validity { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-left: 3px solid var(--cv-accent); background: var(--cv-accent-light); border-radius: 0 8px 8px 0; font-size: 0.88rem; }
+.validity span { color: var(--cv-neutral-mid); font-size: 0.78rem; }
+.validity em { color: var(--cv-neutral-mid); font-style: normal; font-size: 0.78rem; }
+
+.cp button { font: inherit; font-size: 0.88rem; cursor: pointer; border-radius: 8px; border: 1px solid var(--cv-neutral-border); background: var(--cv-neutral-white); color: var(--cv-primary); padding: 7px 12px; font-weight: 500; }
+.cp button:hover { background: var(--cv-primary-light); }
+.cp button.primary { padding: 12px 14px; font-size: 0.95rem; }
+.cp button.primary:hover { background: var(--cv-grad-cta-hover); }
+.cp button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.list-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.list-head select { width: auto; min-width: 200px; }
+.empty { color: var(--cv-neutral-mid); margin: 8px 0; font-size: 0.9rem; }
+
+.coupons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.coupon { border: 1px solid var(--cv-neutral-border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.coupon.expired, .coupon.disabled { background: var(--cv-neutral-light); }
+.coupon-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.code { font-weight: 700; font-size: 1.05rem; display: block; color: var(--cv-primary); }
+.uni { color: var(--cv-neutral-mid); font-size: 0.85rem; }
+.badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+.badge.active { background: var(--cv-primary-light); color: var(--cv-primary); }
+.badge.expired { background: var(--cv-accent-light); color: var(--cv-accent-dark); }
+.badge.disabled { background: var(--cv-neutral-light); color: var(--cv-neutral-mid); border: 1px solid var(--cv-neutral-border); }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--cv-neutral-mid); font-size: 0.84rem; }
+.usage-line { font-size: 0.88rem; }
+.usage-line strong { font-size: 1.1rem; color: var(--cv-neutral-dark); }
+.bar { height: 6px; background: var(--cv-neutral-border); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+.bar i { display: block; height: 100%; background: var(--cv-grad-horizontal); border-radius: 999px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); display: grid; place-items: center; padding: 20px; z-index: 50; }
+.modal { background: var(--cv-neutral-white); color: var(--cv-neutral-dark); border-radius: 12px; padding: 22px; width: 100%; max-width: 560px; max-height: 80vh; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+.modal h3 { margin: 0; font-size: 1.25rem; color: var(--cv-primary); }
+.modal .sub { margin: 0; color: var(--cv-neutral-mid); font-size: 0.9rem; }
+.modal table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.modal th, .modal td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--cv-neutral-border); }
+.modal th { color: var(--cv-neutral-mid); font-weight: 500; }
+
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 11px 18px; border-radius: 8px; font-weight: 500; font-size: 0.9rem; z-index: 60; max-width: 90vw; color: #fff; }
+.toast.success { background: var(--cv-primary); }
+.toast.error { background: #b3261e; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .bar i { transition: width 0.4s ease; }
 }
 `;
+

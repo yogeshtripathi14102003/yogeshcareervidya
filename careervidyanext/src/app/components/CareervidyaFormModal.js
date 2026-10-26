@@ -2491,252 +2491,175 @@ const EXPERIENCE_VALUES = [
 
 // 1. Main menu. Every option opens a compulsory form.
 
+/* ---------------- MENUS (pill buttons) ---------------- */
+
+// 1. Main menu.
 const MAIN_MENU = [
-
-  { key: "admission", title: " Looking For Admission" },
-
-  { key: "counselling", title: " Looking For Counselling" },
-
-  { key: "job", title: " looking from Job Portal" },
-
-  { key: "existing", title: "Existing Student Support" },
-
+  { key: "admission", title: "🎓  Looking For   Admission " },
+  { key: "counselling", title: "💡 Looking For Career Guidance" },
+  { key: "job", title: "💼 Looking For Job" },
+  { key: "existing", title: "🎧 Student Helpdesk" },
 ];
-
-
 
 // 2. Shown only AFTER the admission form is submitted
-
 const ADMISSION_INFO_MENU = [
-
-  { key: "about", title: "About Career Vidya" },
-
-  { key: "process", title: "Admission Process" },
-
-  { key: "back", title: "Back to Main Menu" },
-
+  { key: "about", title: "ℹ️ About Career Vidya" },
+  { key: "process", title: "📋 Admission Process" },
+  { key: "back", title: "↩️ Main Menu" },
 ];
-
-
 
 // 3. Inside "Admission Process"
-
 const ADMISSION_MENU = [
-
-  { key: "eligibility", title: "Eligibility Criteria" },
-
-  { key: "how", title: "How to Apply" },
-
-  { key: "apply", title: "Apply Now" },
-
-  { key: "back", title: "Back to Main Menu" },
-
+  { key: "eligibility", title: "✔️ Eligibility Criteria" },
+  { key: "how", title: "📍 How to Apply" },
+  { key: "apply", title: "🚀 Apply Now" },
+  { key: "back", title: "↩️ Main Menu" },
 ];
 
-
-
-// Existing Student Support types (pick one, then fill the form)
-
+// Existing Student Support types
 const SUPPORT_MENU = [
   {
     key: "University Examination Queries",
-    title: "University Examination Queries",
+    title: "Exams & Results",
     number: "01",
-    description: "Exam dates, results, admit cards & exam-related help.",
+    description: "Datesheets, hall tickets, and exam result queries.",
   },
   {
     key: "Document Cell",
-    title: "Document Cell",
+    title: "Certificates & Docs",
     number: "02",
-    description: "Marksheets, certificates & document requests.",
+    description: "Degree, migration certificates, and marksheets.",
   },
   {
     key: "Scholarship",
-    title: "Scholarship",
+    title: "Scholarships",
     number: "03",
-    description: "Scholarship eligibility, status & related queries.",
+    description: "Eligibility check, status, and assistance.",
   },
   {
     key: "Fee & Payment Related",
-    title: "Fee & Payment Related",
+    title: "Fees & Payment",
     number: "04",
-    description: "Fee payment, receipts, refunds & payment issues.",
+    description: "Receipts, installment details, and payment help.",
   },
   {
     key: "Other Query",
-    title: "Other Query",
+    title: "Other Assistance",
     number: "05",
-    description: "Any other student support or university query.",
+    description: "General support for registered students.",
   },
- ];
-
-const SUPPORT_ANSWER_MENU = [
-  { key: "supportBack", title: "Back" },
-  { key: "mainMenu", title: "Main Menu" },
 ];
 
+const SUPPORT_ANSWER_MENU = [
+  { key: "supportBack", title: "⬅️ Back" },
+  { key: "mainMenu", title: "🏠 Main Menu" },
+];
 
-
-/* ---------------- TEXT ---------------- */
-
-
-
+/* ---------------- TEXT ANSWERS ---------------- */
 
 const SUPPORT_ANSWERS = {
   "University Examination Queries": {
     message:
-      "For examination-related assistance, please call or WhatsApp our support team. Thank you for contacting Career Vidya.",
+      "Need help with exams or results? Reach out to our exam support desk directly via Call or WhatsApp, and we'll resolve it for you!",
     phone: "+91-9289716667",
     whatsapp: "https://wa.me/919289716667",
   },
   "Document Cell": {
     message:
-      "For document-related requests such as transcripts, migration certificates and degrees, please call or WhatsApp our Document Cell. Thank you for contacting Career Vidya.",
-    phone: "+91-919289716667",
+      "Looking for transcripts, degree certificates, or marksheets? Contact our Document Cell team directly for fast assistance.",
+    phone: "+91-9289716667",
     whatsapp: "https://wa.me/919289716667",
   },
   Scholarship: {
     message:
-      "For scholarship eligibility, application status or related assistance, please contact our student support team. They will guide you further.",
+      "Have questions regarding scholarship schemes or status? Our support team is here to guide you step-by-step.",
     phone: "+91-9289716667",
     whatsapp: "https://wa.me/919289716667",
   },
   "Fee & Payment Related": {
     message:
-      "For fee payments, payment confirmation, receipts or refund-related assistance, please contact our student support team with your enrollment details and payment reference, if available.",
+      "For fee structure, payment receipts, or refund queries, please get in touch with our accounts helpline. Keep your enrollment details handy!",
     phone: "+91-9289716667",
     whatsapp: "https://wa.me/919289716667",
   },
   "Other Query": {
     message:
-      "For any other student query, please contact our student support team and briefly explain your issue. Our team will guide you to the right department.",
+      "Have any other questions? Connect with our support desk, and we will route your inquiry to the right department.",
     phone: "+91-9289716667",
     whatsapp: "https://wa.me/919289716667",
   },
 };
 
 const PHONE_LINK = {
-
-  label: `Call +91 ${SUPPORT_PHONE}`,
-
+  label: `Call Us: +91 ${SUPPORT_PHONE}`,
   url: `tel:+91${SUPPORT_PHONE}`,
-
   phone: true,
-
 };
 
-
+/* ---------------- MESSAGES & LABELS ---------------- */
 
 const L = {
-
-  greeting1: "Hi! I'm Career Vidya's AI assistant. 👋",
-
-  greeting2: "What would you like help with?",
-
-  anythingElse: "Is there anything else I can help you with?",
-
-  backMenu: "Sure! Here is the main menu.",
-
-
+  greeting1: "Hey ! Welcome to Career Vidya. 👋",
+  greeting2: "How can I help you today?",
+  anythingElse: "Need help with anything else?",
+  backMenu: "Sure thing! Here is the main menu:",
 
   admIntro:
-
-    "Sure! Please fill in your details first (2 quick steps). After that, I'll show you more information.",
-
-  thanks: (n) => `Thanks, ${n}! Now choose your course.`,
-
-  admDone: "Thank you! Your admission enquiry is submitted. ✅ Our counsellor will contact you shortly.",
-
-  admNext: "What would you like to know next?",
-
-
+    "Let's take the next step! Please share your contact details so our team can help you explore the right options and stay connected with you.",
+  thanks: (n) => `Thanks ${n}! Which course are you interested in?`,
+  admDone:
+    "Thanks! 🎉 Your admission inquiry has been received. Our expert counsellor will reach out to you shortly.",
+  admNext: "What would you like to explore next?",
 
   about:
-
-    "Career Vidya helps students choose the right course and university, with guidance from admission to career.",
-
-  admissionAsk: "What would you like to know about admission?",
-
+    "Career Vidya is your trusted educational guide—helping you pick the right courses, top universities, and clear pathways for career growth.",
+  admissionAsk: "What would you like to know about our admission process?",
   eligibility:
-
-    "Eligibility varies for each program. Please visit the Program page on our website to check the detailed eligibility criteria for your desired course.",
-
+    "Eligibility depends on the specific course you select. You can explore full criteria details directly on our website's Program section.",
   howToApply:
+    "Applying is quick and easy:\n1. Choose your preferred course.\n2. Book a free counselling session.\n3. Our expert guides you through application and enrollment!",
+  applyText:
+    "Ready to take the next step? You can apply right away by booking a quick guidance call with our team.",
 
-    "Applying is simple:\n1. Check the eligibility for your course\n2. Tap Apply Now and book a counselling session\n3. Our counsellor will guide you through the rest",
+  counIntro:
+    "Great! Share your contact details and an expert counsellor will call you at your preferred time.",
+  jobIntro:
+    "Looking for job opportunities? Please share your contact details to get started, and you'll be able to access our Job Portal to explore opportunities that match your career goals.",
+  supportAsk: "How can we assist you today?",
+  supportIntro:
+    "Please drop your query and contact details below—our student care team will get back to you.",
 
-  applyText: "You can apply by booking a counselling session with our team.",
+  counDone: "Got it! ✅ Callback requested. Talk to you soon!",
+  jobDone:
+    "Details received! 🚀 Our placement team will contact you with relevant opportunities.",
+  existDone:
+    "Query submitted! ✅ Our support team is looking into it and will reply soon.",
+  err: "Oops! Something went wrong on our side. Please try again.",
+  errDefault: "Unable to submit your details right now. Please try again.",
 
-
-
-  counIntro: "Sure! Please share your details and a counsellor will call you.",
-
-  jobIntro: "Sure! Please fill in this short form and our team will get in touch.",
-
-  supportAsk: "Please choose your query type.",
-
-  supportIntro: "Please share your details and your query.",
-
-
-
-  counDone: "Thank you! Your callback request is submitted. ✅",
-
-  jobDone: "Thank you! Your job enquiry is submitted. ✅ Our team will contact you soon.",
-
-  existDone: "Thank you! Your query is submitted. ✅ Our support team will reply soon.",
-
-  err: "Sorry, something went wrong. Please try again.",
-
-  errDefault: "Unable to submit your details. Please try again.",
-
-
-
-  fullName: "Full name",
-
-  email: "Email address",
-
-  emailOpt: "Email (optional)",
-
-  mobile: "Mobile number (10 digits)",
-
-  mobileTitle: "Enter a valid 10-digit mobile number",
-
-  course: "Course",
-
+  fullName: "Full Name",
+  email: "Email Address",
+  emailOpt: "Email Address (Optional)",
+  mobile: "10-Digit Phone Number",
+  mobileTitle: "Please enter a valid 10-digit mobile number",
+  course: "Course Category",
   specialization: "Specialization",
-
-  state: "State",
-
+  state: "Select State",
   city: "City",
+  cityOpt: "City (Optional)",
+  interestedCourse: "Course of Interest (Optional)",
+  queryOpt: "Type your query here (Optional)",
+  query: "Your Query / Issue Details",
+  jobRole: "Desired Job Role (e.g. Sales, Marketing, IT)",
+  experience: "Work Experience",
+  selectCourse: "Select Course",
+  selectSpec: "Select Specialization",
+  noSpec: "Please select a course first",
+  selectState: "Choose State",
+  selectExp: "Select Experience Level",
 
-  cityOpt: "City (optional)",
-
-  interestedCourse: "Interested course (optional)",
-
-  queryOpt: "Your query (optional)",
-
-  query: "Your query",
-
-  jobRole: "Job role (e.g. Sales, IT, HR)",
-
-  experience: "Experience",
-
-  selectCourse: "Select course",
-
-  selectSpec: "Select specialization",
-
-  noSpec: "Select a course first",
-
-  selectState: "Select state",
-
-  selectExp: "Select experience",
-
-
-
-  notSpecified: "Course not specified",
-
-  callbackReq: "Callback requested",
-
+  notSpecified: "Not specified",
+  callbackReq: "Callback Requested",
 };
 
 
@@ -3119,6 +3042,7 @@ export default function CareervidyaChatBot() {
   const [data, setData] = useState(emptyData);
 
   const [showTeaser, setShowTeaser] = useState(false);
+  const [hasSubmittedForm, setHasSubmittedForm] = useState(false);
 
 
 
@@ -3136,7 +3060,9 @@ export default function CareervidyaChatBot() {
 
     mountedRef.current = true;
 
-
+    try {
+      setHasSubmittedForm(localStorage.getItem("cvChatbotFormSubmitted") === "1");
+    } catch (e) {}
 
     const fetchCourses = async () => {
 
@@ -3359,27 +3285,54 @@ export default function CareervidyaChatBot() {
   /* ----- Main menu ----- */
 
   const handleMain = (item) => {
+    // Once a lead form has been submitted successfully, don't show another form
+    // when the visitor returns to the main menu during this browser session.
+    if (hasSubmittedForm) {
+      if (item.key === "admission") {
+        return choose({
+          title: item.title,
+          replies: [L.admDone, L.admNext],
+          next: "admissionInfo",
+          before: () => setFlow("admission"),
+        });
+      }
+
+      if (item.key === "counselling") {
+        return choose({
+          title: item.title,
+          replies: [L.counDone, L.anythingElse],
+          next: "menu",
+          before: () => setFlow(""),
+        });
+      }
+
+      if (item.key === "job") {
+        return choose({
+          title: item.title,
+          replies: [
+            L.jobDone,
+            { text: "You can now browse open jobs on our Job Portal.", link: { label: "Open Job Portal", url: JOB_URL } },
+            L.anythingElse,
+          ],
+          next: "menu",
+          before: () => setFlow(""),
+        });
+      }
+    }
 
     if (item.key === "admission") {
-
       return choose({ title: item.title, replies: [L.admIntro], next: "admission1", before: () => setFlow("admission") });
-
     }
 
     if (item.key === "counselling") {
-
       return choose({ title: item.title, replies: [L.counIntro], next: "counselling", before: () => setFlow("counselling") });
-
     }
 
     if (item.key === "job") {
-
       return choose({ title: item.title, replies: [L.jobIntro], next: "job", before: () => setFlow("job") });
-
     }
 
     return choose({ title: item.title, replies: [L.supportAsk], next: "supportMenu", before: () => setFlow("existing") });
-
   };
 
 
@@ -4559,685 +4512,713 @@ export default function CareervidyaChatBot() {
 /* ---------------- STYLES ---------------- */
 
 
+// const fabStyle = {
+//   position: "fixed",
+//   right: 20,
+//   bottom: BOTTOM_OFFSET,
+//   width: 76,
+//   height: 76,
+//   padding: 0,
+//   display: "grid",
+//   placeItems: "center",
+//   borderRadius: "50%",
+//   border: "3px solid #fff",
+//   background: "#F9A94B",
+//   cursor: "pointer",
+//   zIndex: 9998,
+//   boxShadow: "0 8px 22px rgba(15,23,42,.28)",
+//   animation: "cvBob 3s ease-in-out infinite",
+// };
+
+// const teaserStyle = {
+//   position: "fixed",
+//   right: 112,
+//   bottom: BOTTOM_OFFSET + 8,
+//   width: "min(210px, calc(100vw - 150px))",
+//   background: "#fff",
+//   borderRadius: 18,
+//   boxShadow: "0 8px 24px rgba(15,23,42,.18)",
+//   zIndex: 9998,
+//   animation: "cvTeaser .45s cubic-bezier(.2,.8,.2,1)",
+// };
+
+// const teaserTextBtn = {
+//   display: "block",
+//   width: "100%",
+//   padding: "14px 18px",
+//   border: "none",
+//   background: "transparent",
+//   color: "#1F2937",
+//   fontSize: 16,
+//   fontWeight: 500,
+//   lineHeight: 1.4,
+//   textAlign: "left",
+//   cursor: "pointer",
+//   fontFamily: "inherit",
+//   borderRadius: 18,
+// };
+
+// const teaserClose = {
+//   position: "absolute",
+//   top: -9,
+//   left: -9,
+//   width: 22,
+//   height: 22,
+//   padding: 0,
+//   borderRadius: "50%",
+//   border: "none",
+//   background: "#374151",
+//   color: "#fff",
+//   display: "grid",
+//   placeItems: "center",
+//   cursor: "pointer",
+// };
+
+// const teaserTail = {
+//   position: "absolute",
+//   right: -6,
+//   top: "50%",
+//   marginTop: -7,
+//   width: 14,
+//   height: 14,
+//   background: "#fff",
+//   transform: "rotate(45deg)",
+//   borderRadius: 3,
+//   pointerEvents: "none",
+// };
+
+// const headerDot = {
+//   position: "absolute",
+//   right: 0,
+//   bottom: 0,
+//   width: 12,
+//   height: 12,
+//   borderRadius: "50%",
+//   background: "#22C55E",
+//   border: "2px solid #fff",
+//   boxSizing: "border-box",
+// };
+
+// const windowStyle = {
+//   position: "fixed",
+//   right: 20,
+//   bottom: BOTTOM_OFFSET,
+//   width: "min(400px, calc(100vw - 24px))",
+//   height: `min(640px, calc(100dvh - ${BOTTOM_OFFSET + 15}px))`,
+//   background: "#fff",
+//   borderRadius: 18,
+//   border: "1px solid #E2E8F0",
+//   boxShadow: "0 20px 60px rgba(15,23,42,.22)",
+//   display: "flex",
+//   flexDirection: "column",
+//   overflow: "hidden",
+//   zIndex: 10001,
+//   fontFamily: "inherit",
+//   boxSizing: "border-box",
+//   transformOrigin: "bottom right",
+//   animation: "cvExpand .3s ease",
+// };
+
+// const headerStyle = {
+//   background: "#fff",
+//   borderBottom: "1px solid #E2E8F0",
+//   padding: "12px 12px 12px 14px",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "space-between",
+//   gap: 8,
+//   flexShrink: 0,
+// };
+
+// const aiTag = {
+//   marginLeft: 4,
+//   padding: "1px 7px",
+//   borderRadius: 6,
+//   background: BRAND_SOFT,
+//   color: BRAND,
+//   fontSize: 11,
+//   fontWeight: 700,
+// };
+
+// const statusDot = {
+//   width: 8,
+//   height: 8,
+//   borderRadius: "50%",
+//   background: "#22C55E",
+// };
+
+// const closeStyle = {
+//   background: "#F1F5F9",
+//   border: "none",
+//   color: "#334155",
+//   width: 38,
+//   height: 38,
+//   borderRadius: "50%",
+//   display: "grid",
+//   placeItems: "center",
+//   cursor: "pointer",
+//   flexShrink: 0,
+// };
+
+// const bodyStyle = {
+//   flex: 1,
+//   minHeight: 0,
+//   overflowY: "auto",
+//   padding: 14,
+//   background: "#F8FAFC",
+// };
+
+// const botBubble = {
+//   background: "#fff",
+//   color: "#0F172A",
+//   padding: "10px 13px",
+//   borderRadius: "14px 14px 14px 4px",
+//   fontSize: 14,
+//   border: "1px solid #E2E8F0",
+//   lineHeight: 1.5,
+//   whiteSpace: "pre-line",
+//   overflowWrap: "anywhere",
+// };
+
+// const userBubble = {
+//   background: BRAND,
+//   color: "#fff",
+//   padding: "10px 13px",
+//   borderRadius: "14px 14px 4px 14px",
+//   fontSize: 14,
+//   lineHeight: 1.5,
+//   whiteSpace: "pre-line",
+//   overflowWrap: "anywhere",
+// };
+
+// const linkBtn = {
+//   display: "inline-flex",
+//   alignItems: "center",
+//   gap: 7,
+//   marginTop: 6,
+//   padding: "8px 14px",
+//   borderRadius: 999,
+//   background: BRAND,
+//   color: "#fff",
+//   fontSize: 13,
+//   fontWeight: 600,
+//   textDecoration: "none",
+// };
+
+// const timeStyle = {
+//   fontSize: 10.5,
+//   color: "#94A3B8",
+//   marginTop: 3,
+// };
+
+// const chipRow = {
+//   display: "flex",
+//   flexWrap: "wrap",
+//   gap: 8,
+//   marginLeft: 38,
+//   marginBottom: 8,
+// };
+
+// const chipStyle = {
+//   padding: "9px 16px",
+//   background: "#fff",
+//   color: BRAND,
+//   border: `1.5px solid ${BRAND}`,
+//   borderRadius: 999,
+//   fontSize: 14,
+//   fontWeight: 500,
+//   cursor: "pointer",
+//   fontFamily: "inherit",
+//   lineHeight: 1.3,
+// };
+
+// /* ---------------- COMPACT FORM ---------------- */
+
+// const formBox = {
+//   display: "flex",
+//   flexDirection: "column",
+//   gap: 10,
+//   marginLeft: 38,
+//   marginBottom: 8,
+//   background: "#DCEFFD",
+//   border: "1px solid #DCEFFD",
+//   borderLeft: "3px solid #164E80",
+//   borderRadius: 15,
+//   padding: "13px 12px",
+//   minWidth: 0,
+//   width: "calc(100% - 38px)",
+//   maxWidth: "100%",
+//   boxShadow: "none",
+//   animation: "cvPop .25s ease",
+//   boxSizing: "border-box",
+// };
+
+// const progressText = {
+//   fontSize: 11.5,
+//   fontWeight: 650,
+//   color: "#334155",
+//   marginBottom: 6,
+//   letterSpacing: ".01em",
+// };
+
+// const progressTrack = {
+//   height: 4,
+//   borderRadius: 999,
+//   background: "#C7DDF0",
+//   overflow: "hidden",
+// };
+
+// const progressFill = {
+//   height: "100%",
+//   borderRadius: 999,
+//   background: "#164E80",
+//   transition: "width .4s ease",
+// };
+
+// const fieldLabel = {
+//   display: "flex",
+//   flexDirection: "column",
+//   gap: 5,
+//   width: "100%",
+//   minWidth: 0,
+// };
+
+// const fieldCaption = {
+//   fontSize: 12,
+//   fontWeight: 500,
+//   color: "#334155",
+//   letterSpacing: ".005em",
+// };
+
+// const inputStyle = {
+//   width: "100%",
+//   minWidth: 0,
+//   height: 38,
+//   padding: "0 10px",
+//   borderRadius: 9,
+//   border: "1px solid #E1E8F0",
+//   background: "#FFFFFF",
+//   color: "#0F172A",
+//   fontSize: 12.5,
+//   outline: "none",
+//   boxSizing: "border-box",
+//   fontFamily: "inherit",
+//   boxShadow: "none",
+//   transition: "border-color .18s ease, box-shadow .18s ease",
+// };
+
+// const primaryBtn = {
+//   width: "100%",
+//   minHeight: 39,
+//   padding: "8px 12px",
+//   background: "#739DB8",
+//   color: "#FFFFFF",
+//   border: "none",
+//   borderRadius: 999,
+//   fontWeight: 600,
+//   fontSize: 13,
+//   cursor: "pointer",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   gap: 7,
+//   textDecoration: "none",
+//   boxSizing: "border-box",
+//   fontFamily: "inherit",
+//   boxShadow: "none",
+// };
+
+// const backBtn = {
+//   display: "flex",
+//   justifyContent: "center",
+//   alignItems: "center",
+//   gap: 6,
+//   padding: "5px 8px",
+//   border: "none",
+//   background: "transparent",
+//   color: "#475569",
+//   fontSize: 12,
+//   fontWeight: 600,
+//   cursor: "pointer",
+//   fontFamily: "inherit",
+//   borderRadius: 8,
+// };
+
+// const errorStyle = {
+//   background: "#FEF2F2",
+//   color: "#B91C1C",
+//   padding: 8,
+//   borderRadius: 8,
+//   fontSize: 12,
+//   lineHeight: 1.4,
+// };
+
+// const footerStyle = {
+//   minHeight: 32,
+//   padding: "5px 12px",
+//   borderTop: "1px solid #E2E8F0",
+//   background: "#fff",
+//   color: "#94A3B8",
+//   fontSize: 10.5,
+//   display: "flex",
+//   alignItems: "center",
+//   gap: 4,
+//   flexShrink: 0,
+// };
+
+
+/* ---------------- STYLES ---------------- */
 
 const fabStyle = {
-
   position: "fixed",
-
   right: 20,
-
   bottom: BOTTOM_OFFSET,
-
   width: 76,
-
   height: 76,
-
   padding: 0,
-
   display: "grid",
-
   placeItems: "center",
-
   borderRadius: "50%",
-
   border: "3px solid #fff",
-
   background: "#F9A94B",
-
   cursor: "pointer",
-
   zIndex: 9998,
-
   boxShadow: "0 8px 22px rgba(15,23,42,.28)",
-
   animation: "cvBob 3s ease-in-out infinite",
-
 };
-
-
-
-// White speech bubble next to the avatar, with a tail pointing at it and a small x on top-left
 
 const teaserStyle = {
-
   position: "fixed",
-
   right: 112,
-
   bottom: BOTTOM_OFFSET + 8,
-
   width: "min(210px, calc(100vw - 150px))",
-
   background: "#fff",
-
   borderRadius: 18,
-
   boxShadow: "0 8px 24px rgba(15,23,42,.18)",
-
   zIndex: 9998,
-
   animation: "cvTeaser .45s cubic-bezier(.2,.8,.2,1)",
-
 };
-
-
 
 const teaserTextBtn = {
-
   display: "block",
-
   width: "100%",
-
   padding: "14px 18px",
-
   border: "none",
-
   background: "transparent",
-
   color: "#1F2937",
-
   fontSize: 16,
-
   fontWeight: 500,
-
   lineHeight: 1.4,
-
   textAlign: "left",
-
   cursor: "pointer",
-
   fontFamily: "inherit",
-
   borderRadius: 18,
-
 };
-
-
 
 const teaserClose = {
-
   position: "absolute",
-
   top: -9,
-
   left: -9,
-
   width: 22,
-
   height: 22,
-
   padding: 0,
-
   borderRadius: "50%",
-
   border: "none",
-
   background: "#374151",
-
   color: "#fff",
-
   display: "grid",
-
   placeItems: "center",
-
   cursor: "pointer",
-
 };
-
-
 
 const teaserTail = {
-
   position: "absolute",
-
   right: -6,
-
   top: "50%",
-
   marginTop: -7,
-
   width: 14,
-
   height: 14,
-
   background: "#fff",
-
   transform: "rotate(45deg)",
-
   borderRadius: 3,
-
   pointerEvents: "none",
-
 };
-
-
 
 const headerDot = {
-
   position: "absolute",
-
   right: 0,
-
   bottom: 0,
-
   width: 12,
-
   height: 12,
-
   borderRadius: "50%",
-
   background: "#22C55E",
-
   border: "2px solid #fff",
-
   boxSizing: "border-box",
-
 };
-
-
 
 const windowStyle = {
-
   position: "fixed",
-
   right: 20,
-
   bottom: BOTTOM_OFFSET,
-
   width: "min(400px, calc(100vw - 24px))",
-
   height: `min(640px, calc(100dvh - ${BOTTOM_OFFSET + 15}px))`,
-
   background: "#fff",
-
   borderRadius: 18,
-
   border: "1px solid #E2E8F0",
-
   boxShadow: "0 20px 60px rgba(15,23,42,.22)",
-
   display: "flex",
-
   flexDirection: "column",
-
   overflow: "hidden",
-
   zIndex: 10001,
-
   fontFamily: "inherit",
-
   boxSizing: "border-box",
-
   transformOrigin: "bottom right",
-
   animation: "cvExpand .3s ease",
-
 };
-
-
 
 const headerStyle = {
-
   background: "#fff",
-
   borderBottom: "1px solid #E2E8F0",
-
   padding: "12px 12px 12px 14px",
-
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "space-between",
-
   gap: 8,
-
   flexShrink: 0,
-
 };
-
-
 
 const aiTag = {
-
   marginLeft: 4,
-
   padding: "1px 7px",
-
   borderRadius: 6,
-
   background: BRAND_SOFT,
-
   color: BRAND,
-
   fontSize: 11,
-
   fontWeight: 700,
-
 };
-
-
 
 const statusDot = {
-
   width: 8,
-
   height: 8,
-
   borderRadius: "50%",
-
   background: "#22C55E",
-
 };
-
-
 
 const closeStyle = {
-
   background: "#F1F5F9",
-
   border: "none",
-
   color: "#334155",
-
   width: 38,
-
   height: 38,
-
   borderRadius: "50%",
-
   display: "grid",
-
   placeItems: "center",
-
   cursor: "pointer",
-
   flexShrink: 0,
-
 };
-
-
 
 const bodyStyle = {
-
   flex: 1,
-
   minHeight: 0,
-
   overflowY: "auto",
-
-  padding: 14,
-
+  padding: 12,
   background: "#F8FAFC",
-
 };
-
-
 
 const botBubble = {
-
   background: "#fff",
-
   color: "#0F172A",
-
   padding: "10px 13px",
-
   borderRadius: "14px 14px 14px 4px",
-
   fontSize: 14,
-
   border: "1px solid #E2E8F0",
-
   lineHeight: 1.5,
-
   whiteSpace: "pre-line",
-
   overflowWrap: "anywhere",
-
 };
-
-
 
 const userBubble = {
-
   background: BRAND,
-
   color: "#fff",
-
   padding: "10px 13px",
-
   borderRadius: "14px 14px 4px 14px",
-
   fontSize: 14,
-
   lineHeight: 1.5,
-
   whiteSpace: "pre-line",
-
   overflowWrap: "anywhere",
-
 };
-
-
 
 const linkBtn = {
-
   display: "inline-flex",
-
   alignItems: "center",
-
   gap: 7,
-
   marginTop: 6,
-
   padding: "8px 14px",
-
   borderRadius: 999,
-
   background: BRAND,
-
   color: "#fff",
-
   fontSize: 13,
-
   fontWeight: 600,
-
   textDecoration: "none",
-
 };
-
-
 
 const timeStyle = {
-
   fontSize: 10.5,
-
   color: "#94A3B8",
-
   marginTop: 3,
-
 };
-
-
 
 const chipRow = {
-
   display: "flex",
-
   flexWrap: "wrap",
-
   gap: 8,
-
   marginLeft: 38,
-
   marginBottom: 8,
-
 };
-
-
 
 const chipStyle = {
-
   padding: "9px 16px",
-
   background: "#fff",
-
   color: BRAND,
-
   border: `1.5px solid ${BRAND}`,
-
   borderRadius: 999,
-
   fontSize: 14,
-
   fontWeight: 500,
-
   cursor: "pointer",
-
   fontFamily: "inherit",
-
   lineHeight: 1.3,
-
 };
 
-
+/* ---------------- COMPACT FORM STYLES ---------------- */
 
 const formBox = {
-
   display: "flex",
-
   flexDirection: "column",
-
-  gap: 12,
-
+  gap: 8,
   marginLeft: 38,
-
   marginBottom: 8,
-
-  background: "#fff",
-
-  border: "1px solid #E2E8F0",
-
+  background: "#DCEFFD",
+  border: "1px solid #DCEFFD",
+  borderLeft: "3px solid #164E80",
   borderRadius: 14,
-
-  padding: 14,
-
+  padding: "10px 9px",
   minWidth: 0,
-
+  width: "calc(100% - 50px)",
+  maxWidth: 270,
+  boxShadow: "none",
   animation: "cvPop .25s ease",
-
+  boxSizing: "border-box",
 };
-
-
 
 const progressText = {
-
-  fontSize: 12,
-
-  fontWeight: 600,
-
-  color: "#475569",
-
-  marginBottom: 6,
-
+  fontSize: 10.5,
+  fontWeight: 650,
+  color: "#334155",
+  marginBottom: 5,
+  letterSpacing: ".01em",
 };
-
-
 
 const progressTrack = {
-
-  height: 5,
-
-  borderRadius: 3,
-
-  background: "#E2E8F0",
-
+  height: 3,
+  borderRadius: 999,
+  background: "#C7DDF0",
   overflow: "hidden",
-
 };
-
-
 
 const progressFill = {
-
   height: "100%",
-
-  borderRadius: 3,
-
-  background: BRAND,
-
+  borderRadius: 999,
+  background: "#164E80",
   transition: "width .4s ease",
-
 };
-
-
 
 const fieldLabel = {
-
   display: "flex",
-
   flexDirection: "column",
-
-  gap: 5,
-
+  gap: 4,
   width: "100%",
-
   minWidth: 0,
-
 };
-
-
 
 const fieldCaption = {
-
-  fontSize: 12.5,
-
-  fontWeight: 600,
-
+  fontSize: 11.5,
+  fontWeight: 500,
   color: "#334155",
-
+  letterSpacing: ".005em",
 };
-
-
 
 const inputStyle = {
-
   width: "100%",
-
   minWidth: 0,
-
-  height: 42,
-
-  padding: "0 11px",
-
-  borderRadius: 10,
-
-  border: "1px solid #CBD5E1",
-
-  background: "#fff",
-
+  height: 33,
+  padding: "0 9px",
+  borderRadius: 8,
+  border: "1px solid #E1E8F0",
+  background: "#FFFFFF",
   color: "#0F172A",
-
-  fontSize: 14,
-
+  fontSize: 11.5,
   outline: "none",
-
   boxSizing: "border-box",
-
   fontFamily: "inherit",
-
-  transition: "border-color .15s, box-shadow .15s",
-
+  boxShadow: "none",
+  transition: "border-color .18s ease, box-shadow .18s ease",
 };
-
-
 
 const primaryBtn = {
-
   width: "100%",
-
-  minHeight: 46,
-
-  padding: "9px 12px",
-
-  background: BRAND,
-
-  color: "#fff",
-
+  minHeight: 34,
+  padding: "7px 10px",
+  background: "#739DB8",
+  color: "#FFFFFF",
   border: "none",
-
-  borderRadius: 10,
-
+  borderRadius: 999,
   fontWeight: 600,
-
-  fontSize: 14,
-
+  fontSize: 12,
   cursor: "pointer",
-
   display: "flex",
-
   alignItems: "center",
-
   justifyContent: "center",
-
-  gap: 8,
-
+  gap: 6,
   textDecoration: "none",
-
   boxSizing: "border-box",
-
   fontFamily: "inherit",
-
+  boxShadow: "none",
 };
-
-
 
 const backBtn = {
-
   display: "flex",
-
   justifyContent: "center",
-
   alignItems: "center",
-
   gap: 6,
-
-  padding: 6,
-
+  padding: "5px 8px",
   border: "none",
-
   background: "transparent",
-
-  color: "#64748B",
-
-  fontSize: 13,
-
+  color: "#475569",
+  fontSize: 12,
+  fontWeight: 600,
   cursor: "pointer",
-
   fontFamily: "inherit",
-
+  borderRadius: 8,
 };
-
-
 
 const errorStyle = {
-
   background: "#FEF2F2",
-
   color: "#B91C1C",
-
-  padding: 9,
-
+  padding: 8,
   borderRadius: 8,
-
-  fontSize: 12.5,
-
-  lineHeight: 1.5,
-
+  fontSize: 12,
+  lineHeight: 1.4,
 };
 
-
-
 const footerStyle = {
-
-  minHeight: 34,
-
-  padding: "5px 14px",
-
+  minHeight: 32,
+  padding: "5px 12px",
   borderTop: "1px solid #E2E8F0",
-
   background: "#fff",
-
   color: "#94A3B8",
-
-  fontSize: 11.5,
-
+  fontSize: 10.5,
   display: "flex",
-
   alignItems: "center",
-
   gap: 4,
-
   flexShrink: 0,
-
 };

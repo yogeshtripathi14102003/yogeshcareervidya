@@ -128,7 +128,7 @@ export default function CantFindGuidance() {
                   "
                 >
                   <Image
-                    src="/images/reqCall.png"
+                    src="/images/requesttocall.jpg"
                     alt="Career guidance and counselling"
                     width={400}
                     height={200}
