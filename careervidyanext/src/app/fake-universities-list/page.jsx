@@ -204,7 +204,7 @@ export default function FakeUniversitiesPage() {
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody> 
                 {universities.map((university, index) => (
                   <tr
                     key={`${university.name}-${index}`}

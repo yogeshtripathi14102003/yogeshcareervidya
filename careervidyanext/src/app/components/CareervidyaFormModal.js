@@ -2605,7 +2605,7 @@ const L = {
   backMenu: "Sure thing! Here is the main menu:",
 
   admIntro:
-    "Let's take the next step! Please share your contact details so our team can help you explore the right options and stay connected with you.",
+    "Before proceeding to the next step, please share your contact details. Our team will reach out to you.",
   thanks: (n) => `Thanks ${n}! Which course are you interested in?`,
   admDone:
     "Thanks! 🎉 Your admission inquiry has been received. Our expert counsellor will reach out to you shortly.",
