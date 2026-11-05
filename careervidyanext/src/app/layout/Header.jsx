@@ -564,6 +564,7 @@ const MORE_RESOURCES = [
   // { href: "/job-portal",           label: "Job Portal",         icon: Briefcase, chip: "chip-primary" },
   { href: "/explore",              label: "Explore Course",     icon: Compass,   chip: "chip-primary" },
       { href: "/fake-universities-list",                  label: "Fake universities list",   icon: Briefcase, chip: "chip-primary" },
+      {href: "/qa-ans", label: "Question-answers", icon: FileText, chip: "chip-primary" },
 ];
 
 // ─── MOBILE SIDEBAR SECTIONS ────────────────────────────────────────────────

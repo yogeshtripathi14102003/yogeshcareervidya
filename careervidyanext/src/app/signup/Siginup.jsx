@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,15 +8,17 @@ import { X } from "lucide-react";
 
 /* ================= FLOATING SELECT ================= */
 const FloatingSelect = ({ label, name, value, onChange, options = [] }) => (
-  <div className="relative w-full">
-    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f]">
+  <div className="relative w-full group">
+    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f] z-10 transition-colors duration-200 group-focus-within:text-orange-500">
       {label}
     </label>
     <select
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px]"
+      className="w-full rounded-lg border-2 border-[#05347f]/20 bg-white px-3 py-2.5 text-[13px] text-gray-800 outline-none transition-all duration-300 
+                 focus:border-transparent focus:ring-2 focus:ring-orange-500/50 focus:shadow-[0_0_12px_rgba(251,146,60,0.2)]
+                 hover:border-[#05347f]/50 cursor-pointer"
     >
       <option value="">Select</option>
       {options.map((opt, i) => (
@@ -30,7 +30,6 @@ const FloatingSelect = ({ label, name, value, onChange, options = [] }) => (
   </div>
 );
 
-
 /* ================= FLOATING INPUT ================= */
 const FloatingInput = ({
   label,
@@ -41,9 +40,9 @@ const FloatingInput = ({
   showNoSpam = false,
   noSpamText = "✓ We Do Not Spam",
 }) => (
-  <div className="relative w-full">
-    {/* Floating Label (Isse mat chhedna, ye original hai) */}
-    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f] z-10">
+  <div className="relative w-full group">
+    {/* Floating Label */}
+    <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-semibold text-[#05347f] z-10 transition-colors duration-200 group-focus-within:text-orange-500">
       {label}
     </label>
 
@@ -53,12 +52,14 @@ const FloatingInput = ({
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full rounded-md border border-[#05347f] px-3 py-2 text-[13px] outline-none"
+      className="w-full rounded-lg border-2 border-[#05347f]/20 bg-white px-3 py-2.5 text-[13px] text-gray-800 outline-none transition-all duration-300 
+                 focus:border-transparent focus:ring-2 focus:ring-orange-500/50 focus:shadow-[0_0_12px_rgba(251,146,60,0.2)]
+                 hover:border-[#05347f]/50"
     />
 
-    {/* No Spam Badge - Space removed (mt-1 removed) */}
+    {/* No Spam Badge */}
     {showNoSpam && (
-      <div className="flex justify-end -mt-0.5 ">
+      <div className="flex justify-end -mt-0.5 relative z-10">
         <span className="text-[9px] text-green-600 font-medium px-1 leading-none bg-white whitespace-nowrap uppercase tracking-tighter">
           {noSpamText}
         </span>
@@ -66,6 +67,7 @@ const FloatingInput = ({
     )}
   </div>
 );
+
 /* ================= MAIN COMPONENT ================= */
 const Signup = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -263,42 +265,58 @@ const Signup = ({ onClose }) => {
   /* ================= RENDER ================= */
   return (
     <div
-      className="cursor-pointer fixed inset-0 bg-black/50 flex justify-center items-center z-[100] "
+      className="cursor-pointer fixed inset-0 bg-black/50 flex justify-center items-center z-[100] p-4"
       onClick={onClose}
     >
+      {/* Modal Container */}
       <div
-        className=" cursor-pointer bg-white w-full max-w-lg rounded-xl p-6 relative"
+        className="cursor-pointer bg-white w-full max-w-lg rounded-xl p-6 relative max-h-[95vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onClose} className=" cursor-pointer absolute top-3 right-3">
+        <button onClick={onClose} className="cursor-pointer absolute top-3 right-3 text-gray-500 hover:text-black">
           <X />
         </button>
 
-        {/* <div className="flex items-center gap-3 mb-4">
-          <Image src="/images/n12.png" alt="logo" width={80} height={40} />
-          <p className="font-bold text-[#253b7a]">#VidyaHaiTohSuccessHai</p>
-          
-        </div> */}
-        <div className="flex items-center gap-3 mb-3">
-          <Image src="/images/n12.png" alt="Career Vidya" width={85} height={42} />
+        {/* ===== HEADER: Circular Logo on Left Side ===== */}
+        <div className="flex items-center gap-4 mb-3">
+          {/* Unique Circular Logo with gradient ring & glow */}
+          <div className="relative w-[70px] h-[70px] shrink-0 rounded-full bg-gradient-to-br from-orange-400 via-orange-500 to-[#253b7a] p-[2px] shadow-[0_0_15px_rgba(251,146,60,0.5)]">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden ring-2 ring-white">
+              <Image
+                src="/images/n12.png"
+                alt="Career Vidya"
+                width={60}
+                height={60}
+                className="rounded-full object-contain scale-110"
+              />
+            </div>
+            {/* Small trust badge on logo */}
+            <span className="absolute -bottom-1 -right-1 bg-green-500 text-white text-[8px] font-bold px-1.5 py-[2px] rounded-full shadow-md leading-none border border-white">
+              ✓
+            </span>
+          </div>
+
+          {/* Text beside Logo */}
           <div>
-            <p className="text-sm font-bold text-[#253b7a]">#VidyaHaiTohSuccessHai</p>
-            <p className="text-[12px] text-gray-500">
+            <p className="text-[15px] font-bold text-[#253b7a] leading-tight">#VidyaHaiTohSuccessHai</p>
+            <p className="text-[11px] text-gray-500 mt-0.5 leading-tight">
               Student's Trusted Education Guidance Platform
             </p>
           </div>
         </div>
-        <div className="mb-4 overflow-x-auto">
-          <div className="flex min-w-max gap-2 text-[11px] font-bold text-green-700">
-            <span>✅ No-Cost EMI Available</span>|
-            <span>🎓 Govt-Approved Universities</span>|
-            <span>💼 100% Placement Assistance</span>|
-            <span>📞 Free Expert Counselling</span>
-          </div>
+
+        {/* ===== BADGES: Replaced horizontal scroll with flexible wrap ===== */}
+        <div className="mb-4 flex flex-wrap gap-2 text-[10px] font-bold text-green-700 bg-green-50 p-2 rounded-lg border border-green-100">
+          <span className="flex items-center gap-1">✅ No-Cost EMI</span>
+          <span className="text-green-300">|</span>
+          <span className="flex items-center gap-1">🎓 Govt-Approved</span>
+          <span className="text-green-300">|</span>
+          <span className="flex items-center gap-1">💼 100% Placement</span>
+          <span className="text-green-300">|</span>
+          <span className="flex items-center gap-1">📞 Free Counselling</span>
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-
-
           <div className="grid grid-cols-2 gap-4">
             <FloatingInput label="Name" name="name" value={formData.name} onChange={handleChange} />
             <FloatingInput
@@ -327,16 +345,13 @@ const Signup = ({ onClose }) => {
             />
           </div>
 
-          {/* ================= STATE & CITY (Dropdown) ================= */}
           <div className="grid grid-cols-2 gap-4">
-
-
             <FloatingSelect
               label="City / District"
               name="city"
               value={formData.city}
               onChange={handleChange}
-              options={districts} // districts dropdown
+              options={districts}
             />
             <FloatingSelect
               label="Course"
@@ -347,7 +362,6 @@ const Signup = ({ onClose }) => {
             />
           </div>
 
-          {/* ================= COURSE & SPECIALIZATION ================= */}
           <div className="grid grid-cols-2 gap-4">
             <FloatingSelect
               label="Specialization"
@@ -366,7 +380,6 @@ const Signup = ({ onClose }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-
             <FloatingInput label="Date of Birth" name="dob" type="date" value={formData.dob} onChange={handleChange} />
 
             <FloatingSelect
@@ -381,14 +394,14 @@ const Signup = ({ onClose }) => {
 
           {otpSent && <FloatingInput label="OTP" name="otp" value={formData.otp} onChange={handleChange} />}
 
-          <button className="cursor-pointer w-full bg-orange-500 text-white py-2 rounded font-bold ">
+          <button className="cursor-pointer w-full bg-orange-500 hover:bg-orange-600 transition-colors text-white py-2 rounded-lg font-bold shadow-md hover:shadow-lg">
             {loading ? "Please wait..." : otpSent ? "Verify & Register" : "Submit"}
           </button>
         </form>
 
         <p className="text-center text-xs mt-3 text-[#000] font-bold">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-600 font-bold">
+          <Link href="/login" className="text-blue-600 font-bold hover:underline">
             Login
           </Link>
         </p>
@@ -401,4 +414,3 @@ const Signup = ({ onClose }) => {
 };
 
 export default Signup;
-
