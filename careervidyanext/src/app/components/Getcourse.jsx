@@ -2411,8 +2411,6 @@
 // }
 
 
-
-
 "use client";
 
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
@@ -2494,6 +2492,20 @@ const priorityAfterTrending = [
   "online-bca-bachelor-of-computer-applications",
 ];
 
+// ── Trending group: In "All Courses", ALL these get the 🔥 badge ──
+const TRENDING_SLUGS = [
+  // Working Professionals
+  "btech-for-working-professional",
+  "mtech-for-working-professionals",
+  "diploma-for-working-professionals",
+  // Priority Courses
+  "1-year-online-mba",
+  "online-mba-1",
+  "online-mca",
+  "online-bca-bachelor-of-computer-applications",
+  "bba-bachelor-of-business-administration",
+];
+
 const sidebarItems = [
   { key: "All", title: "All Courses" },
   { key: "PG", title: "PG Courses" },
@@ -2506,6 +2518,11 @@ const sidebarItems = [
 const ROWS = 3;
 
 const normalizeSlug = (s) => (s || "").toString().trim().toLowerCase();
+
+// Fast lookup sets
+const PRIORITY_SLUG_SET = new Set(priorityAfterTrending.map(normalizeSlug));
+const TRENDING_SLUG_SET = new Set(TRENDING_SLUGS.map(normalizeSlug));
+const WORKING_SLUG_SET = new Set(WORKING_SLUGS.map(normalizeSlug));
 
 // ═══════════════════════════════════════════════════════════
 // CARDS
@@ -2874,6 +2891,27 @@ export default function CoursesClient({ initialCourses = [] }) {
     return fullList;
   }, [courses, selectedCategory]);
 
+  // ── Display order: only for "All" ──
+  // Working Professionals (B.Tech, M.Tech, Diploma) + 4 Trending courses
+  // are grouped together at the very top so they form a continuous line.
+  const displayCourses = useMemo(() => {
+    if (selectedCategory !== "All") return sortedCourses;
+
+    const topTrendingGroup = [];
+    const restGroup = [];
+
+    sortedCourses.forEach((c) => {
+      const slug = normalizeSlug(c.slug);
+      if (TRENDING_SLUG_SET.has(slug)) {
+        topTrendingGroup.push(c);
+      } else {
+        restGroup.push(c);
+      }
+    });
+
+    return [...topTrendingGroup, ...restGroup];
+  }, [sortedCourses, selectedCategory]);
+
   const filteredPopupCourses = useMemo(() => {
     const q = popupSearch.trim().toLowerCase();
     if (!q) return allCourses;
@@ -2882,7 +2920,7 @@ export default function CoursesClient({ initialCourses = [] }) {
 
   // 3 full rows: (cols × 3) slots, minus 1 for the static featured card
   const maxApiCoursesLimit = cols * ROWS - 1;
-  const visibleCourses = sortedCourses.slice(0, maxApiCoursesLimit);
+  const visibleCourses = displayCourses.slice(0, maxApiCoursesLimit);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -2994,7 +3032,10 @@ export default function CoursesClient({ initialCourses = [] }) {
                     <SkeletonCard key={i} />
                   ))
                 : visibleCourses.map((course, index) => {
-                const isGlobalTrending = selectedCategory === "All" && index <= 2;
+                // ── Trending badge: Working Prof + Priority Courses ──
+                const isGlobalTrending =
+                  selectedCategory === "All" &&
+                  TRENDING_SLUG_SET.has(normalizeSlug(course.slug));
 
                 return (
                   <CourseCard

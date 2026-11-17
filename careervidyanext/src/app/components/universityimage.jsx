@@ -223,6 +223,8 @@
 //   );
 // }
 
+
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -242,13 +244,15 @@ const ONE_HOUR = 1000 * 60 * 60;
 
 const PRIORITY_UNIS = [
   "op-jindal-global-online",
+    "vikrant-university",
+     "shoolini-university-online",
   "gla-online",
   "dy-patil-university-online-mumbai",
   "chandigarh-university-online",
   "kurukshetra-university-online",
   "amity-university-online",
-  "vikrant-university",
-  "shoolini-university-online",
+
+ 
   "lovely-professional-university",
   "chaudhary-charan-singh-university",
   "noida-international-university",

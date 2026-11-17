@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Header from "../layout/Header.jsx";
 
 export default function PrivacyPolicy() {
   const COMPANY_NAME = "Career Vidya Edu-Tech Private Limited";
@@ -10,6 +11,9 @@ export default function PrivacyPolicy() {
   const LAST_UPDATED = "01-11-2025";
 
   return (
+    <>
+          <Header />
+
     <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl bg-white shadow-lg rounded-2xl p-10 border border-gray-100">
         {/* ---------- HEADER ---------- */}
@@ -277,5 +281,6 @@ export default function PrivacyPolicy() {
         </section>
       </div>
     </main>
+    </>
   );
 }

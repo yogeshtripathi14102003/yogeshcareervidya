@@ -537,6 +537,7 @@ const TOP_UNIVERSITIES = [
   { href: "/university/dy-patil-university-online-mumbai", label: "DY Patil University",            icon: School,     chip: "chip-primary" },
   { href: "/university/chitkara-university",               label: "Chitkara University",            icon: Landmark,   chip: "chip-primary" },
   { href: "/university/kurukshetra-university-online",     label: "Kurukshetra University",         icon: Building2,  chip: "chip-primary" },
+  {href: "/university/shoolini-university-online", label: "Shoolini University", icon: School, chip: "chip-primary"},
   { href: "/university/sharda-university",                 label: "Sharda University",              icon: School,     chip: "chip-primary" },
   { href: "/university/noida-international-university",    label: "Noida International University", icon: Globe2,     chip: "chip-primary" },
   { href: "/university/gla-online",                        label: "GLA University Online",          icon: Landmark,   chip: "chip-primary" },
@@ -552,6 +553,8 @@ const TOP_UNIVERSITIES = [
 
 const WHY_CAREERVIDYA = [
   { href: "/whycareervidya/careervidya-care",  label: "Continuous Career Guidance",     icon: Compass,   chip: "chip-primary" },
+  { href: "/verify-counsellor", "label": "verify-counsellor", "icon": Award, "chip": "chip-primary" },
+  {href:"/connect-with-alumni", "label": "connect-with-alumni", "icon": Award, "chip": "chip-primary"},
   // { href: "/whycareervidya/placement-support", label: "Expert Placement Cell",           icon: Award,     chip: "chip-primary" }, 
   { href: "/WP/Professional",                  label: "Balance your job and learning",   icon: Briefcase, chip: "chip-primary" },
 

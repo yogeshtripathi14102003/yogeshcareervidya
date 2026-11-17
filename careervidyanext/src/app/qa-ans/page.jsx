@@ -9,7 +9,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 export default function QAListPage() {
   const router = useRouter();
-  
+   
   // States
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);

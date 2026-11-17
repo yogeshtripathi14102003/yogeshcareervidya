@@ -2909,6 +2909,9 @@
 // }
 
 
+
+
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -2937,6 +2940,16 @@ const workingProfessionalSlugs = [
   "btech-for-working-professional",
   "mtech-for-working-professionals",
   "diploma-for-working-professionals",
+];
+
+/* =========================================================
+   TOP PRIORITY PG SLUGS (Will be pushed to top)
+========================================================= */
+
+const pgTopSlugs = [
+  "1-year-online-mba",
+  "online-mba-1",
+  "online-mca",
 ];
 
 /* =========================================================
@@ -2971,6 +2984,8 @@ const normalizeText = (value) => {
   if (value === null || value === undefined) return "";
   return String(value).trim();
 };
+
+const normalizeSlug = (s) => (s || "").toString().trim().toLowerCase();
 
 const getCourseCategory = (course) =>
   normalizeText(
@@ -3229,7 +3244,6 @@ export default function ExploreClient({ initialData }) {
 
   /* ---------- HANDLE CLOSE ---------- */
   const handleClose = () => {
-    // Agar history hai to back, warna home
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
     } else {
@@ -3281,6 +3295,30 @@ export default function ExploreClient({ initialData }) {
         );
       });
     }
+
+    // ── ONLY CHANGE: Push the specific PG courses to the TOP ──
+    if (activeDomain === "PG") {
+      const topSlugsNormalized = pgTopSlugs.map(normalizeSlug);
+      
+      // Sort based on priority without removing others
+      list.sort((a, b) => {
+        const slugA = normalizeSlug(a.slug);
+        const slugB = normalizeSlug(b.slug);
+        const indexA = topSlugsNormalized.indexOf(slugA);
+        const indexB = topSlugsNormalized.indexOf(slugB);
+
+        // If both are in the list, sort by their original priority index
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        // If only A is in the list, A comes first
+        if (indexA !== -1) return -1;
+        // If only B is in the list, B comes first
+        if (indexB !== -1) return 1;
+        
+        // Otherwise, keep original order
+        return 0;
+      });
+    }
+
     return list;
   }, [courses, activeDomain]);
 
@@ -3382,7 +3420,6 @@ export default function ExploreClient({ initialData }) {
               className="hidden lg:block border-r"
               style={{ borderColor: "var(--cv-neutral-border)" }}
             >
-              {/* sticky wrapper — scroll karte time sidebar top pe rahega */}
               <div className="sticky top-[80px] px-4 md:px-6 lg:px-0 lg:pr-5">
                 <div className="space-y-1.5">
                   {displayedDomains.map((domain) => {
@@ -3486,12 +3523,10 @@ export default function ExploreClient({ initialData }) {
                 RIGHT CONTENT
             ===================================================== */}
             <section className="px-3 sm:px-4 md:px-0">
-              {/* ===== STICKY FILTER BAR (search + heading) ===== */}
               <div
                 className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm pb-3 pt-1 -mx-3 sm:-mx-4 md:mx-0 px-3 sm:px-4 md:px-0 border-b"
                 style={{ borderColor: "var(--cv-neutral-border)" }}
               >
-                {/* SEARCH */}
                 <div className="relative mb-3">
                   <Search
                     size={19}
@@ -3524,7 +3559,6 @@ export default function ExploreClient({ initialData }) {
                   )}
                 </div>
 
-                {/* HEADING + COUNT */}
                 <div className="flex items-center justify-between">
                   <div>
                     <h2
@@ -3546,7 +3580,6 @@ export default function ExploreClient({ initialData }) {
                 </div>
               </div>
 
-              {/* ===== COURSE GRID ===== */}
               <div className="pt-4">
                 {coursesLoading && courses.length === 0 ? (
                   <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
@@ -3586,14 +3619,12 @@ export default function ExploreClient({ initialData }) {
                             border: "1px solid var(--cv-neutral-border)",
                           }}
                         >
-                          {/* ⭐ Left accent strip on hover */}
                           <div
                             className="absolute left-0 top-0 bottom-0 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                             style={{ background: "var(--cv-grad-horizontal)" }}
                           />
 
                           <div className="p-3 sm:p-4 flex flex-col flex-1">
-                            {/* TOP ROW: icon + badge */}
                             <div className="flex items-start justify-between mb-2.5">
                               {courseImage &&
                               courseImage !== "/placeholder.png" ? (
@@ -3635,7 +3666,6 @@ export default function ExploreClient({ initialData }) {
                               )}
                             </div>
 
-                            {/* COURSE NAME */}
                             <h3
                               className="text-sm sm:text-[15px] font-semibold line-clamp-2 leading-snug min-h-[38px]"
                               style={{ color: "var(--cv-neutral-dark)" }}
@@ -3643,7 +3673,6 @@ export default function ExploreClient({ initialData }) {
                               {courseName}
                             </h3>
 
-                            {/* PILL */}
                             <div
                               className="inline-flex self-start items-center mt-2 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold"
                               style={{
@@ -3656,7 +3685,6 @@ export default function ExploreClient({ initialData }) {
                                 : "Specializations"}
                             </div>
 
-                            {/* UNIVERSITY COUNT */}
                             <div className="flex items-center gap-1.5 mt-2.5">
                               <span
                                 className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -3679,7 +3707,6 @@ export default function ExploreClient({ initialData }) {
                               </span>
                             </div>
 
-                            {/* FOOTER LINK */}
                             <Link
                               href={`${courseHref}?view=specializations`}
                               className="mt-auto pt-3 inline-flex items-center justify-between text-[11px] sm:text-xs font-semibold transition-all group-hover:gap-1"
@@ -3695,7 +3722,6 @@ export default function ExploreClient({ initialData }) {
                             </Link>
                           </div>
 
-                          {/* Full-card invisible link */}
                           <Link
                             href={courseHref}
                             className="absolute inset-0 z-0"
@@ -3706,7 +3732,6 @@ export default function ExploreClient({ initialData }) {
                     })}
                   </div>
                 ) : (
-                  /* ===== NO COURSES ===== */
                   <div
                     className="rounded-2xl p-10 text-center"
                     style={{
@@ -3749,7 +3774,6 @@ export default function ExploreClient({ initialData }) {
                 )}
               </div>
 
-              {/* ===== UNIVERSITY INFO ===== */}
               {normalizedSearch && searchedUniversities.length > 0 && (
                 <div className="mt-10">
                   <div className="flex items-center justify-between mb-4">
