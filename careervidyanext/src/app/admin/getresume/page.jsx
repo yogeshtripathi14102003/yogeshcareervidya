@@ -1,202 +1,3 @@
-
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import Link from "next/link";
-// import api from "@/utlis/api.js";
-// import Sendemailfrom from "../components/sendemailfrom.jsx";
-
-// export default function ApplicationManagementPage() {
-//   const [applications, setApplications] = useState([]);
-//   const [search, setSearch] = useState("");
-
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-//   const [selectedApplicantEmail, setSelectedApplicantEmail] = useState("");
-
-//   // Fetch Applications
-//   const fetchApplications = async () => {
-//     try {
-//       const res = await api.get("/api/v1/resume");
-
-//       console.log("API RAW RESPONSE => ", res.data);
-
-//       // Support ANY backend structure automatically
-//       const apps =
-//         res.data?.applications ||
-//         res.data?.data ||
-//         res.data?.allApplications ||
-//         res.data?.resumeList ||
-//         res.data?.resumes ||
-//         res.data?.items ||
-//         [];
-
-//       setApplications(apps);
-//     } catch (error) {
-//       console.log("Fetch Error:", error.response?.data || error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchApplications();
-//   }, []);
-
-//   // Search Filter
-//   const filtered = applications.filter((a) =>
-//     `${a.name} ${a.email} ${a.experience}`
-//       .toLowerCase()
-//       .includes(search.toLowerCase())
-//   );
-
-//   // Delete Application
-//   const handleDelete = async (id) => {
-//     if (!confirm("Are you sure?")) return;
-
-//     try {
-//       await api.delete(`/api/v1/resume/${id}`);
-//       fetchApplications();
-//     } catch (error) {
-//       console.log("Delete Error:", error.response?.data || error);
-//     }
-//   };
-
-//   // Send Email Modal
-//   const handleSendEmailClick = (email) => {
-//     setSelectedApplicantEmail(email);
-//     setIsModalOpen(true);
-//   };
-
-//   return (
-//     <div className="p-5">
-//       <h1 className="text-3xl font-bold mb-5">Application Management</h1>
-
-//       {/* Search Bar */}
-//       <input
-//         type="text"
-//         placeholder="Search by name, email, or experience..."
-//         className="border px-4 py-2 rounded w-full mb-6"
-//         value={search}
-//         onChange={(e) => setSearch(e.target.value)}
-//       />
-
-//       {/* Table */}
-//       <div className="overflow-x-auto">
-//         <table className="min-w-full border">
-//           <thead className="bg-gray-200">
-//             <tr>
-//               <th className="p-3 border">No.</th>
-//               <th className="p-3 border">Name</th>
-//               <th className="p-3 border">Email</th>
-//               <th className="p-3 border">Experience</th>
-//               <th className="p-3 border">Resume</th>
-//               <th className="p-3 border">Status</th>
-//               <th className="p-3 border">Applied At</th>
-//               <th className="p-3 border">Actions</th>
-//             </tr>
-//           </thead>
-
-//           <tbody>
-//             {filtered.map((app, index) => (
-//               <tr key={app._id} className="border">
-//                 <td className="p-3 border">{index + 1}</td>
-//                 <td className="p-3 border">{app.name}</td>
-//                 <td className="p-3 border">{app.email}</td>
-//                 <td className="p-3 border">{app.experience} yrs</td>
-
-//                 <td className="p-3 border">
-//                   {app.resume ? (
-//                     <a
-//                       href={app.resume}
-//                       target="_blank"
-//                       className="text-blue-500 underline"
-//                     >
-//                       View
-//                     </a>
-//                   ) : (
-//                     "No File"
-//                   )}
-//                 </td>
-
-//                 {/* STATUS UPDATE */}
-//                 <td className="p-3 border">
-//                   <select
-//                     value={app.status || "Pending"}
-//                     className="border p-1 rounded"
-//                     onChange={async (e) => {
-//                       try {
-//                         const newStatus = e.target.value;
-
-//                         await api.patch(
-//                           `/api/v1/resume/${app._id}/status`,
-//                           { status: newStatus }
-//                         );
-
-//                         // Update UI immediately
-//                         setApplications((prev) =>
-//                           prev.map((item) =>
-//                             item._id === app._id
-//                               ? { ...item, status: newStatus }
-//                               : item
-//                           )
-//                         );
-//                       } catch (error) {
-//                         console.log("Status Update Error", error);
-//                       }
-//                     }}
-//                   >
-//                     <option value="Pending">Pending</option>
-//                     <option value="Reviewed">Reviewed</option>
-//                     <option value="Interview Scheduled">
-//                       Interview Scheduled
-//                     </option>
-//                     <option value="Rejected">Rejected</option>
-//                     <option value="Hired">Hired</option>
-//                   </select>
-//                 </td>
-
-//                 <td className="p-3 border">
-//                   {new Date(app.createdAt).toLocaleDateString()}
-//                 </td>
-
-//                 <td className="p-3 border flex gap-2">
-//                   <button
-//                     onClick={() => handleSendEmailClick(app.email)}
-//                     className="bg-green-500 text-white px-3 py-1 rounded"
-//                   >
-//                     Send Email
-//                   </button>
-
-//                   <Link
-//                     href={`/admin/applications/${app._id}`}
-//                     className="bg-blue-500 text-white px-3 py-1 rounded"
-//                   >
-//                     View
-//                   </Link>
-
-//                   <button
-//                     onClick={() => handleDelete(app._id)}
-//                     className="bg-red-500 text-white px-3 py-1 rounded"
-//                   >
-//                     Delete
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-
-//       {/* Email Modal */}
-//       {isModalOpen && (
-//         <Sendemailfrom
-//           toEmail={selectedApplicantEmail}
-//           onClose={() => setIsModalOpen(false)}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -210,6 +11,13 @@ export default function ApplicationManagementPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedApplicantEmail, setSelectedApplicantEmail] = useState("");
+
+  // Resume viewer states
+  const [isResumeOpen, setIsResumeOpen] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [resumeRawUrl, setResumeRawUrl] = useState("");
+  const [resumeTitle, setResumeTitle] = useState("");
+  const [resumeError, setResumeError] = useState(false);
 
   // Fetch Applications
   const fetchApplications = async () => {
@@ -273,9 +81,7 @@ export default function ApplicationManagementPage() {
 
       setApplications((prev) =>
         prev.map((item) =>
-          item._id === id
-            ? { ...item, status: newStatus }
-            : item
+          item._id === id ? { ...item, status: newStatus } : item
         )
       );
     } catch (error) {
@@ -283,11 +89,76 @@ export default function ApplicationManagementPage() {
     }
   };
 
+  // Open Resume / Document in modal
+  const handleOpenResume = async (url, title) => {
+    if (!url) return;
+
+    const cleanUrl = url
+      .replace("http://", "https://")
+      .replace("/fl_attachment", "")
+      .replace("fl_attachment/", "");
+
+    setResumeTitle(title || "Document");
+    setResumeRawUrl(cleanUrl);
+    setResumeError(false);
+    setResumeUrl("");
+    setIsResumeOpen(true);
+
+    const lower = cleanUrl.toLowerCase().split("?")[0];
+    const isPdf = lower.endsWith(".pdf");
+    const isImage = /\.(jpg|jpeg|png|webp|gif)$/.test(lower);
+
+    // Image ho to seedha dikhao
+    if (isImage) {
+      setResumeUrl(cleanUrl);
+      return;
+    }
+
+    // doc/docx browser me inline nahi khulti
+    if (!isPdf) {
+      setResumeError(true);
+      return;
+    }
+
+    const toBlobUrl = async (res) => {
+      const blob = await res.blob();
+      const pdfBlob = new Blob([blob], { type: "application/pdf" });
+      return URL.createObjectURL(pdfBlob);
+    };
+
+    try {
+      // 1) Seedha Cloudinary se fetch
+      const res = await fetch(cleanUrl);
+      if (!res.ok) throw new Error("Direct fetch failed");
+      setResumeUrl(await toBlobUrl(res));
+    } catch (err) {
+      console.log("Direct fetch failed, trying proxy:", err);
+
+      try {
+        // 2) Proxy route se fetch
+        const res = await fetch(
+          `/api/file-proxy?url=${encodeURIComponent(cleanUrl)}`
+        );
+        if (!res.ok) throw new Error("Proxy fetch failed");
+        setResumeUrl(await toBlobUrl(res));
+      } catch (proxyErr) {
+        console.log("Proxy fetch failed:", proxyErr);
+        setResumeError(true);
+      }
+    }
+  };
+
+  const handleCloseResume = () => {
+    if (resumeUrl.startsWith("blob:")) URL.revokeObjectURL(resumeUrl);
+    setIsResumeOpen(false);
+    setResumeUrl("");
+    setResumeRawUrl("");
+    setResumeError(false);
+  };
+
   return (
     <div className="p-5">
-      <h1 className="text-3xl font-bold mb-5">
-        Application Management
-      </h1>
+      <h1 className="text-3xl font-bold mb-5">Application Management</h1>
 
       {/* Search */}
       <input
@@ -323,9 +194,7 @@ export default function ApplicationManagementPage() {
               filtered.map((app, index) => (
                 <tr key={app._id} className="border hover:bg-gray-50">
                   {/* No */}
-                  <td className="p-3 border">
-                    {index + 1}
-                  </td>
+                  <td className="p-3 border">{index + 1}</td>
 
                   {/* Name */}
                   <td className="p-3 border whitespace-nowrap">
@@ -333,9 +202,7 @@ export default function ApplicationManagementPage() {
                   </td>
 
                   {/* Email */}
-                  <td className="p-3 border">
-                    {app.email || "-"}
-                  </td>
+                  <td className="p-3 border">{app.email || "-"}</td>
 
                   {/* Phone */}
                   <td className="p-3 border whitespace-nowrap">
@@ -349,9 +216,7 @@ export default function ApplicationManagementPage() {
 
                   {/* Experience */}
                   <td className="p-3 border whitespace-nowrap">
-                    {app.experience
-                      ? `${app.experience} yrs`
-                      : "-"}
+                    {app.experience ? `${app.experience} yrs` : "-"}
                   </td>
 
                   {/* Notice Period */}
@@ -365,14 +230,14 @@ export default function ApplicationManagementPage() {
                   {/* Resume */}
                   <td className="p-3 border">
                     {app.resume ? (
-                      <a
-                        href={app.resume}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() =>
+                          handleOpenResume(app.resume, `${app.name} - Resume`)
+                        }
                         className="text-blue-600 underline"
                       >
                         View Resume
-                      </a>
+                      </button>
                     ) : (
                       "No File"
                     )}
@@ -381,14 +246,17 @@ export default function ApplicationManagementPage() {
                   {/* Additional Document */}
                   <td className="p-3 border">
                     {app.additionalDocument ? (
-                      <a
-                        href={app.additionalDocument}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() =>
+                          handleOpenResume(
+                            app.additionalDocument,
+                            `${app.name} - Document`
+                          )
+                        }
                         className="text-blue-600 underline"
                       >
                         View Document
-                      </a>
+                      </button>
                     ) : (
                       "No File"
                     )}
@@ -400,40 +268,23 @@ export default function ApplicationManagementPage() {
                       value={app.status || "Pending"}
                       className="border p-1 rounded"
                       onChange={(e) =>
-                        handleStatusChange(
-                          app._id,
-                          e.target.value
-                        )
+                        handleStatusChange(app._id, e.target.value)
                       }
                     >
-                      <option value="Pending">
-                        Pending
-                      </option>
-
-                      <option value="Reviewed">
-                        Reviewed
-                      </option>
-
+                      <option value="Pending">Pending</option>
+                      <option value="Reviewed">Reviewed</option>
                       <option value="Interview Scheduled">
                         Interview Scheduled
                       </option>
-
-                      <option value="Rejected">
-                        Rejected
-                      </option>
-
-                      <option value="Hired">
-                        Hired
-                      </option>
+                      <option value="Rejected">Rejected</option>
+                      <option value="Hired">Hired</option>
                     </select>
                   </td>
 
                   {/* Applied At */}
                   <td className="p-3 border whitespace-nowrap">
                     {app.createdAt
-                      ? new Date(
-                          app.createdAt
-                        ).toLocaleString()
+                      ? new Date(app.createdAt).toLocaleString()
                       : "-"}
                   </td>
 
@@ -441,9 +292,7 @@ export default function ApplicationManagementPage() {
                   <td className="p-3 border">
                     <div className="flex gap-2 whitespace-nowrap">
                       <button
-                        onClick={() =>
-                          handleSendEmailClick(app.email)
-                        }
+                        onClick={() => handleSendEmailClick(app.email)}
                         className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
                       >
                         Send Email
@@ -457,9 +306,7 @@ export default function ApplicationManagementPage() {
                       </Link>
 
                       <button
-                        onClick={() =>
-                          handleDelete(app._id)
-                        }
+                        onClick={() => handleDelete(app._id)}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                       >
                         Delete
@@ -470,10 +317,7 @@ export default function ApplicationManagementPage() {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="12"
-                  className="p-6 text-center text-gray-500"
-                >
+                <td colSpan="12" className="p-6 text-center text-gray-500">
                   No applications found
                 </td>
               </tr>
@@ -489,7 +333,51 @@ export default function ApplicationManagementPage() {
           onClose={() => setIsModalOpen(false)}
         />
       )}
+
+      {/* Resume Viewer Modal */}
+      {isResumeOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-5xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <h2 className="font-semibold">{resumeTitle}</h2>
+              <button
+                onClick={handleCloseResume}
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="flex-1">
+              {resumeError ? (
+                <div className="h-full flex flex-col items-center justify-center gap-3 text-center p-6">
+                  <p className="text-red-500">
+                    File yahan load nahi ho paayi.
+                  </p>
+                  <a
+                    href={resumeRawUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    New Tab me kholo
+                  </a>
+                </div>
+              ) : resumeUrl ? (
+                <iframe
+                  src={resumeUrl}
+                  title={resumeTitle}
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  Loading...
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
